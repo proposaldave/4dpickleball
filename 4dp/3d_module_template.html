@@ -186,11 +186,8 @@
   </div>
 </div>
 
-<div class="center-hero" id="center-hero">
-  <div class="eyebrow">◆ 3D Module Template</div>
-  <h1>Anyone can learn<br>4D Pickleball.</h1>
-  <p class="sub">Cinematic Three.js + bloom + trail rendering + view-for-skill cameras. Pick a shot below to watch it in full.</p>
-</div>
+<!-- Center hero removed — 'Anyone can learn 4D Pickleball.' lives on the landing page only, not overlaid on the 3D animation. Keeping an empty placeholder node so the startShot() code that adds .dimmed class doesn't null-deref. -->
+<div class="center-hero dimmed" id="center-hero" aria-hidden="true" style="display:none"></div>
 
 <div class="slowmo-badge" id="slowmo-badge">◉ Slow-Mo</div>
 
