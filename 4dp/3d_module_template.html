@@ -254,7 +254,22 @@ const SHOTS = {
         // P3 sprays one short — dies just past the net (the classic 1D error)
         { from: [-5, 3, 20], to: [ 0, 0.3, 3], apex: 5.0, dur: 1.1 }
       ]
-    }
+    },
+    // ── 1D player movement — classic "four tennis players who don't know pickleball yet"
+    // nearLeft serves from behind baseline, steps forward on contact.
+    // Returner's partner (farLeft) in the MIDDLE of the court (THE 1D error —
+    // real pickleballers would put the returner's partner at the kitchen line).
+    // Everyone stays backcourt, lateral sliding to track the ball.
+    playerFrames: [
+      // F0 — pre-serve (nearLeft 2ft behind baseline, farLeft middle = 1D error)
+      { nearLeft:[-5,22],   nearRight:[5,20],   farLeft:[-5,-13],   farRight:[5,-20] },
+      // F1 — after cross-court lob lands far
+      { nearLeft:[-5,20],   nearRight:[4.2,20], farLeft:[-4,-14],   farRight:[5,-20] },
+      // F2 — after return lands near
+      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-13],   farRight:[4,-20] },
+      // F3 — after nearLeft shanks it short (off-balance; farLeft rushes in late)
+      { nearLeft:[-3.5,20], nearRight:[5,20],   farLeft:[-3,-11],   farRight:[4,-20] }
+    ]
   },
   defend: {
     label: '2D · Defend',
@@ -275,7 +290,24 @@ const SHOTS = {
         // Far team can't get there — ball dies in front of them
         { from: [ 0, 1.0, -3], to: [ 2, 0.2, -6], apex: 1.6, dur: 0.8 }
       ]
-    }
+    },
+    // ── 2D player movement — near team learns to advance + baby block
+    // After return, near team advances toward kitchen. Near defender steps FORWARD
+    // to meet the drive in the transition zone. Far team stays back — they can't reach the block.
+    playerFrames: [
+      // F0 — pre-serve (farRight serving from behind baseline)
+      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-20],   farRight:[5,-22] },
+      // F1 — after serve
+      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-20],   farRight:[5,-20] },
+      // F2 — after return, near team moving up into transition
+      { nearLeft:[-5,10],   nearRight:[5,10],   farLeft:[-5,-20],   farRight:[5,-20] },
+      // F3 — after hard drive, nearLeft STEPPED FORWARD to meet it
+      { nearLeft:[-3,12],   nearRight:[5,8],    farLeft:[-5,-20],   farRight:[5,-20] },
+      // F4 — after baby block, ball dropping in far kitchen; far team rushing in late
+      { nearLeft:[-3,10],   nearRight:[5,7],    farLeft:[-4,-18],   farRight:[3,-18] },
+      // F5 — ball dies short, far team caught out
+      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-3,-15],   farRight:[3,-15] }
+    ]
   },
   drop: {
     label: '3D · Drop',
@@ -299,7 +331,29 @@ const SHOTS = {
         // Far team can't handle the dink — ball lands short
         { from: [ 3, 1.0, -5], to: [-2, 0.3, -7], apex: 1.8, dur: 0.7 }
       ]
-    }
+    },
+    // ── 3D player movement — far team adds the drop, earns its way to transition zone
+    // After the baby block dies in far kitchen, far team scrambles up.
+    // farLeft rushes into their kitchen to pick up the short ball and lift the drop.
+    // Drop clears net into near kitchen — far team now moves into transition zone.
+    playerFrames: [
+      // F0 — pre-serve
+      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-20],   farRight:[5,-22] },
+      // F1 — after serve
+      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-20],   farRight:[5,-20] },
+      // F2 — after return, near team advancing
+      { nearLeft:[-5,10],   nearRight:[5,10],   farLeft:[-5,-20],   farRight:[5,-20] },
+      // F3 — after drive, near defender stepped forward
+      { nearLeft:[-3,12],   nearRight:[5,8],    farLeft:[-5,-20],   farRight:[5,-20] },
+      // F4 — after baby block, farLeft rushes up to field the short ball
+      { nearLeft:[-3,10],   nearRight:[5,7],    farLeft:[0,-5],     farRight:[3,-15] },
+      // F5 — after DROP arcs into near kitchen, far team now in transition zone
+      { nearLeft:[-3,8],    nearRight:[5,7],    farLeft:[-2,-14],   farRight:[3,-14] },
+      // F6 — after near cross-court dink, far tracking across
+      { nearLeft:[-2,8],    nearRight:[4,7],    farLeft:[-2,-12],   farRight:[3,-12] },
+      // F7 — far can't handle, ball dies short in front of them
+      { nearLeft:[-2,7],    nearRight:[4,7],    farLeft:[-3,-12],   farRight:[2,-12] }
+    ]
   },
   dink: {
     label: '4D · Dink',
@@ -328,7 +382,33 @@ const SHOTS = {
         // FINISH — overhead smash, steep down into far corner
         { from: [-3, 2.8, 3], to: [ 4, 0.15, -10], apex: 3.2, dur: 0.55 }
       ]
-    }
+    },
+    // ── 4D player movement — all four arrive at the kitchen. Speedup/popup/finish has reflex motion.
+    // Same early sequence as 3D (serve, return, advance, drive, block, drop), then kitchen offense.
+    playerFrames: [
+      // F0 — pre-serve
+      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-20],   farRight:[5,-22] },
+      // F1 — after serve
+      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-20],   farRight:[5,-20] },
+      // F2 — after return, near team advancing
+      { nearLeft:[-5,10],   nearRight:[5,10],   farLeft:[-5,-20],   farRight:[5,-20] },
+      // F3 — after drive, near defender stepped forward
+      { nearLeft:[-3,12],   nearRight:[5,8],    farLeft:[-5,-20],   farRight:[5,-20] },
+      // F4 — after baby block, far team scrambling (farLeft fields short ball)
+      { nearLeft:[-3,10],   nearRight:[5,7],    farLeft:[0,-5],     farRight:[3,-15] },
+      // F5 — after DROP, ALL FOUR at kitchen line (4D frame established)
+      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-3,-7],    farRight:[3,-7] },
+      // F6 — after pressure dink cross-court (near → far-right corner)
+      { nearLeft:[-2,7],    nearRight:[3,7],    farLeft:[-3,-7],    farRight:[3,-6.5] },
+      // F7 — after return dink back (far → near-left, slightly high = the weak reply)
+      { nearLeft:[-3,6.5],  nearRight:[3,7],    farLeft:[-3,-7],    farRight:[3,-7] },
+      // F8 — after SPEEDUP (nearLeft leans in, attacks far's body)
+      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-3,-6.5],  farRight:[3,-6.5] },
+      // F9 — after POP-UP (far defensive reflex floats high — out of position)
+      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-2,-6],    farRight:[3,-7] },
+      // F10 — after FINISH smash into far-right corner (far team scrambling, caught)
+      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-3,-8],    farRight:[4,-8] }
+    ]
   }
 };
 
@@ -702,6 +782,70 @@ scene.add(playerFarLeft, playerFarRight, playerNearLeft, playerNearRight);
 const playerFar = playerFarLeft, playerNear = playerNearLeft;
 
 // ═══════════════════════════════════════════════════════════
+// PLAYER MOVEMENT SYSTEM
+// Each SHOTS[key].playerFrames is an array of keyframes, one per segment
+// boundary (length = segments.length + 1). Each frame maps playerKey → [x,z].
+// During a segment, each player tweens from frame[idx] → frame[idx+1] with
+// easeInOutCubic on the segment's local t.
+// Facing is NOT changed — players keep facing the net while sliding.
+// ═══════════════════════════════════════════════════════════
+const players = {
+  nearLeft:  playerNearLeft,
+  nearRight: playerNearRight,
+  farLeft:   playerFarLeft,
+  farRight:  playerFarRight
+};
+const PLAYER_KEYS = ['nearLeft', 'nearRight', 'farLeft', 'farRight'];
+const INITIAL_POS = {
+  nearLeft:  [-5,  20], nearRight: [ 5,  20],
+  farLeft:   [-5, -20], farRight:  [ 5, -20]
+};
+
+function getSegmentInfo(shot, t) {
+  if (!shot.segments) return null;
+  const totalDur = shot.segments.reduce((a, s) => a + s.dur, 0);
+  const timeT = t * totalDur;
+  let acc = 0;
+  for (let i = 0; i < shot.segments.length; i++) {
+    const seg = shot.segments[i];
+    if (timeT <= acc + seg.dur || i === shot.segments.length - 1) {
+      const localT = Math.min(1, Math.max(0, (timeT - acc) / seg.dur));
+      return { idx: i, localT };
+    }
+    acc += seg.dur;
+  }
+  return { idx: shot.segments.length - 1, localT: 1 };
+}
+
+function updatePlayerPositions(dimKey, t) {
+  const dim = SHOTS[dimKey];
+  if (!dim.playerFrames) return;
+  const info = getSegmentInfo(dim.shot, t);
+  if (!info) return;
+  const startFrame = dim.playerFrames[info.idx]     || {};
+  const endFrame   = dim.playerFrames[info.idx + 1] || startFrame;
+  // easeInOutCubic
+  const lt = info.localT;
+  const e = lt < 0.5 ? 4 * lt * lt * lt : 1 - Math.pow(-2 * lt + 2, 3) / 2;
+  for (const k of PLAYER_KEYS) {
+    const from = startFrame[k] || INITIAL_POS[k];
+    const to   = endFrame[k]   || from;
+    const x = from[0] + (to[0] - from[0]) * e;
+    const z = from[1] + (to[1] - from[1]) * e;
+    players[k].position.set(x, 0, z);
+  }
+}
+
+function resetPlayerPositions(dimKey) {
+  const dim = SHOTS[dimKey];
+  const f0 = (dim.playerFrames && dim.playerFrames[0]) || {};
+  for (const k of PLAYER_KEYS) {
+    const pos = f0[k] || INITIAL_POS[k];
+    players[k].position.set(pos[0], 0, pos[1]);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
 // BALL — emissive sphere, dimension-colored (swapped per shot)
 // ═══════════════════════════════════════════════════════════
 const ballMat = new THREE.MeshStandardMaterial({
@@ -846,6 +990,7 @@ function startShot(key, resetCamera = true) {
   shotStart = performance.now();
   shotRunning = true;
   shotBurstFired = false;
+  resetPlayerPositions(key);
   updateSideCard(key);
   updateShotChips(key);
   updateBrandPill(key);
@@ -943,6 +1088,9 @@ function animate() {
     const p = trajectoryAt(s, shotT);
     ball.position.copy(p);
     ballLight.position.copy(p);
+
+    // Drive the players off the same shotT — so motion is always in sync with the ball.
+    updatePlayerPositions(activeShotKey, shotT);
 
     // Add to trail, cap length
     trailPoints.push(p.clone());
