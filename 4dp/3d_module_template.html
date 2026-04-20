@@ -670,31 +670,31 @@ const SHOTS = {
         // 1ST HIT — SERVE: farRight underhand from 2ft behind baseline → bounces in near court
         { from: [ 5, 2.0, -22], to: [-3, 0.15, 15], apex: 7.5, dur: 0.85 },
         // BOUNCE → nearLeft paddle (receiver at baseline, groundstroke height)
-        { from: [-3, 0.15, 15], to: [-5, 3, 20], apex: 3.2, dur: 0.40 },
+        { from: [-3, 0.15, 15], to: [-5, 2.2, 20], apex: 2.3, dur: 0.40 },
         // 2ND HIT — RETURN: nearLeft groundstroke → bounces in far court
-        { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.80 },
+        { from: [-5, 2.2, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.80 },
         // BOUNCE → farRight paddle
-        { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
+        { from: [ 3, 0.15, -15], to: [ 5, 2.2, -20], apex: 2.3, dur: 0.40 },
         // 3RD HIT: farRight groundstrokes back → bounces in near court
-        { from: [ 5, 3, -20], to: [-4, 0.15, 16], apex: 7.0, dur: 0.75 },
+        { from: [ 5, 2.2, -20], to: [-4, 0.15, 16], apex: 7.0, dur: 0.75 },
         // BOUNCE → nearLeft paddle
-        { from: [-4, 0.15, 16], to: [-5, 3, 20], apex: 3.0, dur: 0.40 },
+        { from: [-4, 0.15, 16], to: [-5, 2.2, 20], apex: 2.1, dur: 0.40 },
         // 4TH HIT: nearLeft groundstrokes → bounces center-right in far court
-        { from: [-5, 3, 20], to: [ 2, 0.15, -14], apex: 7.0, dur: 0.75 },
+        { from: [-5, 2.2, 20], to: [ 2, 0.15, -14], apex: 7.0, dur: 0.75 },
         // BOUNCE → farRight paddle
-        { from: [ 2, 0.15, -14], to: [ 5, 3, -20], apex: 3.0, dur: 0.40 },
+        { from: [ 2, 0.15, -14], to: [ 5, 2.2, -20], apex: 2.1, dur: 0.40 },
         // 5TH HIT: farRight down the middle → bounces in near center court
-        { from: [ 5, 3, -20], to: [-2, 0.15, 14], apex: 6.8, dur: 0.75 },
+        { from: [ 5, 2.2, -20], to: [-2, 0.15, 14], apex: 6.8, dur: 0.75 },
         // BOUNCE → nearLeft paddle
-        { from: [-2, 0.15, 14], to: [-5, 3, 20], apex: 3.0, dur: 0.40 },
+        { from: [-2, 0.15, 14], to: [-5, 2.2, 20], apex: 2.1, dur: 0.40 },
         // 6TH HIT: nearLeft cross-court → bounces in far court
-        { from: [-5, 3, 20], to: [ 3, 0.15, -13], apex: 6.8, dur: 0.75 },
+        { from: [-5, 2.2, 20], to: [ 3, 0.15, -13], apex: 6.8, dur: 0.75 },
         // BOUNCE → farRight paddle (ball dragging farRight sideways)
-        { from: [ 3, 0.15, -13], to: [ 5, 3, -20], apex: 3.0, dur: 0.40 },
+        { from: [ 3, 0.15, -13], to: [ 5, 2.2, -20], apex: 2.1, dur: 0.40 },
         // 7TH HIT — SHANK: farRight off-balance mishit. Weak forward pop that
         // doesn't have enough energy to clear the net — ball dies on their OWN side
         // ~6ft short of the net (physics-correct: apex 3.2 means y≈1.5 at z=0, net height=3).
-        { from: [ 5, 3, -20], to: [ 2, 0.15, -6], apex: 3.2, dur: 0.95, cinematic: true }
+        { from: [ 5, 2.2, -20], to: [ 2, 0.15, -6], apex: 3.2, dur: 0.95, cinematic: true }
       ]
     },
     // ── 1D player movement — "four tennis players who don't know pickleball yet"
@@ -744,13 +744,13 @@ const SHOTS = {
         // 1ST HIT - SERVE: farRight underhand, bounces in near deuce court
         { from: [ 5, 2.0, -22], to: [-3, 0.15, 15], apex: 8.0, dur: 0.95 },
         // BOUNCE -> nearLeft paddle
-        { from: [-3, 0.15, 15], to: [-5, 3, 20], apex: 3.2, dur: 0.40 },
+        { from: [-3, 0.15, 15], to: [-5, 2.2, 20], apex: 2.3, dur: 0.40 },
         // 2ND HIT - RETURN: nearLeft groundstroke, bounces in far deuce court
-        { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.85 },
+        { from: [-5, 2.2, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.85 },
         // BOUNCE -> farRight paddle
-        { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
+        { from: [ 3, 0.15, -15], to: [ 5, 2.2, -20], apex: 2.3, dur: 0.40 },
         // 3RD HIT - DRIVE: near team volleys at kitchen line
-        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
+        { from: [ 5, 2.2, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // 4TH HIT - BABY BLOCK: lands 2ft past far kitchen line, BOUNCES
         { from: [-3, 1.5, 8], to: [ 0, 0.15, -9], apex: 3.3, dur: 0.85, cinematic: true },
         // BOUNCE -> far paddle (farRight sprints in from baseline to z=-11)
@@ -771,10 +771,10 @@ const SHOTS = {
       { nearLeft:[-5,12],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[-1,-14] },
-      { nearLeft:[-3,8],    nearRight:[4,8],    farLeft:[-3,-15],   farRight:[-1,-12] },
-      { nearLeft:[-3,8],    nearRight:[2.5,8],  farLeft:[-3,-15],   farRight:[-1,-12] },
-      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-15],   farRight:[-1,-12] }
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[2,-15] },
+      { nearLeft:[-3,8],    nearRight:[4,8],    farLeft:[-3,-15],   farRight:[2,-12] },
+      { nearLeft:[-3,8],    nearRight:[2.5,8],  farLeft:[-3,-15],   farRight:[2,-12] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-15],   farRight:[2,-12] }
     ],
     moments: [
       { at: 0.40, label: 'RETURNER SPRINTS IN',
@@ -803,18 +803,26 @@ const SHOTS = {
         { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.80 },
         { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
         { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
-        // 4TH HIT - BABY BLOCK: lands in far transition, BOUNCES (physics-correct)
         { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 3.2, dur: 0.85 },
-        // BOUNCE -> far paddle (far team moved in to transition)
         { from: [ 0, 0.15, -10], to: [-1, 2.3, -12], apex: 2.2, dur: 0.50 },
-        // 5TH HIT - UNDER-BALL DROP: soft lift, BOUNCES in near kitchen
         { from: [-1, 2.3, -12], to: [ 0, 0.15, 5], apex: 6.5, dur: 1.00, cinematic: true },
-        // BOUNCE -> near paddle (let it bounce, take at waist height from kitchen line)
         { from: [ 0, 0.15, 5], to: [-1, 2.3, 7], apex: 2.5, dur: 0.50 },
-        // 6TH HIT - CROSS-COURT DINK: groundstroke, BOUNCES in far kitchen
+        // 6TH HIT - cross-court dink (near -> far kitchen, BOUNCES)
         { from: [-1, 2.3, 7], to: [ 3, 0.15, -5], apex: 3.5, dur: 0.80 },
-        // Ball dies - far stretches, cannot clean return off the bounce
-        { from: [ 3, 0.15, -5], to: [ 1, 0.3, -9], apex: 0.8, dur: 0.60 }
+        // BOUNCE -> far paddle (farRight lets it bounce, picks up at kitchen line)
+        { from: [ 3, 0.15, -5], to: [ 3, 2.3, -7], apex: 2.2, dur: 0.45 },
+        // 7TH HIT - return dink (far -> near kitchen, BOUNCES)
+        { from: [ 3, 2.3, -7], to: [-3, 0.15, 5], apex: 3.5, dur: 0.80 },
+        // BOUNCE -> near paddle (nearLeft)
+        { from: [-3, 0.15, 5], to: [-3, 2.3, 7], apex: 2.2, dur: 0.45 },
+        // 8TH HIT - dink back straight (near -> far kitchen, BOUNCES)
+        { from: [-3, 2.3, 7], to: [-3, 0.15, -5], apex: 3.5, dur: 0.80 },
+        // BOUNCE -> far paddle (farLeft)
+        { from: [-3, 0.15, -5], to: [-3, 2.3, -7], apex: 2.2, dur: 0.45 },
+        // 9TH HIT - FAILED DINK: far mishits, ball dies on their own side
+        { from: [-3, 2.3, -7], to: [-3, 0.15, -11], apex: 2.8, dur: 0.85, cinematic: true },
+        // Ball rolls short on far team's own side
+        { from: [-3, 0.15, -11], to: [-4, 0.3, -13], apex: 0.8, dur: 0.55 }
       ]
     },
     playerFrames: [
@@ -824,21 +832,30 @@ const SHOTS = {
       { nearLeft:[-5,12],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[-1,-14] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[-1,-12] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-11],   farRight:[-1,-10] },
-      { nearLeft:[-1,8],    nearRight:[4,8],    farLeft:[-3,-9],    farRight:[-1,-9] },
-      { nearLeft:[-1,8],    nearRight:[4,8],    farLeft:[-3,-8],    farRight:[2,-8] },
-      { nearLeft:[-1,8],    nearRight:[4,8],    farLeft:[-3,-8],    farRight:[2,-8] }
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-17],   farRight:[2,-15] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-14],   farRight:[2,-12] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-11],   farRight:[2,-10] },
+      { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] }
     ],
     moments: [
-      { at: 0.60, label: 'UNDER-THE-BALL DROP',
+      { at: 0.42, label: 'UNDER-THE-BALL DROP',
         why: 'Paddle face opens beneath the ball - high arc buys time to walk in.',
         arrow: { type: 'player', key: 'farRight' }, hold: 1.6 },
-      { at: 0.75, label: 'LANDS IN THE KITCHEN',
+      { at: 0.48, label: 'LANDS IN THE KITCHEN',
         why: 'Forces opponents to let it bounce - both teams now even at the line.',
-        arrow: { type: 'court', pos: [0, 5] }, hold: 1.4 }
-    ]  },
+        arrow: { type: 'court', pos: [0, 5] }, hold: 1.4 },
+      { at: 0.92, label: 'NEW-LEARNER MISHIT',
+        why: '3D players still struggle with sustained dink rallies - eventually someone breaks.',
+        arrow: { type: 'player', key: 'farLeft' }, hold: 1.6 }
+    ]]  },
   dink: {
     label: '4D · Dink',
     dim: 'dink',
@@ -851,10 +868,10 @@ const SHOTS = {
     shot: {
       segments: [
         { from: [ 5, 2.0, -22], to: [-3, 0.15, 15], apex: 8.0, dur: 0.80 },
-        { from: [-3, 0.15, 15], to: [-5, 3, 20], apex: 3.2, dur: 0.38 },
-        { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.75 },
-        { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.38 },
-        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
+        { from: [-3, 0.15, 15], to: [-5, 2.2, 20], apex: 2.3, dur: 0.38 },
+        { from: [-5, 2.2, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.75 },
+        { from: [ 3, 0.15, -15], to: [ 5, 2.2, -20], apex: 2.3, dur: 0.38 },
+        { from: [ 5, 2.2, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // BABY BLOCK: lands in far transition, BOUNCES
         { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 3.2, dur: 0.80 },
         // BOUNCE -> far paddle
@@ -884,8 +901,8 @@ const SHOTS = {
       { nearLeft:[-5,12],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[-1,-14] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[-1,-12] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[2,-15] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[2,-12] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-10],   farRight:[-1,-9] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
@@ -1238,8 +1255,7 @@ function updatePlayerPositions(dimKey, t) {
   if (!info) return;
   const startFrame = dim.playerFrames[info.idx]     || {};
   const endFrame   = dim.playerFrames[info.idx + 1] || startFrame;
-  const lt = info.localT;
-  const e = lt < 0.5 ? 4 * lt * lt * lt : 1 - Math.pow(-2 * lt + 2, 3) / 2;
+  const e = info.localT; // linear tween — smooth sprints across segment boundaries
   for (const k of PLAYER_KEYS) {
     const from = startFrame[k] || INITIAL_POS[k];
     const to   = endFrame[k]   || from;
@@ -1288,100 +1304,162 @@ function getSegmentHitter(dimKey, segIdx) {
   return hitter;
 }
 
-// ═════ SWING ANIMATION — whole-arm swing with anticipatory windup + follow-through ═════
-// For each ball-launching segment:
-//   - Find the hitter (nearest player to the segment's launch point).
-//   - Window = [contact_time − 0.28s, contact_time + 0.38s] in real rally seconds.
-//   - Within the window, compute `phase` ∈ [0, 1] with contact at `contactFrac`.
-//   - Windup (phase < contactFrac): arm rotates BACK and up (load).
-//   - Follow-through (phase > contactFrac): arm swings FORWARD across body.
-//   - Body leans forward during swing (extra +0.15 rad x-tilt at contact).
-//   - Paddle face twists by shot-type intent (open for drop, closed for drive).
-// Non-hitting players snap to ready pose.
-// Paddle-face-angle intent by dimension (radians added to paddle.rotation.x at contact):
-const FACE_INTENT_BY_DIM = { drive: -0.35, defend: 0.15, drop: 0.55, dink: 0.10 };
-// Real-time swing window (seconds in rally time — auto-slow-mo scaling handles perception)
-const WINDUP_SEC = 0.28;
-const FOLLOW_SEC = 0.38;
+// ═════ STROKE SYSTEM — zone-based ready poses + stroke-type-aware swings ═════
+// Real pickleball strokes change shape based on:
+//   (1) WHERE the player is:
+//       baseline (|z|>14)   → forehand-ready, paddle low-right, big swings.
+//       transition (10..14) → half-ready, between poses.
+//       kitchen   (|z|<10)  → backhand-ready, paddle UP in front of chest,
+//                              short blocking motions (no windup, brief push).
+//   (2) WHAT shot they're hitting:
+//       groundstroke  — backcourt forehand. Full windup + follow-through.
+//       volley/block  — kitchen-line exchange. Minimal prep, short forward push.
+//       drop          — soft underhand lift from mid-court. Small prep, open face.
+//       smash         — overhead chop. Load up, slam down.
+//
+// Stroke detection from segment data:
+//   - from.y ≥ 2.5         → smash (overhead)
+//   - from.y < 1.5 + apex ≥ 4 → drop (launched from near-ground with big lift)
+//   - prev seg ended airborne (to.y > 0.5) AND hitter at kitchen → volley/block
+//   - else                 → groundstroke
 
-function resetPlayerPose(k) {
+function getPlayerZone(p) {
+  const zAbs = Math.abs(p.position.z);
+  if (zAbs > 14) return 'baseline';
+  if (zAbs < 10) return 'kitchen';
+  return 'transition';
+}
+
+// Zone-appropriate ready-pose defaults (arm + paddle rotations, relative to player group)
+const READY_POSE = {
+  baseline:   { arm: { x:  0.00, y: 0, z:  0.00 }, paddle: { x: -0.40, z:  0.15 } },  // forehand ready
+  transition: { arm: { x: -0.25, y: 0, z: -0.08 }, paddle: { x: -0.22, z:  0.05 } },  // half-ready
+  kitchen:    { arm: { x: -0.55, y: 0, z: -0.30 }, paddle: { x: -0.05, z: -0.35 } }   // backhand ready — paddle up at chest
+};
+
+function applyReadyPose(k) {
   const p = players[k];
-  if (!p) return;
-  const paddle = p.userData.paddle;
-  const pd = p.userData.paddleDefault;
-  if (paddle && pd) { paddle.rotation.x = pd.rx; paddle.rotation.z = pd.rz; }
-  if (p.userData.rightArm) {
-    p.userData.rightArm.rotation.x = 0;
-    p.userData.rightArm.rotation.y = 0;
-    p.userData.rightArm.rotation.z = 0;
-  }
+  if (!p || !p.userData.rightArm || !p.userData.paddle) return;
+  const ready = READY_POSE[getPlayerZone(p)];
+  p.userData.rightArm.rotation.set(ready.arm.x, ready.arm.y, ready.arm.z);
+  p.userData.paddle.rotation.x = ready.paddle.x;
+  p.userData.paddle.rotation.z = ready.paddle.z;
   p.rotation.x = p.userData.bodyLeanDefault ?? -0.05;
 }
 
+// Identify stroke type for a ball-launching segment
+function getStrokeType(dimKey, segIdx, hitterPlayer) {
+  const segs = SHOTS[dimKey].shot.segments;
+  const seg = segs[segIdx];
+  // Smash: overhead contact, ball coming down fast
+  if (seg.from[1] >= 2.5) return 'smash';
+  // Drop: launches from near-ground transition-zone bounce with a high-arc apex
+  if (seg.from[1] < 1.5 && seg.apex >= 4) return 'drop';
+  // Volley/block: ball didn't bounce first (prev segment ended airborne) and hitter is at the kitchen
+  if (segIdx > 0) {
+    const prev = segs[segIdx - 1];
+    const hitterZone = hitterPlayer ? getPlayerZone(hitterPlayer) : null;
+    if (prev.to[1] > 0.5 && seg.from[1] < 2.2 && hitterZone === 'kitchen') return 'volley';
+  }
+  return 'groundstroke';
+}
+
+// Compute stroke motion at phase ∈ [0,1] with contact at contactFrac.
+// Returns arm delta + paddle-face delta + body-lean scale (applied on top of ready pose).
+function strokeMotion(strokeType, phase, contactFrac) {
+  if (strokeType === 'volley') {
+    // No windup. Short forward push from the kitchen-ready position. Firm wrist.
+    const pushCurve = Math.sin(Math.max(0, Math.min(1, phase)) * Math.PI);
+    return {
+      armX: 0.45 * pushCurve,                 // small forward from -0.55 ready
+      armZ: 0.20 * pushCurve,                 // paddle face rotates slightly through
+      paddleFaceAdj: 0.08 * pushCurve,        // just a touch of face open
+      leanScale: 0.35                         // quarter-lean
+    };
+  }
+  if (strokeType === 'smash') {
+    if (phase <= contactFrac) {
+      const w = phase / contactFrac;
+      const load = Math.sin(w * Math.PI);
+      return { armX: -1.35 * load, armZ: -0.25 * load, paddleFaceAdj: -0.50 * Math.sin(phase * Math.PI), leanScale: 0.7 };
+    } else {
+      const w = (phase - contactFrac) / (1 - contactFrac);
+      const slam = Math.sin(w * Math.PI);
+      return { armX: 1.95 * slam, armZ: 0.30 * slam, paddleFaceAdj: -0.50 * Math.sin(phase * Math.PI), leanScale: 0.95 };
+    }
+  }
+  if (strokeType === 'drop') {
+    if (phase <= contactFrac) {
+      const w = phase / contactFrac;
+      return { armX: -0.40 * Math.sin(w * Math.PI), armZ: 0, paddleFaceAdj: 0.55 * Math.sin(phase * Math.PI), leanScale: 0.35 };
+    } else {
+      const w = (phase - contactFrac) / (1 - contactFrac);
+      return { armX: 0.65 * Math.sin(w * Math.PI), armZ: 0.12 * Math.sin(w * Math.PI), paddleFaceAdj: 0.55 * Math.sin(phase * Math.PI), leanScale: 0.5 };
+    }
+  }
+  // groundstroke — classic forehand: windup back, drive forward + across body
+  if (phase <= contactFrac) {
+    const w = phase / contactFrac;
+    const lift = Math.sin(w * Math.PI);
+    return { armX: -0.95 * lift, armZ: -0.15 * lift, paddleFaceAdj: -0.25 * Math.sin(phase * Math.PI), leanScale: 1.0 };
+  } else {
+    const w = (phase - contactFrac) / (1 - contactFrac);
+    const swing = Math.sin(w * Math.PI);
+    return { armX: 1.35 * swing, armZ: 0.40 * swing, paddleFaceAdj: -0.25 * Math.sin(phase * Math.PI), leanScale: 1.0 };
+  }
+}
+
+// Real-time swing windows (seconds of rally time — auto-slow-mo scaling handles perception)
+const WINDUP_SEC = 0.28;
+const FOLLOW_SEC = 0.38;
+const VOLLEY_WINDUP_SEC = 0.08;   // volleys are quick exchanges, minimal prep
+const VOLLEY_FOLLOW_SEC = 0.18;
+
 function updateSwingAnimation(dimKey, shotT) {
-  // Reset everyone to ready each frame; swing-active players override below
-  for (const k of PLAYER_KEYS) resetPlayerPose(k);
+  // Reset everyone to their zone-appropriate ready pose each frame
+  for (const k of PLAYER_KEYS) applyReadyPose(k);
 
   const dim = SHOTS[dimKey];
   if (!dim.shot || !dim.shot.segments) return;
   const segs = dim.shot.segments;
   const totalDur = segs.reduce((a, s) => a + s.dur, 0);
-  const currentShotTime = shotT * totalDur;   // in rally-seconds
-  const faceIntent = FACE_INTENT_BY_DIM[dimKey] ?? 0;
+  const currentShotTime = shotT * totalDur;
 
-  // Iterate each ball-launching segment; apply swing to its hitter if within window
   let accum = 0;
   for (let i = 0; i < segs.length; i++) {
     const seg = segs[i];
     const contactTime = accum;
     accum += seg.dur;
-    // Bounce segments have no hit
-    if (seg.from[1] < 1.5) continue;
+    // Skip non-hit segments (pure bounces). But allow drop-shot segments even though
+    // they start low — detected by apex relative to endpoints.
+    const isDropLaunch = (seg.from[1] < 1.5 && seg.apex >= 4);
+    if (seg.from[1] < 1.5 && !isDropLaunch) continue;
     const hitter = getSegmentHitter(dimKey, i);
     if (!hitter) continue;
-    // Is the current rally time within this hit's swing window?
-    const winStart = contactTime - WINDUP_SEC;
-    const winEnd   = contactTime + FOLLOW_SEC;
-    if (currentShotTime < winStart || currentShotTime > winEnd) continue;
-
     const p = players[hitter];
     if (!p) continue;
 
-    // Where in the window are we? phase ∈ [0, 1]
+    const strokeType = getStrokeType(dimKey, i, p);
+    const winUp = (strokeType === 'volley') ? VOLLEY_WINDUP_SEC : WINDUP_SEC;
+    const winDn = (strokeType === 'volley') ? VOLLEY_FOLLOW_SEC : FOLLOW_SEC;
+    const winStart = contactTime - winUp;
+    const winEnd   = contactTime + winDn;
+    if (currentShotTime < winStart || currentShotTime > winEnd) continue;
+
     const windowLen = winEnd - winStart;
     const phase = (currentShotTime - winStart) / windowLen;
-    const contactFrac = WINDUP_SEC / windowLen;   // where contact sits in [0, 1]
+    const contactFrac = winUp / windowLen;
 
-    // Arm rotation:
-    //   windup  (phase 0 → contactFrac): arm arcs back & up → peak at ~half-windup
-    //   contact (phase = contactFrac):    arm is passing through neutral (just past)
-    //   follow  (phase contactFrac → 1):  arm arcs forward & across body
-    let armX, armZ;
-    if (phase <= contactFrac) {
-      const w = phase / contactFrac;                    // 0 → 1 across windup
-      const lift = Math.sin(w * Math.PI);               // bell curve for "load"
-      armX = -0.9 * lift;                               // back
-      armZ = -0.15 * lift;                              // slight across-body lift
-    } else {
-      const w = (phase - contactFrac) / (1 - contactFrac);
-      const swing = Math.sin(w * Math.PI);              // bell curve for follow-through
-      armX = 1.3 * swing;                               // forward
-      armZ = 0.35 * swing;                              // across body
-    }
-    p.userData.rightArm.rotation.x = armX;
-    p.userData.rightArm.rotation.z = armZ;
+    const motion = strokeMotion(strokeType, phase, contactFrac);
+    const ready = READY_POSE[getPlayerZone(p)];
 
-    // Paddle face intent: open for drop, closed for drive. Peaks at contact + early follow.
-    const paddle = p.userData.paddle;
-    const pd = p.userData.paddleDefault;
-    if (paddle && pd) {
-      const intentCurve = Math.sin(phase * Math.PI);   // peaks mid-window, near contact
-      paddle.rotation.x = pd.rx + faceIntent * intentCurve;
-    }
-
-    // Body lean forward through the swing (peaks at contact)
-    const leanCurve = Math.sin(phase * Math.PI);       // 0 → 1 → 0 across window
-    p.rotation.x = (p.userData.bodyLeanDefault ?? -0.05) - 0.16 * leanCurve;
+    // Apply stroke motion on top of ready pose
+    p.userData.rightArm.rotation.x = ready.arm.x + motion.armX;
+    p.userData.rightArm.rotation.z = ready.arm.z + motion.armZ;
+    p.userData.paddle.rotation.x = ready.paddle.x + motion.paddleFaceAdj;
+    p.userData.paddle.rotation.z = ready.paddle.z;
+    const leanCurve = Math.sin(phase * Math.PI);
+    p.rotation.x = (p.userData.bodyLeanDefault ?? -0.05) - 0.16 * leanCurve * motion.leanScale;
   }
 }
 
@@ -2032,8 +2110,12 @@ window.__4dp = {
   }),
   scrub,  // use the full scrub() so moments/segments replay cleanly
   startShot, setSlowMo, setPaused, setAudio, setTimelineVisible,
-  // Synchronous pose-application (for QA verification when rAF is throttled)
-  applyPoseNow: () => { updateSwingAnimation(activeShotKey, shotT); updateHeadTracking(); },
+  // Synchronous full-frame pose application (for QA when rAF is throttled)
+  applyPoseNow: () => {
+    updatePlayerPositions(activeShotKey, shotT);
+    updateSwingAnimation(activeShotKey, shotT);
+    updateHeadTracking();
+  },
   SHOTS,
   // Live references for QA + downstream modules
   get players() { return players; },
