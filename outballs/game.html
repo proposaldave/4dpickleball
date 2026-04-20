@@ -34,6 +34,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 .hud-right .score.pulse{animation:scorePulse .42s cubic-bezier(.2,1.2,.3,1);}
 @keyframes scorePulse{0%{transform:scale(1);}35%{transform:scale(1.22);color:#FDE68A;text-shadow:0 0 18px rgba(251,191,36,.9);}100%{transform:scale(1);}}
 .hud-right .round{font-size:11px;color:var(--4dp-text-dim);font-weight:600;letter-spacing:.5px;}
+.hud-right .tier{margin-top:3px;font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:15px;letter-spacing:-.2px;color:var(--4dp-text);line-height:1;}
 .hud-right .streak{display:none;margin-top:4px;padding:3px 10px;border-radius:999px;background:rgba(251,191,36,.18);border:1px solid rgba(251,191,36,.45);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#FDE68A;}
 .hud-right .streak.on{display:inline-block;animation:streakPop .3s var(--4dp-ease);}
 @keyframes streakPop{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
@@ -151,6 +152,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
       <div class="lbl">Score</div>
       <div class="score" id="score-val">0</div>
       <div class="round" id="round-val">Round 1 · 0/5</div>
+      <div class="tier" id="tier-val">Warmup Speed</div>
       <div class="streak" id="streak-val">🔥 2 streak</div>
     </div>
   </div>
@@ -161,9 +163,9 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div class="progress-dots" id="progress-dots"></div>
 
 <div class="center-prompt" id="center-prompt">
-  <div class="cp-eyebrow" id="cp-eyebrow">Hold SPACE to get ready</div>
+  <div class="cp-eyebrow" id="cp-eyebrow">Hold SPACEBAR to get ready</div>
   <p class="cp-headline" id="cp-headline">Read the speed.</p>
-  <p class="cp-sub" id="cp-sub">Release to let it go out · Hit ENTER to hit</p>
+  <p class="cp-sub" id="cp-sub">Release SPACEBAR to let it go out · Hit ENTER to hit</p>
 </div>
 
 <div class="verdict" id="verdict">
@@ -175,7 +177,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
   <button class="gate-btn ready" id="btn-ready"
     onmousedown="onReadyDown()" onmouseup="onReadyUp()" onmouseleave="onReadyUp()"
     ontouchstart="onReadyDown()" ontouchend="onReadyUp()">
-    <div class="gate-kbd">HOLD [SPACE]</div>
+    <div class="gate-kbd">HOLD [SPACEBAR]</div>
     <div class="gate-name">Ready — let it go</div>
     <div class="gate-hint">Hold to stay ready · release if the ball is going out</div>
   </button>
@@ -192,7 +194,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
     <div class="pg-eyebrow">Before you start</div>
     <h2 class="pg-h">Two keys. One decision.</h2>
     <div class="pg-key">
-      <kbd>SPACE</kbd>
+      <kbd>SPACEBAR</kbd>
       <div>
         <div class="pg-key-name">Hold</div>
         <div class="pg-key-desc">Get into ready position. <strong>Release</strong> if the ball is going out.</div>
@@ -212,22 +214,64 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <!-- Round title card -->
 <div id="round-card">
   <div class="rc-kicker" id="rc-kicker">Round 1</div>
-  <div class="rc-name" id="rc-name">Slow Motion</div>
+  <div class="rc-name" id="rc-name">Warmup Speed</div>
   <div class="rc-pos" id="rc-pos">Baseline</div>
 </div>
 
-<!-- End of session card -->
+<!-- Round-fail retry card — shown when correct < pass threshold -->
+<div id="retry-card" style="position:fixed;inset:0;z-index:205;background:rgba(10,22,40,.92);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:440px;width:100%;background:linear-gradient(180deg,rgba(27,64,121,.3),rgba(10,20,40,.7));border:1px solid rgba(251,113,133,.35);border-radius:22px;padding:34px 36px;text-align:center;box-shadow:0 24px 72px rgba(0,0,0,.7);">
+    <div style="font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#FB7185;margin-bottom:10px;" id="rtc-kicker">Round 1 · Didn't pass</div>
+    <div style="font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(48px,9vw,76px);letter-spacing:-2px;line-height:.95;color:var(--4dp-text);margin-bottom:8px;" id="rtc-stats">2 / 5</div>
+    <div style="font-size:13px;color:var(--4dp-text-dim);margin-bottom:22px;" id="rtc-sub">You needed 3/5 to pass this round</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button id="rtc-retry" style="padding:14px;border:0;border-radius:12px;font-family:var(--4dp-font-body);font-weight:700;font-size:13px;cursor:pointer;background:var(--4dp-dink);color:var(--4dp-text);">Try again</button>
+      <button id="rtc-continue" style="padding:14px;border:1px solid rgba(251,191,36,.4);border-radius:12px;font-family:var(--4dp-font-body);font-weight:700;font-size:13px;cursor:pointer;background:rgba(251,191,36,.15);color:var(--4dp-gold);">Next round →</button>
+    </div>
+  </div>
+</div>
+
+<!-- End of session — REPORT CARD -->
 <div id="end-card">
-  <div class="ec-card">
-    <div class="ec-kicker">Training complete</div>
-    <div class="ec-big"><span id="ec-correct">0</span><span class="slash">/<span id="ec-total">30</span></span></div>
-    <div class="ec-pct" id="ec-pct">0% · Keep training</div>
+  <div class="ec-card" style="max-width:560px;">
+    <div class="ec-kicker">Training complete · Report card</div>
+    <!-- Grade letter in a big circle -->
+    <div id="ec-grade-wrap" style="display:flex;align-items:center;justify-content:center;gap:24px;margin:4px 0 14px;">
+      <div id="ec-grade-ring" style="width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,rgba(251,191,36,.25),rgba(251,191,36,.05) 70%);border:3px solid var(--4dp-gold);box-shadow:0 0 60px rgba(251,191,36,.45),inset 0 0 40px rgba(251,191,36,.15);">
+        <span id="ec-grade" style="font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:88px;line-height:1;color:var(--4dp-gold);letter-spacing:-3px;">—</span>
+      </div>
+      <div style="text-align:left;">
+        <div class="ec-big" style="font-size:clamp(44px,8vw,68px);margin-bottom:0;"><span id="ec-correct">0</span><span class="slash">/<span id="ec-total">45</span></span></div>
+        <div class="ec-pct" id="ec-pct" style="margin-bottom:0;">0% · Keep training</div>
+      </div>
+    </div>
+    <!-- Per-shot-type breakdown -->
+    <div style="margin:18px 0 10px;padding:14px 16px;background:rgba(245,243,238,.03);border:1px solid rgba(245,243,238,.08);border-radius:14px;">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:10px;">Shot-type accuracy</div>
+      <div class="ec-bar-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="flex:0 0 70px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#FB7185;">Out</div>
+        <div class="ec-bar" style="flex:1;height:9px;background:rgba(245,243,238,.07);border-radius:6px;overflow:hidden;"><div id="ec-bar-out" style="height:100%;width:0%;background:linear-gradient(90deg,#FB7185,#FBBF24);border-radius:6px;transition:width .8s ease;"></div></div>
+        <div id="ec-stat-out" style="flex:0 0 54px;text-align:right;font-family:var(--4dp-font-data);font-weight:700;font-size:13px;color:var(--4dp-text);">0/0</div>
+      </div>
+      <div class="ec-bar-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <div style="flex:0 0 70px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#FBBF24;">Volley</div>
+        <div class="ec-bar" style="flex:1;height:9px;background:rgba(245,243,238,.07);border-radius:6px;overflow:hidden;"><div id="ec-bar-volley" style="height:100%;width:0%;background:linear-gradient(90deg,#FBBF24,#34D399);border-radius:6px;transition:width .8s ease;"></div></div>
+        <div id="ec-stat-volley" style="flex:0 0 54px;text-align:right;font-family:var(--4dp-font-data);font-weight:700;font-size:13px;color:var(--4dp-text);">0/0</div>
+      </div>
+      <div class="ec-bar-row" style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:0 0 70px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#34D399;">Bounce</div>
+        <div class="ec-bar" style="flex:1;height:9px;background:rgba(245,243,238,.07);border-radius:6px;overflow:hidden;"><div id="ec-bar-bounce" style="height:100%;width:0%;background:linear-gradient(90deg,#34D399,#2B8BFC);border-radius:6px;transition:width .8s ease;"></div></div>
+        <div id="ec-stat-bounce" style="flex:0 0 54px;text-align:right;font-family:var(--4dp-font-data);font-weight:700;font-size:13px;color:var(--4dp-text);">0/0</div>
+      </div>
+    </div>
+    <!-- Level + streak + points stat rows -->
     <div class="ec-stat-row"><span class="l">Reached level</span><span class="v" id="ec-level">—</span></div>
     <div class="ec-stat-row"><span class="l">Best streak</span><span class="v" id="ec-streak">0</span></div>
     <div class="ec-stat-row"><span class="l">Points</span><span class="v" id="ec-points">0</span></div>
+    <div class="ec-stat-row" style="border:0;margin-bottom:6px;"><span class="l">Coach's note</span><span class="v" id="ec-coach" style="font-family:var(--4dp-font-display);font-style:italic;font-weight:400;text-align:right;max-width:62%;font-size:14px;">—</span></div>
     <div class="ec-buttons">
       <button class="ec-again" onclick="restartSession()">Play again</button>
-      <button class="ec-share" onclick="shareResult()">📋 Share score</button>
+      <button class="ec-share" onclick="shareResult()">📋 Share report</button>
     </div>
   </div>
 </div>
@@ -294,13 +338,23 @@ const BASELINE_Z = 22;   // court half-length, used as "ball flew out past basel
 //    AND how close the OPPONENT stands (closer = less reaction time).
 //    L1 is deliberately very slow — this is a training game; first round
 //    teaches the read, later rounds pressure it.
+// 9 levels = 3 opponent positions × 3 speeds (slow → real → insane).
+// Pattern Dave locked in 2026-04-20:
+//   Speed cols: SLOW (teaching), REAL-TIME (normal pickleball), INSANE (elite)
+//   Position rows: baseline, mid-court, kitchen
+//
+//   Real-time base (speed 1.0) = shot durations calibrated to R22 ball speeds:
+//   OUT 1.05s/52ft ≈ 34 mph banger · VOLLEY 0.85s/30ft ≈ 24 mph drive.
 const LEVELS = [
-  { num:1, name:'Slow Motion',      pos:'Opponent at baseline',  oppZ:-22, speed:0.55, pass:3 },
-  { num:2, name:'Picking Up Speed', pos:'Opponent at baseline',  oppZ:-22, speed:0.85, pass:3 },
-  { num:3, name:'Transition Read',  pos:'Opponent mid-court',    oppZ:-14, speed:1.15, pass:4 },
-  { num:4, name:'Transition Heat',  pos:'Opponent mid-court',    oppZ:-14, speed:1.45, pass:4 },
-  { num:5, name:'Kitchen Pressure', pos:'Opponent at kitchen',   oppZ:-8,  speed:1.6,  pass:4 },
-  { num:6, name:'Banger Mode',      pos:'Both at kitchen',       oppZ:-7,  speed:2.2,  pass:4 }
+  { num:1, name:'Warmup Speed', pos:'Opponent at baseline',  oppZ:-22, speed:0.55, pass:3 },
+  { num:2, name:'Game Speed',   pos:'Opponent at baseline',  oppZ:-22, speed:0.92, pass:3 },
+  { num:3, name:'Crazy Speed',  pos:'Opponent at baseline',  oppZ:-22, speed:1.30, pass:3 },
+  { num:4, name:'Warmup Speed', pos:'Opponent mid-court',    oppZ:-14, speed:0.70, pass:4 },
+  { num:5, name:'Game Speed',   pos:'Opponent mid-court',    oppZ:-14, speed:1.10, pass:4 },
+  { num:6, name:'Crazy Speed',  pos:'Opponent mid-court',    oppZ:-14, speed:1.55, pass:4 },
+  { num:7, name:'Warmup Speed', pos:'Opponent at kitchen',   oppZ:-8,  speed:0.82, pass:4 },
+  { num:8, name:'Game Speed',   pos:'Opponent at kitchen',   oppZ:-7,  speed:1.25, pass:4 },
+  { num:9, name:'Crazy Speed',  pos:'Opponent at kitchen',   oppZ:-7,  speed:1.75, pass:4 }
 ];
 const SHOTS_PER_LEVEL = 5;
 
@@ -316,23 +370,40 @@ const SHOTS_PER_LEVEL = 5;
 //            the "ball bounces, immediately says Missed" bug Dave reported —
 //            there was no post-bounce window for the player to swing.
 function shotFor(kind, oppZ) {
+  // Skinny-singles: every ball originates from the opponent's paddle position
+  // (SINGLES_X lane) and targets the defender's lane. Prior version hardcoded
+  // x=0, so the ball arced down the middle of the court while the players
+  // stood on the right singles lane — balls going "away from the players."
+  // Base durations calibrated to real pickleball ball speeds (not arcade).
+  // Travel distances and resulting avg speeds (at level.speed multiplier):
+  //   OUT    — flight ≈ 52 ft (opp to 6ft past baseline). L3 (0.95) → ~35 mph.
+  //   VOLLEY — flight ≈ 29 ft (opp to player). L3 → ~25 mph drive at chest.
+  //   BOUNCE — multi-segment ≈ 26 ft total. L3 → ~11 mph drop (dink/reset).
+  // L1 (0.55) halves all speeds for teaching; L6 (2.0) pushes 60+ mph bangers.
+  const X = SINGLES_X;
   if (kind === 'OUT') {
-    return { kind:'OUT', duration:1.25,
-             from:[0, 3.6, oppZ], to:[0, 0.3, BASELINE_Z + 8], apex:5.5,
+    return { kind:'OUT', duration:1.05,
+             from:[X, 3.6, oppZ], to:[X + (Math.random()-0.5)*1.5, 0.3, BASELINE_Z + 8], apex:5.5,
              outcome:'landsOut' };
   }
   if (kind === 'VOLLEY') {
-    return { kind:'VOLLEY', duration:1.05,
-             from:[0, 3.0, oppZ], to:[0, PLAYER_CHEST_Y, PLAYER_Z - 0.5], apex:3.6,
+    // Drives need visible arc or they look like a straight line — the ball
+    // should clearly PEAK mid-flight then descend into the player, reading
+    // as "landing in" from halfway through. Apex 5.0 matches R22's "drives
+    // arc ~5-8ft" guideline scaled to a half-court distance.
+    return { kind:'VOLLEY', duration:0.85,
+             from:[X, 3.0, oppZ], to:[X + (Math.random()-0.5)*0.6, 2.5, PLAYER_Z - 0.5], apex:5.0,
              outcome:'reachesPlayer' };
   }
-  // BOUNCE — two segments so the player has a real post-bounce decision window
-  return { kind:'BOUNCE', duration:1.9, outcome:'bouncesInKitchen',
+  // BOUNCE — two segments so the player has a real post-bounce decision window.
+  // Segment-2 duration tuned so ball retains ~60% of incoming speed off the
+  // bounce (real pickleball COR ≈ 0.55-0.65). Prior version made segment 2
+  // 0.75s for only 5 units of z-travel — ball looked like the ground was
+  // "grabbing" it and slowing it abruptly at contact.
+  return { kind:'BOUNCE', duration:1.45, outcome:'bouncesInKitchen',
            segments: [
-             // Segment 1: opponent paddle → bounces in the kitchen (z=4, y=0.35)
-             { from:[0, 2.6, oppZ], to:[0, 0.35, 4], apex:7.0, dur:1.0 },
-             // Segment 2: rises off the bounce, reaches player at mid-body height
-             { from:[0, 0.35, 4],   to:[0, 2.0, PLAYER_Z + 1],       apex:2.8, dur:0.9 }
+             { from:[X, 2.6, oppZ], to:[X, 0.35, 4],              apex:7.0, dur:0.90 },
+             { from:[X, 0.35, 4],   to:[X, 1.6, PLAYER_Z + 2],    apex:2.4, dur:0.55 }
            ]};
 }
 
@@ -346,6 +417,8 @@ const STATE = {
   streak: 0,
   bestStreak: 0,
   results: [],          // per-level array of bool
+  // Per-shot-type stats — populated in handleDecision and timeout paths
+  statsByKind: { OUT: {total:0, correct:0}, VOLLEY: {total:0, correct:0}, BOUNCE: {total:0, correct:0} },
   currentShot: null,
   shotStart: 0,
   shotT: 0,             // 0..1
@@ -378,8 +451,8 @@ const camera = new THREE.PerspectiveCamera(45, vp.clientWidth / vp.clientHeight,
 //                the first shot was out of frame).
 const CAM_PRESETS = [
   { name:'Sideline',      pos:[38, 8,   12],   look:[0, 3, 0]   },
-  { name:'Receiver',      pos:[0,  5.2, 16],   look:[0, 3, -4]  },
-  { name:'First-person',  pos:[0,  3.6, 8.2],  look:[0, 3, -22], hidesDefender:true },
+  { name:'First person',  pos:[0,  5.2, 16],   look:[0, 3, -4]  },
+  { name:'Eye view',      pos:[0,  3.6, 8.2],  look:[0, 3, -22], hidesDefender:true },
   { name:'Birds-eye',     pos:[0,  44,  0.01], look:[0, 0, 0]   },
   { name:'Net-level',     pos:[4,  1.4, 3],    look:[0, 3, -18] }
 ];
@@ -511,7 +584,7 @@ scene.add(courtGroup);
 // defender it lands on world +X (viewer-right from the receiver / first-person
 // POV Dave uses). Prior version had the paddle on +X model which rendered
 // as left-handed from every behind-the-player camera.
-function makePlayer({ jersey, shorts, z, facing }) {
+function makePlayer({ jersey, shorts, z, facing, x = 0 }) {
   const g = new THREE.Group();
   const skin = new THREE.MeshStandardMaterial({ color: 0xE7B48C, roughness: 0.7 });
   const shortMat = new THREE.MeshStandardMaterial({ color: shorts, roughness: 0.7 });
@@ -548,21 +621,29 @@ function makePlayer({ jersey, shorts, z, facing }) {
   const pGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.085, 0.5, 12), gripMat); pGrip.position.set(0, -0.7, 0); paddle.add(pGrip);
   const pFace = new THREE.Mesh(new THREE.BoxGeometry(0.62, 1.1, 0.06), paddleFaceMat); pFace.position.set(0, 0.22, 0); paddle.add(pFace);
   const pEdge = new THREE.Mesh(new THREE.BoxGeometry(0.66, 1.14, 0.04), paddleEdgeMat); pEdge.position.set(0, 0.22, -0.01); paddle.add(pEdge);
-  paddle.position.set(-0.72, 2.9, 1.55);
-  paddle.rotation.x = -0.4; paddle.rotation.z = -0.15;
-  // Stash resting rotation so hit animations can spring back to it
-  paddle.userData.baseRot = { x: paddle.rotation.x, y: paddle.rotation.y, z: paddle.rotation.z };
+  // Stash rest pose (paddle down at side) + ready pose (paddle up forward).
+  // Used by the "SPACE held → defender rises into ready" animation.
+  paddle.userData.readyPose = { px: -0.72, py: 2.9,  pz: 1.55, rx: -0.4, ry: 0, rz: -0.15 };
+  paddle.userData.restPose  = { px: -0.70, py: 1.35, pz: 0.25, rx:  0.2, ry: 0, rz: -0.05 };
+  // Start in rest pose — defender rises into ready when SPACE is held.
+  const r = paddle.userData.restPose;
+  paddle.position.set(r.px, r.py, r.pz);
+  paddle.rotation.set(r.rx, r.ry, r.rz);
+  // Hit animations spring back to whatever the CURRENT pose is — tracked by
+  // updatePaddlePose() which writes baseRot when the pose changes.
+  paddle.userData.baseRot = { x: r.rx, y: r.ry, z: r.rz };
   g.add(paddle);
-  g.position.set(0, 0, z);
+  g.position.set(x, 0, z);
   if (facing === -1) g.rotation.y = Math.PI;
   g.userData = { paddle };
   return g;
 }
-const defender = makePlayer({ jersey: 0x2A7F6F, shorts: 0x0F2138, z: PLAYER_Z, facing: -1 });
-// Red attacker starts just behind the baseline (z=-22.5 = ~0.5 behind baseline
-// at z=-22). Position is also updated per-level in beginLevel() so they step
-// forward as rounds progress — kitchen-line matches in later rounds.
-const attacker = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z: -22.5, facing: +1 });
+// Skinny-singles layout (Dave's 2026-04-20 call). Court is 20 ft wide; the
+// play takes place on the RIGHT half only. Players stand at x=+5 so the ball
+// flies down the right singles lane.
+const SINGLES_X = 5;
+const defender = makePlayer({ jersey: 0x2A7F6F, shorts: 0x0F2138, z: PLAYER_Z, facing: -1, x: SINGLES_X });
+const attacker = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z: -22.5, facing: +1, x: SINGLES_X });
 scene.add(defender, attacker);
 
 // ── Ball + trail ──
@@ -672,10 +753,45 @@ function playPaddleHit(player){
 function animateAttackerSwing(){ playPaddleHit(attacker); }
 function animateDefenderHit(){ playPaddleHit(defender); }
 
+// Smoothly tween a paddle from its current pose to a named pose
+// (paddle.userData.readyPose | paddle.userData.restPose). Used by
+// onReadyDown → defender rises from rest into blocking-ready when SPACE
+// is pressed, and nextTrial → defender drops back to rest between points.
+function setPaddlePose(paddle, poseName, durMs = 260){
+  const target = paddle.userData[poseName];
+  if (!target) return;
+  const from = {
+    px: paddle.position.x, py: paddle.position.y, pz: paddle.position.z,
+    rx: paddle.rotation.x, ry: paddle.rotation.y, rz: paddle.rotation.z
+  };
+  if (paddle.userData._poseTO) paddle.userData._poseTO.forEach(clearTimeout);
+  // Hit animations read baseRot to know where to spring back to
+  paddle.userData.baseRot = { x: target.rx, y: target.ry, z: target.rz };
+  const start = performance.now();
+  function step(){
+    const t = Math.min(1, (performance.now() - start) / durMs);
+    const e = 1 - Math.pow(1 - t, 3);
+    paddle.position.set(
+      from.px + (target.px - from.px) * e,
+      from.py + (target.py - from.py) * e,
+      from.pz + (target.pz - from.pz) * e
+    );
+    paddle.rotation.set(
+      from.rx + (target.rx - from.rx) * e,
+      from.ry + (target.ry - from.ry) * e,
+      from.rz + (target.rz - from.rz) * e
+    );
+    if (t < 1) requestAnimationFrame(step);
+  }
+  step();
+}
+
 // ── Game flow ──
 function setLevelHUD(){
   const lv = LEVELS[STATE.levelIdx];
   document.getElementById('round-val').textContent = `Round ${lv.num} · ${STATE.trial}/${SHOTS_PER_LEVEL}`;
+  const tierEl = document.getElementById('tier-val');
+  if (tierEl) tierEl.textContent = lv.name;
 }
 function setScore(pulse = false){
   const el = document.getElementById('score-val');
@@ -724,17 +840,30 @@ function updateDot(i, ok){
   const next = document.getElementById('pd-' + (i + 1)); if (next) next.classList.add('current');
 }
 
-// Round-complete banner — shown BEFORE the next round's intro card so the
-// player gets a clear "you just finished round N" beat with their score.
+// Round-complete banner — shown when the player PASSES a round.
 function showRoundComplete(correct, onDone){
   const lv = LEVELS[STATE.levelIdx];
   const card = document.getElementById('round-card');
-  const passed = correct >= lv.pass;
-  document.getElementById('rc-kicker').textContent = 'Round ' + lv.num + (passed ? ' · Passed' : ' complete');
+  document.getElementById('rc-kicker').textContent = 'Round ' + lv.num + ' · Passed';
   document.getElementById('rc-name').textContent = correct + ' / ' + SHOTS_PER_LEVEL;
-  document.getElementById('rc-pos').textContent = passed ? 'On to the next round' : 'Keep training';
+  document.getElementById('rc-pos').textContent = 'On to the next round';
   card.classList.add('on');
   setTimeout(() => { card.classList.remove('on'); setTimeout(onDone, 280); }, 1500);
+}
+// Round-fail prompt — player chooses to retry this round or move on.
+// Fired when correct < lv.pass threshold at end of round.
+function showRoundFail(correct, onRetry, onContinue){
+  const lv = LEVELS[STATE.levelIdx];
+  document.getElementById('rtc-kicker').textContent = 'Round ' + lv.num + " · Didn't pass";
+  document.getElementById('rtc-stats').textContent = correct + ' / ' + SHOTS_PER_LEVEL;
+  document.getElementById('rtc-sub').textContent = 'You needed ' + lv.pass + '/' + SHOTS_PER_LEVEL + ' to pass. Try again or keep going?';
+  const card = document.getElementById('retry-card');
+  card.style.display = 'flex';
+  const retryBtn = document.getElementById('rtc-retry');
+  const contBtn = document.getElementById('rtc-continue');
+  const close = () => { card.style.display = 'none'; retryBtn.onclick = null; contBtn.onclick = null; };
+  retryBtn.onclick = () => { close(); onRetry(); };
+  contBtn.onclick = () => { close(); onContinue(); };
 }
 function showRoundCard(onDone){
   const lv = LEVELS[STATE.levelIdx];
@@ -760,16 +889,27 @@ function beginLevel(){
 
 function nextTrial(){
   if (STATE.trial >= SHOTS_PER_LEVEL) {
-    // End of level — celebrate THIS round's score before stepping up.
+    // End of level — celebrate this round's score, branch on pass/fail.
     const correctThisRound = STATE.results.slice(-SHOTS_PER_LEVEL).filter(r => r).length;
-    if (STATE.levelIdx >= LEVELS.length - 1){
-      showRoundComplete(correctThisRound, () => endSession());
-      return;
+    const lv = LEVELS[STATE.levelIdx];
+    const passed = correctThisRound >= lv.pass;
+    const isFinal = STATE.levelIdx >= LEVELS.length - 1;
+    if (passed) {
+      // Passed — show celebration then advance (or end session on last round).
+      showRoundComplete(correctThisRound, () => {
+        if (isFinal) endSession();
+        else { STATE.levelIdx++; beginLevel(); }
+      });
+    } else {
+      // Failed — ask the player: try again or push on?
+      showRoundFail(correctThisRound,
+        /* onRetry  */ () => { beginLevel(); },
+        /* onContinue */ () => {
+          if (isFinal) endSession();
+          else { STATE.levelIdx++; beginLevel(); }
+        }
+      );
     }
-    showRoundComplete(correctThisRound, () => {
-      STATE.levelIdx++;
-      beginLevel();
-    });
     return;
   }
   // Prepare
@@ -781,13 +921,18 @@ function nextTrial(){
   STATE._outLandedBurst = false;
   STATE.canInput = false;
   STATE.holdingReady = false;
+  // Drop defender back to rest pose between trials — they stand straight,
+  // paddle down at side, and will rise into ready again on next SPACE press.
+  if (defender && defender.userData && defender.userData.paddle) {
+    setPaddlePose(defender.userData.paddle, 'restPose', 320);
+  }
   ball.visible = false; clearTrail();
   document.getElementById('btn-ready').classList.remove('active');
   document.getElementById('btn-swing').classList.remove('active');
   document.getElementById('verdict').classList.remove('on');
-  document.getElementById('cp-eyebrow').textContent = 'Hold SPACE to get ready';
+  document.getElementById('cp-eyebrow').textContent = 'Hold SPACEBAR to get ready';
   document.getElementById('cp-headline').textContent = 'Read the speed.';
-  document.getElementById('cp-sub').textContent = 'Release to let it go out · Hit ENTER to hit';
+  document.getElementById('cp-sub').textContent = 'Release SPACEBAR to let it go out · Hit ENTER to hit';
   document.getElementById('center-prompt').style.opacity = '1';
   setLevelHUD();
 }
@@ -842,6 +987,8 @@ window.onReadyDown = function(){
     document.getElementById('btn-ready').classList.add('active');
     document.getElementById('center-prompt').style.opacity = '0';
     STATE.phase = 'WINDUP';
+    // Defender rises from rest (paddle down) into blocking-ready (paddle up at chest)
+    setPaddlePose(defender.userData.paddle, 'readyPose', 220);
     animateAttackerSwing();
     // 600ms windup, then ball launches
     setTimeout(() => { if (STATE.phase === 'WINDUP') launchBall(); }, 600);
@@ -888,13 +1035,28 @@ function handleDecision(kind){
   STATE.decision = kind;
   const shot = STATE.currentShot;
   let correct = false;
-  if (kind === 'OUT') correct = (shot.kind === 'OUT');
-  else if (kind === 'SWING') {
-    // Resolve volley vs bounce based on hasBounced
+  let tooLate = false;
+  if (kind === 'OUT') {
+    // Late-release penalty — credit only DECISIVE reads. Two gates:
+    //   (a) shotT cutoff — the ball has to still be ahead of you in flight.
+    //       Past ~60% of flight, a real opponent has already bounced it off you.
+    //   (b) ball-past-player — if the ball's z has already crossed the player's
+    //       position (reached z=PLAYER_Z+1 on an inbound shot travelling +z),
+    //       you've already been passed. That's always a miss regardless of t.
+    const ballPastPlayer = ball.position.z > PLAYER_Z - 0.5;
+    tooLate = STATE.shotT > 0.6 || ballPastPlayer;
+    correct = (shot.kind === 'OUT') && !tooLate;
+  } else if (kind === 'SWING') {
     STATE.swingResolved = STATE.hasBounced ? 'BOUNCE' : 'VOLLEY';
     correct = (STATE.swingResolved === shot.kind);
   }
   STATE.results.push(correct);
+  // Per-shot-type tally for the end-of-session report card
+  const kindKey = (shot.kind === 'OUT' || shot.kind === 'VOLLEY' || shot.kind === 'BOUNCE') ? shot.kind : null;
+  if (kindKey) {
+    STATE.statsByKind[kindKey].total++;
+    if (correct) STATE.statsByKind[kindKey].correct++;
+  }
   if (correct) {
     STATE.sessionCorrect++;
     // Timing bonus based on how early in the flight they decided
@@ -919,31 +1081,30 @@ function handleDecision(kind){
   updateDot(STATE.trial, correct);
   setScore(correct);
   updateStreakDisplay();
-  showVerdict(correct, kind, shot);
+  showVerdict(correct, tooLate ? 'TOO_LATE' : kind, shot);
   STATE.trial++;
   // Let flight + verdict finish
   setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
 }
 
 function launchReturnShot(){
-  const lv = LEVELS[STATE.levelIdx];
   const hitY = ball.position.y;
-  const hitZ = ball.position.z;
-  // Aim the return back toward the opponent — small X variance so consecutive
-  // hits don't look identical. End low, past the opponent, suggesting a
-  // solid passing shot they couldn't reach.
-  const xOff = (Math.random() - 0.5) * 3.2;
+  // Aim the return BACK INTO the opponent's half — roughly center of their
+  // court (z ≈ -11, halfway between net at 0 and baseline at -22). Lands
+  // low (~1.0 ft high). X kept on the singles lane with small variance so
+  // consecutive returns look varied but stay in play. Prior version targeted
+  // `lv.oppZ - 2` which, on L1 (oppZ=-22), was z=-24 — PAST the baseline
+  // = out of bounds, which Dave flagged as "hit too hard and out."
   STATE.currentShot = {
     kind: 'RETURN',
-    from: [ball.position.x, hitY, hitZ],
-    to:   [xOff, 0.4, lv.oppZ - 2],
-    apex: Math.max(hitY + 0.8, 3.0),
+    from: [ball.position.x, hitY, ball.position.z],
+    to:   [SINGLES_X + (Math.random() - 0.5) * 2.5, 1.0, -11 + (Math.random() - 0.5) * 5],
+    apex: Math.max(hitY + 0.6, 2.6),
     duration: 0.95
   };
   STATE.shotT = 0;
   STATE.shotDur = 0.95;
-  STATE.hasBounced = false;   // bounce detection shouldn't re-trigger on return
-  // phase stays 'FLIGHT' so the animate loop keeps advancing the ball
+  STATE.hasBounced = false;
 }
 
 function showVerdict(correct, kind, shot){
@@ -951,16 +1112,25 @@ function showVerdict(correct, kind, shot){
   const big = document.getElementById('verdict-big');
   const sub = document.getElementById('verdict-sub');
   if (correct){
-    big.textContent = STATE.shotT < 0.35 ? 'Decisive.' : STATE.shotT < 0.6 ? 'Clean read.' : 'Good.';
+    // Verdict-phrase pools, tiered by how early the read was. Random pull
+    // each time so the game feels alive, never boilerplate. "Let it fly" is
+    // in the early-read pool — Dave's favorite phrasing, earns the hero slot.
+    const EARLY = ['Let it fly.','Decisive.','Pro read.','Locked in.','Nailed it.','Bullseye.','Dialed.'];
+    const MID   = ['Clean read.','Good call.','Solid.','Sharp.','Smooth.'];
+    const LATE  = ['Late but solid.','Got it.','Squeaked by.','Just in time.'];
+    const pool  = STATE.shotT < 0.35 ? EARLY : STATE.shotT < 0.6 ? MID : LATE;
+    big.textContent = pool[Math.floor(Math.random() * pool.length)];
     big.style.color = '#34D399';
-    sub.textContent = shot.kind === 'OUT' ? 'Out ball · let it fly' : shot.kind === 'VOLLEY' ? 'Volley it — attack' : 'Groundstroke — patient';
+    sub.textContent = shot.kind === 'OUT' ? 'Out ball · let it fly' : shot.kind === 'VOLLEY' ? 'Volley it — block' : 'Groundstroke — patient';
   } else {
-    big.textContent = kind === 'NO_COMMIT' ? 'No commit.' : 'Missed.';
+    big.textContent = kind === 'NO_COMMIT' ? 'No commit.' : kind === 'TOO_LATE' ? 'Too late.' : 'Missed.';
     big.style.color = '#FB7185';
     if (kind === 'NO_COMMIT') {
-      sub.textContent = 'Release SPACE to let it go · Hit ENTER to hit';
+      sub.textContent = 'Release SPACEBAR to let it go · Hit ENTER to hit';
+    } else if (kind === 'TOO_LATE') {
+      sub.textContent = 'You were right — but commit sooner. Release before the ball reaches you.';
     } else if (kind === 'TIMEOUT') {
-      sub.textContent = shot.kind === 'OUT' ? 'That was going out — release SPACE' : shot.kind === 'VOLLEY' ? 'That was a volley — hit ENTER' : 'Let it bounce — hit ENTER';
+      sub.textContent = shot.kind === 'OUT' ? 'That was going out — release SPACEBAR' : shot.kind === 'VOLLEY' ? 'That was a volley — hit ENTER' : 'Let it bounce — hit ENTER';
     } else {
       sub.textContent = shot.kind === 'OUT' ? 'That was going out' : shot.kind === 'VOLLEY' ? 'That was a volley' : 'Let it bounce — groundstroke';
     }
@@ -969,30 +1139,83 @@ function showVerdict(correct, kind, shot){
   setTimeout(() => v.classList.remove('on'), 1400);
 }
 
-// ── End session ──
+// ── End session — REPORT CARD ──
 function endSession(){
   const total = LEVELS.length * SHOTS_PER_LEVEL;
   const pct = Math.round(STATE.sessionCorrect / total * 100);
+  // Grade letter — S (elite), A (great), B (solid), C (developing), D (keep training)
+  const grade =
+    pct >= 93 ? 'S' :
+    pct >= 85 ? 'A' :
+    pct >= 70 ? 'B' :
+    pct >= 55 ? 'C' :
+    pct >= 40 ? 'D' : 'F';
+  const gradeColor = {
+    S: '#FDE68A', A: '#FBBF24', B: '#34D399', C: '#2B8BFC', D: '#F472B6', F: '#FB7185'
+  }[grade];
+  const coachNote = {
+    S: "You read the ball before it's on you. That's elite.",
+    A: "Sharp reads, decisive commits. Take this to the kitchen.",
+    B: "The instinct is there. Tighten the commit window.",
+    C: "Getting closer. The out-ball is the easy green — chase it next run.",
+    D: "Start with Warmup Speed. Read the speed before your hands can move.",
+    F: "Back to L1 — don't swing at every ball. Release the bangers."
+  }[grade];
+
   document.getElementById('ec-correct').textContent = STATE.sessionCorrect;
   document.getElementById('ec-total').textContent = total;
-  document.getElementById('ec-pct').textContent = pct >= 80 ? `${pct}% · Pro read` : pct >= 60 ? `${pct}% · Strong` : pct >= 40 ? `${pct}% · Developing` : `${pct}% · Keep training`;
+  document.getElementById('ec-pct').textContent = pct >= 85 ? `${pct}% · Pro read` : pct >= 70 ? `${pct}% · Strong` : pct >= 50 ? `${pct}% · Developing` : `${pct}% · Keep training`;
+
+  const gradeEl = document.getElementById('ec-grade');
+  const ringEl = document.getElementById('ec-grade-ring');
+  if (gradeEl) { gradeEl.textContent = grade; gradeEl.style.color = gradeColor; }
+  if (ringEl) {
+    ringEl.style.borderColor = gradeColor;
+    ringEl.style.boxShadow = `0 0 60px ${gradeColor}7A, inset 0 0 40px ${gradeColor}33`;
+    ringEl.style.background = `radial-gradient(circle at 50% 35%, ${gradeColor}40, ${gradeColor}0D 70%)`;
+  }
+
+  // Per-shot-type breakdown
+  const st = STATE.statsByKind;
+  function setBar(kind, elId, statId){
+    const s = st[kind];
+    const p = s.total > 0 ? Math.round(s.correct / s.total * 100) : 0;
+    const bar = document.getElementById(elId);
+    const stat = document.getElementById(statId);
+    if (bar) setTimeout(() => { bar.style.width = p + '%'; }, 220);
+    if (stat) stat.textContent = s.correct + '/' + s.total;
+  }
+  setBar('OUT',    'ec-bar-out',    'ec-stat-out');
+  setBar('VOLLEY', 'ec-bar-volley', 'ec-stat-volley');
+  setBar('BOUNCE', 'ec-bar-bounce', 'ec-stat-bounce');
+
   document.getElementById('ec-level').textContent = LEVELS[Math.min(STATE.levelIdx, LEVELS.length-1)].name;
   document.getElementById('ec-streak').textContent = STATE.bestStreak;
   document.getElementById('ec-points').textContent = STATE.sessionPoints.toLocaleString();
+  const coachEl = document.getElementById('ec-coach');
+  if (coachEl) coachEl.textContent = coachNote;
+
   document.getElementById('end-card').classList.add('on');
 }
 window.restartSession = function(){
   STATE.levelIdx = 0; STATE.trial = 0; STATE.sessionCorrect = 0; STATE.sessionPoints = 0;
   STATE.streak = 0; STATE.bestStreak = 0; STATE.results = [];
+  STATE.statsByKind = { OUT:{total:0,correct:0}, VOLLEY:{total:0,correct:0}, BOUNCE:{total:0,correct:0} };
   document.getElementById('end-card').classList.remove('on');
   beginLevel();
 };
 window.shareResult = function(){
   const total = LEVELS.length * SHOTS_PER_LEVEL;
   const pct = Math.round(STATE.sessionCorrect / total * 100);
-  const text = `🎯 ${STATE.sessionCorrect}/${total} (${pct}%) on the 4D Pickleball Out Balls trainer.\n\nCan you beat me? ${window.location.href}`;
+  const gradeEl = document.getElementById('ec-grade');
+  const grade = gradeEl ? gradeEl.textContent : '';
+  const st = STATE.statsByKind;
+  const text = `🎯 ${grade} grade · ${STATE.sessionCorrect}/${total} (${pct}%) on 4D Pickleball · Anticipate Out Balls\n\n` +
+               `OUT: ${st.OUT.correct}/${st.OUT.total} · VOLLEY: ${st.VOLLEY.correct}/${st.VOLLEY.total} · BOUNCE: ${st.BOUNCE.correct}/${st.BOUNCE.total}\n` +
+               `Best streak: ${STATE.bestStreak} · ${STATE.sessionPoints.toLocaleString()} pts\n\n` +
+               `Can you beat me? ${window.location.href}`;
   if (navigator.share) navigator.share({ title: '4D Pickleball · Out Balls', text }).catch(()=>{});
-  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => prompt('Copy:', text));
+  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => alert('Report copied to clipboard!')).catch(() => prompt('Copy:', text));
   else prompt('Copy:', text);
 };
 
@@ -1047,8 +1270,18 @@ function animate(){
     trailPoints.push(p.clone());
     if (trailPoints.length > TRAIL_MAX) trailPoints.shift();
     rebuildTrail();
-    // Detect bounce for GROUNDSTROKE timing
-    if (!STATE.hasBounced && s.kind === 'BOUNCE' && p.y <= 0.45) STATE.hasBounced = true;
+    // Detect bounce for GROUNDSTROKE timing. Two gates so this is robust:
+    //  (a) y-threshold — ball touched ground
+    //  (b) segment-boundary — ball has moved into segment 2 of the BOUNCE shot
+    // Prior version only checked y<=0.45 which had a ~1-frame window at the
+    // segment junction — a dropped frame and hasBounced would never fire, so
+    // a perfectly-timed ENTER would resolve as VOLLEY → "Missed".
+    if (!STATE.hasBounced && s.kind === 'BOUNCE') {
+      const segBounceT = s.segments
+        ? (s.segments[0].dur / s.segments.reduce((a, g) => a + g.dur, 0))
+        : 0.5;
+      if (p.y <= 0.6 || STATE.shotT >= segBounceT - 0.01) STATE.hasBounced = true;
+    }
     // Ground-impact burst for OUT shots once they land past the baseline —
     // concrete visual proof that "yes, that ball would have been out."
     if (s.kind === 'OUT' && !STATE._outLandedBurst && p.y <= 0.5 && STATE.shotT > 0.8) {
@@ -1062,6 +1295,10 @@ function animate(){
         STATE.canInput = false;
         const shot = s;
         STATE.results.push(false);
+        // Timeout miss also counts against the shot-type tally
+        if (shot.kind === 'OUT' || shot.kind === 'VOLLEY' || shot.kind === 'BOUNCE') {
+          STATE.statsByKind[shot.kind].total++;
+        }
         STATE.streak = 0;
         updateDot(STATE.trial, false);
         // If the player was still holding SPACE when flight ended, they
@@ -1097,6 +1334,14 @@ function startGame(){
   const loading = document.getElementById('loading');
   if (loading) { loading.classList.add('gone'); loading.style.opacity = '0'; loading.style.visibility = 'hidden'; }
   animate();
+  // If the parent landing page already showed its own "Two keys. One decision."
+  // splash and set sessionStorage.pregame_seen=1, skip ours so the player
+  // isn't walked through the same explainer twice.
+  try {
+    if (sessionStorage.getItem('pregame_seen') === '1') {
+      if (typeof window.dismissPregame === 'function') window.dismissPregame();
+    }
+  } catch(e) { /* sessionStorage blocked — fall through to normal flow */ }
 }
 // ES module scripts are deferred — the `load` event has often ALREADY fired
 // by the time this script parses, so a plain addEventListener('load', ...)

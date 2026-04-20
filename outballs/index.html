@@ -990,16 +990,13 @@
                     <div class="hero-title-outline">Anticipate<br>Out Balls</div>
                     <h1 class="hero-title">Anticipate<br>Out Balls</h1>
                 </div>
-                <p class="hero-sub"><strong>Rewire your brain</strong> to make the let-it-go-out call before your hands can even move.</p>
+                <p class="hero-sub"><strong>Rewire your brain</strong> to make the let-it-go-out call immediately as your opponent hits the ball, every time.</p>
                 <p class="hero-science-note">Based on <strong>temporal occlusion research</strong> — the methodology elite tennis and cricket programs use to train anticipation.</p>
                 <div class="hero-cta-row">
                     <button class="hero-cta" onclick="open3D()">Start Training →</button>
-                    <button class="hero-cta-mini" onclick="document.getElementById('preview-section').scrollIntoView({behavior:'smooth'})">How it works</button>
                 </div>
                 <div class="hero-meta">
-                    <span>6 levels · 5 shots each</span>
-                    <span>3–5 minutes</span>
-                    <span>Keyboard + touch</span>
+                    <span>9 levels · 5 shots per level</span>
                 </div>
             </div>
         </section>
@@ -1012,7 +1009,7 @@
                     <div class="cred-label">The read window<br>pros operate in</div>
                 </div>
                 <div class="cred-cell">
-                    <div class="cred-num">6</div>
+                    <div class="cred-num">9</div>
                     <div class="cred-label">Levels — faster balls,<br>closer opponents</div>
                 </div>
                 <div class="cred-cell">
@@ -1027,7 +1024,7 @@
             <div class="lp-inner">
                 <div class="section-tag">The brain sequence</div>
                 <h2 class="section-h">Run this every ball.</h2>
-                <p class="reads-intro">Every time your opponent hits the ball, your brain runs these three checks — in this order.</p>
+                <p class="reads-intro">Every time your opponent hits the ball, your brain runs these three checks.</p>
 
                 <!-- Court + 3 trajectories diagram -->
                 <div class="reads-diagram-wrap">
@@ -1067,54 +1064,57 @@
                         <!-- Net -->
                         <rect x="449" y="145" width="2" height="40" fill="white"/>
                         <rect x="440" y="145" width="20" height="3" fill="white"/>
-                        <!-- OUT labels behind baselines -->
+                        <!-- OUT label — only on the defender's side (the decision-maker) -->
                         <text x="30" y="215" text-anchor="middle" fill="#ff5566" font-family="Montserrat" font-size="11" font-weight="800" letter-spacing="1.5">OUT</text>
-                        <text x="870" y="215" text-anchor="middle" fill="#ff5566" font-family="Montserrat" font-size="11" font-weight="800" letter-spacing="1.5">OUT</text>
 
-                        <!-- Attacker figure (left) -->
-                        <g transform="translate(120, 135)">
+                        <!-- Attacker figure (RIGHT — standing behind baseline, hitting toward left) -->
+                        <g transform="translate(780, 135)">
                             <rect x="-6" y="0" width="12" height="28" fill="#C8102E"/>
                             <circle cx="0" cy="-6" r="7" fill="#d4956a"/>
                             <rect x="-6" y="28" width="4" height="20" fill="#1a2535"/>
                             <rect x="2" y="28" width="4" height="20" fill="#1a2535"/>
-                            <!-- paddle mid-swing -->
-                            <rect x="-20" y="-8" width="14" height="18" fill="#1B4079" stroke="#0A1A2F" stroke-width="1"/>
-                            <line x1="-6" y1="6" x2="-10" y2="15" stroke="#d4956a" stroke-width="3" stroke-linecap="round"/>
+                            <!-- paddle mid-swing (extends toward ball → LEFT now) -->
+                            <rect x="6" y="-8" width="14" height="18" fill="#1B4079" stroke="#0A1A2F" stroke-width="1"/>
+                            <line x1="6" y1="6" x2="10" y2="15" stroke="#d4956a" stroke-width="3" stroke-linecap="round"/>
                         </g>
-                        <!-- Defender figure (right — backhand block ready) -->
-                        <g transform="translate(720, 135)">
+                        <!-- Defender figure (LEFT at KITCHEN LINE — backhand-block ready) -->
+                        <g transform="translate(330, 135)">
                             <rect x="-6" y="0" width="12" height="28" fill="#2A7F6F"/>
                             <circle cx="0" cy="-6" r="7" fill="#d4956a"/>
                             <rect x="-6" y="28" width="4" height="20" fill="#1a2535"/>
                             <rect x="2" y="28" width="4" height="20" fill="#1a2535"/>
-                            <!-- backhand block paddle up in front -->
-                            <rect x="-12" y="-14" width="14" height="16" fill="#1B4079" stroke="#0A1A2F" stroke-width="1" transform="rotate(-15 -5 -6)"/>
-                            <line x1="-5" y1="4" x2="-8" y2="10" stroke="#d4956a" stroke-width="2.5" stroke-linecap="round"/>
-                            <line x1="-5" y1="4" x2="-2" y2="10" stroke="#d4956a" stroke-width="2.5" stroke-linecap="round"/>
+                            <!-- paddle up in front, facing the incoming ball (to the right now) -->
+                            <rect x="-2" y="-14" width="14" height="16" fill="#1B4079" stroke="#0A1A2F" stroke-width="1" transform="rotate(15 5 -6)"/>
+                            <line x1="5" y1="4" x2="8" y2="10" stroke="#d4956a" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="5" y1="4" x2="2" y2="10" stroke="#d4956a" stroke-width="2.5" stroke-linecap="round"/>
                         </g>
 
-                        <!-- FASTEST (red) — flat trajectory past defender into OUT zone -->
-                        <path d="M 140 140 Q 420 100, 770 135 T 880 180"
-                              stroke="url(#fast-path)" stroke-width="3" fill="none" stroke-dasharray="none" stroke-linecap="round"/>
-                        <circle cx="880" cy="180" r="5" fill="#ff5566"/>
-                        <text x="780" y="90" fill="#ff5566" font-family="Montserrat" font-size="14" font-weight="800" letter-spacing="1.5">1 · OUT</text>
-                        <text x="780" y="106" fill="#cbd5e1" font-family="Inter" font-size="11" font-weight="600">Let it go</text>
+                        <!-- FASTEST (red) — flies OVER the defender, lands PAST the LEFT baseline -->
+                        <path d="M 760 130 Q 440 80, 140 135 T 30 175"
+                              stroke="url(#fast-path)" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <circle cx="30" cy="175" r="5" fill="#ff5566"/>
 
-                        <!-- MEDIUM (orange) — mid arc, intercepted at defender's chest -->
-                        <path d="M 140 135 Q 420 80, 705 125"
+                        <!-- MEDIUM (orange) — arcs to defender's chest at kitchen line -->
+                        <path d="M 760 125 Q 540 65, 345 125"
                               stroke="url(#mid-path)" stroke-width="3" fill="none" stroke-linecap="round"/>
-                        <circle cx="705" cy="125" r="5" fill="#ffaa44"/>
-                        <text x="460" y="68" fill="#ffaa44" font-family="Montserrat" font-size="14" font-weight="800" letter-spacing="1.5">2 · VOLLEY</text>
-                        <text x="460" y="84" fill="#cbd5e1" font-family="Inter" font-size="11" font-weight="600">Block it</text>
+                        <circle cx="345" cy="125" r="5" fill="#ffaa44"/>
 
-                        <!-- SLOWEST (blue) — high arc, lands in kitchen, bounces up -->
-                        <path d="M 140 130 Q 280 30, 450 185"
+                        <!-- SLOWEST (blue) — high arc, bounces INSIDE the kitchen on defender's side -->
+                        <path d="M 760 130 Q 600 30, 420 185"
                               stroke="url(#slow-path)" stroke-width="3" fill="none" stroke-linecap="round"/>
-                        <path d="M 450 185 Q 560 120, 690 165"
+                        <path d="M 420 185 Q 375 130, 345 140"
                               stroke="#4DA6FF" stroke-width="2.5" stroke-dasharray="4,4" fill="none" stroke-linecap="round" opacity="0.7"/>
-                        <ellipse cx="450" cy="186" rx="12" ry="3" fill="none" stroke="#4DA6FF" stroke-width="1.5" opacity="0.8"/>
-                        <text x="200" y="40" fill="#4DA6FF" font-family="Montserrat" font-size="14" font-weight="800" letter-spacing="1.5">3 · BOUNCE</text>
-                        <text x="200" y="56" fill="#cbd5e1" font-family="Inter" font-size="11" font-weight="600">Groundstroke</text>
+                        <ellipse cx="420" cy="186" rx="14" ry="3.5" fill="none" stroke="#4DA6FF" stroke-width="1.5" opacity="0.8"/>
+
+                        <!-- Compact numbered key — bottom-left, one line, color-coded dots -->
+                        <g transform="translate(74, 32)" font-family="Montserrat" font-size="12" font-weight="800" letter-spacing="1.2">
+                          <circle cx="0"   cy="0" r="5" fill="#ff5566"/>
+                          <text  x="12"  y="4" fill="#ff5566">1 · OUT</text>
+                          <circle cx="116" cy="0" r="5" fill="#ffaa44"/>
+                          <text  x="128" y="4" fill="#ffaa44">2 · VOLLEY</text>
+                          <circle cx="254" cy="0" r="5" fill="#4DA6FF"/>
+                          <text  x="266" y="4" fill="#4DA6FF">3 · BOUNCE</text>
+                        </g>
                     </svg>
                 </div>
 
@@ -1142,41 +1142,6 @@
             </div>
         </section>
 
-        <!-- PREVIEW SECTION (intro animation reframed) -->
-        <section class="lp-section preview-section" id="preview-section">
-            <div class="lp-inner">
-                <div class="section-tag">How it works</div>
-                <h2 class="section-h">You lost to the banger.<br>Here's why.</h2>
-                <div class="preview-frame">
-                    <canvas id="intro-canvas" width="600" height="160"
-                        onmouseenter="introPaused=true" onmouseleave="introPaused=false"
-                        onclick="advanceIntroScene()"></canvas>
-                </div>
-                <div class="scene-dots">
-                    <div class="scene-dot-ind active" id="idot-0"></div>
-                    <div class="scene-dot-ind" id="idot-1"></div>
-                    <div class="scene-dot-ind" id="idot-2"></div>
-                </div>
-                <button id="read-obj-btn" onclick="toggleFullObjective()">Read the full objective ↓</button>
-                <div id="about-full">
-                    <p>You just walked off the court. You lost to a banger. You know exactly why — you kept swinging at balls that were going out, and you handed them the match.</p>
-                    <p>Or a pro just told you the same thing in a lesson. Or, you're about to step on the court against a banger-team and you need to prime your brain.</p>
-                    <p>Either way, you already know the problem. Knowing it isn't the hard part. Rewiring your brain is.</p>
-                    <p>This module trains the swing-or-let-it-go decision — the one read that keeps bangers from feeding off your over-swings. You get into ready position. The ball comes. You call it early. Over reps, your brain gets faster at that call.</p>
-                    <p>Based on temporal occlusion research — the same methodology elite tennis and cricket programs use to train anticipation.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- LEVEL PROGRESSION -->
-        <section class="lp-section levels-section">
-            <div class="lp-inner">
-                <div class="section-tag">Progression</div>
-                <h2 class="section-h">Faster ball.<br>Closer opponent.</h2>
-                <div class="levels-grid" id="levels-grid"></div>
-            </div>
-        </section>
-
         <!-- BOTTOM CTA -->
         <section class="bot-cta-strip">
             <div class="line1">Train the read.<br><em>The habit follows.</em></div>
@@ -1185,7 +1150,7 @@
 
         <!-- FOOTER -->
         <footer class="landing-footer">
-            4D Pickleball · Anticipate Out Balls · v1
+            4D Pickleball · Anticipate Out Balls
         </footer>
     </div>
 
@@ -1211,7 +1176,7 @@
             <h2 class="pgs-h">Two keys.<br>One decision.</h2>
             <div class="pgs-keys">
                 <div class="pgs-key">
-                    <kbd>SPACE</kbd>
+                    <kbd>SPACEBAR</kbd>
                     <div class="pgs-key-body">
                         <div class="pgs-key-name">HOLD</div>
                         <div class="pgs-key-desc">Get into ready position. <strong>Release</strong> if the ball is going out.</div>
@@ -1246,13 +1211,13 @@
             <!-- Full-screen ROUND title card fades in at level start -->
             <div id="round-title-card">
                 <div class="rtc-round" id="rtc-round">ROUND 1</div>
-                <div class="rtc-name" id="rtc-name">SLOW MOTION</div>
+                <div class="rtc-name" id="rtc-name">WARMUP SPEED</div>
                 <div class="rtc-pos" id="rtc-pos">BASELINE</div>
             </div>
             <!-- Broadcast lower-third — shows level, round, and opponent position -->
             <div id="broadcast-lower">
                 <div class="bc-round" id="bc-round">R1 · 1/5</div>
-                <div class="bc-level" id="bc-level">SLOW MOTION</div>
+                <div class="bc-level" id="bc-level">WARMUP SPEED</div>
                 <div class="bc-pos" id="bc-pos">BASELINE</div>
                 <div class="bc-live">LIVE</div>
             </div>
@@ -1875,7 +1840,7 @@
             //   L5  KITCHEN   · medium   — closest position, speed backs off slightly
             //   L6  KITCHEN   · real-time — both at kitchen AND full speed (final boss)
             //
-            { name: 'SLOW MOTION',       dtFactor: 2.8, winMult: 1.3,  mix: [6, 4, 0],     pass: 3, num: 1, oppX: 21, posLabel: 'BASELINE',         rampType: 'INTRO'    },
+            { name: 'WARMUP SPEED',       dtFactor: 2.8, winMult: 1.3,  mix: [6, 4, 0],     pass: 3, num: 1, oppX: 21, posLabel: 'BASELINE',         rampType: 'INTRO'    },
             { name: 'PICKING UP SPEED',  dtFactor: 2.2, winMult: 1.0,  mix: [4, 4, 2],     pass: 3, num: 2, oppX: 21, posLabel: 'BASELINE',         rampType: 'SPEED'    },
             { name: 'MID-COURT READ',    dtFactor: 3.0, winMult: 1.0,  mix: [3, 4, 3],     pass: 4, num: 3, oppX: 14, posLabel: 'MID-COURT',        rampType: 'DISTANCE' },
             { name: 'TRANSITION HEAT',   dtFactor: 2.4, winMult: 0.9,  mix: [2, 4, 4],     pass: 4, num: 4, oppX: 14, posLabel: 'MID-COURT',        rampType: 'SPEED'    },
@@ -3712,101 +3677,239 @@
         // Start intro animation on load
         window.addEventListener('load', initIntroAnim);
 
-        // ── LANDING PAGE: hero backdrop + level tiles ──
+        // ── LANDING PAGE: hero backdrop — CINEMATIC 3D.
+        // This is the page's first impression: a ball flies from the opponent
+        // straight at the viewer over and over, with a glowing neon trail.
+        // Three shot types rotate so you see OUT / VOLLEY / BOUNCE in 10 seconds.
+        // Text morphs overhead: READ IT → 0.3 SECONDS → LET IT GO? → ANTICIPATE.
         function initHeroBackdrop() {
             const cv = document.getElementById('hero-backdrop');
             if (!cv) return;
-            const c = cv.getContext('2d');
-            let W = 0, H = 0, DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-            function fit(){
+            if (typeof THREE === 'undefined' || !THREE.EffectComposer) {
+                // Three.js didn't load — fall back silently (hero still has text)
+                return;
+            }
+            try {
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x0A1628, 14, 55);
+
+            const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 120);
+            // Camera sits just behind the defender's head height — first-person-ish
+            // read angle, so the incoming ball flies AT THE VIEWER.
+            camera.position.set(0, 3.4, 11);
+            camera.lookAt(0, 2.6, -12);
+
+            const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: false, powerPreference: 'high-performance' });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            renderer.setClearColor(0x0A1628, 1);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.15;
+
+            const composer = new THREE.EffectComposer(renderer);
+            composer.addPass(new THREE.RenderPass(scene, camera));
+            const bloom = new THREE.UnrealBloomPass(new THREE.Vector2(1, 1), 0.95, 0.8, 0.1);
+            composer.addPass(bloom);
+
+            // Lighting — warm key + cool fill, matches game's palette
+            scene.add(new THREE.AmbientLight(0xB8D4E8, 0.45));
+            const key = new THREE.DirectionalLight(0xFFF4E0, 0.9);
+            key.position.set(8, 14, 6);
+            scene.add(key);
+            const fill = new THREE.DirectionalLight(0x88A8CC, 0.4);
+            fill.position.set(-10, 6, -8);
+            scene.add(fill);
+
+            // Court texture — radial blue surface, burgundy kitchen bands
+            function makeCourtTex() {
+                const c = document.createElement('canvas'); c.width = 1024; c.height = 2048;
+                const x = c.getContext('2d');
+                // Surface
+                const grad = x.createRadialGradient(512, 1024, 80, 512, 1024, 1100);
+                grad.addColorStop(0, '#2D5FA8'); grad.addColorStop(0.7, '#234E8C'); grad.addColorStop(1, '#1B3E72');
+                x.fillStyle = grad; x.fillRect(0, 0, 1024, 2048);
+                // Kitchen bands (burgundy) — 7 ft each side of net at z=0
+                // Court is 44 long, map 44→2048, so 7ft ≈ 325px
+                x.fillStyle = '#6B0F1A';
+                x.fillRect(0, 1024 - 325, 1024, 325);   // near kitchen
+                x.fillRect(0, 1024, 1024, 325);         // far kitchen
+                // Inset vignette for embossed feel
+                const v = x.createRadialGradient(512, 1024, 600, 512, 1024, 1200);
+                v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.35)');
+                x.fillStyle = v; x.fillRect(0, 0, 1024, 2048);
+                // Lines
+                x.strokeStyle = 'rgba(255,255,255,0.92)'; x.lineWidth = 5;
+                // Baselines
+                x.beginPath(); x.moveTo(40, 20); x.lineTo(984, 20); x.stroke();
+                x.beginPath(); x.moveTo(40, 2028); x.lineTo(984, 2028); x.stroke();
+                // Sidelines
+                x.beginPath(); x.moveTo(40, 20); x.lineTo(40, 2028); x.stroke();
+                x.beginPath(); x.moveTo(984, 20); x.lineTo(984, 2028); x.stroke();
+                // Kitchen lines
+                x.beginPath(); x.moveTo(40, 1024-325); x.lineTo(984, 1024-325); x.stroke();
+                x.beginPath(); x.moveTo(40, 1024+325); x.lineTo(984, 1024+325); x.stroke();
+                // Net line
+                x.lineWidth = 9;
+                x.beginPath(); x.moveTo(0, 1024); x.lineTo(1024, 1024); x.stroke();
+                const t = new THREE.CanvasTexture(c);
+                if (THREE.SRGBColorSpace) t.colorSpace = THREE.SRGBColorSpace;
+                else t.encoding = THREE.sRGBEncoding;
+                return t;
+            }
+            const court = new THREE.Mesh(
+                new THREE.PlaneGeometry(20, 44),
+                new THREE.MeshStandardMaterial({ map: makeCourtTex(), roughness: 0.72, metalness: 0.04 })
+            );
+            court.rotation.x = -Math.PI/2;
+            scene.add(court);
+
+            // Net (simple translucent plane + posts)
+            const netMat = new THREE.MeshStandardMaterial({ color: 0x0F2138, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
+            const net = new THREE.Mesh(new THREE.PlaneGeometry(20.6, 3.0), netMat);
+            net.position.set(0, 1.5, 0);
+            scene.add(net);
+            const netTape = new THREE.Mesh(new THREE.BoxGeometry(20.6, 0.08, 0.08), new THREE.MeshStandardMaterial({ color: 0xFFFFFF }));
+            netTape.position.set(0, 3.0, 0);
+            scene.add(netTape);
+
+            // Opponent — red silhouette at far baseline. Uses cylinders +
+            // sphere (r128-compatible — CapsuleGeometry wasn't added until r142).
+            const oppJersey = new THREE.MeshStandardMaterial({ color: 0x8B1A2B, roughness: 0.55 });
+            const oppPants  = new THREE.MeshStandardMaterial({ color: 0x0F2138, roughness: 0.7 });
+            const opp = new THREE.Group();
+            const oppLegs = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 1.7, 14), oppPants);
+            oppLegs.position.y = 1.05; opp.add(oppLegs);
+            const oppTorso = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 1.6, 16), oppJersey);
+            oppTorso.position.y = 2.65; opp.add(oppTorso);
+            const oppHead = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 14), new THREE.MeshStandardMaterial({ color: 0xE7B48C, roughness: 0.7 }));
+            oppHead.position.y = 3.85; opp.add(oppHead);
+            opp.position.set(0, 0, -21);
+            scene.add(opp);
+
+            // Ball + trail
+            const PICK = 0xC6FF00;
+            const ballMat = new THREE.MeshStandardMaterial({ color: PICK, emissive: PICK, emissiveIntensity: 1.9, roughness: 0.4 });
+            const ball = new THREE.Mesh(new THREE.SphereGeometry(0.28, 22, 16), ballMat);
+            scene.add(ball);
+            const ballLight = new THREE.PointLight(PICK, 1.4, 10, 2);
+            scene.add(ballLight);
+
+            const trailMat = new THREE.MeshStandardMaterial({
+                color: PICK, emissive: PICK, emissiveIntensity: 2.4,
+                transparent: true, opacity: 0.88, roughness: 0.2
+            });
+            let trailMesh = null;
+            let trailPoints = [];
+            function rebuildTrail() {
+                if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); }
+                if (trailPoints.length < 4) return;
+                const curve = new THREE.CatmullRomCurve3(trailPoints);
+                const geo = new THREE.TubeGeometry(curve, Math.min(trailPoints.length*2, 48), 0.09, 6, false);
+                trailMesh = new THREE.Mesh(geo, trailMat);
+                scene.add(trailMesh);
+            }
+            function clearTrail() {
+                trailPoints = [];
+                if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); trailMesh = null; }
+            }
+
+            // 4 shot types that repeat — shows the core game. Durations
+            // are DELIBERATELY spread (fast OUT · medium VOLLEY · slow BOUNCE)
+            // so the speed difference is the read — not the arc alone. Prior
+            // version had all ~2.7-2.9s which made "let it go" and "let it
+            // bounce" feel identical on screen.
+            const SHOTS = [
+                // OUT — MAX speed banger, rockets past camera over head
+                { from:[-1.2, 3.5, -20], to:[ 0.8, 0.2, 16],  apex:6.2, dur:1.30, kind:'OUT',    text:'LET IT GO' },
+                // VOLLEY — fast drive at chest, but clearly slower than OUT
+                { from:[ 0.3, 3.0, -20], to:[ 0.0, 2.8,  8.5], apex:3.4, dur:2.00, kind:'VOLLEY', text:'HIT IT' },
+                // BOUNCE — floating lob, clearly the SLOWEST (2.7× the OUT duration)
+                { from:[ 0.8, 2.8, -20], to:[ 0.0, 1.8, 11],  apex:7.5, dur:3.50, kind:'BOUNCE', text:'LET IT BOUNCE' },
+                // OUT again — same max speed
+                { from:[ 1.2, 3.3, -20], to:[-0.6, 0.2, 15],  apex:6.5, dur:1.30, kind:'OUT',    text:'LET IT GO' }
+            ];
+            let shotIdx = 0;
+            let shotStart = performance.now();
+
+            function arcAt(from, to, apex, t) {
+                const x = from[0] + (to[0]-from[0])*t;
+                const z = from[2] + (to[2]-from[2])*t;
+                const by = from[1] + (to[1]-from[1])*t;
+                const ao = apex - (from[1]+to[1])/2;
+                return new THREE.Vector3(x, by + 4*ao*t*(1-t), z);
+            }
+
+            // Overhead text overlay — floating above canvas
+            const textEl = document.createElement('div');
+            textEl.style.cssText = [
+                'position:absolute','top:28%','left:50%','transform:translateX(-50%)',
+                'z-index:5','pointer-events:none','font-family:"Instrument Serif",Georgia,serif',
+                'font-style:italic','font-weight:400','font-size:clamp(38px,6vw,76px)',
+                'letter-spacing:-1.5px','color:rgba(245,243,238,0.95)','text-align:center',
+                'text-shadow:0 2px 24px rgba(0,0,0,0.8)','opacity:0','transition:opacity 0.35s ease',
+                'white-space:nowrap'
+            ].join(';');
+            cv.parentElement.appendChild(textEl);
+            let textTimer = null;
+
+            function setShotText(str) {
+                textEl.textContent = str;
+                textEl.style.opacity = '0.92';
+                if (textTimer) clearTimeout(textTimer);
+                textTimer = setTimeout(() => { textEl.style.opacity = '0'; }, 1100);
+            }
+
+            function fit() {
                 const r = cv.getBoundingClientRect();
-                cv.width = r.width * DPR; cv.height = r.height * DPR;
-                W = r.width; H = r.height;
-                c.setTransform(DPR,0,0,DPR,0,0);
+                renderer.setSize(r.width, r.height, false);
+                camera.aspect = r.width / Math.max(1, r.height);
+                camera.updateProjectionMatrix();
+                composer.setSize(r.width, r.height);
+                bloom.setSize(r.width, r.height);
             }
             fit();
             new ResizeObserver(fit).observe(cv);
-            // Neon-ball streaks flying diagonally across the hero
-            const streaks = [];
-            function spawnStreak(){
-                const fromLeft = Math.random() < 0.5;
-                const y = 0.15 + Math.random() * 0.7;
-                const speed = 1.6 + Math.random() * 2.4; // px per frame scaled
-                const tilt = -0.35 + Math.random() * 0.7; // y drift per unit x
-                streaks.push({
-                    x: fromLeft ? -120 : 1, y,
-                    vx: fromLeft ? speed : -speed,
-                    vy: tilt * 0.0015,
-                    life: 0, maxLife: 220 + Math.random()*100,
-                    r: 3 + Math.random()*2
-                });
-            }
-            // Court grid lines — fixed, subtle
-            function drawGrid(){
-                c.save();
-                c.globalAlpha = 0.07;
-                c.strokeStyle = '#4DA6FF';
-                c.lineWidth = 1;
-                // Perspective horizontal lines
-                for (let i = 0; i < 8; i++){
-                    const y = H * (0.55 + i*0.065);
-                    const squeeze = 1 - i*0.05;
-                    const xLeft = W * (0.5 - 0.5 * squeeze);
-                    const xRight = W * (0.5 + 0.5 * squeeze);
-                    c.beginPath(); c.moveTo(xLeft, y); c.lineTo(xRight, y); c.stroke();
-                }
-                // Perspective vertical lines
-                for (let i = -4; i <= 4; i++){
-                    const xTop = W * (0.5 + i*0.06);
-                    const xBot = W * (0.5 + i*0.22);
-                    c.beginPath(); c.moveTo(xTop, H*0.55); c.lineTo(xBot, H); c.stroke();
-                }
-                c.restore();
-            }
-            function tick(){
-                c.clearRect(0,0,W,H);
-                // Background radial glow
-                const g = c.createRadialGradient(W*0.7, H*0.2, 0, W*0.7, H*0.2, W*0.8);
-                g.addColorStop(0, 'rgba(27,64,121,0.5)');
-                g.addColorStop(0.5, 'rgba(27,64,121,0.15)');
-                g.addColorStop(1, 'rgba(27,64,121,0)');
-                c.fillStyle = g; c.fillRect(0,0,W,H);
-                // Court grid
-                drawGrid();
-                // Random streak spawning
-                if (Math.random() < 0.04 && streaks.length < 6) spawnStreak();
-                // Draw/update streaks
-                for (let i = streaks.length - 1; i >= 0; i--){
-                    const s = streaks[i];
-                    s.x += s.vx;
-                    s.y += s.vy;
-                    s.life++;
-                    const px = s.x * W;
-                    const py = s.y * H;
-                    // Trail
-                    const trailLen = 12;
-                    for (let t = 0; t < trailLen; t++){
-                        const a = (1 - t/trailLen) * 0.45 * (1 - s.life/s.maxLife);
-                        c.globalAlpha = a;
-                        c.fillStyle = '#DAFF00';
-                        c.beginPath();
-                        c.arc(px - s.vx * t * 8, py - s.vy * t * 8, s.r * (1 - t/trailLen*0.3), 0, Math.PI*2);
-                        c.fill();
+
+            let last = performance.now();
+            function tick() {
+                const now = performance.now();
+                const dt = Math.min(0.05, (now - last) / 1000);
+                last = now;
+
+                const shot = SHOTS[shotIdx];
+                const elapsed = (now - shotStart) / 1000;
+                const t = Math.min(1, elapsed / shot.dur);
+
+                if (t >= 1) {
+                    // Next shot — with a tiny pause for breath
+                    shotIdx = (shotIdx + 1) % SHOTS.length;
+                    shotStart = now + 220;  // ~220ms pause feels intentional
+                    clearTrail();
+                    ball.position.set(...SHOTS[shotIdx].from);
+                } else {
+                    const pos = arcAt(shot.from, shot.to, shot.apex, t);
+                    ball.position.copy(pos);
+                    ballLight.position.copy(pos);
+                    ball.rotation.x += dt * 16;
+                    ball.rotation.z += dt * 6;
+                    // Scale ball UP slightly as it approaches for drama
+                    const closeness = Math.max(0, Math.min(1, (pos.z + 20) / 30));
+                    ball.scale.setScalar(1 + closeness * 0.6);
+                    trailPoints.push(pos.clone());
+                    if (trailPoints.length > 36) trailPoints.shift();
+                    rebuildTrail();
+                    // Show shot text at the start of each shot
+                    if (t > 0.15 && t < 0.2 && textEl.style.opacity !== '0.92') {
+                        setShotText(shot.text);
                     }
-                    // Core glow
-                    c.globalAlpha = 0.9 * (1 - s.life/s.maxLife);
-                    const grad = c.createRadialGradient(px, py, 0, px, py, s.r * 6);
-                    grad.addColorStop(0, 'rgba(255,255,160,0.9)');
-                    grad.addColorStop(0.3, 'rgba(218,255,0,0.55)');
-                    grad.addColorStop(1, 'rgba(218,255,0,0)');
-                    c.fillStyle = grad;
-                    c.beginPath(); c.arc(px, py, s.r * 6, 0, Math.PI*2); c.fill();
-                    c.globalAlpha = 1;
-                    if (s.x > 1.2 || s.x < -0.2 || s.life > s.maxLife) streaks.splice(i, 1);
                 }
+
+                composer.render();
                 requestAnimationFrame(tick);
             }
             tick();
+            } catch(err) {
+                console.warn('[hero-3d] fallback:', err.message);
+            }
         }
 
         function buildLevelTiles(){

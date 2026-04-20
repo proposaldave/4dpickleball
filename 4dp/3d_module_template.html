@@ -534,7 +534,7 @@
 
 <div class="side-card" id="side-card">
   <div class="label" id="side-label">Shot 3 · Drop</div>
-  <div class="coach-role" id="side-role">Under the ball drop</div>
+  <div class="coach-role" id="side-role">Under the ball</div>
   <div class="mantra" id="side-mantra">"Let the ball come to you. The reset isn't a shot — it's a pause button."</div>
   <div class="trajectory" id="side-traj">Apex ≈ 8 ft · Lands soft inside the kitchen from the transition zone.</div>
 </div>
@@ -565,12 +565,12 @@
   <button class="shot-chip dim-drop" data-shot="drop">
     <span class="kbd">3</span>
     <span class="num">3D · Drop</span>
-    <span class="name">Under the Ball Drop</span>
+    <span class="name">Under the Ball</span>
   </button>
   <button class="shot-chip dim-dink" data-shot="dink">
     <span class="kbd">4</span>
     <span class="num">4D · Dink</span>
-    <span class="name">Kitchen Offense</span>
+    <span class="name">Generating Kitchen Offense</span>
   </button>
 </div>
 
@@ -665,7 +665,7 @@ const SHOTS = {
     dim: 'drive',
     color: 0xFBBF24,
     role: 'Ball striking',
-    mantra: '"Four friends on a court. Everyone at the baseline. Playing tennis."',
+    mantra: '"Four friends on a court. Everyone at the baseline. Playing tennis. We've all seen it."',
     traj: 'Short point. Someone misses. This is where most players start.',
     cam: { pos: [36, 20, 0], look: [0, 3, 0] },
     story: 'Four feet planted. Four tennis players. One inevitable shank.',
@@ -708,20 +708,34 @@ const SHOTS = {
     // partner at the kitchen; they stay split backcourt/frontcourt the entire rally.
     // All shots bounce (groundstrokes). Lateral sliding only — no z-forward motion.
     playerFrames: [
-      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-5,22],    nearRight:[5.5,16], farLeft:[-5,-22],  farRight:[4.5,-22.5] },
-      { nearLeft:[-5.5,21.5], nearRight:[5,16], farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-4.5,22.5], nearRight:[4.5,16], farLeft:[-4.5,-22.5], farRight:[5.5,-21.5] },
-      { nearLeft:[-5,22],    nearRight:[4.5,16], farLeft:[-4,-22],  farRight:[5.5,-21.5] },
-      { nearLeft:[-5.5,22.5], nearRight:[5,16], farLeft:[-4.5,-22], farRight:[4.5,-22.5] },
-      { nearLeft:[-5,21.5],  nearRight:[5.5,15.5], farLeft:[-4.5,-22], farRight:[4,-22.5] },
-      { nearLeft:[-4,22.5],  nearRight:[5,16.5], farLeft:[-5,-22.5], farRight:[3.5,-22] },
-      { nearLeft:[-4.5,22],  nearRight:[4.5,16], farLeft:[-5,-22],   farRight:[4,-21.5] },
-      { nearLeft:[-3.5,22.5], nearRight:[5,16.5], farLeft:[-5,-22],  farRight:[4.5,-22] },
-      { nearLeft:[-4,21.5],  nearRight:[5.5,16], farLeft:[-5,-22],   farRight:[5,-22.5] },
-      { nearLeft:[-3,22.5],  nearRight:[6,16], farLeft:[-5.5,-22],   farRight:[5.5,-21.5] },
-      { nearLeft:[-3.5,22],  nearRight:[6,16.5], farLeft:[-5,-22],   farRight:[3.5,-23] },
-      { nearLeft:[-3,22],    nearRight:[5.5,16], farLeft:[-5,-22],   farRight:[3,-22] }
+      // F0 — pre-serve (relaxed stance)
+      { nearLeft:[-5,22],   nearRight:[5,16],   farLeft:[-5,-22],   farRight:[5,-22] },
+      // F1 — serve bouncing in near court; EVERYONE tracks toward center
+      { nearLeft:[-4,22],   nearRight:[4,16],   farLeft:[-4,-22],   farRight:[4,-22] },
+      // F2 — nearLeft lunges for return contact; partners shift with the ball
+      { nearLeft:[-5.5,21.5], nearRight:[3,16], farLeft:[-3.5,-22], farRight:[5,-21.5] },
+      // F3 — return bouncing far-right; near recovers, far races wide
+      { nearLeft:[-4,22.5], nearRight:[4.5,15.5], farLeft:[-3,-22.5], farRight:[5.5,-21] },
+      // F4 — farRight hits 3rd shot cross-court; weight forward
+      { nearLeft:[-5,22],   nearRight:[5,16.5], farLeft:[-4.5,-22], farRight:[6,-21] },
+      // F5 — 3rd bouncing center-near; nearLeft tracks in
+      { nearLeft:[-3.5,21], nearRight:[3.5,17], farLeft:[-5.5,-22], farRight:[4.5,-22.5] },
+      // F6 — nearLeft hits 4th (cross-court); partner covers open side
+      { nearLeft:[-4.5,21], nearRight:[5.5,16], farLeft:[-5,-23], farRight:[4,-22] },
+      // F7 — 4th bouncing far-middle; far team sliding right-to-center
+      { nearLeft:[-3,22.5], nearRight:[4,15.5], farLeft:[-3,-22.5], farRight:[3,-22] },
+      // F8 — farRight stretches to reach 5th shot; off-balance forehand
+      { nearLeft:[-4,22],   nearRight:[6,16.5], farLeft:[-5,-22], farRight:[2.5,-21] },
+      // F9 — 5th bouncing near-left; nearLeft moving back-left to track
+      { nearLeft:[-5.5,22.5], nearRight:[4,16], farLeft:[-4,-22], farRight:[4.5,-22.5] },
+      // F10 — nearLeft hits 6th (big weight transfer on forehand)
+      { nearLeft:[-3,21],   nearRight:[5,17], farLeft:[-5,-22], farRight:[5.5,-22] },
+      // F11 — 6th bouncing far-right; farRight PULLED WIDE chasing ball
+      { nearLeft:[-2.5,22], nearRight:[5.5,15.5], farLeft:[-5.5,-22], farRight:[6.5,-21.5] },
+      // F12 — farRight DIVES wide — off-balance mishit (the shank)
+      { nearLeft:[-3,21.5], nearRight:[6,17], farLeft:[-4.5,-22.5], farRight:[7,-22.5] },
+      // F13 — after shank; farRight recovers, near watches ball die
+      { nearLeft:[-3.5,21], nearRight:[5.5,16], farLeft:[-4,-22], farRight:[5,-22] }
     ],
     // Moments — pedagogical callouts. Each fires at `at` fraction of total shotT;
     // label pins to `arrow` target (ball | player:<key> | court:[x,z]) for `hold` seconds.
@@ -739,7 +753,7 @@ const SHOTS = {
     dim: 'defend',
     color: 0xF472B6,
     role: 'Baby block',
-    mantra: '"One team wakes up. Someone advances. Someone learns the baby block."',
+    mantra: '"The returner sprints to the kitchen. The block neutralizes the drive."',
     traj: 'Point extends. The attack doesn\'t end it — the block neutralizes and the rally sustains.',
     cam: { pos: [36, 22, 4], look: [0, 3, 0] },
     story: 'One player wakes up. The rally has a pulse now.',
@@ -765,7 +779,7 @@ const SHOTS = {
         // cross-court into the OPEN corner — past the serving team (who is clustered
         // center-left around x=-3). Lands deep at far-left corner (x=-8, z=-16). Fast,
         // flat, unreachable. Apex just barely clears the net at this sharp angle.
-        { from: [ 2, 3.5, 6], to: [-8, 0.15, -16], apex: 2.5, dur: 0.42, cinematic: true }
+        { from: [ 2, 3.5, 6], to: [-10, 0.15, -9], apex: 3.0, dur: 0.42 }
       ]
     },
     playerFrames: [
@@ -795,7 +809,7 @@ const SHOTS = {
     label: '3D · Drop',
     dim: 'drop',
     color: 0x34D399,
-    role: 'Under the ball drop',
+    role: 'Under the ball',
     mantra: '"Now the far team adds the drop. The rally stretches."',
     traj: 'High arc from the transition zone — bounces in front of the kitchen-line team. Point keeps going.',
     cam: { pos: [38, 22, 0], look: [0, 4, 0] },
@@ -824,7 +838,7 @@ const SHOTS = {
         // BOUNCE -> far paddle (farLeft)
         { from: [-3, 0.15, -5], to: [-3, 2.3, -7], apex: 2.2, dur: 0.45 },
         // 9TH HIT - FAILED DINK: far mishits, ball dies on their own side
-        { from: [-3, 2.3, -7], to: [-3, 0.15, -11], apex: 2.8, dur: 0.85, cinematic: true },
+        { from: [-3, 2.3, -7], to: [-3, 0.15, -11], apex: 2.8, dur: 0.85 },
         // Ball rolls short on far team's own side
         { from: [-3, 0.15, -11], to: [-4, 0.3, -13], apex: 0.8, dur: 0.55 }
       ]
@@ -850,7 +864,7 @@ const SHOTS = {
       { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] }
     ],
     moments: [
-      { at: 0.42, label: 'UNDER-THE-BALL DROP',
+      { at: 0.42, label: 'UNDER THE BALL',
         why: 'Paddle face opens beneath the ball - high arc buys time to walk in.',
         arrow: { type: 'player', key: 'farRight' }, hold: 1.6 },
       { at: 0.48, label: 'LANDS IN THE KITCHEN',
@@ -865,7 +879,7 @@ const SHOTS = {
     label: '4D · Dink',
     dim: 'dink',
     color: 0x2B8BFC,
-    role: 'Kitchen offense',
+    role: 'Generating kitchen offense',
     mantra: '"All four at the kitchen. Pressure dink. Speed up. Pop-up. Finish."',
     traj: 'Longest point. Dinks construct the attack, a weak pop-up opens the window, smash finishes.',
     cam: { pos: [32, 24, 8], look: [0, 2, 0] },
@@ -894,7 +908,7 @@ const SHOTS = {
         // SPEEDUP: near volleys fast flat at far body
         { from: [-4, 1.8, 6], to: [ 3, 1.5, -6], apex: 3.2, dur: 0.42 },
         // POP-UP: far reflex volley, ball floats high back (cinematic)
-        { from: [ 3, 1.5, -6], to: [-3, 3.2, 4], apex: 4.5, dur: 0.70, cinematic: true },
+        { from: [ 3, 1.5, -6], to: [-3, 3.2, 4], apex: 4.5, dur: 0.70 },
         // FINISH: near overhead smash, lands on ground in far backcourt
         { from: [-3, 3.2, 4], to: [ 8, 0.15, -16], apex: 3.5, dur: 0.50, cinematic: true }
       ]
