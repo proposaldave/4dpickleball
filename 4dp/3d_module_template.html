@@ -151,11 +151,36 @@
   }
   .slowmo-badge.on { opacity: 1; }
 
+  /* Pause indicator — glass pill at top-center, mirrors slow-mo styling */
+  .pause-badge {
+    position: fixed; top: 86px; left: 50%; transform: translateX(-50%); z-index: 10;
+    padding: 6px 18px; border-radius: var(--4dp-r-pill);
+    background: rgba(10,22,40,.88);
+    border: 1px solid rgba(245,243,238,.22);
+    font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--4dp-text);
+    opacity: 0; transition: opacity .3s ease; pointer-events: none;
+  }
+  .pause-badge.on { opacity: 1; }
+  html.embedded .pause-badge { top: 18px; }
+  /* When both slow-mo and pause are on, offset pause below */
+  .slowmo-badge.on ~ .pause-badge.on { top: 124px; }
+
   /* Embedded mode — the landing page renders its own shot chips + info panel
      outside the iframe so they don't overlay the 3D scene. Hide the internal
-     overlays when the iframe is loaded with ?embedded=1. */
+     overlays when the iframe is loaded with ?embedded=1.
+     Class is set on <html> synchronously (inline script at top of body) so the
+     hide takes effect BEFORE the shot-bar ever renders, no flash. */
+  html.embedded .shot-bar,
+  html.embedded .cam-hint,
+  html.embedded .hud-top,
   body.embedded .shot-bar,
-  body.embedded .cam-hint { display: none !important; }
+  body.embedded .cam-hint,
+  body.embedded .hud-top {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
 
   /* Loading */
   #loading {
@@ -170,16 +195,30 @@
 </head>
 <body>
 
+<!-- Embedded-mode detection runs BEFORE the module so the internal overlays
+     (shot-bar, cam-hint, hud-top) are hidden instantly with no flash. -->
+<script>
+(function(){
+  try {
+    var p = new URLSearchParams(location.search);
+    if (p.get('embedded') === '1') {
+      document.documentElement.classList.add('embedded');
+    }
+  } catch(e){}
+})();
+</script>
+
 <div id="loading">Loading the court…</div>
 
 <div id="viewport"></div>
 <div id="vignette"></div>
 
 <div class="hud-top">
-  <span class="brand-pill"><span class="d" id="brand-dot"></span> <span id="brand-label" style="color:#F472B6;font-weight:800;letter-spacing:2px">1D Pickleball</span></span>
+  <span class="brand-pill"><span class="d" id="brand-dot"></span> <span id="brand-label" style="color:#F472B6;font-weight:800;letter-spacing:2px">1D</span></span>
   <div class="hud-controls">
     <button class="ctrl-btn" id="btn-camera">Camera</button>
     <button class="ctrl-btn" id="btn-slowmo">Slow-Mo</button>
+    <button class="ctrl-btn" id="btn-pause" title="Space">Pause</button>
     <button class="ctrl-btn" id="btn-replay">Replay</button>
   </div>
 </div>
@@ -188,6 +227,7 @@
 <div class="center-hero dimmed" id="center-hero" aria-hidden="true" style="display:none"></div>
 
 <div class="slowmo-badge" id="slowmo-badge">◉ Slow-Mo</div>
+<div class="pause-badge" id="pause-badge">⏸ Paused · Press Space</div>
 
 <div class="cam-hint" id="cam-hint">Click + drag to orbit · Scroll to zoom</div>
 
@@ -249,57 +289,74 @@ const SHOTS = {
     color: 0xF472B6,
     role: 'Ball striking',
     mantra: '"Four friends on a court. Everyone at the baseline. Playing tennis."',
-    traj: 'Short point. Lazy lobs, then someone misses. This is where most players start.',
+    traj: 'Short point. Someone misses. This is where most players start.',
     cam: { pos: [36, 20, 0], look: [0, 3, 0] },
     shot: {
       segments: [
-        // SERVE: nearLeft underhand from 2ft behind baseline → bounces in far deuce court
-        { from: [-5, 2.0, 22], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.85 },
-        // BOUNCE → farRight paddle (groundstroke height)
-        { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
-        // RETURN (2nd hit): farRight groundstroke → bounces in near court
-        { from: [ 5, 3, -20], to: [-3, 0.15, 15], apex: 7.5, dur: 0.85 },
-        // BOUNCE → nearLeft paddle
+        // 1ST HIT — SERVE: farRight underhand from 2ft behind baseline → bounces in near court
+        { from: [ 5, 2.0, -22], to: [-3, 0.15, 15], apex: 7.5, dur: 0.85 },
+        // BOUNCE → nearLeft paddle (receiver at baseline, groundstroke height)
         { from: [-3, 0.15, 15], to: [-5, 3, 20], apex: 3.2, dur: 0.40 },
-        // 3RD HIT: nearLeft groundstrokes back → bounces in far court (slightly different spot)
-        { from: [-5, 3, 20], to: [ 4, 0.15, -16], apex: 7.0, dur: 0.80 },
+        // 2ND HIT — RETURN: nearLeft groundstroke → bounces in far court
+        { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.80 },
         // BOUNCE → farRight paddle
-        { from: [ 4, 0.15, -16], to: [ 5, 3, -20], apex: 3.0, dur: 0.40 },
-        // 4TH HIT: farRight groundstrokes → bounces center-left in near court
-        { from: [ 5, 3, -20], to: [-2, 0.15, 14], apex: 7.0, dur: 0.80 },
-        // BOUNCE → nearLeft paddle (nearLeft reaching for ball, off-center)
+        { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
+        // 3RD HIT: farRight groundstrokes back → bounces in near court
+        { from: [ 5, 3, -20], to: [-4, 0.15, 16], apex: 7.0, dur: 0.75 },
+        // BOUNCE → nearLeft paddle
+        { from: [-4, 0.15, 16], to: [-5, 3, 20], apex: 3.0, dur: 0.40 },
+        // 4TH HIT: nearLeft groundstrokes → bounces center-right in far court
+        { from: [-5, 3, 20], to: [ 2, 0.15, -14], apex: 7.0, dur: 0.75 },
+        // BOUNCE → farRight paddle
+        { from: [ 2, 0.15, -14], to: [ 5, 3, -20], apex: 3.0, dur: 0.40 },
+        // 5TH HIT: farRight down the middle → bounces in near center court
+        { from: [ 5, 3, -20], to: [-2, 0.15, 14], apex: 6.8, dur: 0.75 },
+        // BOUNCE → nearLeft paddle
         { from: [-2, 0.15, 14], to: [-5, 3, 20], apex: 3.0, dur: 0.40 },
-        // 5TH HIT: nearLeft off-balance SHANK — dies just past the net (the classic 1D error)
-        { from: [-5, 3, 20], to: [ 0, 0.3, 3], apex: 5.0, dur: 0.95 }
+        // 6TH HIT: nearLeft cross-court → bounces in far court
+        { from: [-5, 3, 20], to: [ 3, 0.15, -13], apex: 6.8, dur: 0.75 },
+        // BOUNCE → farRight paddle (ball dragging farRight sideways)
+        { from: [ 3, 0.15, -13], to: [ 5, 3, -20], apex: 3.0, dur: 0.40 },
+        // 7TH HIT — SHANK: farRight off-balance mishit → dies just past the net (the 1D error)
+        { from: [ 5, 3, -20], to: [ 0, 0.3, 3], apex: 4.5, dur: 0.95 }
       ]
     },
-    // ── 1D player movement — classic "four tennis players who don't know pickleball yet"
-    // Both serving team players BEHIND baseline at start. nearLeft serves, steps forward.
-    // Returner's partner (farLeft) in the MIDDLE of the court (the 1D error — real pickleballers
-    // would put the returner's partner at the kitchen line, but 1D players don't know this).
-    // All shots bounce (groundstrokes). Players slide laterally to track the ball through an
-    // extended rally. Rally ends with nearLeft off-balance shanking short.
+    // ── 1D player movement — "four tennis players who don't know pickleball yet"
+    // Server (farRight) and partner (farLeft) behind baseline. Receiver (nearLeft) at
+    // baseline. Receiver's partner (nearRight) AT KITCHEN LINE — one player at the line
+    // per standard positioning. The 1D error: receiver NEVER advances to join their
+    // partner at the kitchen; they stay split backcourt/frontcourt the entire rally.
+    // All shots bounce (groundstrokes). Lateral sliding only — no z-forward motion.
     playerFrames: [
-      // F0 — pre-serve (BOTH near players behind baseline; farLeft middle = 1D error)
-      { nearLeft:[-5,22],   nearRight:[5,22],   farLeft:[-5,-13],   farRight:[5,-20] },
-      // F1 — serve bouncing in far court (nearLeft stepped onto court, partner stepped up too)
-      { nearLeft:[-5,20],   nearRight:[4,20],   farLeft:[-3.5,-13.5], farRight:[5,-20] },
-      // F2 — farRight returns (cross-court contact)
-      { nearLeft:[-5,20],   nearRight:[3,20],   farLeft:[-3,-14],   farRight:[5,-20] },
-      // F3 — return bouncing in near court (everyone tracking, farRight follow-through)
-      { nearLeft:[-5,20],   nearRight:[3,20],   farLeft:[-4,-13],   farRight:[4,-20] },
-      // F4 — nearLeft hits 3rd shot (cross-court)
-      { nearLeft:[-5,20],   nearRight:[3,20],   farLeft:[-5,-13],   farRight:[3,-20] },
-      // F5 — 3rd shot bouncing in far court (far team tracking, near drifting back to position)
-      { nearLeft:[-4,20],   nearRight:[4,20],   farLeft:[-4,-13],   farRight:[4,-20] },
-      // F6 — farRight hits 4th shot (slid to baseline-right, attacking near center)
-      { nearLeft:[-4,20],   nearRight:[5,20],   farLeft:[-5,-13],   farRight:[5,-20] },
-      // F7 — 4th shot bouncing in near court, center-left (nearLeft reaching inward)
-      { nearLeft:[-3,20],   nearRight:[5,20],   farLeft:[-5,-13],   farRight:[4,-20] },
-      // F8 — nearLeft lunges for the ball, off-balance contact
-      { nearLeft:[-3,20.5], nearRight:[5,20],   farLeft:[-5,-13],   farRight:[4,-20] },
-      // F9 — after the shank dies short (nearLeft stumbled forward; farLeft rushes in late)
-      { nearLeft:[-2,21],   nearRight:[5,20],   farLeft:[-4,-11],   farRight:[4,-20] }
+      // F0 — pre-serve (standard positioning: server team behind, receiver at baseline,
+      //       receiver's partner at kitchen line)
+      { nearLeft:[-5,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[5,-22] },
+      // F1 — serve bouncing in near court (servers STAY behind baseline)
+      { nearLeft:[-5,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[5,-22] },
+      // F2 — nearLeft returns; servers still behind (1D error: receiver doesn't advance)
+      { nearLeft:[-5,20],    nearRight:[5,8],   farLeft:[-4.5,-22], farRight:[5,-22] },
+      // F3 — return bouncing in far court
+      { nearLeft:[-4.5,20],  nearRight:[5,8],   farLeft:[-4,-22],   farRight:[5,-22] },
+      // F4 — farRight hits 3rd shot
+      { nearLeft:[-5,20],    nearRight:[5,8],   farLeft:[-4,-22],   farRight:[5,-22] },
+      // F5 — 3rd bouncing in near court (lateral tracking)
+      { nearLeft:[-5,20],    nearRight:[5,8],   farLeft:[-4,-22],   farRight:[4.5,-22] },
+      // F6 — nearLeft hits 4th shot
+      { nearLeft:[-5,20],    nearRight:[5,8],   farLeft:[-4,-22],   farRight:[4,-22] },
+      // F7 — 4th bouncing in far court (farRight tracking to his forehand)
+      { nearLeft:[-4.5,20],  nearRight:[5,8],   farLeft:[-5,-22],   farRight:[4,-22] },
+      // F8 — farRight hits 5th shot
+      { nearLeft:[-5,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[4,-22] },
+      // F9 — 5th bouncing in near court, center
+      { nearLeft:[-4,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[4.5,-22] },
+      // F10 — nearLeft hits 6th shot
+      { nearLeft:[-4,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[5,-22] },
+      // F11 — 6th bouncing in far court (farRight pulled wide)
+      { nearLeft:[-4,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[4.5,-22] },
+      // F12 — farRight stretches for the ball, OFF-BALANCE — the shank
+      { nearLeft:[-4,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[3.5,-22.5] },
+      // F13 — after shank dies short (farRight recovered; nearRight still at kitchen watching)
+      { nearLeft:[-4,20],    nearRight:[5,8],   farLeft:[-5,-22],   farRight:[3,-22] }
     ]
   },
   defend: {
@@ -324,22 +381,24 @@ const SHOTS = {
         { from: [ 0, 0.8, -12], to: [ 2, 0.15, -16], apex: 1.2, dur: 0.65 }
       ]
     },
-    // ── 2D player movement — near team advances to kitchen and STAYS glued to it.
-    // Near defender blocks the drive FROM the kitchen line (never backs up from it).
-    // Serving team BOTH behind baseline at start. Far team can't reach the short baby block.
+    // ── 2D player movement — receiver's partner starts at KITCHEN LINE (standard
+    // pickleball positioning — exactly one player at the line at start). Receiver
+    // (nearLeft) advances to kitchen after their return. Serving team STAYS BEHIND
+    // BASELINE the entire rally — that's why they lose the point.
+    // Kitchen-line position = z=±8 so player bodies never cross into the kitchen.
     playerFrames: [
-      // F0 — pre-serve (BOTH serving team players behind baseline)
-      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-22],   farRight:[5,-22] },
-      // F1 — after serve (serving team stepped up to baseline)
-      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-20],   farRight:[5,-20] },
-      // F2 — after return, near team charging to kitchen (in transition)
-      { nearLeft:[-5,12],   nearRight:[5,12],   farLeft:[-5,-20],   farRight:[5,-20] },
-      // F3 — drive arrived, near team ARRIVED at kitchen line (continuous forward motion)
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-5,-20],   farRight:[5,-20] },
-      // F4 — after baby block from kitchen line (near STAYS; far rushing up late)
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-4,-16],   farRight:[3,-16] },
-      // F5 — ball dies in far transition zone (near STILL at kitchen; far caught short)
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-3,-13],   farRight:[3,-13] }
+      // F0 — pre-serve (exactly one at kitchen line: nearRight)
+      { nearLeft:[-5,20],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F1 — after serve (serving team STAYS behind baseline; receiver still at baseline)
+      { nearLeft:[-5,20],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F2 — after return, receiver SPRINTED to join partner at kitchen line
+      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F3 — drive arrived at kitchen line (near AT kitchen; far still behind)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F4 — after baby block (near STAYS at kitchen; far slid laterally, still behind)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-4,-22],   farRight:[3,-22] },
+      // F5 — ball dies in far transition zone (near STILL at kitchen; far caught back)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-22],   farRight:[3,-22] }
     ]
   },
   drop: {
@@ -368,29 +427,35 @@ const SHOTS = {
         { from: [ 3, 1.0, -5], to: [-2, 0.3, -9], apex: 1.6, dur: 0.65 }
       ]
     },
-    // ── 3D player movement — Dave's canonical 3D sequence:
-    //   1. Serve → serving team STAYS EXACTLY where they are (behind baseline)
-    //   2. Receive return → hit third shot drive → move in JUST A LITTLE BIT (transition zone)
-    //   3. From middle of transition zone → hit under-ball drop that bounces in near kitchen
-    //      → allowing the returning team (already at kitchen line) to play it
-    // NO player ever steps into the kitchen (z between -7 and 7) — everyone at kitchen LINE or behind.
+    // ── 3D player movement — Dave's canonical sequence:
+    //   F0. Receiver's partner (nearRight) at kitchen line; receiver at baseline;
+    //       serving team behind baseline
+    //   F1. Serve → serving team STAYS EXACTLY where they are
+    //   F2. After return → receiver SPRINTED to kitchen line (now both at line)
+    //   F3. Third shot drive → serving team still behind baseline (hit the drive with
+    //       paddle reaching forward); near team now AT kitchen line
+    //   F4. After baby block → serving team moves in JUST A LITTLE BIT to transition
+    //   F5. After drop from transition → serving team crept slightly forward
+    //   F6. After near's cross-court dink → serving team finally reaches kitchen line
+    //   F7. Ball dies (serving team couldn't cleanly return)
+    // Kitchen-line position = z=±8 so player bodies never cross into the kitchen.
     playerFrames: [
-      // F0 — pre-serve (BOTH serving team behind baseline)
-      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-22],   farRight:[5,-22] },
-      // F1 — after serve, serving team STAYS EXACTLY where they are (per Dave)
-      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-22],   farRight:[5,-22] },
-      // F2 — after return, near team charging to kitchen; far team still behind baseline
-      { nearLeft:[-5,11],   nearRight:[5,11],   farLeft:[-5,-22],   farRight:[5,-22] },
-      // F3 — after third shot drive, near arrived AT kitchen; far stepped onto baseline to hit
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-5,-20],   farRight:[5,-20] },
-      // F4 — after baby block (near STAYS at kitchen); far team moved in JUST A LITTLE BIT
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-4,-15],   farRight:[3,-15] },
-      // F5 — after UNDER-BALL DROP from transition (near STAYS; far crept forward slightly more)
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-4,-13],   farRight:[3,-13] },
+      // F0 — pre-serve (exactly one at kitchen line: nearRight)
+      { nearLeft:[-5,20],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F1 — after serve, serving team STAYS EXACTLY where they are
+      { nearLeft:[-5,20],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F2 — after return, receiver SPRINTED to join partner at kitchen line
+      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F3 — after third shot drive (near AT kitchen; far still behind baseline)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F4 — after baby block (near STAYS; far moved in JUST A LITTLE BIT to transition)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-4,-15],   farRight:[3,-15] },
+      // F5 — after UNDER-BALL DROP from transition (near STAYS; far crept slightly forward)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-4,-13],   farRight:[3,-13] },
       // F6 — after near cross-court dink — far finally reaches kitchen line
-      { nearLeft:[-1,7],    nearRight:[4,7],    farLeft:[-3,-7],    farRight:[3,-7] },
+      { nearLeft:[-1,8],    nearRight:[4,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       // F7 — ball dies just past kitchen line (far stretches but can't clean return)
-      { nearLeft:[-1,7],    nearRight:[4,7],    farLeft:[-3,-7],    farRight:[2,-7] }
+      { nearLeft:[-1,8],    nearRight:[4,8],    farLeft:[-3,-8],    farRight:[2,-8] }
     ]
   },
   dink: {
@@ -426,37 +491,39 @@ const SHOTS = {
       ]
     },
     // ── 4D player movement — same opening as 3D, then all four at the KITCHEN LINE.
-    // NO player ever steps inside the kitchen (z between -7 and 7). Ball bounces can happen
-    // inside the kitchen; players reach from the line. Speedup/popup/finish has visible reflex motion.
+    // Receiver's partner starts at kitchen line. Receiver advances to kitchen by F2.
+    // Serving team behind baseline until after third shot, then advances to kitchen.
+    // Kitchen-line position = z=±8 so player bodies never cross into the kitchen.
     playerFrames: [
-      // F0 — pre-serve (BOTH serving team behind baseline)
-      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-22],   farRight:[5,-22] },
+      // F0 — pre-serve (exactly one at kitchen line: nearRight)
+      { nearLeft:[-5,20],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       // F1 — after serve (serving team STAYS behind baseline)
-      { nearLeft:[-5,20],   nearRight:[5,20],   farLeft:[-5,-22],   farRight:[5,-22] },
-      // F2 — after return, near advancing
-      { nearLeft:[-5,11],   nearRight:[5,11],   farLeft:[-5,-22],   farRight:[5,-22] },
-      // F3 — after third shot drive (near AT kitchen; far stepped onto baseline)
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-5,-20],   farRight:[5,-20] },
-      // F4 — after baby block (near STAYS; far moved in just a little)
-      { nearLeft:[-3,7],    nearRight:[5,7],    farLeft:[-4,-15],   farRight:[3,-15] },
+      { nearLeft:[-5,20],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F2 — after return, receiver SPRINTED to kitchen line
+      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F3 — after third shot drive (near AT kitchen; far still behind baseline)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F4 — after baby block (near STAYS; far moved in JUST A LITTLE BIT to transition)
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-4,-15],   farRight:[3,-15] },
       // F5 — after DROP, ALL FOUR at the KITCHEN LINE (4D frame established)
-      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-3,-7],    farRight:[3,-7] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       // F6 — after pressure dink cross-court (all stay at kitchen line)
-      { nearLeft:[-2,7],    nearRight:[3,7],    farLeft:[-3,-7],    farRight:[3,-7] },
+      { nearLeft:[-2,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       // F7 — after weak return dink (nearLeft shifts slightly for the reply)
-      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-3,-7],    farRight:[3,-7] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       // F8 — after SPEEDUP (everyone AT kitchen line — far got hit but stays at line)
-      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-3,-7],    farRight:[3,-7] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       // F9 — after POP-UP (far reflexed defensively — stays at kitchen line)
-      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-2,-7],    farRight:[3,-7] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-2,-8],    farRight:[3,-8] },
       // F10 — after FINISH smash (farRight dove right along kitchen line but couldn't get there)
-      { nearLeft:[-3,7],    nearRight:[3,7],    farLeft:[-3,-7],    farRight:[4,-7] }
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[4,-8] }
     ]
   }
 };
 
 let activeShotKey = 'drive';
 let slowMo = false;
+let paused = false;
 let camPresetIdx = 0;
 const CAM_PRESETS_BY_SHOT = {}; // filled later
 
@@ -903,6 +970,17 @@ scene.add(ball);
 const ballLight = new THREE.PointLight(0xFFEEAA, 0.9, 8, 2);
 scene.add(ballLight);
 
+// Ball SHADOW on ground — a soft dark ellipse tracking under the ball.
+// Scale shrinks and opacity fades as ball rises, so you always know its height.
+// This is the #1 cinematic trick to make a bouncing ball feel real in 3D.
+const ballShadowMat = new THREE.MeshBasicMaterial({
+  color: 0x000000, transparent: true, opacity: 0.32, depthWrite: false
+});
+const ballShadow = new THREE.Mesh(new THREE.CircleGeometry(0.28, 24), ballShadowMat);
+ballShadow.rotation.x = -Math.PI / 2;
+ballShadow.position.y = 0.015;  // just above the court surface
+scene.add(ballShadow);
+
 // ═══════════════════════════════════════════════════════════
 // BALL TRAIL — TubeGeometry rebuilt from CatmullRomCurve3 each frame
 // This is the single biggest "oh" moment — dimension color,
@@ -1070,7 +1148,7 @@ function updateBrandPill(key) {
   document.getElementById('brand-dot').style.background = hex;
   const dimPrefix = s.label.split(' ')[0];   // "1D" / "2D" / "3D" / "4D"
   const label = document.getElementById('brand-label');
-  label.textContent = `${dimPrefix} Pickleball`;
+  label.textContent = dimPrefix;
   label.style.color = hex;
 }
 // Back-compat shim: older code may still call updateBrandDot
@@ -1106,7 +1184,9 @@ let lastTime = performance.now();
 function animate() {
   const now = performance.now();
   const rawDt = Math.min(0.05, (now - lastTime) / 1000);
-  const dt = slowMo ? rawDt * 0.28 : rawDt;
+  // When paused, dt=0 so the ball + players freeze in place but the render loop
+  // keeps running (user can still orbit the camera).
+  const dt = paused ? 0 : (slowMo ? rawDt * 0.28 : rawDt);
   lastTime = now;
 
   controls.update();
@@ -1131,6 +1211,14 @@ function animate() {
     const p = trajectoryAt(s, shotT);
     ball.position.copy(p);
     ballLight.position.copy(p);
+
+    // Ball shadow tracks ball in x/z; shrinks + fades with height
+    ballShadow.position.x = p.x;
+    ballShadow.position.z = p.z;
+    const hAboveGround = Math.max(0, p.y - 0.24);
+    const shadowScale = Math.max(0.55, 1 - hAboveGround * 0.06);
+    ballShadow.scale.setScalar(shadowScale);
+    ballShadowMat.opacity = Math.max(0.12, 0.36 - hAboveGround * 0.022);
 
     // Drive the players off the same shotT — so motion is always in sync with the ball.
     updatePlayerPositions(activeShotKey, shotT);
@@ -1164,13 +1252,20 @@ function animate() {
   if (params.get('embedded') === '1') document.body.classList.add('embedded');
 })();
 
-// Parent-page shot selection: the landing page dispatches
-// { type:'4dp:select-shot', key: 'drive'|'defend'|'drop'|'dink' }
-// to swap shots without needing the internal shot-bar.
+// Parent-page shot selection + pause control. The landing page can dispatch:
+//   { type:'4dp:select-shot', key: 'drive'|'defend'|'drop'|'dink' }
+//   { type:'4dp:toggle-pause' }  — so SPACE works even when iframe isn't focused
 window.addEventListener('message', (e) => {
-  if (!e.data || e.data.type !== '4dp:select-shot') return;
-  const key = e.data.key;
-  if (key && SHOTS[key]) startShot(key);
+  if (!e.data) return;
+  if (e.data.type === '4dp:select-shot') {
+    const key = e.data.key;
+    if (key && SHOTS[key]) {
+      if (paused) setPaused(false);  // un-pause when user picks a new shot
+      startShot(key);
+    }
+  } else if (e.data.type === '4dp:toggle-pause') {
+    setPaused(!paused);
+  }
 });
 
 document.querySelectorAll('.shot-chip').forEach(chip => {
@@ -1192,7 +1287,27 @@ document.getElementById('btn-slowmo').addEventListener('click', () => {
   document.getElementById('btn-slowmo').classList.toggle('active', slowMo);
   document.getElementById('slowmo-badge').classList.toggle('on', slowMo);
 });
-document.getElementById('btn-replay').addEventListener('click', () => startShot(activeShotKey));
+
+// ── PAUSE: button + SPACE key ──
+function setPaused(next) {
+  paused = next;
+  document.getElementById('btn-pause').classList.toggle('active', paused);
+  document.getElementById('btn-pause').textContent = paused ? 'Play' : 'Pause';
+  document.getElementById('pause-badge').classList.toggle('on', paused);
+}
+document.getElementById('btn-pause').addEventListener('click', () => setPaused(!paused));
+window.addEventListener('keydown', (e) => {
+  // Space toggles pause. preventDefault to avoid page scroll.
+  if (e.code === 'Space' && !e.repeat) {
+    e.preventDefault();
+    setPaused(!paused);
+  }
+});
+
+document.getElementById('btn-replay').addEventListener('click', () => {
+  if (paused) setPaused(false);  // replaying = un-pause
+  startShot(activeShotKey);
+});
 
 // Hide cam hint after first interaction
 ['click', 'wheel', 'pointerdown'].forEach(ev =>
@@ -1211,12 +1326,24 @@ window.addEventListener('resize', () => {
   bloom.setSize(vp.clientWidth, vp.clientHeight);
 });
 
-// Fade loading screen, start
+// Fade loading screen. On FIRST load only, hold the scene still for ~1s so the
+// viewer can read the court + player positions before the ball starts flying.
 window.addEventListener('load', () => {
   setTimeout(() => {
     document.getElementById('loading').classList.add('gone');
-    startShot('drive'); // Auto-play 1D Drive first — start of the story
+    // Stage the scene so everything is painted in "ready" state:
+    // players at F0, ball at serve origin, camera at shot preset, dim color set.
+    startShot('drive');
+    // Then silently freeze ball motion for 1s. Camera still auto-rotates and
+    // user can orbit. After 1s, unfreeze and reset shotStart so rally plays cleanly.
+    shotRunning = false;
     animate();
+    setTimeout(() => {
+      shotT = 0;
+      shotStart = performance.now();
+      shotBurstFired = false;
+      shotRunning = true;
+    }, 1000);
   }, 300);
 });
 </script>

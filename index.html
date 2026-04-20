@@ -646,7 +646,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <div class="di-role" id="di-role">Ball striking</div>
         <div class="di-mantra" id="di-mantra">"Four friends on a court. Everyone at the baseline. Playing tennis."</div>
         <div class="di-traj" id="di-traj">Short point. Lazy lobs, then someone misses. This is where most players start.</div>
-        <div class="di-hint">Click a dimension below the court · Drag to orbit · Scroll to zoom</div>
+        <div class="di-hint">Click a dimension below · Space to pause · Drag to orbit · Scroll to zoom</div>
       </aside>
     </div>
   </section>
@@ -739,6 +739,18 @@ document.querySelectorAll('.dim-chip').forEach(chip => {
       dimIframe.contentWindow.postMessage({ type:'4dp:select-shot', key }, '*');
     }
   });
+});
+
+// ── SPACE toggles pause inside the iframe — works even when iframe isn't focused ──
+window.addEventListener('keydown', (e) => {
+  // Only hijack SPACE when the user is NOT typing in an input/textarea
+  if (e.code !== 'Space') return;
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  e.preventDefault();
+  if (dimIframe && dimIframe.contentWindow) {
+    dimIframe.contentWindow.postMessage({ type:'4dp:toggle-pause' }, '*');
+  }
 });
 
 // ── Listen for shot changes from the embedded 3D cinematic iframe ──

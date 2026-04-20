@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEPC Training | Anticipating Out Balls</title>
+    <title>NEPC Training | Anticipate Out Balls</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@700;800;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -987,8 +987,8 @@
             <div class="hero-inner">
                 <div class="hero-kicker">4D Pickleball · Training Module</div>
                 <div class="hero-title-stack">
-                    <div class="hero-title-outline">Anticipating<br>Out Balls</div>
-                    <h1 class="hero-title">Anticipating<br>Out Balls</h1>
+                    <div class="hero-title-outline">Anticipate<br>Out Balls</div>
+                    <h1 class="hero-title">Anticipate<br>Out Balls</h1>
                 </div>
                 <p class="hero-sub"><strong>Rewire your brain</strong> to make the let-it-go-out call before your hands can even move.</p>
                 <p class="hero-science-note">Based on <strong>temporal occlusion research</strong> — the methodology elite tennis and cricket programs use to train anticipation.</p>
@@ -1185,7 +1185,7 @@
 
         <!-- FOOTER -->
         <footer class="landing-footer">
-            4D Pickleball · Anticipating Out Balls · v1
+            4D Pickleball · Anticipate Out Balls · v1
         </footer>
     </div>
 
@@ -2058,14 +2058,20 @@
             _enterGame();
         }
         function _enterGame(){
-            // Template swap: the 3D experience is now the canonical cinematic template
-            // (../../4dp/3d_module_template.html) rendered in an iframe. This replaces the
-            // custom in-page Three.js game viewport while the template becomes the shared
-            // 3D module reference per R21.
+            // The 3D experience is the outballs-specific game (./game.html) which is
+            // derived from the canonical template (06_ACADEMY/4dp/3d_module_template.html
+            // — lives outside the served /outballs/ root, so it can't be iframed
+            // directly). game.html is in-tree and handles the full outballs loop.
+            //
+            // Previously this pointed to '../../4dp/3d_module_template.html', which
+            // resolved to sites/4dp/3d_module_template.html — does not exist, served a
+            // 404, iframe rendered blank. That was the "blank screen" bug.
             const overlay = document.getElementById('template-overlay');
             if (overlay) {
                 const frame = document.getElementById('template-frame');
-                if (frame && !frame.src) frame.src = '../../4dp/3d_module_template.html';
+                // Gotcha: `frame.src` reads the RESOLVED doc URL when the attribute is
+                // blank — so `!frame.src` is always false. Check the attribute instead.
+                if (frame && !frame.getAttribute('src')) frame.src = './game.html';
                 overlay.style.display = 'flex';
             } else {
                 document.getElementById('viewport-3d').style.display = 'flex';

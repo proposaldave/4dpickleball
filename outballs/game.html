@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Out Balls · 4D Pickleball</title>
+<!-- tokens.css is outside the served root at /outballs/, so the variables below mirror it inline -->
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --4dp-ink: #0A1628; --4dp-text: #F5F3EE; --4dp-text-dim: rgba(245,243,238,.6); --4dp-text-mute: rgba(245,243,238,.4);
+  --4dp-hairline: rgba(245,243,238,.08); --4dp-hairline-s: rgba(245,243,238,.14);
+  --4dp-drive:#F472B6; --4dp-defend:#FBBF24; --4dp-drop:#34D399; --4dp-dink:#2B8BFC;
+  --4dp-gold:#FBBF24;
+  --4dp-font-display:'Instrument Serif',Georgia,serif; --4dp-font-body:'DM Sans',-apple-system,system-ui,sans-serif;
+  --4dp-r-md:14px; --4dp-r-pill:999px;
+  --4dp-ease:cubic-bezier(.16,1,.3,1);
+}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--4dp-ink);}
+body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothing:antialiased;}
+#viewport{position:fixed;inset:0;z-index:0;}
+#viewport canvas{display:block;width:100%!important;height:100%!important;}
+#vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(10,22,40,.6) 100%);}
+
+/* Top HUD */
+.hud-top{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:18px 24px;pointer-events:none;}
+.hud-top > *{pointer-events:auto;}
+.brand-pill{display:inline-flex;align-items:center;gap:10px;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:var(--4dp-r-pill);padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--4dp-text-dim);}
+.brand-pill .d{width:8px;height:8px;border-radius:50%;background:var(--4dp-gold);box-shadow:0 0 10px rgba(251,191,36,.6);}
+.hud-right-group{display:flex;gap:10px;align-items:flex-start;}
+.hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:var(--4dp-r-md);padding:10px 16px;}
+.hud-right .lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--4dp-text-mute);}
+.hud-right .score{font-family:var(--4dp-font-display);font-style:italic;font-size:24px;letter-spacing:-.5px;color:var(--4dp-gold);line-height:1;}
+.hud-right .round{font-size:11px;color:var(--4dp-text-dim);font-weight:600;letter-spacing:.5px;}
+
+/* Camera cycle button (top-right, to the left of the score card) */
+.cam-btn{background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:10px;padding:10px 16px;font-family:var(--4dp-font-body);font-weight:700;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--4dp-text);cursor:pointer;transition:all .2s var(--4dp-ease);align-self:flex-start;}
+.cam-btn:hover{background:rgba(245,243,238,.10);border-color:rgba(245,243,238,.30);}
+.cam-btn:active{transform:translateY(1px);}
+
+/* Center prompt — positioned ABOVE the court (top of viewport) with a dark
+   backdrop so the instructions stay legible. Was previously at top:28%
+   which dropped the text in front of the playing surface and was unreadable
+   against the court texture. */
+.center-prompt{position:fixed;top:104px;left:50%;transform:translateX(-50%);z-index:8;text-align:center;pointer-events:none;padding:14px 26px;max-width:720px;background:rgba(10,22,40,.78);backdrop-filter:blur(12px);border:1px solid var(--4dp-hairline-s);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.38);}
+.cp-eyebrow{display:inline-block;padding:5px 14px;border-radius:var(--4dp-r-pill);background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.35);font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--4dp-gold);margin-bottom:10px;}
+.cp-headline{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:clamp(26px,4.2vw,44px);letter-spacing:-1px;line-height:1;color:var(--4dp-text);text-shadow:0 2px 24px rgba(0,0,0,.7);transition:opacity .3s;margin:0;}
+.cp-sub{margin:10px 0 0;font-size:13px;color:var(--4dp-text-dim);letter-spacing:.3px;}
+
+/* Verdict banner */
+.verdict{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);z-index:12;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s;}
+.verdict.on{opacity:1;}
+.verdict .big{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(48px,8vw,96px);letter-spacing:-2px;line-height:.95;text-shadow:0 4px 32px rgba(0,0,0,.9);}
+.verdict .sub{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-text-dim);}
+
+/* Bottom control bar */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:10;padding:16px 24px 26px;background:linear-gradient(0deg,rgba(10,22,40,.88) 40%,rgba(10,22,40,0));display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:900px;margin:0 auto;}
+.gate-btn{background:rgba(10,22,40,.6);backdrop-filter:blur(10px);border:1.5px solid var(--4dp-hairline-s);border-radius:14px;padding:16px 18px;color:var(--4dp-text);cursor:pointer;transition:all .15s var(--4dp-ease);-webkit-tap-highlight-color:transparent;text-align:left;}
+.gate-btn.ready{border-color:color-mix(in srgb,var(--4dp-drop) 50%,transparent);background:color-mix(in srgb,var(--4dp-drop) 14%,rgba(10,22,40,.6));}
+.gate-btn.ready:active,.gate-btn.ready.active{background:color-mix(in srgb,var(--4dp-drop) 45%,rgba(10,22,40,.6));border-color:var(--4dp-drop);}
+.gate-btn.swing{border-color:color-mix(in srgb,#FB7185 50%,transparent);background:color-mix(in srgb,#FB7185 14%,rgba(10,22,40,.6));}
+.gate-btn.swing:active,.gate-btn.swing.active{background:color-mix(in srgb,#FB7185 55%,rgba(10,22,40,.6));border-color:#FB7185;}
+.gate-kbd{font-family:var(--4dp-font-body);font-weight:800;font-size:10px;letter-spacing:2px;color:var(--4dp-text-mute);text-transform:uppercase;margin-bottom:6px;}
+.gate-name{font-family:var(--4dp-font-display);font-style:italic;font-size:22px;letter-spacing:-.5px;line-height:1;}
+.gate-hint{margin-top:4px;font-size:11px;color:var(--4dp-text-dim);font-weight:500;}
+
+/* Pregame splash */
+#pregame{position:fixed;inset:0;z-index:200;background:rgba(10,22,40,.96);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:24px;}
+#pregame.gone{display:none;}
+.pg-card{max-width:520px;background:linear-gradient(180deg,rgba(27,64,121,.3),rgba(10,20,40,.65));border:1px solid rgba(251,191,36,.3);border-radius:22px;padding:34px 36px;box-shadow:0 24px 64px rgba(0,0,0,.7);}
+.pg-eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-gold);margin-bottom:10px;}
+.pg-h{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(32px,5vw,48px);letter-spacing:-1px;line-height:1;color:var(--4dp-text);margin:0 0 24px;}
+.pg-key{display:flex;gap:16px;align-items:flex-start;margin-bottom:14px;}
+.pg-key kbd{font-family:var(--4dp-font-body);font-weight:900;font-size:11px;letter-spacing:2px;color:var(--4dp-text);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-bottom:2px solid rgba(255,255,255,.32);padding:11px 14px;border-radius:8px;min-width:84px;text-align:center;flex-shrink:0;}
+.pg-key-name{font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text);margin-bottom:4px;}
+.pg-key-desc{font-size:13px;color:var(--4dp-text-dim);line-height:1.5;}
+.pg-go{width:100%;margin-top:14px;background:var(--4dp-dink);color:var(--4dp-text);border:0;border-radius:14px;padding:15px;font-family:var(--4dp-font-body);font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;box-shadow:0 6px 24px rgba(43,139,252,.35);}
+.pg-go:hover{background:#1E6FD9;transform:translateY(-2px);}
+
+/* Round title card */
+#round-card{position:fixed;inset:0;z-index:180;background:radial-gradient(ellipse at center,rgba(0,0,0,.85),rgba(0,0,0,.98));display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
+#round-card.on{display:flex;}
+.rc-kicker{font-size:10px;font-weight:900;letter-spacing:8px;color:var(--4dp-gold);text-transform:uppercase;margin-bottom:16px;opacity:0;transform:translateY(20px);transition:all .5s var(--4dp-ease) .1s;}
+.rc-name{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(52px,8vw,108px);letter-spacing:-2.5px;line-height:1;color:var(--4dp-text);margin-bottom:14px;opacity:0;transform:scale(.85);transition:all .6s var(--4dp-ease) .3s;}
+.rc-pos{font-size:11px;font-weight:800;letter-spacing:5px;text-transform:uppercase;padding:7px 18px;border:1px solid rgba(251,191,36,.3);border-radius:999px;color:var(--4dp-gold);opacity:0;transform:translateY(-18px);transition:all .5s var(--4dp-ease) .55s;}
+#round-card.on .rc-kicker,#round-card.on .rc-name,#round-card.on .rc-pos{opacity:1;transform:none;}
+
+/* End of session card */
+#end-card{position:fixed;inset:0;z-index:210;background:rgba(10,22,40,.97);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:24px;}
+#end-card.on{display:flex;}
+.ec-card{max-width:480px;width:100%;background:linear-gradient(180deg,rgba(27,64,121,.3),rgba(10,20,40,.7));border:1px solid rgba(251,191,36,.35);border-radius:22px;padding:34px 36px;text-align:center;box-shadow:0 24px 72px rgba(0,0,0,.75);}
+.ec-kicker{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-gold);margin-bottom:10px;}
+.ec-big{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(56px,10vw,88px);letter-spacing:-2.5px;line-height:.9;color:var(--4dp-text);margin-bottom:6px;}
+.ec-big .slash{color:var(--4dp-text-mute);font-size:.55em;}
+.ec-pct{font-size:14px;letter-spacing:2px;text-transform:uppercase;color:var(--4dp-gold);margin-bottom:20px;font-weight:800;}
+.ec-stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:13px;}
+.ec-stat-row:last-of-type{border:0;margin-bottom:16px;}
+.ec-stat-row .l{color:var(--4dp-text-dim);}
+.ec-stat-row .v{color:var(--4dp-text);font-weight:700;}
+.ec-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;}
+.ec-buttons button{padding:14px;border:0;border-radius:12px;font-family:var(--4dp-font-body);font-weight:700;font-size:13px;cursor:pointer;transition:all .15s;}
+.ec-again{background:var(--4dp-dink);color:var(--4dp-text);}
+.ec-again:hover{background:#1E6FD9;}
+.ec-share{background:rgba(251,191,36,.15);color:var(--4dp-gold);border:1px solid rgba(251,191,36,.35)!important;}
+.ec-share:hover{background:rgba(251,191,36,.25);}
+
+/* Shot progress dots */
+.progress-dots{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:9;display:flex;gap:8px;}
+.pdot{width:10px;height:10px;border-radius:50%;background:rgba(245,243,238,.12);transition:all .3s;}
+.pdot.correct{background:var(--4dp-drop);box-shadow:0 0 10px rgba(52,211,153,.5);}
+.pdot.wrong{background:#FB7185;}
+.pdot.current{background:rgba(245,243,238,.45);box-shadow:0 0 14px rgba(245,243,238,.6);}
+
+/* Back button */
+#back-btn{position:fixed;top:18px;left:24px;z-index:11;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:10px;padding:9px 16px;font-family:var(--4dp-font-body);font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text);cursor:pointer;}
+
+/* Loading */
+#loading{position:fixed;inset:0;z-index:300;background:var(--4dp-ink);display:flex;align-items:center;justify-content:center;color:var(--4dp-text);font-family:var(--4dp-font-display);font-style:italic;font-size:30px;transition:opacity .5s ease;}
+#loading.gone{opacity:0;pointer-events:none;visibility:hidden;}
+</style>
+</head>
+<body>
+
+<div id="loading">Loading the court…</div>
+
+<div id="viewport"></div>
+<div id="vignette"></div>
+
+<div class="hud-top">
+  <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
+  <div class="hud-right-group">
+    <button class="cam-btn" id="btn-camera" title="Cycle camera view">Camera</button>
+    <div class="hud-right">
+      <div class="lbl">Score</div>
+      <div class="score" id="score-val">0</div>
+      <div class="round" id="round-val">Round 1 · 0/5</div>
+    </div>
+  </div>
+</div>
+
+<button id="back-btn" onclick="window.location.href='./'">← Back</button>
+
+<div class="progress-dots" id="progress-dots"></div>
+
+<div class="center-prompt" id="center-prompt">
+  <div class="cp-eyebrow" id="cp-eyebrow">Hold SPACE to get ready</div>
+  <p class="cp-headline" id="cp-headline">Read the speed.</p>
+  <p class="cp-sub" id="cp-sub">Release to let it go out · Hit ENTER to hit</p>
+</div>
+
+<div class="verdict" id="verdict">
+  <div class="big" id="verdict-big"></div>
+  <div class="sub" id="verdict-sub"></div>
+</div>
+
+<div class="bottom-bar">
+  <button class="gate-btn ready" id="btn-ready"
+    onmousedown="onReadyDown()" onmouseup="onReadyUp()" onmouseleave="onReadyUp()"
+    ontouchstart="onReadyDown()" ontouchend="onReadyUp()">
+    <div class="gate-kbd">HOLD [SPACE]</div>
+    <div class="gate-name">Ready — let it go</div>
+    <div class="gate-hint">Hold to stay ready · release if the ball is going out</div>
+  </button>
+  <button class="gate-btn swing" id="btn-swing" onclick="onSwing()">
+    <div class="gate-kbd">HIT [ENTER]</div>
+    <div class="gate-name">Hit</div>
+    <div class="gate-hint">Volley it or let it bounce — game reads your timing</div>
+  </button>
+</div>
+
+<!-- Pregame splash -->
+<div id="pregame">
+  <div class="pg-card">
+    <div class="pg-eyebrow">Before you start</div>
+    <h2 class="pg-h">Two keys. One decision.</h2>
+    <div class="pg-key">
+      <kbd>SPACE</kbd>
+      <div>
+        <div class="pg-key-name">Hold</div>
+        <div class="pg-key-desc">Get into ready position. <strong>Release</strong> if the ball is going out.</div>
+      </div>
+    </div>
+    <div class="pg-key">
+      <kbd>ENTER</kbd>
+      <div>
+        <div class="pg-key-name">Hit</div>
+        <div class="pg-key-desc">Hit the ball. The game reads your timing and calls it a volley or a groundstroke.</div>
+      </div>
+    </div>
+    <button class="pg-go" onclick="dismissPregame()">Got it — start training →</button>
+  </div>
+</div>
+
+<!-- Round title card -->
+<div id="round-card">
+  <div class="rc-kicker" id="rc-kicker">Round 1</div>
+  <div class="rc-name" id="rc-name">Slow Motion</div>
+  <div class="rc-pos" id="rc-pos">Baseline</div>
+</div>
+
+<!-- End of session card -->
+<div id="end-card">
+  <div class="ec-card">
+    <div class="ec-kicker">Training complete</div>
+    <div class="ec-big"><span id="ec-correct">0</span><span class="slash">/<span id="ec-total">30</span></span></div>
+    <div class="ec-pct" id="ec-pct">0% · Keep training</div>
+    <div class="ec-stat-row"><span class="l">Reached level</span><span class="v" id="ec-level">—</span></div>
+    <div class="ec-stat-row"><span class="l">Best streak</span><span class="v" id="ec-streak">0</span></div>
+    <div class="ec-stat-row"><span class="l">Points</span><span class="v" id="ec-points">0</span></div>
+    <div class="ec-buttons">
+      <button class="ec-again" onclick="restartSession()">Play again</button>
+      <button class="ec-share" onclick="shareResult()">📋 Share score</button>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<!-- Surface any module errors into the DOM so they're debuggable without DevTools -->
+<script>
+window.addEventListener('error', e => {
+    // Ignore resource-load failures (images/CSS/fonts that 404) — they bubble an ErrorEvent
+    // with no message and a non-window target. Only surface real JS errors.
+    if (!e.message && e.target && e.target !== window) return;
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#8B1A2B;color:#fff;padding:12px;font:12px monospace;z-index:9999;white-space:pre-wrap;';
+    d.textContent = '[ERROR] ' + (e.message || 'unknown') + (e.filename ? ' @ ' + e.filename + ':' + e.lineno : '');
+    document.body && document.body.appendChild(d);
+    window.__gameErr = { msg: e.message, file: e.filename, line: e.lineno };
+}, true);
+window.addEventListener('unhandledrejection', e => {
+    const d = document.createElement('div');
+    d.style.cssText = 'position:fixed;bottom:40px;left:0;right:0;background:#8B1A2B;color:#fff;padding:12px;font:12px monospace;z-index:9999;';
+    d.textContent = '[REJECTION] ' + String(e.reason);
+    document.body && document.body.appendChild(d);
+    window.__gameErr = { reason: String(e.reason) };
+}, true);
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls }   from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass }      from 'three/addons/postprocessing/OutputPass.js';
+try {
+
+/* ════════════════════════════════════════════════════════════
+   OUT BALLS TRAINER — built on 4DP 3d_module_template.html
+   Player at near baseline (z=+20). Opponent at variable depth
+   per level. Player reads the ball's first 0.3s of flight and
+   calls: LET IT GO (release SPACE) or SWING (ENTER).
+   Three shot types, visually distinguishable:
+     OUT — high contact, flat+fast, flies past baseline
+     VOLLEY — medium arc, arrives at chest height
+     BOUNCE — high soft arc, lands in kitchen
+   ════════════════════════════════════════════════════════════ */
+
+// Player ALWAYS stands at the kitchen line — that's where out-ball decisions
+// actually happen in pickleball. Court half-length is 22 (baseline), kitchen
+// line is at z=+7, so player's feet at z=8 puts them just behind the NVZ line.
+// See feedback_outballs_core_skill.md and Dave's 2026-04-20 direction.
+const PLAYER_Z = 8;      // kitchen line (fixed — do not vary per level)
+const PLAYER_CHEST_Y = 3.0;
+const BASELINE_Z = 22;   // court half-length, used as "ball flew out past baseline"
+
+// ── Levels: player stays at kitchen; difficulty ramps via ball speed
+//    AND how close the OPPONENT stands (closer = less reaction time).
+//    L1 is deliberately very slow — this is a training game; first round
+//    teaches the read, later rounds pressure it.
+const LEVELS = [
+  { num:1, name:'Slow Motion',      pos:'Opponent at baseline',  oppZ:-22, speed:0.55, pass:3 },
+  { num:2, name:'Picking Up Speed', pos:'Opponent at baseline',  oppZ:-22, speed:0.85, pass:3 },
+  { num:3, name:'Transition Read',  pos:'Opponent mid-court',    oppZ:-14, speed:1.15, pass:4 },
+  { num:4, name:'Transition Heat',  pos:'Opponent mid-court',    oppZ:-14, speed:1.45, pass:4 },
+  { num:5, name:'Kitchen Pressure', pos:'Opponent at kitchen',   oppZ:-8,  speed:1.6,  pass:4 },
+  { num:6, name:'Banger Mode',      pos:'Both at kitchen',       oppZ:-7,  speed:2.2,  pass:4 }
+];
+const SHOTS_PER_LEVEL = 5;
+
+// ── Shot archetypes (base — scaled by level.speed) ──
+// Player is at the kitchen line (z=+8). Ball flight targets are chosen so the
+// 3 outcomes are visually + spatially distinct from that viewpoint:
+//   OUT    — flies HIGH over player's head (~5 units apex), lands ON THE GROUND
+//            well past the baseline (z ≈ +30). Clear "going out" visual.
+//   VOLLEY — arrives at player's chest at the kitchen line (z = PLAYER_Z).
+//   BOUNCE — two-segment trajectory: falls into the kitchen, BOUNCES, rises past
+//            the player so they can let it bounce then groundstroke it. The
+//            earlier version ended the shot at the bounce point, which caused
+//            the "ball bounces, immediately says Missed" bug Dave reported —
+//            there was no post-bounce window for the player to swing.
+function shotFor(kind, oppZ) {
+  if (kind === 'OUT') {
+    return { kind:'OUT', duration:1.25,
+             from:[0, 3.6, oppZ], to:[0, 0.3, BASELINE_Z + 8], apex:5.5,
+             outcome:'landsOut' };
+  }
+  if (kind === 'VOLLEY') {
+    return { kind:'VOLLEY', duration:1.05,
+             from:[0, 3.0, oppZ], to:[0, PLAYER_CHEST_Y, PLAYER_Z - 0.5], apex:3.6,
+             outcome:'reachesPlayer' };
+  }
+  // BOUNCE — two segments so the player has a real post-bounce decision window
+  return { kind:'BOUNCE', duration:1.9, outcome:'bouncesInKitchen',
+           segments: [
+             // Segment 1: opponent paddle → bounces in the kitchen (z=4, y=0.35)
+             { from:[0, 2.6, oppZ], to:[0, 0.35, 4], apex:7.0, dur:1.0 },
+             // Segment 2: rises off the bounce, reaches player at mid-body height
+             { from:[0, 0.35, 4],   to:[0, 2.0, PLAYER_Z + 1],       apex:2.8, dur:0.9 }
+           ]};
+}
+
+// ── State ──
+const STATE = {
+  phase: 'IDLE',        // IDLE (waiting for space) → WINDUP → FLIGHT → VERDICT → between
+  levelIdx: 0,
+  trial: 0,             // 0..SHOTS_PER_LEVEL-1
+  sessionCorrect: 0,
+  sessionPoints: 0,
+  streak: 0,
+  bestStreak: 0,
+  results: [],          // per-level array of bool
+  currentShot: null,
+  shotStart: 0,
+  shotT: 0,             // 0..1
+  shotDur: 1.0,
+  decision: null,       // 'OUT' | 'SWING' | 'TIMEOUT'
+  swingResolved: null,  // internal: 'VOLLEY' | 'BOUNCE' based on timing
+  holdingReady: false,
+  canInput: false,
+  pendingDecision: null,
+  hasBounced: false,
+};
+
+// ── Three.js setup ──
+const vp = document.getElementById('viewport');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0A1628);
+scene.fog = new THREE.Fog(0x0A1628, 45, 95);
+
+const camera = new THREE.PerspectiveCamera(45, vp.clientWidth / vp.clientHeight, 0.1, 400);
+// ── Camera presets (Dave's Camera button cycles through these) ──
+// Each preset = pos + look target. Picked to train different "read" angles:
+// 0. SIDELINE  — shows both players + ball arc in profile (default)
+// 1. RECEIVER  — behind the defender's head/shoulder (3rd-person read angle)
+// 2. FIRST-PERSON — from the defender's eyes (hides the defender mesh so
+//                   their own torso/paddle don't occlude the view)
+// 3. BIRDS-EYE — top-down, shows court geometry + where ball lands
+// 4. NET-LEVEL — low, near the net, framed so the attacker at the far
+//                baseline is clearly visible (was broken — camera previously
+//                looked at (0,1.8,0) = the net itself, so the person hitting
+//                the first shot was out of frame).
+const CAM_PRESETS = [
+  { name:'Sideline',      pos:[38, 8,   12],   look:[0, 3, 0]   },
+  { name:'Receiver',      pos:[0,  5.2, 16],   look:[0, 3, -4]  },
+  { name:'First-person',  pos:[0,  3.6, 8.2],  look:[0, 3, -22], hidesDefender:true },
+  { name:'Birds-eye',     pos:[0,  44,  0.01], look:[0, 0, 0]   },
+  { name:'Net-level',     pos:[4,  1.4, 3],    look:[0, 3, -18] }
+];
+let camPresetIdx = 0;
+camera.position.set(...CAM_PRESETS[0].pos);
+camera.lookAt(...CAM_PRESETS[0].look);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(vp.clientWidth, vp.clientHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+vp.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(...CAM_PRESETS[0].look);
+controls.minDistance = 20;
+controls.maxDistance = 70;
+controls.maxPolarAngle = Math.PI * 0.49;
+
+// Camera button — cycle through CAM_PRESETS with a smooth cubic ease.
+let camTween = null;
+function tweenCameraTo(pos, look, dur = 0.9){
+  camTween = {
+    startPos: camera.position.clone(),
+    startLook: controls.target.clone(),
+    endPos: new THREE.Vector3(...pos),
+    endLook: new THREE.Vector3(...look),
+    t0: performance.now(),
+    duration: dur * 1000
+  };
+}
+function cycleCamera(){
+  camPresetIdx = (camPresetIdx + 1) % CAM_PRESETS.length;
+  const preset = CAM_PRESETS[camPresetIdx];
+  tweenCameraTo(preset.pos, preset.look, 0.9);
+  const btn = document.getElementById('btn-camera');
+  if (btn) btn.textContent = 'Cam · ' + preset.name;
+}
+document.getElementById('btn-camera').addEventListener('click', cycleCamera);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+// Bloom tuned to template values (was 0.85 / 0.7 = too hot — saturated the frame buffer
+// on integrated GPUs and stalled rAF, producing a blank screen on Dave's machine).
+const bloom = new UnrealBloomPass(new THREE.Vector2(vp.clientWidth, vp.clientHeight), 0.55, 0.55, 0.82);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+// ── Lighting ──
+scene.add(new THREE.AmbientLight(0xB8D4E8, 0.35));
+const key = new THREE.DirectionalLight(0xFFF4E0, 1.1);
+key.position.set(18, 30, 14);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -30; key.shadow.camera.right = 30;
+key.shadow.camera.top = 35; key.shadow.camera.bottom = -35;
+key.shadow.camera.near = 1; key.shadow.camera.far = 70;
+key.shadow.bias = -0.0003;
+scene.add(key);
+const fillLight = new THREE.DirectionalLight(0x88A8CC, 0.3);
+fillLight.position.set(-22, 14, -12);
+scene.add(fillLight);
+
+// ── Court (NEPC palette: slate deck, radial-blue surface, burgundy kitchen) ──
+const COURT_W = 20, COURT_L = 44, KITCHEN = 7, LINE = 0.18;
+const courtGroup = new THREE.Group();
+
+function mkDeckTex(){const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'#5E6878');g.addColorStop(1,'#4A5462');x.fillStyle=g;x.fillRect(0,0,512,512);for(let i=0;i<2000;i++){x.fillStyle=`rgba(0,0,0,${Math.random()*.06})`;x.fillRect(Math.random()*512,Math.random()*512,1,1);}const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+function mkCourtTex(){const c=document.createElement('canvas');c.width=c.height=1024;const x=c.getContext('2d');const g=x.createRadialGradient(512,512,40,512,512,680);g.addColorStop(0,'#2D5FA8');g.addColorStop(.7,'#234E8C');g.addColorStop(1,'#1B3E72');x.fillStyle=g;x.fillRect(0,0,1024,1024);const v=x.createRadialGradient(512,512,300,512,512,720);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.25)');x.fillStyle=v;x.fillRect(0,0,1024,1024);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+function mkKitchenTex(){const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#6B0F1A');g.addColorStop(1,'#52090F');x.fillStyle=g;x.fillRect(0,0,512,256);const glow=x.createRadialGradient(256,128,20,256,128,260);glow.addColorStop(0,'rgba(255,61,90,.14)');glow.addColorStop(1,'rgba(255,61,90,0)');x.fillStyle=glow;x.fillRect(0,0,512,256);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+
+const deck = new THREE.Mesh(new THREE.PlaneGeometry(COURT_W+18, COURT_L+18), new THREE.MeshStandardMaterial({map:mkDeckTex(),roughness:.88,metalness:.02}));
+deck.rotation.x = -Math.PI/2; deck.position.y = -0.02; deck.receiveShadow = true; courtGroup.add(deck);
+const surf = new THREE.Mesh(new THREE.PlaneGeometry(COURT_W, COURT_L), new THREE.MeshStandardMaterial({map:mkCourtTex(),roughness:.68,metalness:.05}));
+surf.rotation.x = -Math.PI/2; surf.receiveShadow = true; courtGroup.add(surf);
+const kitchenMat = new THREE.MeshStandardMaterial({map:mkKitchenTex(),roughness:.7,metalness:.02});
+for (const z of [KITCHEN/2, -KITCHEN/2]) {
+  const k = new THREE.Mesh(new THREE.PlaneGeometry(COURT_W, KITCHEN), kitchenMat);
+  k.rotation.x = -Math.PI/2; k.position.set(0, 0.003, z); k.receiveShadow = true; courtGroup.add(k);
+}
+const lineMat = new THREE.MeshStandardMaterial({color:0xFFFFFF, emissive:0xFFFFFF, emissiveIntensity:.12, roughness:.5, transparent:true, opacity:.95});
+function addLine(x,z,w,l){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,l),lineMat);m.rotation.x=-Math.PI/2;m.position.set(x,0.005,z);m.receiveShadow=true;courtGroup.add(m);}
+addLine(0, COURT_L/2,COURT_W,LINE); addLine(0,-COURT_L/2,COURT_W,LINE);
+addLine(COURT_W/2,0,LINE,COURT_L); addLine(-COURT_W/2,0,LINE,COURT_L);
+addLine(0, KITCHEN,COURT_W,LINE); addLine(0,-KITCHEN,COURT_W,LINE);
+addLine(0, (COURT_L/2+KITCHEN)/2,LINE,COURT_L/2-KITCHEN);
+addLine(0,-(COURT_L/2+KITCHEN)/2,LINE,COURT_L/2-KITCHEN);
+
+// Net
+const netGroup = new THREE.Group();
+const netPost = new THREE.MeshStandardMaterial({color:0x1A1F2E,roughness:.3,metalness:.8});
+for (const x of [-COURT_W/2-0.3, COURT_W/2+0.3]) {
+  const p = new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,3.4,12), netPost);
+  p.position.set(x, 1.7, 0); p.castShadow = true; netGroup.add(p);
+}
+const netMesh = new THREE.Mesh(new THREE.PlaneGeometry(COURT_W+0.6, 3.0, 24, 8), new THREE.MeshStandardMaterial({color:0x0F2138,transparent:true,opacity:.75,side:THREE.DoubleSide,roughness:.9}));
+netMesh.position.set(0, 1.5, 0); netGroup.add(netMesh);
+const tape = new THREE.Mesh(new THREE.BoxGeometry(COURT_W+0.6, 0.08, 0.08), lineMat);
+tape.position.set(0, 3.0, 0); netGroup.add(tape);
+netGroup.add(new THREE.LineSegments(new THREE.WireframeGeometry(new THREE.PlaneGeometry(COURT_W+0.6, 3.0, 18, 6)), new THREE.LineBasicMaterial({color:0x3A4A60,transparent:true,opacity:.5})));
+netGroup.children[netGroup.children.length-1].position.set(0, 1.5, 0);
+courtGroup.add(netGroup);
+scene.add(courtGroup);
+
+// ── Players (ported simplified from template; both right-handed, paddle up ready) ──
+function makePlayer({ jersey, shorts, z, facing }) {
+  const g = new THREE.Group();
+  const skin = new THREE.MeshStandardMaterial({ color: 0xE7B48C, roughness: 0.7 });
+  const shortMat = new THREE.MeshStandardMaterial({ color: shorts, roughness: 0.7 });
+  const jerseyMat = new THREE.MeshStandardMaterial({ color: jersey, roughness: 0.55 });
+  const paddleFaceMat = new THREE.MeshStandardMaterial({ color: 0x8B1A2B, roughness: 0.35 });
+  const paddleEdgeMat = new THREE.MeshStandardMaterial({ color: 0x0A1628, roughness: 0.3, metalness: 0.55 });
+  const gripMat = new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: 0.85 });
+  for (const sign of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 1.1, 6, 10), shortMat);
+    leg.position.set(sign*0.28, 0.9, 0); leg.castShadow = true; g.add(leg);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.22, 0.9), new THREE.MeshStandardMaterial({color:0xF5F3EE,roughness:.5}));
+    shoe.position.set(sign*0.28, 0.14, 0.12); shoe.castShadow = true; g.add(shoe);
+  }
+  const shortsBlock = new THREE.Mesh(new THREE.CapsuleGeometry(0.52, 0.28, 6, 10), shortMat);
+  shortsBlock.position.y = 1.7; shortsBlock.castShadow = true; g.add(shortsBlock);
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.55, 1.1, 8, 14), jerseyMat);
+  torso.position.y = 2.55; torso.castShadow = true; g.add(torso);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.28, 12), skin);
+  neck.position.y = 3.3; g.add(neck);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 16), skin);
+  head.position.y = 3.75; head.castShadow = true; g.add(head);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 12, 0, Math.PI*2, 0, Math.PI/2), jerseyMat);
+  cap.position.y = 3.82; cap.scale.y = 0.6; g.add(cap);
+  // Off-hand
+  const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.9, 5, 8), jerseyMat);
+  leftArm.position.set(-0.62, 2.55, 0.1); leftArm.rotation.z = 0.18; g.add(leftArm);
+  // Paddle arm — raised in front at chest (backhand block for defender, forehand ready for attacker)
+  const upperArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.15, 0.7, 5, 8), jerseyMat);
+  upperArm.position.set(0.58, 2.62, 0.25); upperArm.rotation.z = 0.22; upperArm.rotation.x = 0.4; g.add(upperArm);
+  const forearm = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.7, 5, 8), skin);
+  forearm.position.set(0.68, 2.35, 0.95); forearm.rotation.x = Math.PI/2 - 0.25; g.add(forearm);
+  // Paddle
+  const paddle = new THREE.Group();
+  const pGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.085, 0.5, 12), gripMat); pGrip.position.set(0, -0.7, 0); paddle.add(pGrip);
+  const pFace = new THREE.Mesh(new THREE.BoxGeometry(0.62, 1.1, 0.06), paddleFaceMat); pFace.position.set(0, 0.22, 0); paddle.add(pFace);
+  const pEdge = new THREE.Mesh(new THREE.BoxGeometry(0.66, 1.14, 0.04), paddleEdgeMat); pEdge.position.set(0, 0.22, -0.01); paddle.add(pEdge);
+  paddle.position.set(0.72, 2.9, 1.55);
+  paddle.rotation.x = -0.4; paddle.rotation.z = 0.15;
+  g.add(paddle);
+  g.position.set(0, 0, z);
+  if (facing === -1) g.rotation.y = Math.PI;
+  g.userData = { paddle };
+  return g;
+}
+const defender = makePlayer({ jersey: 0x2A7F6F, shorts: 0x0F2138, z: PLAYER_Z, facing: -1 });
+// Red attacker starts just behind the baseline (z=-22.5 = ~0.5 behind baseline
+// at z=-22). Position is also updated per-level in beginLevel() so they step
+// forward as rounds progress — kitchen-line matches in later rounds.
+const attacker = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z: -22.5, facing: +1 });
+scene.add(defender, attacker);
+
+// ── Ball + trail ──
+// Pickleball neon — the ball and its trail are always this color. No per-shot
+// tinting (Dave's 2026-04-20 call — ball is ALWAYS neon-green pickleball).
+const PICKLEBALL_GREEN = 0xC6FF00;
+const ballMat = new THREE.MeshStandardMaterial({ color:PICKLEBALL_GREEN, emissive:PICKLEBALL_GREEN, emissiveIntensity:1.6, roughness:.5, metalness:.1 });
+const ball = new THREE.Mesh(new THREE.SphereGeometry(0.28, 20, 14), ballMat);
+ball.castShadow = true; ball.position.set(0, 3, -22.5); ball.visible = false;
+scene.add(ball);
+const ballLight = new THREE.PointLight(PICKLEBALL_GREEN, 1.2, 9, 2); scene.add(ballLight);
+const TRAIL_MAX = 48;
+let trailPoints = [];
+let trailMesh = null;
+const trailMat = new THREE.MeshStandardMaterial({ color:PICKLEBALL_GREEN, emissive:PICKLEBALL_GREEN, emissiveIntensity:2.0, transparent:true, opacity:.85, roughness:.2 });
+function rebuildTrail(){
+  if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); }
+  if (trailPoints.length < 4) return;
+  const curve = new THREE.CatmullRomCurve3(trailPoints);
+  const geo = new THREE.TubeGeometry(curve, Math.min(trailPoints.length*3, 100), 0.09, 8, false);
+  trailMesh = new THREE.Mesh(geo, trailMat); scene.add(trailMesh);
+}
+function clearTrail(){ trailPoints = []; if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); trailMesh = null; } }
+// tintBall was used to color the ball per-shot — we don't do that anymore
+// (ball is ALWAYS pickleball-green). Kept as a no-op so any stale callers
+// don't break.
+function tintBall(_hex){ /* no-op: ball color is locked to PICKLEBALL_GREEN */ }
+
+// ── Particle bursts (from template) ──
+const bursts = [];
+function spawnBurst(pos, hex){
+  const grp = new THREE.Group(); grp.position.copy(pos);
+  for (let i = 0; i < 14; i++){
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshStandardMaterial({color:hex,emissive:hex,emissiveIntensity:2.5,transparent:true,opacity:1}));
+    m.userData.vel = new THREE.Vector3((Math.random()-0.5)*4, Math.random()*3+1, (Math.random()-0.5)*4);
+    grp.add(m);
+  }
+  grp.userData.t = 0; scene.add(grp); bursts.push(grp);
+}
+function updateBursts(dt){
+  for (let i = bursts.length-1; i >= 0; i--){
+    const b = bursts[i]; b.userData.t += dt;
+    b.children.forEach(m => { m.position.addScaledVector(m.userData.vel, dt); m.userData.vel.y -= 14*dt; m.material.opacity = Math.max(0, 1 - b.userData.t/0.8); });
+    if (b.userData.t > 0.8){ b.children.forEach(m => { m.geometry.dispose(); m.material.dispose(); }); scene.remove(b); bursts.splice(i, 1); }
+  }
+}
+
+// ── Trajectory (from template) ──
+function arcAt(from, to, apex, t){
+  const x = from[0] + (to[0] - from[0])*t;
+  const z = from[2] + (to[2] - from[2])*t;
+  const baseY = from[1] + (to[1] - from[1])*t;
+  const apexOffset = apex - (from[1] + to[1])/2;
+  const y = baseY + 4 * apexOffset * t * (1 - t);
+  return new THREE.Vector3(x, y, z);
+}
+// Multi-segment trajectory support — used by BOUNCE so the ball can bounce
+// mid-flight and continue rising into the player's hitting zone. Single-arc
+// shots (OUT / VOLLEY) fall through to arcAt() at the bottom.
+function trajectoryAt(shot, t){
+  if (shot.segments) {
+    const totalDur = shot.segments.reduce((a, s) => a + s.dur, 0);
+    const timeT = t * totalDur;
+    let acc = 0;
+    for (const seg of shot.segments) {
+      if (timeT <= acc + seg.dur || seg === shot.segments[shot.segments.length - 1]) {
+        const localT = Math.min(1, Math.max(0, (timeT - acc) / seg.dur));
+        return arcAt(seg.from, seg.to, seg.apex, localT);
+      }
+      acc += seg.dur;
+    }
+  }
+  return arcAt(shot.from, shot.to, shot.apex, t);
+}
+
+// ── Attacker swing animation ──
+function animateAttackerSwing(){
+  const p = attacker.userData.paddle;
+  if (!p) return;
+  // Windup back
+  p.rotation.x = -1.4; p.rotation.z = 0.5;
+  setTimeout(() => { p.rotation.x = 0.3; p.rotation.z = -0.1; }, 250);
+  setTimeout(() => { p.rotation.x = -0.4; p.rotation.z = 0.15; }, 600);
+}
+
+// ── Game flow ──
+function setLevelHUD(){
+  const lv = LEVELS[STATE.levelIdx];
+  document.getElementById('round-val').textContent = `Round ${lv.num} · ${STATE.trial}/${SHOTS_PER_LEVEL}`;
+}
+function setScore(){ document.getElementById('score-val').textContent = STATE.sessionPoints.toLocaleString(); }
+function buildDots(){
+  const el = document.getElementById('progress-dots'); el.innerHTML = '';
+  for (let i = 0; i < SHOTS_PER_LEVEL; i++){
+    const d = document.createElement('div'); d.className = 'pdot' + (i === 0 ? ' current' : ''); d.id = 'pd-' + i; el.appendChild(d);
+  }
+}
+function updateDot(i, ok){
+  const el = document.getElementById('pd-' + i); if (!el) return;
+  el.classList.remove('current'); el.classList.add(ok ? 'correct' : 'wrong');
+  const next = document.getElementById('pd-' + (i + 1)); if (next) next.classList.add('current');
+}
+
+function showRoundCard(onDone){
+  const lv = LEVELS[STATE.levelIdx];
+  document.getElementById('rc-kicker').textContent = 'Round ' + lv.num;
+  document.getElementById('rc-name').textContent = lv.name;
+  document.getElementById('rc-pos').textContent = lv.pos;
+  const card = document.getElementById('round-card');
+  card.classList.add('on');
+  setTimeout(() => { card.classList.remove('on'); setTimeout(onDone, 300); }, 1900);
+}
+
+function beginLevel(){
+  STATE.trial = 0;
+  buildDots();
+  setLevelHUD();
+  // Move the red attacker to match the level's opponent position. L1 starts
+  // at the baseline (Dave's rule: red player always STARTS just behind the
+  // baseline); later levels step them forward to mid-court / kitchen.
+  const lv = LEVELS[STATE.levelIdx];
+  if (attacker) attacker.position.z = lv.oppZ;
+  showRoundCard(() => nextTrial());
+}
+
+function nextTrial(){
+  if (STATE.trial >= SHOTS_PER_LEVEL) {
+    // End of level
+    if (STATE.levelIdx >= LEVELS.length - 1){
+      endSession();
+      return;
+    }
+    STATE.levelIdx++;
+    beginLevel();
+    return;
+  }
+  // Prepare
+  STATE.phase = 'IDLE';
+  STATE.decision = null;
+  STATE.swingResolved = null;
+  STATE.pendingDecision = null;
+  STATE.hasBounced = false;
+  STATE.canInput = false;
+  STATE.holdingReady = false;
+  ball.visible = false; clearTrail();
+  document.getElementById('btn-ready').classList.remove('active');
+  document.getElementById('btn-swing').classList.remove('active');
+  document.getElementById('verdict').classList.remove('on');
+  document.getElementById('cp-eyebrow').textContent = 'Hold SPACE to get ready';
+  document.getElementById('cp-headline').textContent = 'Read the speed.';
+  document.getElementById('cp-sub').textContent = 'Release to let it go out · Hit ENTER to hit';
+  document.getElementById('center-prompt').style.opacity = '1';
+  setLevelHUD();
+}
+
+function chooseShotKind(){
+  // Level mix: L1 = more OUT/VOLLEY for training; L6 = mostly HARD (banger mode)
+  const lv = LEVELS[STATE.levelIdx].num;
+  const roll = Math.random();
+  if (lv <= 2) {
+    if (roll < 0.4) return 'OUT';
+    if (roll < 0.75) return 'VOLLEY';
+    return 'BOUNCE';
+  }
+  if (lv <= 4) {
+    if (roll < 0.4) return 'OUT';
+    if (roll < 0.7) return 'VOLLEY';
+    return 'BOUNCE';
+  }
+  // Banger-heavy
+  if (roll < 0.6) return 'OUT';
+  if (roll < 0.9) return 'VOLLEY';
+  return 'BOUNCE';
+}
+
+function launchBall(){
+  const lv = LEVELS[STATE.levelIdx];
+  const kind = chooseShotKind();
+  const s = shotFor(kind, lv.oppZ);
+  s.duration = s.duration / lv.speed;  // level speed multiplier
+  STATE.currentShot = s;
+  STATE.shotDur = s.duration;
+  STATE.shotT = 0;
+  STATE.shotStart = performance.now();
+  STATE.phase = 'FLIGHT';
+  STATE.canInput = true;
+  // Segment-aware starting position — BOUNCE is multi-segment
+  const startFrom = s.segments ? s.segments[0].from : s.from;
+  ball.position.set(...startFrom);
+  ball.visible = true;
+  clearTrail();
+  // Consume any pre-flight commitment (pressed during windup)
+  if (STATE.pendingDecision) {
+    const d = STATE.pendingDecision; STATE.pendingDecision = null;
+    setTimeout(() => handleDecision(d), 30);
+  }
+}
+
+// ── Input handlers ──
+window.onReadyDown = function(){
+  if (STATE.phase === 'IDLE') {
+    STATE.holdingReady = true;
+    document.getElementById('btn-ready').classList.add('active');
+    document.getElementById('center-prompt').style.opacity = '0';
+    STATE.phase = 'WINDUP';
+    animateAttackerSwing();
+    // 600ms windup, then ball launches
+    setTimeout(() => { if (STATE.phase === 'WINDUP') launchBall(); }, 600);
+    return;
+  }
+  if (!STATE.canInput) return;
+  STATE.holdingReady = true;
+  document.getElementById('btn-ready').classList.add('active');
+};
+window.onReadyUp = function(){
+  if (!STATE.holdingReady) return;
+  STATE.holdingReady = false;
+  document.getElementById('btn-ready').classList.remove('active');
+  if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'OUT'; return; }
+  if (STATE.phase !== 'FLIGHT') return;
+  handleDecision('OUT');
+};
+window.onSwing = function(){
+  document.getElementById('btn-swing').classList.add('active');
+  setTimeout(() => document.getElementById('btn-swing').classList.remove('active'), 150);
+  if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'SWING'; return; }
+  if (STATE.phase !== 'FLIGHT') return;
+  handleDecision('SWING');
+};
+
+// Keyboard
+window.addEventListener('keydown', (e) => {
+  if (e.repeat) return;
+  if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); onReadyDown(); return; }
+  if (e.key === 'Enter') { e.preventDefault(); onSwing(); return; }
+});
+window.addEventListener('keyup', (e) => {
+  if ((e.key === ' ' || e.code === 'Space') && STATE.holdingReady) { e.preventDefault(); onReadyUp(); }
+});
+
+// ── Decision handler ──
+function handleDecision(kind){
+  // The `!STATE.canInput` guard closes a double-verdict race: if the flight
+  // timed out first (logged "Missed") and the player's keypress arrived a
+  // frame later, the old code would run this again and ALSO call showVerdict
+  // → both "Missed" and "Good" for the same shot. Only one verdict per shot.
+  if (STATE.phase !== 'FLIGHT' || !STATE.canInput) return;
+  STATE.canInput = false;
+  STATE.decision = kind;
+  const shot = STATE.currentShot;
+  let correct = false;
+  if (kind === 'OUT') correct = (shot.kind === 'OUT');
+  else if (kind === 'SWING') {
+    // Resolve volley vs bounce based on hasBounced
+    STATE.swingResolved = STATE.hasBounced ? 'BOUNCE' : 'VOLLEY';
+    correct = (STATE.swingResolved === shot.kind);
+  }
+  STATE.results.push(correct);
+  if (correct) {
+    STATE.sessionCorrect++;
+    // Timing bonus based on how early in the flight they decided
+    const earlyBonus = STATE.shotT < 0.35 ? 100 : STATE.shotT < 0.6 ? 60 : 30;
+    const earned = 100 + earlyBonus;
+    STATE.sessionPoints += earned;
+    STATE.streak++;
+    if (STATE.streak > STATE.bestStreak) STATE.bestStreak = STATE.streak;
+    spawnBurst(ball.position.clone(), PICKLEBALL_GREEN);
+    // When the player successfully HITS (volley or groundstroke), reverse
+    // the ball's direction so it visibly flies back toward the opponent —
+    // simulates a clean return. Only runs on correct SWING; wrong decisions
+    // let the original ball continue to its target as "what would have
+    // happened if you hadn't touched it."
+    if (kind === 'SWING') launchReturnShot();
+    animateDefenderHit();
+  } else {
+    STATE.streak = 0;
+  }
+  updateDot(STATE.trial, correct);
+  setScore();
+  showVerdict(correct, kind, shot);
+  STATE.trial++;
+  // Let flight + verdict finish
+  setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+}
+
+function launchReturnShot(){
+  const lv = LEVELS[STATE.levelIdx];
+  const hitY = ball.position.y;
+  const hitZ = ball.position.z;
+  // Aim the return back toward the opponent — small X variance so consecutive
+  // hits don't look identical. End low, past the opponent, suggesting a
+  // solid passing shot they couldn't reach.
+  const xOff = (Math.random() - 0.5) * 3.2;
+  STATE.currentShot = {
+    kind: 'RETURN',
+    from: [ball.position.x, hitY, hitZ],
+    to:   [xOff, 0.4, lv.oppZ - 2],
+    apex: Math.max(hitY + 0.8, 3.0),
+    duration: 0.95
+  };
+  STATE.shotT = 0;
+  STATE.shotDur = 0.95;
+  STATE.hasBounced = false;   // bounce detection shouldn't re-trigger on return
+  // phase stays 'FLIGHT' so the animate loop keeps advancing the ball
+}
+
+// Quick paddle-swipe on the defender when they connect — sell the hit.
+function animateDefenderHit(){
+  const p = defender.userData.paddle;
+  if (!p) return;
+  const baseX = p.rotation.x;
+  const baseZ = p.rotation.z;
+  p.rotation.x = baseX - 0.6; p.rotation.z = baseZ + 0.5;
+  setTimeout(() => { p.rotation.x = baseX + 0.15; p.rotation.z = baseZ - 0.1; }, 120);
+  setTimeout(() => { p.rotation.x = baseX; p.rotation.z = baseZ; }, 350);
+}
+
+function showVerdict(correct, kind, shot){
+  const v = document.getElementById('verdict');
+  const big = document.getElementById('verdict-big');
+  const sub = document.getElementById('verdict-sub');
+  if (correct){
+    big.textContent = STATE.shotT < 0.35 ? 'Decisive.' : STATE.shotT < 0.6 ? 'Clean read.' : 'Good.';
+    big.style.color = '#34D399';
+    sub.textContent = shot.kind === 'OUT' ? 'Out ball · let it fly' : shot.kind === 'VOLLEY' ? 'Volley it — attack' : 'Groundstroke — patient';
+  } else {
+    big.textContent = 'Missed.';
+    big.style.color = '#FB7185';
+    sub.textContent = shot.kind === 'OUT' ? 'That was going out' : shot.kind === 'VOLLEY' ? 'That was a volley' : 'Let it bounce — groundstroke';
+  }
+  v.classList.add('on');
+  setTimeout(() => v.classList.remove('on'), 1400);
+}
+
+// ── End session ──
+function endSession(){
+  const total = LEVELS.length * SHOTS_PER_LEVEL;
+  const pct = Math.round(STATE.sessionCorrect / total * 100);
+  document.getElementById('ec-correct').textContent = STATE.sessionCorrect;
+  document.getElementById('ec-total').textContent = total;
+  document.getElementById('ec-pct').textContent = pct >= 80 ? `${pct}% · Pro read` : pct >= 60 ? `${pct}% · Strong` : pct >= 40 ? `${pct}% · Developing` : `${pct}% · Keep training`;
+  document.getElementById('ec-level').textContent = LEVELS[Math.min(STATE.levelIdx, LEVELS.length-1)].name;
+  document.getElementById('ec-streak').textContent = STATE.bestStreak;
+  document.getElementById('ec-points').textContent = STATE.sessionPoints.toLocaleString();
+  document.getElementById('end-card').classList.add('on');
+}
+window.restartSession = function(){
+  STATE.levelIdx = 0; STATE.trial = 0; STATE.sessionCorrect = 0; STATE.sessionPoints = 0;
+  STATE.streak = 0; STATE.bestStreak = 0; STATE.results = [];
+  document.getElementById('end-card').classList.remove('on');
+  beginLevel();
+};
+window.shareResult = function(){
+  const total = LEVELS.length * SHOTS_PER_LEVEL;
+  const pct = Math.round(STATE.sessionCorrect / total * 100);
+  const text = `🎯 ${STATE.sessionCorrect}/${total} (${pct}%) on the 4D Pickleball Out Balls trainer.\n\nCan you beat me? ${window.location.href}`;
+  if (navigator.share) navigator.share({ title: '4D Pickleball · Out Balls', text }).catch(()=>{});
+  else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => prompt('Copy:', text));
+  else prompt('Copy:', text);
+};
+
+// ── Pregame dismiss ──
+window.dismissPregame = function(){
+  document.getElementById('pregame').classList.add('gone');
+  beginLevel();
+};
+// Keyboard dismiss pregame
+document.addEventListener('keydown', function keyDismiss(e){
+  if (!document.getElementById('pregame').classList.contains('gone')) {
+    e.preventDefault();
+    dismissPregame();
+  }
+}, { once: true });
+// Click-dismiss
+document.getElementById('pregame').addEventListener('click', (e) => {
+  if (e.target.id === 'pregame') dismissPregame();
+});
+
+// ── Main animation loop ──
+// Wrapped in try/catch so a single frame error can't kill the rAF chain —
+// without this, any Three.js glitch (bad geometry, disposed resource) would
+// silently freeze the game to a blank screen.
+let lastT = performance.now();
+let _frameErrCount = 0;
+function animate(){
+  try {
+  const now = performance.now();
+  const dt = Math.min(0.05, (now - lastT) / 1000);
+  lastT = now;
+  // Camera tween (cubic easeOut) — blends smoothly between presets
+  if (camTween) {
+    const t = Math.min(1, (now - camTween.t0) / camTween.duration);
+    const e = 1 - Math.pow(1 - t, 3);
+    camera.position.lerpVectors(camTween.startPos, camTween.endPos, e);
+    controls.target.lerpVectors(camTween.startLook, camTween.endLook, e);
+    if (t >= 1) camTween = null;
+  }
+  controls.update();
+
+  if (STATE.phase === 'FLIGHT' && STATE.currentShot) {
+    STATE.shotT += dt / STATE.shotDur;
+    if (STATE.shotT >= 1) STATE.shotT = 1;
+    const s = STATE.currentShot;
+    const p = trajectoryAt(s, STATE.shotT);
+    ball.position.copy(p);
+    ballLight.position.copy(p);
+    trailPoints.push(p.clone());
+    if (trailPoints.length > TRAIL_MAX) trailPoints.shift();
+    rebuildTrail();
+    // Detect bounce for GROUNDSTROKE timing — threshold tightened to y<=0.45
+    // so it only fires on the actual ground-touch segment of a BOUNCE shot.
+    if (!STATE.hasBounced && s.kind === 'BOUNCE' && p.y <= 0.45) STATE.hasBounced = true;
+    // End of flight: if no decision made, treat as TIMEOUT.
+    // For BOUNCE shots that haven't actually bounced yet we suppress timeout
+    // (belt-and-suspenders — segments design means bounce happens mid-flight,
+    // but a floating-point edge where t=1 arrives before hasBounced flips
+    // would otherwise auto-fail the shot the moment the ball touches down).
+    if (STATE.shotT >= 1 && STATE.canInput){
+      const isBounceNotYet = (s.kind === 'BOUNCE' && !STATE.hasBounced);
+      if (!isBounceNotYet) {
+        STATE.canInput = false;
+        const shot = s;
+        STATE.results.push(false);
+        STATE.streak = 0;
+        updateDot(STATE.trial, false);
+        showVerdict(false, 'TIMEOUT', shot);
+        STATE.trial++;
+        setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+      }
+    }
+  }
+
+  updateBursts(dt);
+  composer.render();
+  } catch(e) {
+    _frameErrCount++;
+    if (_frameErrCount < 3) console.error('[animate]', e);
+    // Keep pumping frames even if one blew up.
+  }
+  requestAnimationFrame(animate);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = vp.clientWidth / vp.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(vp.clientWidth, vp.clientHeight);
+  composer.setSize(vp.clientWidth, vp.clientHeight);
+  bloom.setSize(vp.clientWidth, vp.clientHeight);
+});
+
+function startGame(){
+  const loading = document.getElementById('loading');
+  if (loading) { loading.classList.add('gone'); loading.style.opacity = '0'; loading.style.visibility = 'hidden'; }
+  animate();
+}
+// ES module scripts are deferred — the `load` event has often ALREADY fired
+// by the time this script parses, so a plain addEventListener('load', ...)
+// would silently miss it and the loading screen would stay forever. Check
+// readyState first and only attach the listener if we're not already loaded.
+if (document.readyState === 'complete') {
+  setTimeout(startGame, 50);
+} else {
+  window.addEventListener('load', () => setTimeout(startGame, 300));
+  // Belt-and-suspenders failsafe: if something blocks the load event (slow
+  // font load, stuck resource), kill the loading screen after 2s regardless.
+  setTimeout(() => {
+    const l = document.getElementById('loading');
+    if (l && !l.classList.contains('gone')) startGame();
+  }, 2000);
+}
+} catch(err) {
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#8B1A2B;color:#fff;padding:16px;font:12px monospace;z-index:99999;white-space:pre-wrap;';
+  d.textContent = '[MODULE RUNTIME ERROR]\n' + (err.message || err) + '\n' + (err.stack || '');
+  document.body && document.body.appendChild(d);
+  window.__gameErr = { msg: err.message, stack: err.stack };
+}
+</script>
+
+</body>
+</html>
