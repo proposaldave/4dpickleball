@@ -1295,20 +1295,6 @@ function animate() {
     ball.position.copy(p);
     ballLight.position.copy(p);
 
-    // Ball shadow tracks ball in x/z; shrinks + fades with height
-    ballShadow.position.x = p.x;
-    ballShadow.position.z = p.z;
-    const hAboveGround = Math.max(0, p.y - 0.24);
-    const shadowScale = Math.max(0.55, 1 - hAboveGround * 0.06);
-    ballShadow.scale.setScalar(shadowScale);
-    ballShadowMat.opacity = Math.max(0.12, 0.36 - hAboveGround * 0.022);
-
-    // Ball squash near ground — gives bounces physical weight (not a rigid sphere)
-    const squash = Math.exp(-hAboveGround * 4);  // 1 at ground, ~0 at y=1
-    ball.scale.y = 1 - squash * 0.28;
-    ball.scale.x = 1 + squash * 0.14;
-    ball.scale.z = 1 + squash * 0.14;
-
     // Drive the players + paddles off the same shotT — motion stays in sync with ball.
     updatePlayerPositions(activeShotKey, shotT);
     updatePaddleAnimation(activeShotKey, shotT);
@@ -1324,6 +1310,19 @@ function animate() {
       rebuildTrail();
     }
   }
+
+  // Ball visual polish (shadow + squash) — runs every frame so effects persist
+  // during the 1s pre-rally pause and between shots, not just when shotRunning.
+  const _h = Math.max(0, ball.position.y - 0.24);
+  ballShadow.position.x = ball.position.x;
+  ballShadow.position.z = ball.position.z;
+  const _sScale = Math.max(0.55, 1 - _h * 0.06);
+  ballShadow.scale.setScalar(_sScale);
+  ballShadowMat.opacity = Math.max(0.12, 0.36 - _h * 0.022);
+  const _sq = Math.exp(-_h * 4);
+  ball.scale.y = 1 - _sq * 0.28;
+  ball.scale.x = 1 + _sq * 0.14;
+  ball.scale.z = 1 + _sq * 0.14;
 
   updateBursts(dt);
   composer.render();
