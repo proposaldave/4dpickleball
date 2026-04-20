@@ -39,6 +39,18 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 .hud-right .streak.on{display:inline-block;animation:streakPop .3s var(--4dp-ease);}
 @keyframes streakPop{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
 
+/* Streak banner — BOTTOM-CENTER of the viewport so it never collides with
+   the top prompt box or the HUD. Appears for ~1.5s on each new streak step,
+   then fades. Prior version sat at top:160px and overlapped the prompt at
+   top:104px — overlap visible in Dave's screenshot, fixed by relocating. */
+#streak-banner{position:fixed;bottom:160px;left:50%;transform:translateX(-50%) scale(.6);z-index:12;pointer-events:none;text-align:center;opacity:0;transition:opacity .35s ease,transform .35s var(--4dp-ease);}
+#streak-banner.on{opacity:1;transform:translateX(-50%) scale(1);}
+#streak-banner .sb-num{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:clamp(48px,7vw,82px);line-height:1;letter-spacing:-2px;color:#FDE68A;text-shadow:0 0 42px rgba(251,191,36,.8),0 4px 18px rgba(0,0,0,.7);}
+#streak-banner .sb-lbl{margin-top:-2px;font-family:var(--4dp-font-body);font-weight:800;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:var(--4dp-gold);text-shadow:0 2px 10px rgba(0,0,0,.8);}
+#streak-banner .sb-mult{display:inline-block;margin-top:6px;padding:4px 14px;border-radius:999px;background:rgba(251,191,36,.28);border:1.5px solid rgba(251,191,36,.7);font-family:var(--4dp-font-data);font-weight:700;font-size:13px;letter-spacing:1px;color:#FDE68A;box-shadow:0 0 24px rgba(251,191,36,.5);}
+@keyframes streakFlame{0%,100%{filter:drop-shadow(0 0 18px rgba(251,191,36,.6));}50%{filter:drop-shadow(0 0 36px rgba(251,191,36,.95));}}
+#streak-banner.on .sb-num{animation:streakFlame 1.3s ease-in-out infinite;}
+
 /* Brief green flash on correct hits — pure juice */
 #hit-flash{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(198,255,0,.16) 0%,rgba(198,255,0,0) 60%);transition:opacity .4s ease;}
 #hit-flash.flash{opacity:1;transition:opacity .12s ease;}
@@ -63,8 +75,11 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 .cp-headline{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:clamp(26px,4.2vw,44px);letter-spacing:-1px;line-height:1;color:var(--4dp-text);text-shadow:0 2px 24px rgba(0,0,0,.7);transition:opacity .3s;margin:0;}
 .cp-sub{margin:10px 0 0;font-size:13px;color:var(--4dp-text-dim);letter-spacing:.3px;}
 
-/* Verdict banner */
-.verdict{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);z-index:12;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s;}
+/* Verdict banner — positioned in the UPPER-THIRD of the viewport so the
+   big "Let it fly." / "Blocked!" text floats ABOVE the ball's flight
+   height and doesn't overlap the ball during replay. Was top:38% which
+   sat right in the ball-flight zone. */
+.verdict{position:fixed;top:22%;left:50%;transform:translate(-50%,-50%);z-index:12;text-align:center;pointer-events:none;opacity:0;transition:opacity .2s;}
 .verdict.on{opacity:1;}
 .verdict .big{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(48px,8vw,96px);letter-spacing:-2px;line-height:.95;text-shadow:0 4px 32px rgba(0,0,0,.9);}
 .verdict .sub{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-text-dim);}
@@ -143,6 +158,11 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div id="vignette"></div>
 <div id="hit-flash"></div>
 <div id="float-points"></div>
+<div id="streak-banner">
+  <div class="sb-num" id="sb-num">2</div>
+  <div class="sb-lbl">🔥 on fire · streak</div>
+  <div class="sb-mult" id="sb-mult">1.2× multiplier</div>
+</div>
 
 <div class="hud-top">
   <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
@@ -204,7 +224,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
       <kbd>ENTER</kbd>
       <div>
         <div class="pg-key-name">Hit</div>
-        <div class="pg-key-desc">Hit the ball. The game reads your timing and calls it a volley or a groundstroke.</div>
+        <div class="pg-key-desc">Hit the ball. Volley or groundstroke.</div>
       </div>
     </div>
     <button class="pg-go" onclick="dismissPregame()">Got it — start training →</button>
@@ -348,13 +368,13 @@ const BASELINE_Z = 22;   // court half-length, used as "ball flew out past basel
 const LEVELS = [
   { num:1, name:'Warmup Speed', pos:'Opponent at baseline',  oppZ:-22, speed:0.55, pass:3 },
   { num:2, name:'Game Speed',   pos:'Opponent at baseline',  oppZ:-22, speed:0.92, pass:3 },
-  { num:3, name:'Crazy Speed',  pos:'Opponent at baseline',  oppZ:-22, speed:1.30, pass:3 },
+  { num:3, name:'Tour Speed',  pos:'Opponent at baseline',  oppZ:-22, speed:1.30, pass:3 },
   { num:4, name:'Warmup Speed', pos:'Opponent mid-court',    oppZ:-14, speed:0.70, pass:4 },
   { num:5, name:'Game Speed',   pos:'Opponent mid-court',    oppZ:-14, speed:1.10, pass:4 },
-  { num:6, name:'Crazy Speed',  pos:'Opponent mid-court',    oppZ:-14, speed:1.55, pass:4 },
+  { num:6, name:'Tour Speed',  pos:'Opponent mid-court',    oppZ:-14, speed:1.55, pass:4 },
   { num:7, name:'Warmup Speed', pos:'Opponent at kitchen',   oppZ:-8,  speed:0.82, pass:4 },
   { num:8, name:'Game Speed',   pos:'Opponent at kitchen',   oppZ:-7,  speed:1.25, pass:4 },
-  { num:9, name:'Crazy Speed',  pos:'Opponent at kitchen',   oppZ:-7,  speed:1.75, pass:4 }
+  { num:9, name:'Tour Speed',  pos:'Opponent at kitchen',   oppZ:-7,  speed:1.75, pass:4 }
 ];
 const SHOTS_PER_LEVEL = 5;
 
@@ -416,6 +436,8 @@ const STATE = {
   sessionPoints: 0,
   streak: 0,
   bestStreak: 0,
+  cameraManuallyChanged: false,   // flip true on Camera-button click
+  lastTwoShotKinds: [],           // for "no 3 in a row" rule
   results: [],          // per-level array of bool
   // Per-shot-type stats — populated in handleDecision and timeout paths
   statsByKind: { OUT: {total:0, correct:0}, VOLLEY: {total:0, correct:0}, BOUNCE: {total:0, correct:0} },
@@ -449,12 +471,16 @@ const camera = new THREE.PerspectiveCamera(45, vp.clientWidth / vp.clientHeight,
 //                baseline is clearly visible (was broken — camera previously
 //                looked at (0,1.8,0) = the net itself, so the person hitting
 //                the first shot was out of frame).
+// Camera presets — cycled by the Camera button, and auto-applied per round
+// (Round 1 Sideline · Round 2 First person · Round 3 Net view) unless the
+// player manually picked one. First person puts the camera INSIDE the
+// defender's head (hidesDefender so their own body doesn't occlude).
+// "Net view" is the low-and-level broadcast shot with both players framed.
 const CAM_PRESETS = [
-  { name:'Sideline',      pos:[38, 8,   12],   look:[0, 3, 0]   },
-  { name:'First person',  pos:[0,  5.2, 16],   look:[0, 3, -4]  },
-  { name:'Eye view',      pos:[0,  3.6, 8.2],  look:[0, 3, -22], hidesDefender:true },
-  { name:'Birds-eye',     pos:[0,  44,  0.01], look:[0, 0, 0]   },
-  { name:'Net-level',     pos:[4,  1.4, 3],    look:[0, 3, -18] }
+  { name:'Sideline',      pos:[38,  8,    12],   look:[0, 3, 0]    },
+  { name:'First person',  pos:[5,   3.75, 8],    look:[5, 3, -22], hidesDefender:true },
+  { name:'Net view',      pos:[45,  3,   -7],    look:[0, 2.5, -7] },  // wide side-on, z-centered so BOTH players are visible
+  { name:'Birds-eye',     pos:[0,   44,   0.01], look:[0, 0, 0]    }
 ];
 let camPresetIdx = 0;
 camera.position.set(...CAM_PRESETS[0].pos);
@@ -494,8 +520,16 @@ function tweenCameraTo(pos, look, dur = 0.9){
   };
 }
 function cycleCamera(){
+  // Manual click — remember the user's preference and stop auto-switching.
+  STATE.cameraManuallyChanged = true;
   camPresetIdx = (camPresetIdx + 1) % CAM_PRESETS.length;
   applyCameraPreset(camPresetIdx);
+}
+function setCameraByName(name){
+  const idx = CAM_PRESETS.findIndex(p => p.name === name);
+  if (idx < 0) return;
+  camPresetIdx = idx;
+  applyCameraPreset(idx);
 }
 function applyCameraPreset(idx, instant = false){
   const preset = CAM_PRESETS[idx];
@@ -798,14 +832,39 @@ function setScore(pulse = false){
   el.textContent = STATE.sessionPoints.toLocaleString();
   if (pulse) { el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
 }
+// Streak → point multiplier. The more you stack, the bigger each point.
+// Tiered: 2×(1.2) · 3×(1.5) · 5×(2.0) · 7×(2.5) · 10×(3.0).
+function streakMultiplier(streak){
+  if (streak >= 10) return 3.0;
+  if (streak >= 7)  return 2.5;
+  if (streak >= 5)  return 2.0;
+  if (streak >= 3)  return 1.5;
+  if (streak >= 2)  return 1.2;
+  return 1.0;
+}
 function updateStreakDisplay(){
+  // Small in-HUD pill (kept as a reference)
   const el = document.getElementById('streak-val');
-  if (!el) return;
+  if (el) {
+    if (STATE.streak >= 2) {
+      el.textContent = '🔥 ' + STATE.streak + ' streak';
+      el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+    } else {
+      el.classList.remove('on');
+    }
+  }
+  // BIG centered banner — shows once you hit a 2-streak, stays up while
+  // you're on fire, bigger pulse each new correct shot.
+  const banner = document.getElementById('streak-banner');
+  if (!banner) return;
   if (STATE.streak >= 2) {
-    el.textContent = '🔥 ' + STATE.streak + ' streak';
-    el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+    document.getElementById('sb-num').textContent = STATE.streak;
+    const mult = streakMultiplier(STATE.streak);
+    document.getElementById('sb-mult').textContent = mult.toFixed(1).replace('.0','') + '× multiplier';
+    // Re-trigger pop + flame animations
+    banner.classList.remove('on'); void banner.offsetWidth; banner.classList.add('on');
   } else {
-    el.classList.remove('on');
+    banner.classList.remove('on');
   }
 }
 function flashHit(){
@@ -877,13 +936,15 @@ function showRoundCard(onDone){
 
 function beginLevel(){
   STATE.trial = 0;
+  STATE.lastTwoShotKinds = [];  // reset so the no-3-in-a-row rule starts fresh per level
   buildDots();
   setLevelHUD();
   // Move the red attacker to match the level's opponent position. L1 starts
-  // at the baseline (Dave's rule: red player always STARTS just behind the
-  // baseline); later levels step them forward to mid-court / kitchen.
+  // at the baseline; later levels step them forward to mid-court / kitchen.
   const lv = LEVELS[STATE.levelIdx];
   if (attacker) attacker.position.z = lv.oppZ;
+  // Camera is NEVER auto-switched between rounds — player chose their angle,
+  // keep it. (Dave's 2026-04-20 reversal: auto-switching broke immersion.)
   showRoundCard(() => nextTrial());
 }
 
@@ -938,23 +999,38 @@ function nextTrial(){
 }
 
 function chooseShotKind(){
-  // Level mix: L1 = more OUT/VOLLEY for training; L6 = mostly HARD (banger mode)
   const lv = LEVELS[STATE.levelIdx].num;
-  const roll = Math.random();
-  if (lv <= 2) {
-    if (roll < 0.4) return 'OUT';
-    if (roll < 0.75) return 'VOLLEY';
-    return 'BOUNCE';
+  // Try up to 6 times to pick a kind that doesn't make 3 in a row.
+  // (Dave's rule: never three of the same shot type back-to-back.)
+  const last = STATE.lastTwoShotKinds;
+  for (let tries = 0; tries < 6; tries++) {
+    const roll = Math.random();
+    let kind;
+    if (lv <= 3) {
+      if (roll < 0.40) kind = 'OUT';
+      else if (roll < 0.75) kind = 'VOLLEY';
+      else kind = 'BOUNCE';
+    } else if (lv <= 6) {
+      if (roll < 0.45) kind = 'OUT';
+      else if (roll < 0.75) kind = 'VOLLEY';
+      else kind = 'BOUNCE';
+    } else {
+      if (roll < 0.55) kind = 'OUT';
+      else if (roll < 0.85) kind = 'VOLLEY';
+      else kind = 'BOUNCE';
+    }
+    const threePeat = last.length === 2 && last[0] === kind && last[1] === kind;
+    if (!threePeat) {
+      // Remember last two
+      STATE.lastTwoShotKinds = [last[last.length - 1] || kind, kind].slice(-2);
+      return kind;
+    }
   }
-  if (lv <= 4) {
-    if (roll < 0.4) return 'OUT';
-    if (roll < 0.7) return 'VOLLEY';
-    return 'BOUNCE';
-  }
-  // Banger-heavy
-  if (roll < 0.6) return 'OUT';
-  if (roll < 0.9) return 'VOLLEY';
-  return 'BOUNCE';
+  // Fallback: pick anything different from the last
+  const alt = ['OUT', 'VOLLEY', 'BOUNCE'].filter(k => k !== last[last.length - 1]);
+  const kind = alt[Math.floor(Math.random() * alt.length)];
+  STATE.lastTwoShotKinds = [last[last.length - 1] || kind, kind].slice(-2);
+  return kind;
 }
 
 function launchBall(){
@@ -1037,14 +1113,14 @@ function handleDecision(kind){
   let correct = false;
   let tooLate = false;
   if (kind === 'OUT') {
-    // Late-release penalty — credit only DECISIVE reads. Two gates:
-    //   (a) shotT cutoff — the ball has to still be ahead of you in flight.
-    //       Past ~60% of flight, a real opponent has already bounced it off you.
-    //   (b) ball-past-player — if the ball's z has already crossed the player's
-    //       position (reached z=PLAYER_Z+1 on an inbound shot travelling +z),
-    //       you've already been passed. That's always a miss regardless of t.
-    const ballPastPlayer = ball.position.z > PLAYER_Z - 0.5;
-    tooLate = STATE.shotT > 0.6 || ballPastPlayer;
+    // Late-release penalty with benefit of the doubt — loosened 2026-04-20
+    // per Dave. Two gates:
+    //   (a) shotT cutoff 0.72 (was 0.60) — more lenient, you have ~three-
+    //       quarters of the flight to make the call.
+    //   (b) ball-past-player — if the ball's already a foot behind you
+    //       (z > PLAYER_Z+1), you physically can't have "let it go."
+    const ballPastPlayer = ball.position.z > PLAYER_Z + 1.0;
+    tooLate = STATE.shotT > 0.72 || ballPastPlayer;
     correct = (shot.kind === 'OUT') && !tooLate;
   } else if (kind === 'SWING') {
     STATE.swingResolved = STATE.hasBounced ? 'BOUNCE' : 'VOLLEY';
@@ -1059,9 +1135,30 @@ function handleDecision(kind){
   }
   if (correct) {
     STATE.sessionCorrect++;
-    // Timing bonus based on how early in the flight they decided
+    // Points = (base 100 + earlyBonus + timingBonus) × streak multiplier.
+    // Streak multiplier uses the streak you're ABOUT to reach (pre+1).
     const earlyBonus = STATE.shotT < 0.35 ? 100 : STATE.shotT < 0.6 ? 60 : 30;
-    const earned = 100 + earlyBonus;
+    // ── TIMING BONUS — elite-tier reads earn +200 flat, before multiplier. ──
+    // Three triggers (any one counts):
+    //   (a) OUT called while ball is STILL on opponent's side of the kitchen
+    //       (z < -7). You read the speed before the ball even cleared the
+    //       NVZ — that's the "pro anticipation" moment.
+    //   (b) VOLLEY with shotT in [0.20, 0.40] — super-tight early hit.
+    //   (c) BOUNCE with shotT in [0.55, 0.70] and post-bounce — perfect
+    //       groundstroke timing: struck right as the ball peaks off bounce.
+    let timingBonus = 0;
+    let perfectReason = null;
+    const OPP_KITCHEN_Z = -7;
+    if (kind === 'OUT' && ball.position.z < OPP_KITCHEN_Z) {
+      timingBonus = 200; perfectReason = 'EARLY READ';
+    } else if (kind === 'SWING' && shot.kind === 'VOLLEY' && STATE.shotT >= 0.20 && STATE.shotT <= 0.40) {
+      timingBonus = 200; perfectReason = 'PERFECT BLOCK';
+    } else if (kind === 'SWING' && shot.kind === 'BOUNCE' && STATE.hasBounced && STATE.shotT >= 0.55 && STATE.shotT <= 0.70) {
+      timingBonus = 200; perfectReason = 'PERFECT STROKE';
+    }
+    const preStreak = STATE.streak;
+    const mult = streakMultiplier(preStreak + 1);
+    const earned = Math.round((100 + earlyBonus + timingBonus) * mult);
     STATE.sessionPoints += earned;
     STATE.streak++;
     if (STATE.streak > STATE.bestStreak) STATE.bestStreak = STATE.streak;
@@ -1112,13 +1209,29 @@ function showVerdict(correct, kind, shot){
   const big = document.getElementById('verdict-big');
   const sub = document.getElementById('verdict-sub');
   if (correct){
-    // Verdict-phrase pools, tiered by how early the read was. Random pull
-    // each time so the game feels alive, never boilerplate. "Let it fly" is
-    // in the early-read pool — Dave's favorite phrasing, earns the hero slot.
-    const EARLY = ['Let it fly.','Decisive.','Pro read.','Locked in.','Nailed it.','Bullseye.','Dialed.'];
-    const MID   = ['Clean read.','Good call.','Solid.','Sharp.','Smooth.'];
-    const LATE  = ['Late but solid.','Got it.','Squeaked by.','Just in time.'];
-    const pool  = STATE.shotT < 0.35 ? EARLY : STATE.shotT < 0.6 ? MID : LATE;
+    // Verdict-phrase pools — SHOT-TYPE-AWARE so phrases always match the
+    // action you just took. "Let it fly" only fires on OUT balls (you let
+    // the ball fly past). Hitting phrases only fire on VOLLEY/BOUNCE.
+    // Timing-tier (EARLY/MID/LATE) rotates within each pool for variety.
+    const POOLS = {
+      OUT: {
+        EARLY: ['Let it fly.','Let it go.','Decisive.','Pro read.','Locked in.','Dialed.'],
+        MID:   ['Clean read.','Good call.','Solid.','Smooth.','Sharp eye.'],
+        LATE:  ['Got it.','Late but solid.','Squeaked it.']
+      },
+      VOLLEY: {
+        EARLY: ['Blocked!','Crushed it.','Nailed it.','Pro hit.','Decisive.','Dialed.'],
+        MID:   ['Clean block.','Solid hit.','Sharp.','Good read.'],
+        LATE:  ['Got there.','Just in time.','Late but in.']
+      },
+      BOUNCE: {
+        EARLY: ['Patient.','Perfect timing.','Nailed it.','Pro swing.','Locked in.'],
+        MID:   ['Clean strike.','Solid hit.','Sharp.','Good read.'],
+        LATE:  ['Got it.','Just caught it.','Late but in.']
+      }
+    };
+    const tier = STATE.shotT < 0.35 ? 'EARLY' : STATE.shotT < 0.6 ? 'MID' : 'LATE';
+    const pool = (POOLS[shot.kind] || POOLS.OUT)[tier];
     big.textContent = pool[Math.floor(Math.random() * pool.length)];
     big.style.color = '#34D399';
     sub.textContent = shot.kind === 'OUT' ? 'Out ball · let it fly' : shot.kind === 'VOLLEY' ? 'Volley it — block' : 'Groundstroke — patient';
@@ -1128,7 +1241,7 @@ function showVerdict(correct, kind, shot){
     if (kind === 'NO_COMMIT') {
       sub.textContent = 'Release SPACEBAR to let it go · Hit ENTER to hit';
     } else if (kind === 'TOO_LATE') {
-      sub.textContent = 'You were right — but commit sooner. Release before the ball reaches you.';
+      sub.textContent = 'You had the right read.';
     } else if (kind === 'TIMEOUT') {
       sub.textContent = shot.kind === 'OUT' ? 'That was going out — release SPACEBAR' : shot.kind === 'VOLLEY' ? 'That was a volley — hit ENTER' : 'Let it bounce — hit ENTER';
     } else {

@@ -499,6 +499,15 @@
 </script>
 
 <div id="loading">Loading the court…</div>
+<script>
+// FAILSAFE loading timer — if something in the module setup errors, we STILL hide the
+// loading screen after 4s so the user isn't stuck on "Loading the court..." forever.
+setTimeout(function(){
+  var el = document.getElementById('loading');
+  if (el && !el.classList.contains('gone')) el.classList.add('gone');
+}, 4000);
+</script>
+
 
 <div id="viewport"></div>
 <div id="vignette"></div>

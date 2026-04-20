@@ -532,11 +532,11 @@
             padding-left: 14px; border-left: 3px solid var(--gold);
             display: inline-flex; align-items: center;
         }
-        /* Subtle science citation — sits quietly below the main hero sub-copy */
+        /* Subtle science citation — sits below the CTA button */
         .hero-science-note{
             font-family: 'Inter', sans-serif; font-size: 0.78rem;
             color: #8A9BB0; font-weight: 500; line-height: 1.5;
-            margin: -18px 0 32px; max-width: 560px;
+            margin: 44px 0 18px; max-width: 560px;
             padding-left: 14px; border-left: 2px solid rgba(77,166,255,0.4);
         }
         .hero-science-note strong{ color: #cbd5e1; font-weight: 700; }
@@ -990,11 +990,11 @@
                     <div class="hero-title-outline">Anticipate<br>Out Balls</div>
                     <h1 class="hero-title">Anticipate<br>Out Balls</h1>
                 </div>
-                <p class="hero-sub"><strong>Rewire your brain</strong> to make the let-it-go-out call immediately as your opponent hits the ball, every time.</p>
-                <p class="hero-science-note">Based on <strong>temporal occlusion research</strong> — the methodology elite tennis and cricket programs use to train anticipation.</p>
+                <p class="hero-sub"><strong>Rewire your brain.</strong> Make the let-it-go-out call immediately as your opponent hits the ball, every time.</p>
                 <div class="hero-cta-row">
                     <button class="hero-cta" onclick="open3D()">Start Training →</button>
                 </div>
+                <p class="hero-science-note">Based on <strong>temporal occlusion research</strong> — the methodology elite tennis and cricket programs use to train anticipation.</p>
                 <div class="hero-meta">
                     <span>9 levels · 5 shots per level</span>
                 </div>
@@ -1186,7 +1186,7 @@
                     <kbd>ENTER</kbd>
                     <div class="pgs-key-body">
                         <div class="pgs-key-name">HIT</div>
-                        <div class="pgs-key-desc">Hit the ball. Game auto-reads volley vs groundstroke from your timing.</div>
+                        <div class="pgs-key-desc">Hit the ball. Volley or groundstroke.</div>
                     </div>
                 </div>
             </div>
@@ -2002,20 +2002,18 @@
 
         function open3D() {
             if (typeof THREE === 'undefined') { alert("3D mode requires an internet connection."); return; }
-            // Pregame splash: show once per session (R14)
-            const seen = sessionStorage.getItem('pregame_seen');
-            if (!seen) {
-                document.getElementById('pregame-splash').classList.add('on');
-                // Dismiss on any keypress once shown
-                const once = (e) => {
-                    if (e.type === 'keydown' && e.key === 'Escape') { e.preventDefault(); return; }
-                    dismissPregame();
-                    window.removeEventListener('keydown', once, true);
-                };
-                setTimeout(() => window.addEventListener('keydown', once, true), 200);
-                return;  // resumes in dismissPregame()
-            }
-            _enterGame();
+            // Always show the pregame splash before launching the game — the
+            // "Two keys. One decision." screen is the handshake between landing
+            // and game. Prior version gated on sessionStorage.pregame_seen, so
+            // after the first play it was silently skipped (Dave: "did we lose
+            // the screen that goes between the homescreen and the game?").
+            document.getElementById('pregame-splash').classList.add('on');
+            const once = (e) => {
+                if (e.type === 'keydown' && e.key === 'Escape') { e.preventDefault(); return; }
+                dismissPregame();
+                window.removeEventListener('keydown', once, true);
+            };
+            setTimeout(() => window.addEventListener('keydown', once, true), 200);
         }
         function dismissPregame(){
             document.getElementById('pregame-splash').classList.remove('on');
