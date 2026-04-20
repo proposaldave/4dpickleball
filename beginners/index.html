@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Positioning & Scoring — Four Dimensions Academy</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+    /* =========================================================
+       TOKENS
+       ========================================================= */
+    :root {
+        --nepc-navy: #0A1A2F;
+        --nepc-navy-deep: #050D1A;
+        --nepc-navy-light: #1B4079;
+        --nepc-blue: #4DA6FF;
+        --nepc-blue-soft: #7FBFFF;
+        --nepc-red: #FF3D5A;
+        --nepc-green: #9EF01A;
+        --court-blue: #234e8c;
+        --court-blue-bright: #2d5fa8;
+        --court-gray: #5e6878;
+        --court-burgundy: #6b0f1a;
+        --team-serve: #EF4444;        /* Red team */
+        --team-serve-deep: #B91C1C;
+        --team-return: #10B981;       /* Green team (emerald — distinct from lime ball) */
+        --team-return-deep: #047857;
+        --glass: rgba(27, 64, 121, 0.32);
+        --glass-strong: rgba(27, 64, 121, 0.55);
+        --glass-border: rgba(255, 255, 255, 0.10);
+        --glass-border-bright: rgba(255, 255, 255, 0.22);
+        --success: #2ed573;
+        --gold: #FFD700;
+        --silver: #C0C9D4;
+        --bronze: #CD7F32;
+        --shadow-1: 0 8px 24px rgba(0,0,0,0.35);
+        --shadow-2: 0 20px 60px rgba(0,0,0,0.55);
+    }
+
+    /* =========================================================
+       RESET + GLOBAL
+       ========================================================= */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
+        }
+    }
+
+    html, body {
+        margin: 0; padding: 0;
+        background: var(--nepc-navy-deep);
+        color: #fff;
+        font-family: 'Inter', system-ui, sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    body {
+        background:
+            radial-gradient(ellipse 80% 60% at 15% -10%, rgba(77, 166, 255, 0.14) 0%, transparent 55%),
+            radial-gradient(ellipse 60% 50% at 85% 110%, rgba(155, 93, 229, 0.10) 0%, transparent 60%),
+            radial-gradient(ellipse 40% 30% at 50% 50%, rgba(77, 166, 255, 0.03) 0%, transparent 70%),
+            var(--nepc-navy-deep);
+        display: flex; flex-direction: column; align-items: center;
+        position: relative;
+    }
+
+    /* Ambient floating glows */
+    .ambient-glow {
+        position: fixed; pointer-events: none;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(77, 166, 255, 0.10), transparent 60%);
+        border-radius: 50%; filter: blur(60px);
+        top: -220px; left: -220px; z-index: 0;
+        animation: ambientFloat 22s infinite ease-in-out alternate;
+    }
+    .ambient-glow.two {
+        top: auto; bottom: -220px; left: auto; right: -220px;
+        background: radial-gradient(circle, rgba(155, 93, 229, 0.10), transparent 60%);
+        animation-duration: 28s; animation-direction: alternate-reverse;
+    }
+    @keyframes ambientFloat {
+        0%   { transform: translate(0, 0); }
+        100% { transform: translate(80px, 80px); }
+    }
+
+    /* =========================================================
+       APP SHELL
+       ========================================================= */
+    .app {
+        position: relative; z-index: 1;
+        width: 100%; max-width: 680px;
+        padding: clamp(14px, 3vw, 24px);
+        display: flex; flex-direction: column;
+        gap: clamp(12px, 2.2vw, 16px);
+    }
+
+    .screen { display: none; animation: screenIn 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+    .screen.active { display: flex; flex-direction: column; gap: inherit; }
+    @keyframes screenIn {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================================
+       HERO / INTRO
+       ========================================================= */
+    .hero-container {
+        position: relative; width: 100%; aspect-ratio: 21 / 10;
+        background:
+            radial-gradient(ellipse at 30% 30%, rgba(77, 166, 255, 0.22), transparent 60%),
+            radial-gradient(ellipse at 70% 70%, rgba(155, 93, 229, 0.15), transparent 60%),
+            linear-gradient(135deg, var(--nepc-navy-light) 0%, var(--nepc-navy-deep) 100%);
+        border-radius: 20px; border: 1px solid var(--glass-border-bright); overflow: hidden;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .hero-grid {
+        position: absolute; inset: 0;
+        background-image:
+            linear-gradient(rgba(77, 166, 255, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(77, 166, 255, 0.06) 1px, transparent 1px);
+        background-size: 24px 24px; z-index: 1;
+        mask-image: radial-gradient(ellipse at center, #000 30%, transparent 85%);
+    }
+    .hero-bg-score {
+        position: absolute; font-family: 'Montserrat'; font-weight: 900;
+        font-size: clamp(60px, 14vw, 120px); letter-spacing: 6px;
+        color: rgba(255, 255, 255, 0.035); z-index: 2;
+        animation: pulseScore 4s infinite alternate ease-in-out;
+        white-space: nowrap; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+    @keyframes pulseScore {
+        0%   { transform: translate(-50%, -50%) scale(0.96); opacity: 0.6; }
+        100% { transform: translate(-50%, -50%) scale(1.04); opacity: 1; }
+    }
+    .hero-mini-court {
+        width: 72%; aspect-ratio: 44 / 20;
+        border: 2px solid rgba(255,255,255,0.22); position: relative; z-index: 3;
+        border-radius: 3px;
+        box-shadow: 0 0 40px rgba(77, 166, 255, 0.15);
+    }
+    .hm-line { position: absolute; background: rgba(255,255,255,0.22); }
+    .hm-net { left: 50%; top: -6%; bottom: -6%; width: 2px; background: rgba(255,255,255,0.45); transform: translateX(-50%); }
+    .hm-k-left  { left: 34.1%; top: 0; bottom: 0; width: 1px; }
+    .hm-k-right { right: 34.1%; top: 0; bottom: 0; width: 1px; }
+    .hm-c-left  { left: 0; width: 34.1%; top: 50%; height: 1px; }
+    .hm-c-right { right: 0; width: 34.1%; top: 50%; height: 1px; }
+
+    .hero-dot {
+        position: absolute; width: 14px; height: 14px; border-radius: 50%;
+        transform: translate(-50%, -50%); box-shadow: 0 0 10px currentColor;
+    }
+    .hd-serve  { background: var(--team-serve);  color: var(--team-serve); }
+    .hd-return { background: var(--team-return); color: var(--team-return); }
+
+    #hero-server          { animation: heroServer 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    #hero-server-partner  { animation: heroServerPartner 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    #hero-returner        { animation: heroReturner 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    #hero-returner-partner { left: 31%; top: 25%; }
+
+    @keyframes heroServer        { 0%, 32% { left: 105%; top: 25%; } 48%, 90% { left: 69%; top: 25%; } 95%, 100% { left: 105%; top: 25%; } }
+    @keyframes heroServerPartner { 0%, 32% { left: 105%; top: 75%; } 48%, 90% { left: 69%; top: 75%; } 95%, 100% { left: 105%; top: 75%; } }
+    @keyframes heroReturner      { 0%, 16% { left: -5%;  top: 75%; } 32%, 90% { left: 31%; top: 75%; } 95%, 100% { left: -5%;  top: 75%; } }
+
+    .hero-ball {
+        position: absolute; width: 10px; height: 10px;
+        background: var(--nepc-green); border-radius: 50%;
+        box-shadow: 0 0 16px var(--nepc-green);
+        z-index: 4; transform: translate(-50%, -50%);
+        animation: heroBall 6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes heroBall {
+        0%   { left: 105%; top: 25%; opacity: 1; }
+        16%  { left: -5%;  top: 75%; opacity: 1; }
+        32%  { left: 105%; top: 25%; opacity: 1; }
+        48%  { left: 31%;  top: 25%; opacity: 1; }
+        64%  { left: 69%;  top: 75%; opacity: 1; }
+        80%  { left: 31%;  top: 75%; opacity: 1; }
+        90%  { left: 69%;  top: 25%; opacity: 0; }
+        100% { left: 105%; top: 25%; opacity: 0; }
+    }
+
+    /* Intro heading */
+    .intro-kicker {
+        display: inline-block;
+        font-family: 'Montserrat'; font-weight: 800; font-size: 11px;
+        letter-spacing: 3px; text-transform: uppercase;
+        color: var(--nepc-blue);
+        padding: 6px 12px; border-radius: 999px;
+        background: rgba(77, 166, 255, 0.10);
+        border: 1px solid rgba(77, 166, 255, 0.25);
+        margin-bottom: 12px;
+    }
+    .intro-heading {
+        font-family: 'Montserrat'; font-weight: 800;
+        font-size: clamp(22px, 5.2vw, 34px); line-height: 1.15;
+        margin: 0; letter-spacing: -0.5px;
+        background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.75) 100%);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .intro-heading .word { display: inline-block; }
+    .intro-sub {
+        font-size: clamp(14px, 3vw, 16px); line-height: 1.5;
+        color: rgba(255,255,255,0.66); max-width: 520px; margin: 10px auto 0;
+        text-align: center;
+    }
+    .intro-header-wrap { text-align: center; padding: 8px 0 0; }
+
+    /* =========================================================
+       INTRO CHOREOGRAPHY — cinematic opener
+       ========================================================= */
+    #intro-screen.active .hero-container     { animation: heroDrop 950ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+    #intro-screen.active .hero-bg-score      { animation: bgScoreIn 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) 400ms both, pulseScore 4s infinite alternate 1.7s ease-in-out; }
+    #intro-screen.active .intro-kicker       { animation: kickerIn 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 700ms both; }
+    #intro-screen.active .intro-heading .word{ animation: fadeInUp 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(850ms + var(--i, 0) * 90ms); }
+    #intro-screen.active .intro-sub          { animation: fadeInUp 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 1450ms both; }
+    #intro-screen.active .button-group       { animation: fadeInUp 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 1700ms both; }
+
+    @keyframes heroDrop {
+        from { opacity: 0; transform: translateY(-14px) scale(0.97); filter: blur(10px); }
+        to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    @keyframes kickerIn {
+        from { opacity: 0; transform: translateY(-8px); letter-spacing: 6px; }
+        to   { opacity: 1; transform: translateY(0); letter-spacing: 3px; }
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bgScoreIn {
+        from { opacity: 0; letter-spacing: 40px; }
+        to   { opacity: 1; letter-spacing: 6px; }
+    }
+
+    /* Sweep of light across the hero after it lands */
+    #intro-screen.active .hero-container::after {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        background: linear-gradient(100deg, transparent 30%, rgba(77, 166, 255, 0.28) 48%, rgba(158, 240, 26, 0.22) 52%, transparent 70%);
+        transform: translateX(-120%);
+        animation: heroSweep 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) 950ms both;
+        mix-blend-mode: overlay; z-index: 5;
+    }
+    @keyframes heroSweep {
+        0%   { transform: translateX(-120%); }
+        100% { transform: translateX(120%); }
+    }
+
+    /* =========================================================
+       HEADER / PROGRESS
+       ========================================================= */
+    .top-row {
+        display: flex; align-items: center; gap: 14px;
+        padding: 4px 0;
+    }
+    .accent-line {
+        width: 6px; height: 44px; border-radius: 3px;
+        background: linear-gradient(180deg, var(--nepc-red), #8a0c22);
+        box-shadow: 0 0 12px rgba(255, 61, 90, 0.3);
+        flex-shrink: 0;
+    }
+    .kicker {
+        font-family: 'Montserrat'; font-weight: 700; font-size: 10px;
+        letter-spacing: 2.5px; text-transform: uppercase;
+        color: var(--nepc-blue); opacity: 0.85; margin-bottom: 2px;
+    }
+    h1#screen-header {
+        font-family: 'Montserrat'; font-weight: 800;
+        font-size: clamp(18px, 4.2vw, 24px);
+        margin: 0; text-transform: uppercase; letter-spacing: 0.5px;
+        line-height: 1.1;
+    }
+
+    .progress-dots {
+        display: flex; gap: 6px; padding: 4px 0;
+        align-items: center;
+    }
+    .pdot {
+        flex: 1; max-width: 36px; height: 5px; border-radius: 3px;
+        border: none; padding: 0; background: rgba(255,255,255,0.08);
+        transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        cursor: pointer; position: relative; overflow: hidden;
+    }
+    .pdot.done   { background: rgba(77, 166, 255, 0.45); }
+    .pdot.active { background: var(--nepc-blue); box-shadow: 0 0 10px rgba(77, 166, 255, 0.6); }
+    .pdot:disabled { cursor: default; }
+    .pdot:focus-visible { outline: 2px solid var(--nepc-blue); outline-offset: 3px; }
+
+    /* =========================================================
+       INSTRUCTION CARD
+       ========================================================= */
+    .slim-instruction {
+        background: var(--glass);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        border-radius: 14px; padding: 14px 18px;
+        border: 1px solid var(--glass-border);
+        display: flex; flex-direction: column; text-align: center;
+        box-shadow: var(--shadow-1);
+        animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes cardIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .step-label {
+        color: var(--nepc-blue);
+        font-family: 'Montserrat'; font-weight: 800; font-size: 11px;
+        text-transform: uppercase; letter-spacing: 2.2px; margin-bottom: 6px;
+    }
+    .instruction-text {
+        font-size: clamp(14px, 3.2vw, 16px);
+        line-height: 1.5; color: rgba(255,255,255,0.95); font-weight: 500;
+    }
+    .instruction-text strong { color: #fff; font-weight: 700; }
+
+    /* =========================================================
+       COURT
+       ========================================================= */
+    .court-wrapper {
+        width: 100%;
+        padding: clamp(24px, 5vw, 44px) clamp(28px, 6vw, 52px);
+        background: linear-gradient(180deg, var(--court-gray) 0%, #4a5462 100%);
+        border-radius: 18px; position: relative;
+        box-shadow:
+            inset 0 0 40px rgba(0,0,0,0.35),
+            0 10px 30px rgba(0,0,0,0.35);
+    }
+    .court-container {
+        width: 100%; aspect-ratio: 44 / 20;
+        border: 2px solid rgba(255,255,255,0.95);
+        position: relative;
+        background:
+            radial-gradient(ellipse at center, var(--court-blue-bright) 0%, var(--court-blue) 70%);
+        overflow: visible;
+        box-shadow: inset 0 0 60px rgba(0,0,0,0.25);
+    }
+
+    .kitchen-area {
+        position: absolute; top: 0; bottom: 0; width: 15.9%;
+        background: linear-gradient(180deg, var(--court-burgundy), #52090f);
+        transition: box-shadow 0.4s, filter 0.4s;
+    }
+    .kitchen-area.pulse {
+        box-shadow: inset 0 0 20px rgba(255, 61, 90, 0.55);
+        filter: saturate(1.3) brightness(1.15);
+        animation: kitchenPulse 1.6s infinite alternate ease-in-out;
+    }
+    @keyframes kitchenPulse {
+        0%   { box-shadow: inset 0 0 15px rgba(255, 61, 90, 0.35); }
+        100% { box-shadow: inset 0 0 30px rgba(255, 61, 90, 0.70); }
+    }
+    .kitchen-left-side  { left: 34.1%; }
+    .kitchen-right-side { right: 34.1%; }
+
+    .kitchen-badge {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Montserrat'; font-weight: 800;
+        font-size: clamp(9px, 1.8vw, 13px);
+        letter-spacing: 1.5px; white-space: nowrap;
+        color: rgba(255, 220, 220, 0.95);
+        text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+        pointer-events: none; z-index: 11;
+        opacity: 0; transition: opacity 0.5s;
+        text-align: center; line-height: 1.2;
+    }
+    .kitchen-badge small {
+        display: block; font-weight: 700; font-size: 0.7em;
+        letter-spacing: 2px; opacity: 0.8; margin-top: 2px;
+    }
+    .kitchen-area.labeled .kitchen-badge { opacity: 1; }
+
+    .kitchen-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; z-index: 5; }
+    .kl-left  { left:  34.1%; transform: translateX(-50%); }
+    .kl-right { right: 34.1%; transform: translateX(50%); }
+
+    .net-line {
+        position: absolute; left: 50%; top: -8px; bottom: -8px;
+        width: 4px; background: #fff; z-index: 6; transform: translateX(-50%);
+        box-shadow: 0 0 12px rgba(255,255,255,0.3);
+    }
+    .center-line { position: absolute; height: 2px; background: #fff; top: 50%; width: 34.1%; transform: translateY(-50%); }
+    .center-left  { left: 0; }
+    .center-right { right: 0; }
+
+    /* Players */
+    .player {
+        position: absolute; width: clamp(24px, 5.2vw, 32px); height: clamp(24px, 5.2vw, 32px);
+        border-radius: 50%;
+        z-index: 20; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Montserrat'; font-weight: 800;
+        font-size: clamp(12px, 2.8vw, 14px);
+        color: #fff; transform: translate(-50%, -50%);
+        border: 2px solid rgba(255,255,255,0.55);
+    }
+    #p1, #p2 {
+        background: radial-gradient(circle at 30% 30%, #FCA5A5, var(--team-serve-deep));
+        box-shadow: 0 0 14px rgba(239, 68, 68, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    #p3, #p4 {
+        background: radial-gradient(circle at 30% 30%, #6EE7B7, var(--team-return-deep));
+        box-shadow: 0 0 14px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+
+    /* Ball */
+    .ball {
+        position: absolute;
+        width: clamp(12px, 2.6vw, 16px); height: clamp(12px, 2.6vw, 16px);
+        background: radial-gradient(circle at 30% 30%, #d4ff7a, var(--nepc-green));
+        border-radius: 50%; z-index: 25;
+        box-shadow: 0 0 14px var(--nepc-green), 0 0 28px rgba(158, 240, 26, 0.4);
+        transition: all 0.6s linear;
+        transform: translate(-50%, -50%);
+        display: none;
+    }
+    .ball.idle { animation: ballIdle 2.5s infinite alternate ease-in-out; }
+    @keyframes ballIdle {
+        0%   { box-shadow: 0 0 10px var(--nepc-green), 0 0 20px rgba(158, 240, 26, 0.3); }
+        100% { box-shadow: 0 0 18px var(--nepc-green), 0 0 36px rgba(158, 240, 26, 0.55); }
+    }
+
+    .ball-trail {
+        position: absolute;
+        width: clamp(10px, 2.2vw, 14px); height: clamp(10px, 2.2vw, 14px);
+        background: var(--nepc-green); border-radius: 50%;
+        transform: translate(-50%, -50%); z-index: 24;
+        pointer-events: none; opacity: 0.7;
+        box-shadow: 0 0 8px var(--nepc-green);
+        animation: trailFade 0.7s forwards;
+    }
+    @keyframes trailFade {
+        0%   { opacity: 0.7; transform: translate(-50%, -50%) scale(0.95); }
+        100% { opacity: 0;   transform: translate(-50%, -50%) scale(0.35); }
+    }
+
+    /* Dynamic overlays */
+    .visual-layer { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
+
+    .tooltip {
+        position: absolute; background: rgba(5, 13, 26, 0.92);
+        border: 1px solid var(--nepc-blue); color: #fff;
+        padding: 5px 9px; border-radius: 6px;
+        font-size: clamp(9px, 2vw, 11px); font-weight: 700; white-space: nowrap;
+        transform: translate(-50%, -36px); opacity: 0;
+        transition: opacity 0.3s, transform 0.3s ease;
+        z-index: 30; box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+        backdrop-filter: blur(6px);
+    }
+    .tooltip.show { opacity: 1; }
+    .tooltip::after {
+        content: ''; position: absolute; top: 100%;
+        left: var(--arrow-left, 50%); margin-left: -4px;
+        border-width: 4px; border-style: solid;
+        border-color: var(--nepc-blue) transparent transparent transparent;
+        transition: left 0.3s ease;
+    }
+
+    .bounce-ring {
+        position: absolute; width: 44px; height: 44px;
+        border: 3px dashed var(--nepc-green); border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0); opacity: 0; z-index: 10;
+    }
+    @keyframes ping {
+        0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+    }
+
+    .score-popup {
+        position: absolute; font-family: 'Montserrat'; font-weight: 800;
+        font-size: clamp(20px, 5vw, 32px); color: var(--nepc-green);
+        text-shadow: 0 2px 14px rgba(0,0,0,0.85), 0 0 16px currentColor;
+        z-index: 40; transform: translate(-50%, -50%);
+        animation: floatUp 1.6s forwards ease-out; opacity: 0; white-space: nowrap;
+        letter-spacing: 1px;
+    }
+    @keyframes floatUp {
+        0%   { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+        20%  { opacity: 1; transform: translate(-50%, -22px) scale(1.2); }
+        80%  { opacity: 1; transform: translate(-50%, -44px) scale(1); }
+        100% { opacity: 0; transform: translate(-50%, -54px) scale(1); }
+    }
+    .fault-popup { color: var(--nepc-red); animation: aggressivePop 1.5s forwards ease-out; }
+    @keyframes aggressivePop {
+        0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
+        15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.4) rotate(-5deg); }
+        30%  { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
+        45%  { transform: translate(-50%, -50%) scale(1.1) rotate(0deg); }
+        80%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    }
+
+    /* =========================================================
+       SCOREBOARD
+       ========================================================= */
+    .scoreboard {
+        display: none; grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px; margin-top: 4px;
+        padding: 12px; border-radius: 14px;
+        background: linear-gradient(135deg, rgba(10, 26, 47, 0.85), rgba(5, 13, 26, 0.9));
+        border: 1px solid var(--glass-border);
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.4), var(--shadow-1);
+    }
+    .scoreboard.show { display: grid; }
+    .score-box {
+        background: rgba(0,0,0,0.35); padding: 10px 6px;
+        border-radius: 10px; text-align: center;
+        border: 1px solid rgba(255,255,255,0.04);
+        position: relative; overflow: hidden;
+    }
+    .score-box::before {
+        content: ''; position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(77, 166, 255, 0.08), transparent 50%);
+        pointer-events: none;
+    }
+    .score-num {
+        font-family: 'Montserrat'; font-weight: 800;
+        font-size: clamp(22px, 6vw, 30px); color: var(--nepc-blue);
+        text-shadow: 0 0 12px rgba(77, 166, 255, 0.6);
+        line-height: 1; font-variant-numeric: tabular-nums;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .score-num.highlight {
+        color: var(--nepc-green); transform: scale(1.18);
+        text-shadow: 0 0 16px var(--nepc-green);
+    }
+    .score-label {
+        font-size: 9.5px; text-transform: uppercase;
+        letter-spacing: 1.2px; opacity: 0.65;
+        margin-top: 6px; line-height: 1.2; font-weight: 700;
+    }
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+    .button-group { display: flex; gap: 12px; margin-top: 4px; }
+    .btn {
+        flex: 1; min-height: 56px; border-radius: 12px; border: none;
+        font-family: 'Montserrat'; font-weight: 700;
+        font-size: clamp(13px, 3vw, 15px);
+        text-transform: uppercase; cursor: pointer;
+        transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; letter-spacing: 0.5px;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, var(--nepc-blue) 0%, #3588d9 100%);
+        color: var(--nepc-navy-deep);
+        box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35);
+    }
+    .btn-primary:hover:not(:disabled) {
+        box-shadow: 0 8px 24px rgba(77, 166, 255, 0.45);
+        transform: translateY(-1px);
+    }
+    .btn-primary:disabled { background: #3a4052; color: #6a7082; cursor: not-allowed; box-shadow: none; }
+    .btn-outline {
+        background: transparent; border: 2px solid var(--nepc-blue); color: var(--nepc-blue);
+    }
+    .btn-outline:hover:not(:disabled) {
+        background: rgba(77, 166, 255, 0.08);
+        box-shadow: 0 4px 12px rgba(77, 166, 255, 0.2);
+    }
+    .btn-answer {
+        width: 100%; background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border); margin-bottom: 8px;
+        text-transform: none; font-family: 'Inter';
+        font-weight: 600; font-size: clamp(15px, 3.4vw, 17px);
+        line-height: 1.3; min-height: 54px;
+        backdrop-filter: blur(10px);
+    }
+    .btn-answer:hover:not(:disabled) {
+        background: rgba(77, 166, 255, 0.10);
+        border-color: rgba(77, 166, 255, 0.35);
+        transform: translateY(-1px);
+    }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:focus-visible { outline: 2px solid var(--nepc-blue); outline-offset: 3px; }
+
+    .control-btn {
+        width: 100%; margin-top: 8px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--glass-border);
+        color: rgba(255, 255, 255, 0.55); padding: 10px;
+        border-radius: 10px; font-family: 'Montserrat';
+        font-size: 11px; font-weight: 800; cursor: pointer;
+        transition: all 0.2s; display: none;
+        text-align: center; letter-spacing: 2px;
+    }
+    .control-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+
+    .pulse-btn { animation: pulseBtn 2.4s infinite; }
+    @keyframes pulseBtn {
+        0%   { box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35), 0 0 0 0 rgba(77, 166, 255, 0.5); }
+        70%  { box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35), 0 0 0 16px rgba(77, 166, 255, 0); }
+        100% { box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35), 0 0 0 0 rgba(77, 166, 255, 0); }
+    }
+
+    /* =========================================================
+       PROGRESS BAR (SIMULATOR)
+       ========================================================= */
+    .progress-bar-wrap {
+        width: 100%; height: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 3px; overflow: hidden;
+        display: none;
+    }
+    #progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--nepc-blue), var(--nepc-blue-soft));
+        width: 0%; transition: width 0.5s ease;
+        box-shadow: 0 0 10px rgba(77, 166, 255, 0.6);
+    }
+
+    /* Streak pill */
+    .streak-pill {
+        display: none; align-items: center; gap: 6px;
+        padding: 6px 12px; border-radius: 999px;
+        background: rgba(255, 215, 0, 0.10);
+        border: 1px solid rgba(255, 215, 0, 0.35);
+        font-family: 'Montserrat'; font-weight: 800; font-size: 11px;
+        letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase;
+        align-self: center; margin: 6px auto 0;
+        box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
+        animation: streakPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .streak-pill.show { display: inline-flex; }
+    @keyframes streakPop {
+        from { opacity: 0; transform: scale(0.8); }
+        to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* =========================================================
+       CONFETTI
+       ========================================================= */
+    .confetti {
+        position: fixed; width: 9px; height: 14px;
+        pointer-events: none; z-index: 9999;
+        animation: confettiFly 1.4s ease-out forwards;
+        border-radius: 2px;
+    }
+    @keyframes confettiFly {
+        0%   { transform: translate(0,0) rotate(0); opacity: 1; }
+        100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+    }
+
+    /* Shake */
+    .shake { animation: shake 0.35s ease-in-out; }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25%      { transform: translateX(-8px); }
+        75%      { transform: translateX(8px); }
+    }
+
+    /* =========================================================
+       SERVE TARGET BOX (highlighted diagonal)
+       ========================================================= */
+    .serve-target {
+        position: absolute; z-index: 8; pointer-events: none;
+        border: 2px dashed var(--nepc-green); border-radius: 4px;
+        background: linear-gradient(135deg, rgba(158, 240, 26, 0.08), rgba(158, 240, 26, 0.02));
+        box-shadow: inset 0 0 20px rgba(158, 240, 26, 0.15), 0 0 18px rgba(158, 240, 26, 0.25);
+        opacity: 0; transition: opacity 0.5s;
+        animation: targetPulse 2s infinite alternate ease-in-out;
+    }
+    .serve-target.show { opacity: 1; }
+    @keyframes targetPulse {
+        0%   { box-shadow: inset 0 0 15px rgba(158, 240, 26, 0.12), 0 0 12px rgba(158, 240, 26, 0.18); }
+        100% { box-shadow: inset 0 0 30px rgba(158, 240, 26, 0.30), 0 0 24px rgba(158, 240, 26, 0.40); }
+    }
+
+    /* =========================================================
+       TEAM COLOR PIPS ON SCOREBOARD
+       ========================================================= */
+    .team-pip {
+        display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+        margin-right: 5px; vertical-align: middle;
+        box-shadow: 0 0 6px currentColor;
+    }
+    .pip-red   { background: var(--team-serve); color: var(--team-serve); }
+    .pip-green { background: var(--team-return); color: var(--team-return); }
+
+    /* =========================================================
+       AUDIO / MUTE TOGGLE
+       ========================================================= */
+    .mute-toggle {
+        position: fixed; top: 16px; right: 16px; z-index: 100;
+        width: 42px; height: 42px; border-radius: 50%;
+        background: rgba(10, 26, 47, 0.75);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        color: rgba(255,255,255,0.8); cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s; box-shadow: var(--shadow-1);
+    }
+    .mute-toggle:hover { background: rgba(27, 64, 121, 0.85); color: #fff; transform: scale(1.06); }
+    .mute-toggle svg { width: 18px; height: 18px; }
+
+    /* =========================================================
+       KEYBOARD HINTS STRIP
+       ========================================================= */
+    .kb-hints {
+        display: none; justify-content: center; gap: 14px;
+        padding: 10px 0 0; opacity: 0.5;
+        font-size: 11px; color: rgba(255,255,255,0.6);
+        font-family: 'Inter'; font-weight: 500;
+    }
+    .kb-hints kbd {
+        display: inline-block; padding: 2px 7px; min-width: 22px;
+        text-align: center; font-family: 'Montserrat';
+        font-size: 10px; font-weight: 700;
+        background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85);
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
+        box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 0 rgba(0,0,0,0.3);
+        margin-right: 4px;
+    }
+    @media (min-width: 768px) { .kb-hints.visible { display: flex; } }
+
+    /* =========================================================
+       REPLAY BUTTON
+       ========================================================= */
+    .replay-btn {
+        display: flex; align-items: center; justify-content: center;
+        gap: 6px; padding: 10px 16px; border-radius: 10px;
+        background: rgba(77, 166, 255, 0.08);
+        border: 1px solid rgba(77, 166, 255, 0.25);
+        color: var(--nepc-blue);
+        font-family: 'Montserrat'; font-weight: 700; font-size: 12px;
+        letter-spacing: 1.5px; text-transform: uppercase;
+        cursor: pointer; transition: all 0.2s;
+        align-self: center; margin: 0 auto;
+    }
+    .replay-btn:hover { background: rgba(77, 166, 255, 0.15); transform: translateY(-1px); }
+    .replay-btn svg { width: 14px; height: 14px; }
+    .replay-btn.spin svg { animation: spin 0.6s ease-out; }
+    @keyframes spin { from { transform: rotate(0); } to { transform: rotate(-360deg); } }
+
+    /* Feedback card */
+    .sim-feedback {
+        margin-top: 10px;
+        border-color: var(--success) !important;
+        background: linear-gradient(135deg, rgba(46, 213, 115, 0.16), rgba(46, 213, 115, 0.06)) !important;
+        display: none;
+    }
+    .sim-feedback .instruction-text { color: var(--success); font-weight: 700; }
+
+    /* =========================================================
+       COMPLETION
+       ========================================================= */
+    .completion-card {
+        text-align: center; padding: 32px 20px;
+        background: var(--glass); backdrop-filter: blur(18px);
+        border-radius: 18px; border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-2);
+        position: relative; overflow: hidden;
+    }
+    .completion-card::before {
+        content: ''; position: absolute; inset: 0;
+        background: radial-gradient(ellipse at top, var(--tier-glow, rgba(77,166,255,0.2)), transparent 60%);
+        pointer-events: none;
+    }
+    .tier-badge {
+        position: relative; display: inline-block;
+        font-family: 'Montserrat'; font-weight: 900;
+        font-size: 12px; letter-spacing: 3px;
+        padding: 8px 18px; border-radius: 999px;
+        text-transform: uppercase; margin-bottom: 12px;
+        border: 1.5px solid var(--tier-color, var(--nepc-blue));
+        color: var(--tier-color, var(--nepc-blue));
+        box-shadow: 0 0 20px var(--tier-glow, rgba(77,166,255,0.3));
+    }
+    .final-score-val {
+        font-family: 'Montserrat'; font-weight: 900;
+        font-size: clamp(56px, 14vw, 80px);
+        color: var(--tier-color, var(--nepc-blue));
+        margin: 12px 0 4px; line-height: 1;
+        text-shadow: 0 0 30px var(--tier-glow, rgba(77, 166, 255, 0.5));
+        font-variant-numeric: tabular-nums;
+    }
+    .final-score-val.animating { animation: countUp 1.2s ease-out; }
+    @keyframes countUp {
+        from { transform: scale(0.5); opacity: 0; }
+        to   { transform: scale(1); opacity: 1; }
+    }
+    .final-rating {
+        font-size: clamp(14px, 3vw, 16px);
+        color: rgba(255,255,255,0.85); line-height: 1.5; margin-top: 8px;
+        max-width: 440px; margin-left: auto; margin-right: auto;
+    }
+    .stat-row {
+        display: flex; justify-content: center; gap: 18px; margin-top: 18px;
+        flex-wrap: wrap;
+    }
+    .stat { text-align: center; }
+    .stat-v {
+        font-family: 'Montserrat'; font-weight: 800;
+        font-size: clamp(18px, 4vw, 22px); color: #fff;
+    }
+    .stat-l {
+        font-size: 10px; text-transform: uppercase;
+        letter-spacing: 1.5px; opacity: 0.6;
+        font-weight: 700; margin-top: 2px;
+    }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+    @media (min-width: 768px) {
+        .app { max-width: 780px; padding: 28px; gap: 18px; }
+        .hero-container { aspect-ratio: 21 / 8; }
+        .slim-instruction { padding: 16px 22px; }
+        .btn-answer { font-size: 17px; min-height: 58px; }
+    }
+
+    @media (min-width: 1024px) {
+        .app { max-width: 1180px; padding: 36px; }
+
+        /* Desktop two-column layout for main screen */
+        #main-screen.active { display: grid !important; }
+        #main-screen {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto 1fr;
+            gap: 20px;
+        }
+        .main-head { grid-column: 1 / -1; }
+        .main-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+            gap: 28px;
+            align-items: start;
+        }
+        .main-left, .main-right {
+            display: flex; flex-direction: column;
+            gap: 16px; min-width: 0;
+        }
+        .main-right { position: sticky; top: 28px; }
+
+        .hero-container { aspect-ratio: 21 / 7; }
+        .intro-heading { font-size: 38px; }
+        .court-wrapper { padding: 52px 60px; }
+
+        /* Two-column answer grid on desktop */
+        #answer-options.multi {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        #answer-options.multi .btn-answer { margin-bottom: 0; }
+    }
+
+    @media (min-width: 1440px) {
+        .app { max-width: 1320px; }
+    }
+
+    /* Very small phones */
+    @media (max-width: 360px) {
+        .app { padding: 12px; gap: 10px; }
+        .court-wrapper { padding: 20px 24px; }
+        .btn { min-height: 50px; }
+    }
+    </style>
+</head>
+<body>
+
+<div class="ambient-glow"></div>
+<div class="ambient-glow two"></div>
+
+<!-- MUTE TOGGLE -->
+<button class="mute-toggle" id="mute-toggle" onclick="toggleMute()" aria-label="Toggle sound">
+    <svg id="mute-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+    </svg>
+    <svg id="mute-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+        <line x1="23" y1="9" x2="17" y2="15"></line>
+        <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+</button>
+
+<div class="app">
+
+    <!-- ======= INTRO ======= -->
+    <section id="intro-screen" class="screen active">
+        <div class="hero-container">
+            <div class="hero-grid"></div>
+            <div class="hero-bg-score">0&ndash;0&ndash;2</div>
+            <div class="hero-mini-court">
+                <div class="hm-line hm-net"></div>
+                <div class="hm-line hm-k-left"></div>
+                <div class="hm-line hm-k-right"></div>
+                <div class="hm-line hm-c-left"></div>
+                <div class="hm-line hm-c-right"></div>
+                <div class="hero-dot hd-serve"  id="hero-server"></div>
+                <div class="hero-dot hd-serve"  id="hero-server-partner"></div>
+                <div class="hero-dot hd-return" id="hero-returner"></div>
+                <div class="hero-dot hd-return" id="hero-returner-partner"></div>
+                <div class="hero-ball"></div>
+            </div>
+        </div>
+
+        <div class="intro-header-wrap">
+            <span class="intro-kicker">Four Dimensions Academy &middot; Module 1</span>
+            <h1 class="intro-heading">
+                <span class="word" style="--i:1">Master</span>
+                <span class="word" style="--i:2">Basic</span>
+                <span class="word" style="--i:3">Positioning</span><br>
+                <span class="word" style="--i:4">and</span>
+                <span class="word" style="--i:5">Scorekeeping</span>
+            </h1>
+            <p class="intro-sub">
+                Pickleball scoring is famously unique. First, watch the court to learn how players move and how the serve rotates.
+                Then test yourself with 10 quick scenarios to lock it in.
+            </p>
+        </div>
+
+        <div class="button-group" style="margin-top: 6px;">
+            <button class="btn btn-primary pulse-btn" onclick="nextStep()" style="min-height: 64px; flex-wrap: wrap;">
+                Start Your
+                <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="margin: 0 8px; filter: drop-shadow(0 0 6px rgba(158,240,26,0.7));">
+                    <circle cx="12" cy="12" r="10" fill="#9EF01A"/>
+                    <circle cx="8"  cy="9"  r="1.4" fill="#0A1A2F"/>
+                    <circle cx="16" cy="9"  r="1.4" fill="#0A1A2F"/>
+                    <circle cx="12" cy="12" r="1.4" fill="#0A1A2F"/>
+                    <circle cx="8"  cy="15" r="1.4" fill="#0A1A2F"/>
+                    <circle cx="16" cy="15" r="1.4" fill="#0A1A2F"/>
+                    <circle cx="12" cy="7"  r="1.2" fill="#0A1A2F"/>
+                    <circle cx="12" cy="17" r="1.2" fill="#0A1A2F"/>
+                </svg>
+                Journey Here
+            </button>
+        </div>
+    </section>
+
+    <!-- ======= MAIN (lesson + simulator) ======= -->
+    <section id="main-screen" class="screen">
+
+        <div class="main-head">
+            <div class="top-row">
+                <div class="accent-line"></div>
+                <div>
+                    <div class="kicker">Four Dimensions Academy &middot; Module 1</div>
+                    <h1 id="screen-header">Positioning</h1>
+                </div>
+            </div>
+            <div class="progress-dots" id="progress-dots"></div>
+            <div class="progress-bar-wrap" id="sim-progress"><div id="progress-fill"></div></div>
+            <div class="streak-pill" id="streak-pill">&#x2605; Streak &times;<span id="streak-val">2</span></div>
+        </div>
+
+        <div class="main-grid">
+            <div class="main-left">
+                <div class="court-wrapper">
+                    <div class="court-container" id="court-area">
+                        <div class="kitchen-area kitchen-left-side"  id="kz-left">
+                            <span class="kitchen-badge">KITCHEN<small>NVZ</small></span>
+                        </div>
+                        <div class="kitchen-area kitchen-right-side" id="kz-right">
+                            <span class="kitchen-badge">KITCHEN<small>NVZ</small></span>
+                        </div>
+
+                        <!-- Serve target box (shown during serve lesson) -->
+                        <div class="serve-target" id="serve-target"></div>
+
+                        <div class="kitchen-line kl-left"></div>
+                        <div class="kitchen-line kl-right"></div>
+
+                        <div class="net-line"></div>
+                        <div class="center-line center-left"></div>
+                        <div class="center-line center-right"></div>
+
+                        <div id="visual-layer" class="visual-layer"></div>
+
+                        <div id="tt-p1" class="tooltip"></div>
+                        <div id="tt-p2" class="tooltip"></div>
+                        <div id="tt-p3" class="tooltip"></div>
+                        <div id="tt-p4" class="tooltip"></div>
+
+                        <div id="p1" class="player">1</div>
+                        <div id="p2" class="player">2</div>
+                        <div id="p3" class="player">3</div>
+                        <div id="p4" class="player">4</div>
+                        <div id="ball" class="ball"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-right">
+                <div class="slim-instruction" id="text-box">
+                    <div id="step-id" class="step-label">Step 1</div>
+                    <div id="step-text" class="instruction-text">Loading&hellip;</div>
+                </div>
+
+                <div id="score-display-area" class="scoreboard">
+                    <div class="score-box">
+                        <div id="s-val-1" class="score-num">0</div>
+                        <div class="score-label"><span class="team-pip pip-red"></span>Serving<br>Team</div>
+                    </div>
+                    <div class="score-box">
+                        <div id="s-val-2" class="score-num">0</div>
+                        <div class="score-label"><span class="team-pip pip-green"></span>Receiving<br>Team</div>
+                    </div>
+                    <div class="score-box">
+                        <div id="s-val-3" class="score-num">2</div>
+                        <div class="score-label">Server<br>Number</div>
+                    </div>
+                </div>
+
+                <div id="lesson-ui">
+                    <button id="replay-btn" class="replay-btn" onclick="replayStep()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        Replay Animation
+                    </button>
+                    <div class="button-group">
+                        <button id="lesson-back-btn" class="btn btn-outline" onclick="prevStep()">&larr; Back</button>
+                        <button id="next-btn" class="btn btn-primary" onclick="nextStep()">Next &rarr;</button>
+                    </div>
+                    <button id="play-pause-btn" class="control-btn" onclick="togglePlayPause()">&#x23F8; PAUSE (SPACE)</button>
+                    <div class="kb-hints visible" id="kb-hints">
+                        <span><kbd>&larr;</kbd><kbd>&rarr;</kbd> Navigate</span>
+                        <span><kbd>Space</kbd> Pause</span>
+                        <span><kbd>R</kbd> Replay</span>
+                    </div>
+                </div>
+
+                <div id="simulator-ui" style="display:none;">
+                    <p style="font-family: 'Montserrat'; font-weight: 800; text-transform: uppercase; margin: 4px 0 8px; font-size: 12px; letter-spacing: 2px; color: var(--nepc-blue); text-align: center;">
+                        What happens next?
+                    </p>
+                    <div id="answer-options"></div>
+                    <div id="sim-feedback" class="slim-instruction sim-feedback">
+                        <div id="sim-feedback-text" class="instruction-text">Correct!</div>
+                        <button class="btn btn-primary" style="margin-top: 12px; min-height: 48px;" onclick="nextScenario()">Next Scenario &rarr;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======= TRANSITION ======= -->
+    <section id="transition-screen" class="screen">
+        <div class="top-row">
+            <div class="accent-line"></div>
+            <div>
+                <div class="kicker">Four Dimensions Academy</div>
+                <h1>Training Complete</h1>
+            </div>
+        </div>
+        <div class="slim-instruction" style="padding: 32px 22px;">
+            <div class="step-label">Ready to test it</div>
+            <div class="instruction-text">
+                You've seen the rules in action. Now test your skills in the Scoring Simulator.
+                10 rapid-fire scenarios. Let's see what you've got.
+            </div>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-primary pulse-btn" onclick="startSimulator()">Enter Simulator</button>
+        </div>
+    </section>
+
+    <!-- ======= COMPLETION ======= -->
+    <section id="completion-screen" class="screen">
+        <div class="top-row">
+            <div class="accent-line"></div>
+            <div>
+                <div class="kicker">Four Dimensions Academy</div>
+                <h1>Simulator Complete</h1>
+            </div>
+        </div>
+
+        <div class="completion-card" id="completion-card">
+            <div class="tier-badge" id="tier-badge">Final Score</div>
+            <div id="final-score-val" class="final-score-val">100</div>
+            <div id="final-rating" class="final-rating">You're ready for the court.</div>
+            <div class="stat-row">
+                <div class="stat"><div class="stat-v" id="stat-perfect">0</div><div class="stat-l">Perfect</div></div>
+                <div class="stat"><div class="stat-v" id="stat-streak">0</div><div class="stat-l">Best Streak</div></div>
+                <div class="stat"><div class="stat-v">10</div><div class="stat-l">Scenarios</div></div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <a href="https://nepclub.com" target="_blank" rel="noopener" class="btn btn-primary" style="text-decoration: none;">Play at NEPC</a>
+            <button id="share-btn" class="btn btn-outline" onclick="shareResult()">Share Score</button>
+        </div>
+        <div class="button-group">
+            <button class="btn btn-outline" onclick="prevStep()">&larr; Back</button>
+            <button onclick="location.reload()" class="btn btn-outline" style="border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.55);">Restart Module</button>
+        </div>
+    </section>
+
+</div>
+
+<script>
+// =========================================================
+// AUDIO (Web Audio API — no files needed)
+// =========================================================
+let audioCtx = null;
+let muted = (localStorage.getItem('nepc-muted') === '1');
+
+function syncMuteUI() {
+    document.getElementById('mute-icon-on').style.display  = muted ? 'none' : 'block';
+    document.getElementById('mute-icon-off').style.display = muted ? 'block' : 'none';
+}
+syncMuteUI();
+
+function initAudio() {
+    if (audioCtx) return;
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) { audioCtx = null; }
+}
+
+function playTone(freq, duration, type='sine', gain=0.15, when=0) {
+    if (muted || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    const t0 = audioCtx.currentTime + when;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(gain, t0 + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+    osc.connect(g).connect(audioCtx.destination);
+    osc.start(t0);
+    osc.stop(t0 + duration + 0.02);
+}
+
+function sfxBounce() { playTone(820, 0.08, 'triangle', 0.10); }
+function sfxScore()  { playTone(660, 0.12, 'sine', 0.12); playTone(990, 0.18, 'sine', 0.12, 0.08); }
+function sfxFault()  { playTone(180, 0.28, 'sawtooth', 0.10); }
+function sfxSideout() { playTone(440, 0.10, 'square', 0.08); playTone(330, 0.14, 'square', 0.08, 0.09); }
+function sfxCorrect() { playTone(660, 0.09, 'sine', 0.13); playTone(880, 0.09, 'sine', 0.13, 0.07); playTone(1320, 0.18, 'sine', 0.13, 0.14); }
+function sfxWrong()   { playTone(220, 0.18, 'square', 0.10); }
+function sfxClick()   { playTone(1200, 0.04, 'sine', 0.06); }
+
+function toggleMute() {
+    muted = !muted;
+    localStorage.setItem('nepc-muted', muted ? '1' : '0');
+    syncMuteUI();
+    if (!muted) { initAudio(); sfxClick(); }
+}
+
+// Prime audio on first interaction (browser autoplay rules)
+document.addEventListener('click', () => { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+document.addEventListener('keydown', () => { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+
+// =========================================================
+// ANIMATION CONTROLLER
+// =========================================================
+let isPaused = false;
+let currentAnimId = 0;
+
+const sleep = (ms, animId) => new Promise(resolve => {
+    let t = 0; const interval = 20;
+    const timer = setInterval(() => {
+        if (animId && animId !== currentAnimId) { clearInterval(timer); resolve(false); return; }
+        if (!isPaused) { t += interval; if (t >= ms) { clearInterval(timer); resolve(true); } }
+    }, interval);
+});
+
+function togglePlayPause() { if (isPaused) resumeAnimations(); else pauseAnimations(); }
+
+function pauseAnimations() {
+    isPaused = true;
+    document.getElementById('play-pause-btn').innerHTML = '&#x25B6; PLAY (SPACE)';
+    ['ball','p1','p2','p3','p4'].forEach(id => {
+        const el = document.getElementById(id); if (!el) return;
+        const comp = window.getComputedStyle(el);
+        el.dataset.targetLeft = el.style.left;
+        el.dataset.targetTop  = el.style.top;
+        el.dataset.transition = el.style.transition;
+        el.style.left = comp.getPropertyValue('left');
+        el.style.top  = comp.getPropertyValue('top');
+        el.style.transition = 'none';
+    });
+    document.querySelectorAll('.bounce-ring, .score-popup, .fault-popup, .ball-trail')
+        .forEach(el => el.style.animationPlayState = 'paused');
+}
+
+function resumeAnimations() {
+    isPaused = false;
+    document.getElementById('play-pause-btn').innerHTML = '&#x23F8; PAUSE (SPACE)';
+    ['ball','p1','p2','p3','p4'].forEach(id => {
+        const el = document.getElementById(id); if (!el) return;
+        el.style.transition = el.dataset.transition || 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        if (id === 'ball') el.style.transition = 'all 0.6s linear';
+        if (el.dataset.targetLeft) el.style.left = el.dataset.targetLeft;
+        if (el.dataset.targetTop)  el.style.top  = el.dataset.targetTop;
+    });
+    document.querySelectorAll('.bounce-ring, .score-popup, .fault-popup, .ball-trail')
+        .forEach(el => el.style.animationPlayState = 'running');
+}
+
+function setBall(left, top, show=true) {
+    const ball = document.getElementById('ball');
+    ball.style.transition = 'none';
+    ball.style.display = show ? 'block' : 'none';
+    ball.style.left = left; ball.style.top = top;
+    ball.classList.toggle('idle', show);
+    void ball.offsetWidth;
+    ball.style.transition = 'all 0.6s linear';
+}
+
+function spawnTrailDot(leftPct, topPct) {
+    const layer = document.getElementById('visual-layer');
+    const dot = document.createElement('div');
+    dot.className = 'ball-trail';
+    dot.style.left = leftPct; dot.style.top = topPct;
+    if (isPaused) dot.style.animationPlayState = 'paused';
+    layer.appendChild(dot);
+    setTimeout(() => { if (document.body.contains(dot)) dot.remove(); }, 750);
+}
+
+async function moveBall(left, top, animId, duration=600) {
+    const ball = document.getElementById('ball');
+    ball.classList.remove('idle');
+    const startLeft = parseFloat(ball.style.left) || 0;
+    const startTop  = parseFloat(ball.style.top)  || 0;
+    const endLeft   = parseFloat(left);
+    const endTop    = parseFloat(top);
+
+    // Spawn comet trail dots along the path
+    const trailCount = Math.min(7, Math.max(3, Math.round(duration / 120)));
+    for (let i = 1; i < trailCount; i++) {
+        const pct = i / trailCount;
+        setTimeout(() => {
+            if (!isPaused && animId === currentAnimId) {
+                spawnTrailDot(
+                    (startLeft + (endLeft - startLeft) * pct) + '%',
+                    (startTop  + (endTop  - startTop)  * pct) + '%'
+                );
+            }
+        }, duration * pct);
+    }
+
+    ball.style.transition = `all ${duration}ms linear`;
+    ball.style.left = left; ball.style.top = top;
+    const ok = await sleep(duration, animId);
+    if (ok) ball.classList.add('idle');
+    return ok;
+}
+
+function spawnBounceRing(left, top) {
+    const layer = document.getElementById('visual-layer');
+    const ring = document.createElement('div');
+    ring.className = 'bounce-ring';
+    ring.style.left = left; ring.style.top = top;
+    ring.style.animation = 'ping 1s ease-out forwards';
+    if (isPaused) ring.style.animationPlayState = 'paused';
+    layer.appendChild(ring);
+    if (!isPaused) sfxBounce();
+    setTimeout(() => { if (document.body.contains(ring)) ring.remove(); }, 1200);
+}
+
+function spawnScorePopup(left, top, text, color="var(--nepc-green)", isFault=false) {
+    const layer = document.getElementById('visual-layer');
+    const pop = document.createElement('div');
+    pop.className = 'score-popup';
+    if (isFault) pop.classList.add('fault-popup');
+    pop.style.left = left; pop.style.top = top;
+    pop.style.color = color;
+    pop.innerText = text;
+    pop.style.animationPlayState = isPaused ? 'paused' : 'running';
+    layer.appendChild(pop);
+    if (!isPaused) {
+        if (isFault) sfxFault();
+        else if (/SIDEOUT|SECOND SERVE/i.test(text)) sfxSideout();
+        else sfxScore();
+    }
+    setTimeout(() => { if (document.body.contains(pop)) pop.remove(); }, 1700);
+}
+
+function setTooltips(tips) {
+    for (let i = 1; i <= 4; i++) {
+        const tt = document.getElementById(`tt-p${i}`);
+        if (tips[`p${i}`]) { tt.innerText = tips[`p${i}`]; tt.classList.add('show'); }
+        else tt.classList.remove('show');
+    }
+}
+
+function updateTooltipPositions() {
+    for (let i = 1; i <= 4; i++) {
+        const p = document.getElementById(`p${i}`);
+        const tt = document.getElementById(`tt-p${i}`);
+        if (!p || !tt) continue;
+        if (tt.classList.contains('show')) {
+            const leftVal = parseFloat(p.style.left);
+            tt.style.left = p.style.left; tt.style.top = p.style.top;
+            if (leftVal > 85) {
+                tt.style.transform = 'translate(-90%, -36px)';
+                tt.style.setProperty('--arrow-left', '90%');
+            } else if (leftVal < 15) {
+                tt.style.transform = 'translate(-10%, -36px)';
+                tt.style.setProperty('--arrow-left', '10%');
+            } else {
+                tt.style.transform = 'translate(-50%, -36px)';
+                tt.style.setProperty('--arrow-left', '50%');
+            }
+        }
+    }
+}
+setInterval(updateTooltipPositions, 40);
+
+// Zone highlighting
+function setKitchenPulse(on) {
+    document.getElementById('kz-left').classList.toggle('pulse', on);
+    document.getElementById('kz-right').classList.toggle('pulse', on);
+}
+function setKitchenLabels(on) {
+    document.getElementById('kz-left').classList.toggle('labeled', on);
+    document.getElementById('kz-right').classList.toggle('labeled', on);
+}
+
+// Serve target (diagonal box highlight for step 2)
+function setServeTarget(bounds) {
+    const el = document.getElementById('serve-target');
+    if (!bounds) { el.classList.remove('show'); return; }
+    // bounds: {left, top, width, height} as CSS strings
+    el.style.left   = bounds.left;
+    el.style.top    = bounds.top;
+    el.style.width  = bounds.width;
+    el.style.height = bounds.height;
+    el.classList.add('show');
+}
+
+// =========================================================
+// CONFETTI
+// =========================================================
+function spawnConfetti(x, y) {
+    const colors = ['#9EF01A','#4DA6FF','#b87df5','#FFD700','#33ccff','#FF3D5A'];
+    const count = 28;
+    for (let i = 0; i < count; i++) {
+        const c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = x + 'px';
+        c.style.top = y + 'px';
+        c.style.background = colors[i % colors.length];
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.6;
+        const velocity = 90 + Math.random() * 160;
+        const dx = Math.cos(angle) * velocity;
+        const dy = Math.sin(angle) * velocity - 120;
+        c.style.setProperty('--dx', dx + 'px');
+        c.style.setProperty('--dy', dy + 'px');
+        c.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 1500);
+    }
+}
+
+// =========================================================
+// KEYBOARD
+// =========================================================
+document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.code === 'Space') {
+        if (mode === 'lesson' && currentStep >= 0 && currentStep < steps.length) {
+            e.preventDefault(); togglePlayPause();
+        }
+    } else if (e.code === 'ArrowRight') {
+        if (currentStep === -1) nextStep();
+        else if (mode === 'lesson' && !document.getElementById('next-btn').disabled) nextStep();
+        else if (mode === 'simulator' && document.getElementById('sim-feedback').style.display === 'block') nextScenario();
+    } else if (e.code === 'ArrowLeft') {
+        if (mode === 'lesson' && !document.getElementById('lesson-back-btn').disabled) prevStep();
+        else if (document.getElementById('completion-screen').classList.contains('active')) prevStep();
+    } else if (e.code === 'KeyR') {
+        if (mode === 'lesson' && currentStep >= 0 && currentStep < steps.length) {
+            e.preventDefault(); replayStep();
+        }
+    } else if (e.code === 'KeyM') {
+        e.preventDefault(); toggleMute();
+    }
+});
+
+// =========================================================
+// LESSON DATA
+// =========================================================
+const steps = [
+    {
+        header: "The Setup", step: "Starting Position",
+        text: "<strong>Red</strong> serves. <strong>Green</strong> returns.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: false,
+        static: true,
+        tooltips: { p1: "Server", p4: "Returner's Partner" },
+        animSequence: async (id) => { setBall('100%','25%',true); }
+    },
+    {
+        header: "Meet the Kitchen", step: "Non-Volley Zone",
+        text: "The red zones either side of the net are <strong>The Kitchen</strong> &mdash; officially the <strong>Non-Volley Zone (NVZ)</strong>. You'll hear this word a lot; it has its own rule coming up.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: false,
+        static: true,
+        tooltips: {},
+        onEnter: () => { setKitchenPulse(true); setKitchenLabels(true); },
+        onExit:  () => { setKitchenPulse(false); setKitchenLabels(false); },
+        animSequence: async (id) => { setBall('0','0', false); }
+    },
+    {
+        header: "The Serve Target", step: "Clearing the line",
+        text: "The serve must land <strong>diagonally</strong>, completely past the Kitchen line. Landing ON the kitchen line is a fault. Any other line is IN.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: false,
+        tooltips: { p1: "Serves Diagonal" },
+        onEnter: () => { setKitchenPulse(true); setServeTarget({left:'0%', top:'50%', width:'34.1%', height:'50%'}); },
+        onExit:  () => { setKitchenPulse(false); setServeTarget(null); },
+        animSequence: async (id) => {
+            setBall('108%','25%',true);
+            if (!await sleep(500, id)) return;
+            if (!await moveBall('34.1%','75%', id)) return;
+            spawnScorePopup('34.1%','75%','FAULT: ON LINE!','var(--nepc-red)', true);
+            if (!await sleep(1500, id)) return;
+            setBall('108%','25%',true);
+            if (!await sleep(500, id)) return;
+            if (!await moveBall('15%','75%', id)) return;
+            spawnBounceRing('15%','75%');
+            spawnScorePopup('15%','75%','GOOD SERVE','var(--nepc-green)');
+        }
+    },
+    {
+        header: "The Two-Bounce Rule", step: "Watch the ball",
+        text: "The ball must bounce <strong>once on each side</strong> before anyone can hit it in the air. Both serving-team players <strong>stay back</strong> so the ball has room to bounce on their side.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: false,
+        tooltips: { p1: "Stays back", p2: "Stays back", p3: "Stays back" },
+        animSequence: async (id) => {
+            setBall('108%','25%',true);
+            if (!await sleep(500, id)) return;
+            if (!await moveBall('15%','75%', id)) return;
+            spawnBounceRing('15%','75%');
+            if (!await sleep(300, id)) return;
+            if (!await moveBall('85%','25%', id)) return;
+            spawnBounceRing('85%','25%');
+            if (!await sleep(300, id)) return;
+            await moveBall('108%','25%', id);
+        }
+    },
+    {
+        header: "The Return & Run", step: "Closing the gap",
+        text: "After returning the serve, Player 3 <strong>immediately runs</strong> to the kitchen line.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: false,
+        tooltips: { p3: "Return & Run!" },
+        animSequence: async (id) => {
+            setBall('108%','25%',true);
+            if (!await sleep(300, id)) return;
+            if (!await moveBall('-8%','75%', id)) return;
+            if (!await sleep(200, id)) return;
+            moveBall('85%','25%', id);
+            document.getElementById('p3').style.left = '31%';
+            if (!await sleep(800, id)) return;
+            document.getElementById('p3').style.left = '-8%';
+        }
+    },
+    {
+        header: "The Kitchen Rule", step: "No Volley Zone",
+        text: "You cannot hit the ball <strong>out of the air</strong> while touching the Kitchen zone.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: false,
+        tooltips: { p4: "Volleying from Kitchen" },
+        onEnter: () => setKitchenPulse(true),
+        onExit:  () => setKitchenPulse(false),
+        animSequence: async (id) => {
+            setBall('85%','75%',true);
+            if (!await sleep(500, id)) return;
+            document.getElementById('p4').style.left = '45%';
+            if (!await moveBall('45%','25%', id)) return;
+            spawnScorePopup('45%','25%','KITCHEN VIOLATION!','var(--nepc-red)', true);
+            if (!await sleep(1500, id)) return;
+            document.getElementById('p4').style.left = '31%';
+        }
+    },
+    {
+        header: "The Golden Rule", step: "Scoring Logic",
+        text: "<strong>Only the serving team</strong> can score points.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: true, score: [0,0,2],
+        tooltips: { p1: "Serving Team", p3: "Receiving Team" },
+        animSequence: async (id) => {
+            setBall('108%','25%',true);
+            if (!await sleep(500, id)) return;
+            if (!await moveBall('31%','75%', id)) return;
+            if (!await moveBall('108%','25%', id)) return;
+            spawnScorePopup('80%','50%',"+1 POINT","var(--team-serve)");
+            document.getElementById('s-val-1').classList.add('highlight');
+            if (!await sleep(1000, id)) return;
+            document.getElementById('s-val-1').classList.remove('highlight');
+        }
+    },
+    {
+        header: "Switching Sides", step: "Winning a point",
+        text: "When you score, <strong>only the serving team</strong> switches sides.",
+        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'-8%',top:'25%'} },
+        showScore: true, score: [1,0,2],
+        tooltips: { p1: "Moves left", p2: "Moves right", p4: "Stays put" },
+        animSequence: async (id) => {
+            setBall('108%','25%',false);
+            document.getElementById('p1').style.top = '75%';
+            document.getElementById('p2').style.top = '25%';
+            await sleep(1000, id);
+        }
+    },
+    {
+        header: "Sideout", step: "Losing the Serve",
+        text: "Lose the rally? <strong>The serve goes to the other team</strong> (Sideout).",
+        positions: { p1:{left:'108%',top:'75%'}, p2:{left:'108%',top:'25%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'-8%',top:'25%'} },
+        showScore: true, score: [0,1,1],
+        tooltips: { p1: "Lost rally", p3: "New Server 1" },
+        animSequence: async (id) => {
+            setBall('108%','75%',true);
+            if (!await sleep(400, id)) return;
+            if (!await moveBall('31%','75%', id)) return;
+            spawnScorePopup('20%','50%',"SIDEOUT","var(--team-return)");
+            setBall('-8%','75%',true);
+            document.getElementById('p1').style.left = '69%';
+            document.getElementById('p2').style.left = '108%';
+        }
+    },
+    {
+        header: "Server 2", step: "Continuing the Turn",
+        text: "If Server 1 loses, <strong>Server 2 gets a turn</strong> before giving the ball back.",
+        positions: { p3:{left:'-8%',top:'75%'}, p4:{left:'-8%',top:'25%'}, p1:{left:'108%',top:'75%'}, p2:{left:'69%',top:'25%'} },
+        showScore: true, score: [0,1,2],
+        tooltips: { p3: "Lost rally", p4: "Server 2" },
+        animSequence: async (id) => {
+            setBall('-8%','75%',true);
+            if (!await sleep(400, id)) return;
+            if (!await moveBall('69%','25%', id)) return;
+            spawnScorePopup('20%','50%',"SECOND SERVE","var(--nepc-blue)");
+            setBall('-8%','25%',true);
+        }
+    }
+];
+
+// =========================================================
+// SIMULATOR
+// =========================================================
+const scenarios = [
+    { step: "Scenario 1 of 10", text: "Game just started. Red is serving first. What is the score?", correct: "0-0-2", options: ["0-0-2","0-0-1","0-0-0"], positions:{p1:{left:'108%',top:'25%'},p2:{left:'108%',top:'75%'},p3:{left:'-8%',top:'75%'},p4:{left:'31%',top:'25%'}}, ballHolder: 1 },
+    { step: "Scenario 2 of 10", text: "Red wins the first rally. They switch sides. Score?", correct: "1-0-2", options: ["1-0-2","1-0-1","0-1-2"], positions:{p1:{left:'108%',top:'75%'},p2:{left:'108%',top:'25%'},p3:{left:'31%',top:'75%'},p4:{left:'-8%',top:'25%'}}, ballHolder: 1 },
+    { step: "Scenario 3 of 10", text: "Player 1 serves. It clears the net but lands exactly ON the kitchen line. What happens?", correct: "Fault - Sideout", options: ["Fault - Sideout","Play On","Let - Re-serve"], positions:{p1:{left:'108%',top:'75%'},p2:{left:'108%',top:'25%'},p3:{left:'31%',top:'75%'},p4:{left:'-8%',top:'25%'}}, ballHolder: 1 },
+    { step: "Scenario 4 of 10", text: "The ball goes to Green. New score?", correct: "0-1-1", options: ["0-1-1","1-0-1","0-1-2"], positions:{p3:{left:'-8%',top:'75%'},p4:{left:'-8%',top:'25%'},p1:{left:'69%',top:'75%'},p2:{left:'108%',top:'25%'}}, ballHolder: 3 },
+    { step: "Scenario 5 of 10", text: "Green Server 1 wins the rally and switches sides. Score?", correct: "1-1-1", options: ["1-1-1","1-0-1","0-2-1"], positions:{p3:{left:'-8%',top:'25%'},p4:{left:'-8%',top:'75%'},p1:{left:'108%',top:'75%'},p2:{left:'69%',top:'25%'}}, ballHolder: 3 },
+    { step: "Scenario 6 of 10", text: "Green Server 1 loses the next rally. What happens?", correct: "Server 2's turn (1-1-2)", options: ["Server 2's turn (1-1-2)","Sideout to Red","Switch sides again"], positions:{p4:{left:'-8%',top:'75%'},p3:{left:'-8%',top:'25%'},p1:{left:'69%',top:'75%'},p2:{left:'108%',top:'25%'}}, ballHolder: 4 },
+    { step: "Scenario 7 of 10", text: "Player 4 steps into the Kitchen and hits the ball before it bounces. What happens?", correct: "Kitchen Violation (Fault)", options: ["Kitchen Violation (Fault)","Play On","Point for Green"], positions:{p4:{left:'45%',top:'75%'},p3:{left:'-8%',top:'25%'},p1:{left:'69%',top:'75%'},p2:{left:'108%',top:'25%'}}, ballHolder: 4 },
+    { step: "Scenario 8 of 10", text: "Green Server 2 lost that rally. What happens next?", correct: "Sideout (1-2-1)", options: ["Sideout (1-2-1)","Sideout (1-2-2)","Server 1 tries again"], positions:{p2:{left:'108%',top:'25%'},p1:{left:'108%',top:'75%'},p3:{left:'-8%',top:'75%'},p4:{left:'31%',top:'25%'}}, ballHolder: 2 },
+    { step: "Scenario 9 of 10", text: "Fast forward: 10-10. Red Server 1 on the right wins the point. Score?", correct: "11-10-1", options: ["11-10-1","10-11-1","11-10-2"], positions:{p2:{left:'108%',top:'75%'},p1:{left:'108%',top:'25%'},p3:{left:'31%',top:'75%'},p4:{left:'-8%',top:'25%'}}, ballHolder: 2 },
+    { step: "Scenario 10 of 10", text: "Score is 11-10. Red Server 1 loses the rally. What happens?", correct: "Server 2's turn (11-10-2)", options: ["Server 2's turn (11-10-2)","Sideout (10-11-1)","Red wins the game"], positions:{p1:{left:'108%',top:'25%'},p2:{left:'108%',top:'75%'},p3:{left:'-8%',top:'75%'},p4:{left:'31%',top:'25%'}}, ballHolder: 1 }
+];
+
+// =========================================================
+// STATE
+// =========================================================
+let currentStep = -1;
+let simIndex = 0;
+let totalScore = 0;
+let attempts = 0;
+let mode = 'lesson';
+let perfectCount = 0;
+let streak = 0;
+let bestStreak = 0;
+
+// =========================================================
+// NAVIGATION
+// =========================================================
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+function buildProgressDots() {
+    const container = document.getElementById('progress-dots');
+    container.innerHTML = '';
+    for (let i = 0; i < steps.length; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'pdot';
+        dot.dataset.idx = i;
+        dot.setAttribute('aria-label', `Go to step ${i+1}`);
+        dot.onclick = () => goToStep(i);
+        container.appendChild(dot);
+    }
+}
+buildProgressDots();
+
+function updateProgressDots() {
+    document.querySelectorAll('.pdot').forEach((d, i) => {
+        d.classList.toggle('done', i < currentStep && mode === 'lesson');
+        d.classList.toggle('active', i === currentStep && mode === 'lesson');
+        d.disabled = i > currentStep || mode !== 'lesson';
+    });
+}
+
+async function goToStep(i) {
+    if (mode !== 'lesson' || i < 0 || i >= steps.length || i === currentStep) return;
+    // Run exit for current
+    const curr = steps[currentStep];
+    if (curr && curr.onExit) curr.onExit();
+    currentStep = i;
+    await renderStep(steps[currentStep]);
+}
+
+// Replay current step's animation from the top
+async function replayStep() {
+    if (mode !== 'lesson' || currentStep < 0 || currentStep >= steps.length) return;
+    const btn = document.getElementById('replay-btn');
+    btn.classList.remove('spin'); void btn.offsetWidth; btn.classList.add('spin');
+    sfxClick();
+    const curr = steps[currentStep];
+    if (curr.onExit) curr.onExit();
+    await renderStep(curr);
+}
+
+async function nextStep() {
+    const curr = steps[currentStep];
+    if (curr && curr.onExit) curr.onExit();
+    currentStep++;
+    if (currentStep === 0) {
+        mode = 'lesson';
+        document.getElementById('lesson-ui').style.display = 'block';
+        document.getElementById('simulator-ui').style.display = 'none';
+        document.getElementById('sim-progress').style.display = 'none';
+        document.getElementById('progress-dots').style.display = 'flex';
+        showScreen('main-screen');
+    }
+    if (currentStep < steps.length) await renderStep(steps[currentStep]);
+    else {
+        document.getElementById('progress-dots').style.display = 'none';
+        showScreen('transition-screen');
+    }
+}
+
+async function prevStep() {
+    if (document.getElementById('completion-screen').classList.contains('active')) {
+        currentStep = steps.length - 1;
+        mode = 'lesson';
+        document.getElementById('lesson-ui').style.display = 'block';
+        document.getElementById('simulator-ui').style.display = 'none';
+        document.getElementById('sim-progress').style.display = 'none';
+        document.getElementById('progress-dots').style.display = 'flex';
+        showScreen('main-screen');
+        await renderStep(steps[currentStep]);
+        return;
+    }
+    const curr = steps[currentStep];
+    if (curr && curr.onExit) curr.onExit();
+    currentStep--;
+    if (currentStep < 0) { showScreen('intro-screen'); currentStep = -1; }
+    else await renderStep(steps[currentStep]);
+}
+
+// =========================================================
+// RENDER
+// =========================================================
+async function renderStep(s) {
+    currentAnimId++;
+    const myAnimId = currentAnimId;
+
+    if (isPaused) resumeAnimations();
+
+    document.getElementById('next-btn').disabled = true;
+    document.getElementById('lesson-back-btn').disabled = true;
+    document.getElementById('visual-layer').innerHTML = '';
+    setKitchenPulse(false);
+    setKitchenLabels(false);
+    setServeTarget(null);
+
+    document.getElementById('screen-header').innerText = mode === 'lesson' ? s.header : "Simulator";
+    document.getElementById('step-id').innerText = s.step;
+    document.getElementById('step-text').innerHTML = s.text;
+
+    // Re-trigger the card entrance animation
+    const textBox = document.getElementById('text-box');
+    textBox.style.animation = 'none';
+    void textBox.offsetWidth;
+    textBox.style.animation = '';
+
+    document.getElementById('play-pause-btn').style.display = mode === 'lesson' ? 'block' : 'none';
+    document.getElementById('replay-btn').style.display = (mode === 'lesson' && !s.static) ? 'flex' : 'none';
+    updateProgressDots();
+
+    for (let i = 1; i <= 4; i++) {
+        const p = document.getElementById(`p${i}`);
+        p.style.transition = mode === 'lesson' ? 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none';
+        p.style.left = s.positions[`p${i}`].left;
+        p.style.top  = s.positions[`p${i}`].top;
+    }
+
+    if (mode === 'lesson') {
+        setTooltips(s.tooltips || {});
+        const scoreArea = document.getElementById('score-display-area');
+        if (s.showScore) {
+            scoreArea.classList.add('show');
+            document.getElementById('s-val-1').innerText = s.score[0];
+            document.getElementById('s-val-2').innerText = s.score[1];
+            document.getElementById('s-val-3').innerText = s.score[2];
+        } else scoreArea.classList.remove('show');
+
+        if (s.onEnter) s.onEnter();
+        if (s.animSequence) {
+            await s.animSequence(myAnimId);
+            if (myAnimId !== currentAnimId) return;
+        }
+    } else {
+        setTooltips({});
+        document.getElementById('score-display-area').classList.remove('show');
+        if (s.ballHolder) {
+            const holder = document.getElementById(`p${s.ballHolder}`);
+            const pLeft = parseFloat(holder.style.left);
+            const pTop  = parseFloat(holder.style.top);
+            const xOffset = pLeft > 50 ? '-18px' : '18px';
+            setBall(`calc(${pLeft}% + ${xOffset})`, `${pTop}%`, true);
+        } else setBall('0','0',false);
+    }
+
+    document.getElementById('next-btn').disabled = false;
+    document.getElementById('lesson-back-btn').disabled = false;
+}
+
+// =========================================================
+// SIMULATOR LOGIC
+// =========================================================
+function startSimulator() {
+    mode = 'simulator';
+    simIndex = 0; totalScore = 0;
+    perfectCount = 0; streak = 0; bestStreak = 0;
+    document.getElementById('lesson-ui').style.display = 'none';
+    document.getElementById('simulator-ui').style.display = 'block';
+    document.getElementById('progress-dots').style.display = 'none';
+    document.getElementById('sim-progress').style.display = 'block';
+    document.getElementById('streak-pill').classList.remove('show');
+    showScreen('main-screen');
+    renderScenario();
+}
+
+function renderScenario() {
+    const s = scenarios[simIndex];
+    renderStep(s);
+
+    document.getElementById('progress-fill').style.width = `${(simIndex / scenarios.length) * 100}%`;
+    document.getElementById('sim-feedback').style.display = 'none';
+    document.getElementById('answer-options').style.display = 'block';
+
+    const container = document.getElementById('answer-options');
+    container.innerHTML = '';
+    // On desktop, 2-col grid if all options are short-ish
+    const maxLen = Math.max(...s.options.map(o => o.length));
+    container.classList.toggle('multi', maxLen <= 22);
+
+    attempts = 0;
+    [...s.options].sort(() => Math.random() - 0.5).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-answer';
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(btn, opt);
+        container.appendChild(btn);
+    });
+}
+
+function handleAnswer(btn, choice) {
+    const s = scenarios[simIndex];
+    if (choice === s.correct) {
+        btn.style.backgroundColor = 'var(--success)';
+        btn.style.borderColor = 'var(--success)';
+        btn.style.color = '#fff';
+        sfxCorrect();
+        const firstTry = attempts === 0;
+        totalScore += firstTry ? 10 : 5;
+        if (firstTry) {
+            perfectCount++;
+            streak++;
+            if (streak > bestStreak) bestStreak = streak;
+            if (streak >= 2) {
+                const pill = document.getElementById('streak-pill');
+                document.getElementById('streak-val').innerText = streak;
+                pill.classList.add('show');
+                pill.style.animation = 'none';
+                void pill.offsetWidth;
+                pill.style.animation = '';
+            }
+        } else streak = 0;
+
+        // Confetti from the button center
+        const rect = btn.getBoundingClientRect();
+        spawnConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
+
+        document.getElementById('answer-options').style.display = 'none';
+        document.getElementById('sim-feedback-text').innerText = firstTry ? "Nailed it." : "Got it!";
+        document.getElementById('sim-feedback').style.display = 'flex';
+    } else {
+        btn.classList.add('shake');
+        btn.style.backgroundColor = 'var(--nepc-red)';
+        btn.style.borderColor = 'var(--nepc-red)';
+        btn.style.color = '#fff';
+        sfxWrong();
+        attempts++;
+        streak = 0;
+        document.getElementById('streak-pill').classList.remove('show');
+        setTimeout(() => btn.classList.remove('shake'), 300);
+    }
+}
+
+// =========================================================
+// SHARE
+// =========================================================
+async function shareResult() {
+    const tier = document.getElementById('tier-badge').innerText;
+    const text = `I scored ${totalScore}/100 on the Four Dimensions Academy pickleball module — ${tier}. ${perfectCount}/10 perfect, best streak ${bestStreak}.`;
+    const url = 'https://nepclub.com';
+    const shareBtn = document.getElementById('share-btn');
+
+    sfxClick();
+
+    if (navigator.share) {
+        try {
+            await navigator.share({ title: 'Four Dimensions Academy', text, url });
+            return;
+        } catch (e) { /* user cancelled or share failed — fall through */ }
+    }
+
+    try {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        const original = shareBtn.innerText;
+        shareBtn.innerText = 'Copied!';
+        shareBtn.style.background = 'rgba(46, 213, 115, 0.15)';
+        shareBtn.style.borderColor = 'var(--success)';
+        shareBtn.style.color = 'var(--success)';
+        setTimeout(() => {
+            shareBtn.innerText = original;
+            shareBtn.style.background = '';
+            shareBtn.style.borderColor = '';
+            shareBtn.style.color = '';
+        }, 1800);
+    } catch (e) {
+        alert(text);
+    }
+}
+
+function nextScenario() {
+    simIndex++;
+    if (simIndex < scenarios.length) renderScenario();
+    else {
+        document.getElementById('progress-fill').style.width = '100%';
+        setTimeout(showCompletion, 250);
+    }
+}
+
+// =========================================================
+// COMPLETION TIERS
+// =========================================================
+function showCompletion() {
+    showScreen('completion-screen');
+    const card = document.getElementById('completion-card');
+    const badge = document.getElementById('tier-badge');
+    const valEl = document.getElementById('final-score-val');
+    const ratingEl = document.getElementById('final-rating');
+
+    document.getElementById('stat-perfect').innerText = perfectCount;
+    document.getElementById('stat-streak').innerText = bestStreak;
+
+    // Tier styling
+    let tierColor, tierGlow, tierLabel, rating;
+    if (totalScore >= 95) {
+        tierColor = 'var(--gold)';
+        tierGlow = 'rgba(255, 215, 0, 0.45)';
+        tierLabel = 'Gold &middot; Perfect Run';
+        rating = "Flawless. You understand pickleball scoring better than most people at the club.";
+    } else if (totalScore >= 80) {
+        tierColor = 'var(--silver)';
+        tierGlow = 'rgba(192, 201, 212, 0.45)';
+        tierLabel = 'Silver &middot; Court-Ready';
+        rating = "You're ready for the court. A few more matches and it'll be second nature.";
+    } else if (totalScore >= 60) {
+        tierColor = 'var(--bronze)';
+        tierGlow = 'rgba(205, 127, 50, 0.45)';
+        tierLabel = 'Bronze &middot; Solid Start';
+        rating = "Solid foundation. Rewatch the lesson once and you'll own this.";
+    } else {
+        tierColor = 'var(--nepc-blue)';
+        tierGlow = 'rgba(77, 166, 255, 0.45)';
+        tierLabel = 'Keep Going';
+        rating = "Don't sweat it. Replay the lesson &mdash; positioning clicks fast once the pattern lands.";
+    }
+
+    card.style.setProperty('--tier-color', tierColor);
+    card.style.setProperty('--tier-glow', tierGlow);
+    badge.innerHTML = tierLabel;
+    ratingEl.innerHTML = rating;
+
+    // Count-up animation
+    valEl.classList.remove('animating');
+    void valEl.offsetWidth;
+    valEl.classList.add('animating');
+
+    let v = 0; const target = totalScore; const duration = 1200; const start = performance.now();
+    function tick(t) {
+        const prog = Math.min(1, (t - start) / duration);
+        const eased = 1 - Math.pow(1 - prog, 3);
+        valEl.innerText = Math.round(target * eased);
+        if (prog < 1) requestAnimationFrame(tick);
+        else valEl.innerText = target;
+    }
+    requestAnimationFrame(tick);
+
+    // Celebration confetti for high scores
+    if (totalScore >= 80) {
+        setTimeout(() => {
+            const rect = valEl.getBoundingClientRect();
+            spawnConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
+        }, 300);
+        if (totalScore >= 95) {
+            setTimeout(() => {
+                const rect = valEl.getBoundingClientRect();
+                spawnConfetti(rect.left + rect.width/2 - 80, rect.top + rect.height/2);
+                spawnConfetti(rect.left + rect.width/2 + 80, rect.top + rect.height/2);
+            }, 700);
+        }
+    }
+}
+</script>
+</body>
+</html>
