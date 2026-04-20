@@ -878,6 +878,10 @@ function makePlayer({ jersey, shorts, z, x = 0, facing }) {
   g.position.set(x, 0, z);
   // Rotate whole player so right-hand always stays on player's actual right
   if (facing === -1) g.rotation.y = Math.PI;
+
+  // Expose paddle for swing animation (updatePaddleAnimation animates rotation during hits)
+  g.userData.paddle = paddleGroup;
+  g.userData.paddleDefault = { rx: -0.4, rz: 0.15 };
   return g;
 }
 // Four players at baseline corners — the "4 friends on a court" frame
@@ -953,6 +957,64 @@ function resetPlayerPositions(dimKey) {
     const pos = f0[k] || INITIAL_POS[k];
     players[k].position.set(pos[0], 0, pos[1]);
   }
+  // Reset all paddles to ready position (cleared between shots)
+  for (const k of PLAYER_KEYS) {
+    const paddle = players[k].userData.paddle;
+    const def = players[k].userData.paddleDefault;
+    if (paddle && def) { paddle.rotation.x = def.rx; paddle.rotation.z = def.rz; }
+  }
+}
+
+// Given a segment index, find which player HIT the ball at the start of that segment.
+// Ball-launching segments start at paddle height (y ≥ 1.5); bounce segments start at
+// ground level and have no hitter. Hitter = nearest player to the segment's from point.
+function getSegmentHitter(dimKey, segIdx) {
+  const dim = SHOTS[dimKey];
+  const segs = dim.shot && dim.shot.segments;
+  if (!segs || !dim.playerFrames) return null;
+  const seg = segs[segIdx];
+  if (!seg || !seg.from) return null;
+  if (seg.from[1] < 1.5) return null;   // bounce segment — ball starts on ground
+  const frame = dim.playerFrames[segIdx] || dim.playerFrames[0];
+  if (!frame) return null;
+  let minD2 = Infinity, hitter = null;
+  for (const k of PLAYER_KEYS) {
+    const p = frame[k] || INITIAL_POS[k];
+    const dx = p[0] - seg.from[0];
+    const dz = p[1] - seg.from[2];
+    const d2 = dx*dx + dz*dz;
+    if (d2 < minD2) { minD2 = d2; hitter = k; }
+  }
+  if (minD2 > 64) return null;  // 8ft = too far, probably a dead ball
+  return hitter;
+}
+
+// Paddle swing — rotates the hitter's paddle through a forward swing arc during the
+// first ~18% of each ball-launching segment (the contact + follow-through window).
+// All other paddles reset to ready position every frame.
+function updatePaddleAnimation(dimKey, shotT) {
+  // Reset everyone to ready
+  for (const k of PLAYER_KEYS) {
+    const paddle = players[k].userData.paddle;
+    const def = players[k].userData.paddleDefault;
+    if (paddle && def) { paddle.rotation.x = def.rx; paddle.rotation.z = def.rz; }
+  }
+  const dim = SHOTS[dimKey];
+  if (!dim.shot || !dim.shot.segments) return;
+  const info = getSegmentInfo(dim.shot, shotT);
+  if (!info) return;
+  const SWING_WINDOW = 0.18;
+  if (info.localT > SWING_WINDOW) return;
+  const hitter = getSegmentHitter(dimKey, info.idx);
+  if (!hitter) return;
+  const paddle = players[hitter].userData.paddle;
+  const def = players[hitter].userData.paddleDefault;
+  if (!paddle || !def) return;
+  // Sine pulse — 0 → 1 → 0 across the swing window (fast forward, snap back)
+  const phase = info.localT / SWING_WINDOW;
+  const swing = Math.sin(phase * Math.PI);
+  paddle.rotation.x = def.rx - swing * 1.3;   // tilt paddle forward/through
+  paddle.rotation.z = def.rz + swing * 0.25;  // slight roll on the swing
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1220,8 +1282,9 @@ function animate() {
     ballShadow.scale.setScalar(shadowScale);
     ballShadowMat.opacity = Math.max(0.12, 0.36 - hAboveGround * 0.022);
 
-    // Drive the players off the same shotT — so motion is always in sync with the ball.
+    // Drive the players + paddles off the same shotT — motion stays in sync with ball.
     updatePlayerPositions(activeShotKey, shotT);
+    updatePaddleAnimation(activeShotKey, shotT);
 
     // Add to trail, cap length
     trailPoints.push(p.clone());
