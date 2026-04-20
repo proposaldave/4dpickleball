@@ -1794,6 +1794,9 @@ function startShot(key, resetCamera = true) {
   shotBurstFired = false;
   lastSegFiredIdx = -1;
   lastNetCrossZ = null;
+  // Reset cinematic camera state so push-in re-engages on the next cinematic segment
+  wasInCinematic = false;
+  cinematicCamPushed = false;
   resetPlayerPositions(key);
   updateSideCard(key);
   updateShotChips(key);
