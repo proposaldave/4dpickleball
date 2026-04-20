@@ -903,7 +903,7 @@ const SHOTS = {
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[2,-15] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[2,-12] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-10],   farRight:[-1,-9] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-10],   farRight:[2,-9] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
@@ -1009,7 +1009,7 @@ function makeDeckTexture() {
   const c = document.createElement('canvas'); c.width = 512; c.height = 512;
   const ctx = c.getContext('2d');
   const g = ctx.createLinearGradient(0, 0, 0, 512);
-  g.addColorStop(0, '#5E6878'); g.addColorStop(1, '#4A5462');
+  g.addColorStop(0, '#7A8290'); g.addColorStop(1, '#646D7B');   // lightened 2026-04-20 per Dave
   ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
   for (let i = 0; i < 2000; i++) {
     ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.06})`;
@@ -1131,7 +1131,7 @@ makeCrowdRow(-35); makeCrowdRow(35);
 scene.add(crowdGroup);
 
 // ═════ PLAYERS — right-handed pickleball players in ready stance (R20) ═════
-function makePlayer({ jersey, shorts, z, x = 0, facing }) {
+function makePlayer({ jersey, shorts, z, x = 0, facing, hat }) {
   const g = new THREE.Group();
   const skin = new THREE.MeshStandardMaterial({ color: 0xE7B48C, roughness: 0.7 });
   const shortMat = new THREE.MeshStandardMaterial({ color: shorts, roughness: 0.7, metalness: 0.05 });
@@ -2501,6 +2501,7 @@ window.addEventListener('message', (e) => {
       }
       break;
     case '4dp:toggle-pause':    setPaused(!paused); break;
+    case '4dp:set-pause':       setPaused(!!msg.on); break;
     case '4dp:set-slowmo':      setSlowMo(!!msg.on); break;
     case '4dp:set-audio':       setAudio(!!msg.on); break;
     case '4dp:cycle-camera':    document.getElementById('btn-camera').click(); break;
