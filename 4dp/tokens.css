@@ -53,8 +53,8 @@
      is the 4DP court signature. */
   --nepc-court-blue:        #234E8C;   /* playing surface (radial gradient center → edge) */
   --nepc-court-blue-bright: #2D5FA8;   /* radial gradient highlight at center of court */
-  --nepc-court-gray:        #5E6878;   /* deck / surround — slate, not tennis green */
-  --nepc-court-gray-dark:   #4A5462;   /* deck gradient base */
+  --nepc-court-gray:        #7A8290;   /* deck / surround — slate, not tennis green (lightened 2026-04-20 per Dave) */
+  --nepc-court-gray-dark:   #646D7B;   /* deck gradient base */
   --nepc-kitchen-burgundy:  #6B0F1A;   /* kitchen (NVZ) — burgundy, NOT blue. Signature. */
   --nepc-kitchen-deep:      #52090F;   /* kitchen gradient base */
   --nepc-line-white:        rgba(255,255,255,0.95);   /* court lines — crisp, not warm */
