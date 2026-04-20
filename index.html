@@ -2,1059 +2,853 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>4D Pickleball — Drive. Defend. Drop. Dink.</title>
-<meta name="description" content="Pickleball has four dimensions. Drive. Defend. Drop. Dink. Master them in order. The simplest four-part progression to developing your pickleball skills.">
+<meta name="description" content="Anyone can learn to play 4D Pickleball. A cinematic 3D walkthrough of the four dimensions: Drive, Defend, Drop, Dink.">
 <meta property="og:title" content="4D Pickleball — Drive. Defend. Drop. Dink.">
-<meta property="og:description" content="Pickleball has four dimensions. The simplest four-part progression to developing your pickleball skills.">
+<meta property="og:description" content="Anyone can learn to play 4D Pickleball. The four dimensions that turn tennis-at-the-baseline into real pickleball.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://4dpickleball.com">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232B8BFC'/%3E%3Ctext x='50' y='68' font-family='Inter,Arial,sans-serif' font-size='56' font-weight='900' fill='white' text-anchor='middle'%3E4D%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="tokens.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap');
-:root{
-  --blue:#2B8BFC;--blue-d:#1E6FD9;--blue-dd:#1759B0;--blue-l:#5BA8FF;
-  --sky:#EBF4FF;--sky-d:#D6E8FF;
-  --warm:#F5F3EE;--warm-dim:rgba(245,243,238,.6);--warm-mute:rgba(245,243,238,.4);
-  --white:#F5F3EE;--off:#F4F7FB;
-  --txt:#0f172a;--txt-d:#334155;--txt-m:#64748b;--txt-l:#94a3b8;
-  --green:#34D399;--gold:#FBBF24;--red:#FB7185;--pink:#F472B6;
-  --ink:#0A1628;
-  --font-display:'Instrument Serif',Georgia,serif;
-  --font-body:'DM Sans',-apple-system,system-ui,sans-serif;
-  --r:20px;--rs:14px;
-  --shadow:0 4px 16px rgba(0,0,0,.06);
-  --shadow-lg:0 12px 40px rgba(0,0,0,.08);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--4dp-ink); }
+  body { font-family: var(--4dp-font-body); color: var(--4dp-text); -webkit-font-smoothing: antialiased; }
+  #viewport { position: fixed; inset: 0; z-index: 0; }
+  #viewport canvas { display: block; width: 100% !important; height: 100% !important; }
 
-/* ── NAV ── */
-.topnav{
-  position:fixed;top:0;left:0;right:0;height:64px;
-  background:rgba(10,15,26,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  display:flex;align-items:center;padding:0 32px;z-index:100;gap:24px;
-  border-bottom:1px solid rgba(255,255,255,.06);
-}
-.logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
-.logo-mark{
-  width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--blue-d));
-  border-radius:11px;display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:12px;color:var(--white);letter-spacing:.3px;
-  box-shadow:0 2px 12px rgba(43,139,252,.3);
-}
-.logo-text{font-weight:700;font-size:14px;color:var(--white);letter-spacing:-.2px;line-height:1.2}
-.logo-text span{display:block;font-weight:500;font-size:10px;opacity:.5;letter-spacing:1px;text-transform:uppercase;margin-top:1px}
-.nav-pills{display:flex;gap:4px;flex:1;justify-content:center}
-.nav-pill{
-  padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;
-  color:rgba(255,255,255,.5);cursor:pointer;white-space:nowrap;
-  transition:all .25s;letter-spacing:-.1px;border:none;background:none;
-}
-.nav-pill:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.08)}
-.nav-pill.active{color:var(--white);background:rgba(43,139,252,.9);box-shadow:0 2px 12px rgba(43,139,252,.25)}
+  /* Vignette for cinematic feel */
+  #vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(10,22,40,.6) 100%);
+  }
 
-/* ── PAGES ── */
-.main{padding:96px 32px 80px;max-width:1100px;margin:0 auto}
-.page{display:none}.page.active{display:block;animation:pageIn .5s cubic-bezier(.16,1,.3,1)}
-@keyframes pageIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  /* Top HUD */
+  .hud-top {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 28px; pointer-events: none;
+  }
+  .hud-top > * { pointer-events: auto; }
+  .brand-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: rgba(10,22,40,.72); backdrop-filter: blur(14px);
+    border: 1px solid var(--4dp-hairline-s); border-radius: var(--4dp-r-pill);
+    padding: 8px 16px; font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--4dp-text-dim);
+  }
+  .brand-pill .d { width: 8px; height: 8px; border-radius: 50%; display: inline-block; background: var(--4dp-drive); }
+  .hud-controls { display: flex; gap: 8px; }
+  .ctrl-btn {
+    background: rgba(10,22,40,.72); backdrop-filter: blur(14px);
+    border: 1px solid var(--4dp-hairline-s); border-radius: 10px;
+    padding: 9px 16px; font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--4dp-text); cursor: pointer;
+    transition: background .2s var(--4dp-ease), border-color .2s var(--4dp-ease);
+  }
+  .ctrl-btn:hover { background: rgba(245,243,238,.08); border-color: var(--4dp-hairline-s); }
+  .ctrl-btn.active { background: var(--dim, var(--4dp-drop)); color: var(--4dp-ink); border-color: var(--dim, var(--4dp-drop)); }
 
-/* ── HERO ── */
-.hero{text-align:center;padding:48px 0 40px;position:relative}
-.fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
-.fd-word{
-  font-size:clamp(28px,4.5vw,48px);font-weight:900;letter-spacing:-1.2px;
-  color:var(--fd-c);text-shadow:0 0 28px color-mix(in srgb,var(--fd-c) 35%,transparent);
-  animation:fdPop .5s cubic-bezier(.16,1,.3,1) both;
-}
-.fd-word:nth-child(1){animation-delay:.1s}
-.fd-word:nth-child(2){animation-delay:.25s}
-.fd-word:nth-child(3){animation-delay:.4s}
-.fd-word:nth-child(4){animation-delay:.55s}
-@keyframes fdPop{from{opacity:0;transform:translateY(14px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
-.dim-tag{
-  display:inline-block;font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
-  padding:3px 8px;border-radius:6px;margin-right:8px;
-  background:color-mix(in srgb,var(--tier-c1,#2B8BFC) 18%,transparent);
-  color:var(--tier-c1,#2B8BFC);
-  border:1px solid color-mix(in srgb,var(--tier-c1,#2B8BFC) 35%,transparent);
-}
-.hero-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(43,139,252,.12);border:1px solid rgba(43,139,252,.2);
-  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-  padding:6px 18px;border-radius:24px;margin-bottom:32px;color:var(--blue-l);
-}
-.hero h1{
-  font-family:var(--font-display);font-style:italic;
-  font-size:clamp(56px,9vw,112px);font-weight:400;letter-spacing:-2px;
-  line-height:.98;margin-bottom:12px;max-width:900px;margin-left:auto;margin-right:auto;
-  color:var(--warm);
-}
-.hero-sub{
-  font-size:18px;color:var(--warm-dim);max-width:540px;margin:28px auto 0;line-height:1.55;font-weight:400;
-  font-family:var(--font-body);
-}
-.hero-sub strong{color:var(--warm);font-weight:600}
+  /* Center hero — shows on load, fades as you interact */
+  .center-hero {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;
+    text-align: center; pointer-events: none; max-width: 820px; padding: 0 24px;
+    opacity: 1; transition: opacity 1.2s ease;
+  }
+  .center-hero.dimmed { opacity: 0; }
+  .center-hero .eyebrow {
+    display: inline-block; padding: 6px 16px; border-radius: var(--4dp-r-pill);
+    background: rgba(10,22,40,.72); border: 1px solid var(--4dp-hairline-s);
+    font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--4dp-text-dim); margin-bottom: 20px;
+  }
+  .center-hero h1 {
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(56px, 10vw, 132px); letter-spacing: -2.5px; line-height: .95;
+    color: var(--4dp-text); margin: 0;
+    text-shadow: 0 2px 32px rgba(0,0,0,.6);
+  }
+  .center-hero .sub {
+    margin-top: 22px; font-size: 17px; color: var(--4dp-text-dim);
+    line-height: 1.55; max-width: 540px; margin-left: auto; margin-right: auto;
+  }
 
-/* ── PAIN POINTS ── */
-.pain-row{
-  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:32px auto 0;max-width:680px;
-}
-.pain-chip{
-  display:flex;align-items:center;gap:8px;
-  background:rgba(251,113,133,.06);border:1px solid rgba(251,113,133,.15);
-  padding:8px 16px;border-radius:12px;font-size:13px;font-weight:500;
-  color:rgba(251,113,133,.8);
-}
-.pain-chip .pc-x{font-size:14px;opacity:.6}
+  /* Bottom shot-switcher */
+  .shot-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: center; gap: 12px; padding: 24px 20px 28px;
+    pointer-events: none;
+  }
+  .shot-bar > * { pointer-events: auto; }
+  .shot-chip {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+    background: rgba(10,22,40,.78); backdrop-filter: blur(14px);
+    border: 1px solid var(--4dp-hairline-s); border-radius: var(--4dp-r-md);
+    padding: 14px 22px; min-width: 180px;
+    cursor: pointer; transition: all .25s var(--4dp-ease);
+    position: relative;
+  }
+  .shot-chip:hover { transform: translateY(-3px); border-color: var(--dim); }
+  .shot-chip.active {
+    background: color-mix(in srgb, var(--dim) 16%, rgba(10,22,40,.88));
+    border-color: var(--dim);
+    box-shadow: var(--dim-glow);
+  }
+  .shot-chip .num {
+    font-family: var(--4dp-font-data); font-weight: 700; font-size: 10px;
+    letter-spacing: 2px; color: var(--dim); text-transform: uppercase;
+  }
+  .shot-chip .name {
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: 22px; letter-spacing: -.5px; line-height: 1; color: var(--4dp-text);
+  }
+  .shot-chip .coach {
+    display: none;
+  }
+  @media (max-width: 760px) {
+    .shot-bar { flex-wrap: wrap; gap: 8px; padding: 16px 12px 20px; }
+    .shot-chip { min-width: 0; flex: 1 1 40%; padding: 10px 14px; }
+    .shot-chip .name { font-size: 18px; }
+  }
 
-/* ── ANSWER ROW ── */
-.answer-row{
-  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px auto 0;max-width:680px;
-}
-.answer-chip{
-  display:flex;align-items:center;gap:8px;
-  background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);
-  padding:8px 16px;border-radius:12px;font-size:13px;font-weight:600;
-  color:rgba(52,211,153,.85);
-}
+  /* Side readout — coach + mantra for the active shot */
+  .side-card {
+    position: fixed; top: 50%; right: 28px; transform: translateY(-50%); z-index: 10;
+    max-width: 280px; padding: 22px;
+    background: rgba(10,22,40,.78); backdrop-filter: blur(14px);
+    border: 1px solid var(--dim, var(--4dp-hairline-s)); border-left-width: 3px;
+    border-radius: var(--4dp-r-md);
+    opacity: 0; transform: translateY(-50%) translateX(20px);
+    transition: opacity .5s var(--4dp-ease), transform .5s var(--4dp-ease);
+  }
+  .side-card.visible { opacity: 1; transform: translateY(-50%) translateX(0); }
+  .side-card .label {
+    font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--dim); margin-bottom: 10px;
+  }
+  .side-card .coach-name {
+    display: none;
+  }
+  .side-card .coach-role {
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: 26px; line-height: 1.1; color: var(--4dp-text); margin-bottom: 14px;
+    text-transform: none; letter-spacing: -.3px;
+  }
+  .side-card .mantra {
+    font-size: 14px; color: var(--4dp-text); line-height: 1.5; font-style: italic;
+    padding-top: 14px; border-top: 1px solid var(--4dp-hairline);
+  }
+  .side-card .trajectory {
+    margin-top: 14px; font-size: 12px; color: var(--4dp-text-dim); line-height: 1.55;
+  }
+  @media (max-width: 760px) {
+    .side-card { right: 16px; top: auto; bottom: 160px; transform: none; max-width: calc(100% - 32px); }
+    .side-card.visible { transform: none; }
+  }
 
-/* ── PYRAMID LAYOUT ── */
-.pyramid-section{padding:20px 0 60px;position:relative}
-.pyramid-layout{
-  display:flex;gap:16px;max-width:900px;margin:0 auto;align-items:stretch;
-}
-.foundation-pillar{
-  width:220px;flex-shrink:0;
-  background:rgba(100,116,139,.06);
-  border:1px solid rgba(100,116,139,.15);
-  border-radius:20px;padding:24px 20px;
-  display:flex;flex-direction:column;
-  cursor:pointer;transition:all .4s cubic-bezier(.16,1,.3,1);
-  position:relative;overflow:hidden;
-}
-.foundation-pillar::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(100,116,139,.08),rgba(100,116,139,.02));
-  pointer-events:none;
-}
-.foundation-pillar:hover{border-color:rgba(100,116,139,.3);box-shadow:0 0 30px rgba(100,116,139,.15)}
-.fp-num{
-  width:48px;height:48px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:20px;color:var(--white);
-  background:linear-gradient(135deg,#64748b,#475569);
-  box-shadow:0 4px 16px rgba(100,116,139,.3);
-  margin-bottom:16px;position:relative;z-index:1;
-}
-.fp-title{font-size:20px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px;position:relative;z-index:1}
-.fp-sub{font-size:12px;color:rgba(255,255,255,.4);line-height:1.6;position:relative;z-index:1;margin-bottom:auto}
-.fp-status{
-  margin-top:20px;padding:5px 12px;border-radius:8px;font-size:10px;font-weight:700;
-  letter-spacing:.8px;text-transform:uppercase;
-  border:1px solid rgba(52,211,153,.3);color:var(--green);
-  background:rgba(52,211,153,.08);align-self:flex-start;
-  position:relative;z-index:1;
-}
-.fp-label{
-  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:rgba(255,255,255,.2);margin-top:12px;position:relative;z-index:1;
-}
+  /* Camera hint — prominent, pulses gently so users notice it's interactive */
+  .cam-hint {
+    position: fixed; bottom: 150px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 18px; border-radius: var(--4dp-r-pill);
+    background: rgba(10,22,40,.8); backdrop-filter: blur(14px);
+    border: 1px solid var(--4dp-hairline-s);
+    font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--4dp-text); pointer-events: none;
+    opacity: 1; transition: opacity 1s ease;
+    animation: camHintPulse 2.4s ease-in-out infinite;
+    box-shadow: 0 4px 24px rgba(43,139,252,.25);
+    white-space: nowrap;
+  }
+  .cam-hint svg { width: 16px; height: 16px; opacity: .9; }
+  .cam-hint.hidden { opacity: 0; animation: none; }
+  @keyframes camHintPulse {
+    0%, 100% { box-shadow: 0 4px 24px rgba(43,139,252,.18); border-color: var(--4dp-hairline-s); }
+    50%      { box-shadow: 0 4px 32px rgba(43,139,252,.6);  border-color: rgba(43,139,252,.55); }
+  }
+  @media (max-width: 760px) {
+    .cam-hint { bottom: auto; top: 76px; left: 50%; transform: translateX(-50%); font-size: 10px; padding: 7px 14px; }
+    .cam-hint svg { width: 13px; height: 13px; }
+  }
 
-.pyramid-container{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:0;
-  position:relative;
-}
+  /* Slow-mo indicator */
+  .slowmo-badge {
+    position: fixed; top: 86px; left: 50%; transform: translateX(-50%); z-index: 10;
+    padding: 6px 18px; border-radius: var(--4dp-r-pill);
+    background: color-mix(in srgb, var(--4dp-defend) 18%, rgba(10,22,40,.88));
+    border: 1px solid color-mix(in srgb, var(--4dp-defend) 50%, transparent);
+    font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--4dp-defend);
+    opacity: 0; transition: opacity .3s ease; pointer-events: none;
+  }
+  .slowmo-badge.on { opacity: 1; }
 
-/* Connecting glow line — removed, didn't work with side-by-side layout */
-
-/* Arrow label between foundation and pyramid */
-.pyramid-arrow-label{
-  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:rgba(255,255,255,.5);text-align:center;margin-bottom:8px;
-}
-
-@media(max-width:768px){
-  .pyramid-layout{flex-direction:column}
-  .foundation-pillar{width:100%;flex-direction:row;align-items:center;gap:16px;padding:18px 20px}
-  .fp-num{margin-bottom:0;flex-shrink:0}
-  .fp-sub{margin-bottom:0}
-  .fp-status{margin-top:0}
-  .fp-label{display:none}
-}
-
-.level-tier{
-  position:relative;z-index:1;
-  display:flex;align-items:center;gap:0;
-  width:100%;cursor:pointer;
-  transition:all .4s cubic-bezier(.16,1,.3,1);
-}
-.level-tier:hover{transform:scale(1.02)}
-.level-tier:hover .tier-bar{box-shadow:0 0 30px var(--tier-glow)}
-
-.tier-bar{
-  min-height:80px;border-radius:16px;
-  display:flex;align-items:center;gap:16px;
-  padding:16px 24px;position:relative;overflow:visible;
-  transition:all .4s cubic-bezier(.16,1,.3,1);
-  border:1px solid rgba(255,255,255,.06);
-  margin:4px auto;
-}
-.tier-bar::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,var(--tier-bg1),var(--tier-bg2));
-  opacity:.15;transition:opacity .3s;
-}
-.tier-bar:hover::before{opacity:.25}
-
-.tier-num{
-  width:44px;height:44px;border-radius:13px;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:18px;color:var(--white);
-  background:linear-gradient(135deg,var(--tier-c1),var(--tier-c2));
-  box-shadow:0 4px 16px var(--tier-glow);
-  flex-shrink:0;position:relative;z-index:1;
-}
-.tier-connector{
-  text-align:center;padding:4px 0;font-size:10px;font-weight:600;
-  color:rgba(255,255,255,.35);letter-spacing:.3px;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.tier-connector::before,.tier-connector::after{
-  content:'';height:1px;width:20px;background:rgba(255,255,255,.1);
-}
-.tier-info{flex:1;position:relative;z-index:1;min-width:0}
-.tier-info h3{font-size:16px;font-weight:800;letter-spacing:-.3px;margin-bottom:2px;white-space:nowrap}
-.tier-info p{font-size:12px;color:rgba(255,255,255,.45);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-.tier-status{
-  position:relative;z-index:1;
-  padding:5px 12px;border-radius:8px;font-size:10px;font-weight:700;
-  letter-spacing:.8px;text-transform:uppercase;flex-shrink:0;
-  border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);
-  background:rgba(255,255,255,.03);
-}
-.tier-status.unlocked{
-  border-color:rgba(52,211,153,.3);color:var(--green);
-  background:rgba(52,211,153,.08);
-}
-.tier-status.current{
-  border-color:rgba(43,139,252,.4);color:var(--blue-l);
-  background:rgba(43,139,252,.1);
-  animation:statusPulse 2s ease-in-out infinite;
-}
-@keyframes statusPulse{0%,100%{box-shadow:0 0 0 0 rgba(43,139,252,0)}50%{box-shadow:0 0 12px 2px rgba(43,139,252,.2)}}
-
-.tier-arrow{
-  position:relative;z-index:1;color:rgba(255,255,255,.25);font-size:14px;
-  transition:transform .3s;flex-shrink:0;margin-left:8px;
-}
-.level-tier.open .tier-arrow{transform:rotate(90deg)}
-
-/* Pyramid widths — widest at base (Level 1), narrow at top (Level 4) */
-.level-tier[data-level="1"] .tier-bar{width:100%}
-.level-tier[data-level="2"] .tier-bar{width:85%}
-.level-tier[data-level="3"] .tier-bar{width:70%}
-.level-tier[data-level="4"] .tier-bar{width:55%}
-
-/* Level colors */
-.level-tier[data-level="1"]{--tier-c1:#F472B6;--tier-c2:#DB2777;--tier-glow:rgba(244,114,182,.3);--tier-bg1:#F472B6;--tier-bg2:#BE185D}
-.level-tier[data-level="2"]{--tier-c1:#FBBF24;--tier-c2:#D97706;--tier-glow:rgba(251,191,36,.3);--tier-bg1:#FBBF24;--tier-bg2:#B45309}
-.level-tier[data-level="3"]{--tier-c1:#34D399;--tier-c2:#059669;--tier-glow:rgba(52,211,153,.3);--tier-bg1:#34D399;--tier-bg2:#047857}
-.level-tier[data-level="4"]{--tier-c1:#2B8BFC;--tier-c2:#1759B0;--tier-glow:rgba(43,139,252,.3);--tier-bg1:#2B8BFC;--tier-bg2:#1759B0}
-
-/* Stagger animation */
-.level-tier{opacity:0;transform:translateY(30px)}
-.level-tier.revealed{opacity:1;transform:translateY(0);transition:all .6s cubic-bezier(.16,1,.3,1)}
-.level-tier[data-level="1"].revealed{transition-delay:.1s}
-.level-tier[data-level="2"].revealed{transition-delay:.25s}
-.level-tier[data-level="3"].revealed{transition-delay:.4s}
-.level-tier[data-level="4"].revealed{transition-delay:.55s}
-.foundation-pillar{opacity:0;transform:translateX(-30px);transition:all .6s cubic-bezier(.16,1,.3,1) .05s}
-.foundation-pillar.revealed{opacity:1;transform:translateX(0)}
-
-/* ── LEVEL DETAIL PANEL ── */
-.level-detail{
-  display:none;max-width:700px;margin:0 auto 12px;
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
-  border-radius:16px;padding:28px;overflow:hidden;
-  animation:panelIn .35s cubic-bezier(.16,1,.3,1);
-}
-.level-detail.open{display:block}
-.level-detail.disabled{display:none !important}
-@keyframes panelIn{from{opacity:0;max-height:0}to{opacity:1;max-height:800px}}
-
-.ld-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
-.ld-icon{
-  width:52px;height:52px;border-radius:15px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;flex-shrink:0;
-}
-.ld-meta h2{font-family:var(--font-display);font-style:italic;font-size:34px;font-weight:400;letter-spacing:-.8px;line-height:1.05;margin-bottom:8px;color:var(--warm)}
-.ld-meta p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.6}
-
-/* Unlock criteria */
-.unlock-box{
-  background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.12);
-  border-radius:12px;padding:18px 20px;margin-bottom:20px;
-}
-.unlock-box h4{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.unlock-item{
-  display:flex;align-items:center;gap:10px;padding:6px 0;
-  font-size:13px;color:rgba(255,255,255,.6);
-}
-.unlock-check{
-  width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,.15);
-  display:flex;align-items:center;justify-content:center;font-size:11px;
-  flex-shrink:0;
-}
-.unlock-check.done{border-color:var(--green);background:rgba(52,211,153,.15);color:var(--green)}
-
-/* Skills inside level */
-.level-skills{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-@media(max-width:600px){.level-skills{grid-template-columns:1fr}}
-.ls-card{
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
-  border-radius:12px;padding:16px;cursor:pointer;
-  transition:all .3s cubic-bezier(.16,1,.3,1);
-}
-.ls-card:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);transform:translateY(-2px)}
-.ls-card h4{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.ls-card p{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5}
-.ls-tag{
-  display:inline-block;font-size:9px;font-weight:700;letter-spacing:.5px;
-  padding:2px 8px;border-radius:4px;text-transform:uppercase;
-}
-.ls-tag-drill{background:rgba(43,139,252,.12);color:var(--blue-l)}
-.ls-tag-concept{background:rgba(251,191,36,.12);color:var(--gold)}
-.ls-tag-assessment{background:rgba(52,211,153,.12);color:var(--green)}
-
-/* ── YOUR JOURNEY ── */
-.journey-bar{
-  max-width:700px;margin:0 auto 40px;
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
-  border-radius:16px;padding:20px 24px;
-}
-.jb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.jb-top h3{font-size:14px;font-weight:700;color:rgba(255,255,255,.7)}
-.jb-level{font-size:12px;font-weight:700;color:var(--blue-l);background:rgba(43,139,252,.1);padding:4px 10px;border-radius:6px}
-.jb-track{display:flex;gap:3px;height:8px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04)}
-.jb-seg{height:100%;border-radius:8px;transition:all .6s cubic-bezier(.16,1,.3,1)}
-.jb-seg.complete{background:var(--green)}
-.jb-seg.current{background:var(--blue);animation:segPulse 2s ease-in-out infinite}
-.jb-seg.locked{background:rgba(255,255,255,.06)}
-@keyframes segPulse{0%,100%{opacity:.7}50%{opacity:1}}
-.jb-labels{display:flex;margin-top:8px}
-.jb-lab{flex:1;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;text-align:center;color:rgba(255,255,255,.25)}
-.jb-lab.active{color:var(--blue-l)}
-.jb-lab.done{color:var(--green)}
-
-/* ── LEVEL DETAIL PAGE ── */
-.level-page{background:var(--off);color:var(--txt);min-height:100vh}
-.level-page .main{max-width:900px}
-.lp-back{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;
-  color:var(--txt-m);background:var(--white);border:1px solid rgba(0,0,0,.06);
-  cursor:pointer;transition:all .2s;margin-bottom:24px;
-}
-.lp-back:hover{background:var(--sky);color:var(--txt)}
-.lp-hero{
-  border-radius:24px;padding:40px 36px;margin-bottom:28px;
-  position:relative;overflow:hidden;
-}
-.lp-hero h1{font-size:clamp(24px,4vw,36px);font-weight:900;letter-spacing:-1px;color:var(--white);margin-bottom:8px}
-.lp-hero p{font-size:15px;color:rgba(255,255,255,.65);max-width:480px;line-height:1.6}
-
-/* Light mode cards for level detail */
-.ld-card{
-  background:var(--white);border:1px solid rgba(0,0,0,.06);
-  border-radius:var(--r);padding:24px;margin-bottom:14px;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);
-}
-.ld-card h2{font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--txt);margin-bottom:8px}
-.ld-card h3{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px}
-.ld-card p{font-size:14px;color:var(--txt-d);line-height:1.7}
-
-/* Progress criteria cards */
-.criteria-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
-@media(max-width:600px){.criteria-grid{grid-template-columns:1fr}}
-.crit-card{
-  background:var(--off);border:1px solid rgba(0,0,0,.04);
-  border-radius:14px;padding:18px;text-align:center;
-}
-.crit-card .crit-icon{font-size:28px;margin-bottom:8px}
-.crit-card h4{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px}
-.crit-card p{font-size:12px;color:var(--txt-m)}
-
-/* Particles removed — reads generic SaaS. */
-
-@media(max-width:860px){
-  .topnav{padding:0 16px}.main{padding:84px 16px 48px}
-  .tier-bar{padding:12px 16px}
-  .pain-row,.answer-row{flex-direction:column;align-items:center}
-}
-
-/* ── INTERACTIVE PROGRESSION CLICK-THROUGH ── */
-.prog-section{
-  max-width:880px;margin:24px auto 0;padding:56px 24px 40px;text-align:center;
-  border-top:1px solid rgba(255,255,255,.06);
-}
-.prog-badge{display:inline-flex;margin-bottom:20px;transition:all .5s cubic-bezier(.16,1,.3,1)}
-.prog-copy{
-  font-size:17px;color:var(--warm-dim);max-width:580px;margin:0 auto 20px;line-height:1.6;
-  min-height:3.2em;transition:opacity .3s;
-}
-.prog-dims{
-  display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;
-  margin:0 auto 28px;padding:6px;border-radius:100px;
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
-}
-.prog-dim{
-  display:inline-flex;align-items:center;gap:6px;cursor:pointer;
-  padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.2px;
-  color:rgba(255,255,255,.3);border:1px solid transparent;background:transparent;
-  transition:all .4s cubic-bezier(.16,1,.3,1);white-space:nowrap;
-}
-.prog-dim:hover{color:rgba(255,255,255,.6);background:rgba(255,255,255,.04)}
-.prog-dim.on{
-  color:var(--dc);background:color-mix(in srgb,var(--dc) 12%,transparent);
-  border-color:color-mix(in srgb,var(--dc) 35%,transparent);
-  box-shadow:0 0 20px color-mix(in srgb,var(--dc) 25%,transparent);
-}
-.prog-dim.current{
-  color:var(--dc);background:color-mix(in srgb,var(--dc) 20%,transparent);
-  border-color:var(--dc);
-  box-shadow:0 0 28px color-mix(in srgb,var(--dc) 40%,transparent);
-  transform:scale(1.06);
-}
-.prog-dim.on .pd-label{font-weight:800}
-.prog-court-wrap{
-  max-width:380px;margin:0 auto 24px;
-  padding:20px 24px;
-  background:linear-gradient(180deg,#5E6878 0%,#4A5462 100%);
-  border-radius:22px;
-  box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 16px 50px rgba(0,0,0,.45);
-}
-.prog-court{
-  width:100%;display:block;border-radius:4px;overflow:hidden;
-  box-shadow:inset 0 0 60px rgba(0,0,0,.25);
-  transition:box-shadow .4s;
-  border:2px solid rgba(255,255,255,.92);
-}
-.prog-stage-meta{max-width:520px;margin:0 auto 28px}
-.prog-stage-title{
-  font-family:var(--font-display);font-style:italic;
-  font-size:clamp(28px,4.2vw,44px);font-weight:400;letter-spacing:-.8px;line-height:1.1;
-  color:var(--warm);margin-bottom:8px;
-  transition:opacity .3s;
-}
-.prog-stage-sub{
-  font-size:15px;color:var(--warm-mute);line-height:1.55;
-  transition:opacity .3s;
-}
-.prog-controls{
-  display:inline-flex;align-items:center;gap:14px;margin-top:8px;
-  padding:8px;border-radius:100px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
-}
-.prog-btn{
-  padding:10px 18px;border-radius:100px;border:none;cursor:pointer;
-  font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:.2px;
-  background:transparent;color:rgba(255,255,255,.7);transition:all .2s;
-}
-.prog-btn:hover:not(:disabled){background:rgba(255,255,255,.06);color:var(--warm)}
-.prog-btn:disabled{opacity:.3;cursor:not-allowed}
-.prog-btn-primary{background:rgba(43,139,252,.9);color:#fff;box-shadow:0 2px 12px rgba(43,139,252,.3)}
-.prog-btn-primary:hover:not(:disabled){background:var(--blue);color:#fff}
-.prog-step-dots{display:inline-flex;align-items:center;gap:8px;padding:0 4px}
-.prog-step{
-  width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);
-  cursor:pointer;transition:all .3s;
-}
-.prog-step:hover{background:rgba(255,255,255,.35)}
-.prog-step.active{width:24px;border-radius:100px;background:var(--blue)}
-.prog-step.visited{background:rgba(255,255,255,.45)}
-.prog-fade-out .prog-copy,.prog-fade-out .prog-stage-title,.prog-fade-out .prog-stage-sub{opacity:0}
-
-@media(max-width:560px){
-  .prog-dim{padding:6px 10px;font-size:11px}
-  .prog-controls{gap:6px;padding:6px}
-  .prog-btn{padding:8px 12px;font-size:12px}
-  .prog-dims{padding:4px;gap:3px}
-  .pd-icon{width:10px;height:10px}
-}
-
-/* ── Dimension pill icons ── */
-.pd-icon{width:12px;height:12px;display:inline-block;opacity:.9;flex-shrink:0}
-.prog-dim svg{display:block}
-
-/* ── MOBILE POLISH ── fully optimized for phone viewports (up to 560px) */
-@media(max-width:560px){
-  /* Top nav: shrink padding, hide tagline so 4D Pickleball brand fits */
-  .topnav{padding:0 12px;gap:8px;height:56px}
-  .main{padding:72px 14px 56px}
-  .logo-mark{width:32px;height:32px;font-size:11px;border-radius:9px}
-  .logo-text{font-size:12px}
-  .logo-text span{display:none}
-  .nav-pills{gap:2px}
-  .nav-pill{padding:6px 10px;font-size:11px}
-  /* Hero: smaller padding, tighter H1 */
-  .hero{padding:28px 0 24px}
-  .hero h1{font-size:clamp(42px,13vw,72px);letter-spacing:-1.2px}
-  .hero-sub{font-size:15px;padding:0 8px}
-  .fd-word{font-size:clamp(22px,7.5vw,36px);letter-spacing:-.8px}
-  /* Progression section: less padding, smaller court */
-  .prog-section{padding:36px 14px 28px;margin-top:12px}
-  .prog-copy{font-size:15px;margin-bottom:16px}
-  .prog-court-wrap{max-width:320px;margin-bottom:18px}
-  .prog-stage-title{font-size:clamp(24px,6vw,32px)}
-  .prog-stage-sub{font-size:14px}
-  .prog-stage-meta{margin-bottom:18px}
-  .prog-badge{margin-bottom:14px;font-size:10px;letter-spacing:1.5px}
-}
-
-/* Tablet breakpoint (561-900px) */
-@media(min-width:561px) and (max-width:900px){
-  .main{padding:88px 20px 64px}
-  .prog-section{padding:44px 20px 32px}
-  .prog-court-wrap{max-width:360px}
-  .nav-pill{padding:7px 14px;font-size:12px}
-}
+  /* Loading */
+  #loading {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--4dp-ink); color: var(--4dp-text);
+    font-family: var(--4dp-font-display); font-style: italic; font-size: 32px; letter-spacing: -.5px;
+    transition: opacity .8s ease;
+  }
+  #loading.gone { opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
 
+<div id="loading">Loading the court…</div>
 
-<nav class="topnav">
-  <div class="logo">
-    <div class="logo-mark">4D</div>
-    <div class="logo-text">4D Pickleball<span>by New England Pickleball Club</span></div>
+<div id="viewport"></div>
+<div id="vignette"></div>
+
+<div class="hud-top">
+  <span class="brand-pill"><span class="d" id="brand-dot"></span> 4D Pickleball · Cinematic</span>
+  <div class="hud-controls">
+    <button class="ctrl-btn" id="btn-camera">Camera</button>
+    <button class="ctrl-btn" id="btn-slowmo">Slow-Mo</button>
+    <button class="ctrl-btn" id="btn-replay">Replay</button>
   </div>
-  <div class="nav-pills">
-    <button class="nav-pill active" data-page="pyramid">The 4 Dimensions</button>
-    <button class="nav-pill" data-page="my-journey">Your Journey</button>
-  </div>
-</nav>
+</div>
 
-<main class="main">
+<div class="center-hero" id="center-hero">
+  <div class="eyebrow">◆ 4D Pickleball</div>
+  <h1>Anyone can learn<br>to play 4D Pickleball.</h1>
+  <p class="sub">Drive. Defend. Drop. Dink. Four dimensions, one progression. Pick a shot below to watch it in 3D — then drag and zoom to explore.</p>
+</div>
 
-<!-- ═══ PYRAMID HOME ═══ -->
-<div class="page active" id="page-pyramid">
+<div class="slowmo-badge" id="slowmo-badge">◉ Slow-Mo</div>
 
-  <div class="hero">
-    <div class="hero-badge">◆ 4D Pickleball</div>
+<div class="cam-hint" id="cam-hint">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h14M5 15h14M9 5l-4 4 4 4M15 19l4-4-4-4"/></svg>
+  Drag to orbit · Scroll to zoom
+</div>
 
-    <h1>Anyone can learn<br>to play 4D Pickleball.</h1>
+<div class="side-card" id="side-card">
+  <div class="label" id="side-label">Shot 3 · Drop</div>
+  <div class="coach-role" id="side-role">Under the ball drop</div>
+  <div class="mantra" id="side-mantra">"Let the ball come to you. The reset isn't a shot — it's a pause button."</div>
+  <div class="trajectory" id="side-traj">Apex ≈ 8 ft · Lands soft inside the kitchen from the transition zone.</div>
+</div>
 
-    <div style="display:inline-flex;align-items:center;justify-content:center;gap:16px;margin:36px 0 8px;flex-wrap:wrap">
-      <span class="fd-word" style="--fd-c:#F472B6">Drive.</span>
-      <span class="fd-word" style="--fd-c:#FBBF24">Defend.</span>
-      <span class="fd-word" style="--fd-c:#34D399">Drop.</span>
-      <span class="fd-word" style="--fd-c:#2B8BFC">Dink.</span>
-    </div>
+<div class="shot-bar">
+  <button class="shot-chip dim-drive"  data-shot="drive">
+    <span class="num">01 · Drive</span>
+    <span class="name">Ball Striking</span>
+  </button>
+  <button class="shot-chip dim-defend" data-shot="defend">
+    <span class="num">02 · Defend</span>
+    <span class="name">Baby Block</span>
+  </button>
+  <button class="shot-chip dim-drop active" data-shot="drop">
+    <span class="num">03 · Drop</span>
+    <span class="name">Under the Ball Drop</span>
+  </button>
+  <button class="shot-chip dim-dink"   data-shot="dink">
+    <span class="num">04 · Dink</span>
+    <span class="name">Kitchen Offense</span>
+  </button>
+</div>
 
-  </div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
 
-  <!-- ═══ INTERACTIVE PROGRESSION STORY ═══ -->
-  <section class="prog-section">
-    <div class="hero-badge prog-badge" id="prog-badge">◆ 1D — YOU'VE SEEN THIS GAME</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls }    from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer }   from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }       from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass }  from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass }       from 'three/addons/postprocessing/OutputPass.js';
 
-    <p class="prog-copy" id="prog-copy">Four friends play pickleball for the first time. You watch them: all stuck at the baseline playing tennis. We've all seen it before!</p>
+// ═══════════════════════════════════════════════════════════
+// 4DP CINEMATIC TEMPLATE
+// Court units: 1 unit = 1 foot.
+// Court is 20 ft wide × 44 ft long. Kitchen 7 ft from net.
+// Y is up.
+// ═══════════════════════════════════════════════════════════
 
-    <!-- Dimension dots: light up as you progress through the story -->
-    <div class="prog-dims" id="prog-dims">
-      <span class="prog-dim" data-d="0" style="--dc:#F5F3EE">
-        <!-- 1D: a single horizontal line — the baseline rally -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-        <span class="pd-label">1D</span>
-      </span>
-      <span class="prog-dim" data-d="1" style="--dc:#F472B6">
-        <!-- Drive: arrow / fast line — a drive with motion trail -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><path d="M 2 11 L 12 3 M 9 3 L 12 3 L 12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-        <span class="pd-label">+Drive</span>
-      </span>
-      <span class="prog-dim" data-d="2" style="--dc:#FBBF24">
-        <!-- Defend: shield — block icon -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><path d="M 7 1.5 L 12 3.5 L 12 7 Q 12 11 7 12.5 Q 2 11 2 7 L 2 3.5 Z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg>
-        <span class="pd-label">+Defend</span>
-      </span>
-      <span class="prog-dim" data-d="3" style="--dc:#34D399">
-        <!-- Drop: high arc with a drop into kitchen (small arc + ball at end) -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><path d="M 2 11 Q 7 1 12 11" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="12" cy="11" r="1.4" fill="currentColor"/></svg>
-        <span class="pd-label">+Drop</span>
-      </span>
-      <span class="prog-dim" data-d="4" style="--dc:#2B8BFC">
-        <!-- Dink: short low arc over a net -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><line x1="7" y1="3" x2="7" y2="11" stroke="currentColor" stroke-width="1.5" opacity=".55"/><path d="M 2 9 Q 7 4 12 9" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
-        <span class="pd-label">+Dink</span>
-      </span>
-    </div>
+// ── Dimension map (coach, color, view-for-skill camera, mantra) ──
+const SHOTS = {
+  drive: {
+    label: '01 · Drive',
+    dim: 'drive',
+    color: 0xF472B6,
+    role: 'Ball striking',
+    mantra: '"Simpler motion, fewer errors, faster hands."',
+    traj: 'Flat, fast drive from the baseline — short compact swing, clean contact.',
+    cam: { pos: [0, 4, 36], look: [0, 3, 0] },
+    shot: { from: [0, 3.0, -20], to: [0, 3.0, 20], apex: 4.5, duration: 1.2 }
+  },
+  defend: {
+    label: '02 · Defend',
+    dim: 'defend',
+    color: 0xFBBF24,
+    role: 'Baby block',
+    mantra: '"Boring is beautiful. Do almost nothing — absorb the pace."',
+    traj: 'Attack comes in hot. Defender absorbs at shoulder height, redirects soft into the kitchen.',
+    cam: { pos: [0, 5.5, 28], look: [0, 3, 0] },
+    shot: { from: [0, 4.0, -20], to: [0, 2.0, 14], apex: 5.5, duration: 1.0, phases: 'attack-then-reset' }
+  },
+  drop: {
+    label: '03 · Drop',
+    dim: 'drop',
+    color: 0x34D399,
+    role: 'Under the ball drop',
+    mantra: '"Let the ball come to you. The drop isn\'t a shot — it\'s a pause button."',
+    traj: 'Apex ≈ 8 ft · Lands soft inside the kitchen from the transition zone.',
+    cam: { pos: [38, 6, 0], look: [0, 4, 0] },
+    shot: { from: [0, 3.0, 14], to: [0, 1.0, -4], apex: 9.0, duration: 1.8 }
+  },
+  dink: {
+    label: '04 · Dink',
+    dim: 'dink',
+    color: 0x2B8BFC,
+    role: 'Kitchen offense',
+    mantra: '"Pressure creates errors. Place the ball where they have to hit up."',
+    traj: 'Short arc, cross-court — clears the net by inches, lands deep in the kitchen.',
+    cam: { pos: [16, 14, 20], look: [-3, 2, -4] },
+    shot: { from: [5, 2.5, 7.5], to: [-7, 1.0, -6.5], apex: 4.0, duration: 1.2 }
+  }
+};
 
-    <div class="prog-court-wrap">
-      <svg class="prog-court" viewBox="0 0 400 440" id="prog-court" aria-label="Animated pickleball court">
-        <defs>
-          <!-- Playing surface: radial blue gradient (bright center → deeper edges). Matches Dave's reference aesthetic. -->
-          <radialGradient id="courtSurface" cx="50%" cy="50%" r="70%">
-            <stop offset="0%"  stop-color="#2D5FA8"/>
-            <stop offset="70%" stop-color="#234E8C"/>
-            <stop offset="100%" stop-color="#1B3E72"/>
-          </radialGradient>
-          <!-- Kitchen (NVZ): burgundy gradient — the signature. Not blue. -->
-          <linearGradient id="kitchenBand" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"  stop-color="#6B0F1A"/>
-            <stop offset="100%" stop-color="#52090F"/>
-          </linearGradient>
-          <!-- Inset vignette for cinematic depth -->
-          <radialGradient id="courtVignette" cx="50%" cy="50%" r="75%">
-            <stop offset="55%" stop-color="#000" stop-opacity="0"/>
-            <stop offset="100%" stop-color="#000" stop-opacity=".32"/>
-          </radialGradient>
-        </defs>
+let activeShotKey = 'drop';
+let slowMo = false;
+let camPresetIdx = 0;
+const CAM_PRESETS_BY_SHOT = {}; // filled later
 
-        <!-- Playing surface -->
-        <rect x="0" y="0" width="400" height="440" fill="url(#courtSurface)"/>
-        <!-- Kitchen (burgundy band) -->
-        <rect x="0" y="170" width="400" height="100" fill="url(#kitchenBand)"/>
-        <!-- Vignette overlay (gives embossed feel) -->
-        <rect x="0" y="0" width="400" height="440" fill="url(#courtVignette)" pointer-events="none"/>
+// ── Scene, camera, renderer ──
+const vp = document.getElementById('viewport');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0F1F3A);
+scene.fog = new THREE.Fog(0x0F1F3A, 65, 140);
 
-        <!-- Net: bold white bar (4px) across kitchen center -->
-        <line x1="0" y1="220" x2="400" y2="220" stroke="#fff" stroke-width="4"/>
-        <!-- Kitchen boundary lines: 2px crisp white -->
-        <line x1="0" y1="170" x2="400" y2="170" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-        <line x1="0" y1="270" x2="400" y2="270" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-        <!-- Center service lines — only outside the kitchen -->
-        <line x1="200" y1="0" x2="200" y2="170" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-        <line x1="200" y1="270" x2="200" y2="440" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
+const camera = new THREE.PerspectiveCamera(45, vp.clientWidth / vp.clientHeight, 0.1, 400);
+camera.position.set(...SHOTS[activeShotKey].cam.pos);
+camera.lookAt(new THREE.Vector3(...SHOTS[activeShotKey].cam.look));
 
-        <!-- Dynamic overlay: stage-specific trails, players, ball -->
-        <g id="prog-dynamic"></g>
-      </svg>
-    </div>
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(vp.clientWidth, vp.clientHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+vp.appendChild(renderer.domElement);
 
-    <!-- Stage title + one-liner (updates each step) -->
-    <div class="prog-stage-meta">
-      <h2 class="prog-stage-title" id="prog-title">Tennis at the baseline</h2>
-      <p class="prog-stage-sub" id="prog-sub">Ball loops between the four baseline corners. Long, high rallies. Nobody at the kitchen.</p>
-    </div>
+// ── OrbitControls (user exploration) ──
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.target.set(...SHOTS[activeShotKey].cam.look);
+controls.minDistance = 10;
+controls.maxDistance = 80;
+controls.maxPolarAngle = Math.PI * 0.49;
 
-    <!-- Prev / dots / next -->
-    <div class="prog-controls">
-      <button class="prog-btn" id="prog-prev" aria-label="Previous stage">← Back</button>
-      <div class="prog-step-dots" id="prog-step-dots">
-        <span class="prog-step active" data-s="0"></span>
-        <span class="prog-step" data-s="1"></span>
-        <span class="prog-step" data-s="2"></span>
-        <span class="prog-step" data-s="3"></span>
-        <span class="prog-step" data-s="4"></span>
-      </div>
-      <button class="prog-btn prog-btn-primary" id="prog-next" aria-label="Next stage">Next →</button>
-    </div>
-  </section>
+// ── Post-processing: bloom makes the ball + trail glow cinematically ──
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(vp.clientWidth, vp.clientHeight), 0.85, 0.75, 0.6);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
 
-  <!-- One-line pull-quote — every rally moves through all four -->
-  <div style="max-width:760px;margin:0 auto;padding:56px 24px;text-align:center;border-top:1px solid rgba(255,255,255,.06)">
-    <p style="font-family:var(--font-display);font-style:italic;font-size:clamp(28px,4.2vw,48px);font-weight:400;letter-spacing:-.8px;line-height:1.15;color:var(--warm)">
-      Every rally moves through all four.<br>
-      <span style="color:var(--warm-dim)">Your weakest dimension is what holds back the rest.</span>
-    </p>
-  </div>
+// ═══════════════════════════════════════════════════════════
+// LIGHTING — directional key + soft ambient + fill
+// ═══════════════════════════════════════════════════════════
+// Brighter lighting — original was too dark to read on phones + mid-brightness monitors
+const ambient = new THREE.AmbientLight(0xC8DEF0, 0.75);
+scene.add(ambient);
 
+const key = new THREE.DirectionalLight(0xFFF6E4, 1.9);
+key.position.set(18, 30, 14);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.left = -30;  key.shadow.camera.right = 30;
+key.shadow.camera.top  =  35;  key.shadow.camera.bottom= -35;
+key.shadow.camera.near = 1;    key.shadow.camera.far   = 70;
+key.shadow.bias = -0.0003;
+scene.add(key);
 
-</div><!-- /page-pyramid -->
+const fill = new THREE.DirectionalLight(0x9EC0E0, 0.7);
+fill.position.set(-22, 14, -12);
+scene.add(fill);
 
-<!-- ═══ MY JOURNEY ═══ -->
-<div class="page" id="page-my-journey">
-  <div class="hero" style="padding-bottom:32px">
-    <div class="hero-badge">◆ Your Journey</div>
-    <h1>Your path through the 4 dimensions</h1>
-    <p class="hero-sub">Track what you've unlocked, what's next, and what your pro recommends.</p>
-  </div>
+// Warm rim/back-light so players aren't silhouettes
+const rim = new THREE.DirectionalLight(0xFFD9A8, 0.6);
+rim.position.set(0, 18, -28);
+scene.add(rim);
 
-  <!-- Journey tracker -->
-  <div style="max-width:640px;margin:0 auto">
+// Hemisphere for ambient sky→ground gradient pickup
+const hemi = new THREE.HemisphereLight(0xC0DDF5, 0x2A3A55, 0.45);
+scene.add(hemi);
 
-    <!-- Recent Pro Note -->
-    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px 22px;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px">Latest from Your Pro</div>
-      <div style="display:flex;gap:12px;align-items:flex-start">
-        <div style="width:36px;height:36px;border-radius:10px;background:rgba(244,114,182,.12);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--pink);flex-shrink:0">P</div>
-        <div>
-          <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.8)">Your Pro <span style="font-weight:400;color:rgba(255,255,255,.3);font-size:11px">· Private Lesson</span></div>
-          <div style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.6;margin-top:6px">Topspin drive → locked in. Third shot drop → too much arm, needs "marshmallow hands." Baby block trending up.</div>
-          <div style="display:flex;gap:6px;margin-top:8px">
-            <span style="padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;background:rgba(244,114,182,.1);color:var(--pink)">BoB</span>
-            <span style="padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;background:rgba(52,211,153,.1);color:var(--green)">UtB</span>
-            <span style="padding:2px 8px;border-radius:6px;font-size:9px;font-weight:700;background:rgba(43,139,252,.1);color:var(--blue-l)">Def</span>
-          </div>
-        </div>
-      </div>
-    </div>
+// ═══════════════════════════════════════════════════════════
+// COURT — procedural with NEPC court colors
+// Court: 20 ft wide × 44 ft long
+// Kitchen: 7 ft from net on each side (14 ft total center)
+// ═══════════════════════════════════════════════════════════
+const COURT_W = 20, COURT_L = 44, KITCHEN = 7, LINE = 0.18;
 
-    <!-- Recommended Class with social proof -->
-    <div style="background:rgba(52,211,153,.03);border:1px solid rgba(52,211,153,.12);border-radius:16px;padding:16px 22px;margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green)">AI Recommended</div>
-        <span style="font-size:10px;color:rgba(255,255,255,.3)">Targets your #1 gap</span>
-      </div>
-      <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:4px">Under the Ball Clinic</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.4)">Wed · 2:00 PM · 3 spots left</div>
-      <div style="font-size:11px;color:rgba(52,211,153,.6);margin-top:8px">Two players from your Wednesday group are signed up</div>
-    </div>
+const courtGroup = new THREE.Group();
 
-    <!-- Level 0 — Complete -->
-    <div style="background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.12);border-radius:16px;padding:20px 24px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
-        <div style="width:40px;height:40px;border-radius:12px;background:rgba(52,211,153,.15);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:var(--green)">0</div>
-        <div style="flex:1">
-          <div style="font-size:15px;font-weight:700;color:var(--green)">Foundation</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.4)">Completed Feb 12, 2026</div>
-        </div>
-        <div style="font-size:11px;font-weight:700;color:var(--green);background:rgba(52,211,153,.1);padding:4px 10px;border-radius:6px;letter-spacing:.5px">✓ COMPLETE</div>
-      </div>
-      <div style="display:flex;gap:4px">
-        <div style="flex:1;height:4px;border-radius:4px;background:var(--green)"></div>
-        <div style="flex:1;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--green) 66%,rgba(255,255,255,.06) 66%)"></div>
-        <div style="flex:1;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--green) 33%,rgba(255,255,255,.06) 33%)"></div>
-      </div>
-      <div style="display:flex;gap:4px;margin-top:4px">
-        <div style="flex:1;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;text-align:center;color:rgba(52,211,153,.5)">Rules</div>
-        <div style="flex:1;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;text-align:center;color:rgba(52,211,153,.5)">Positioning</div>
-        <div style="flex:1;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;text-align:center;color:rgba(52,211,153,.5)">Anticipation</div>
-      </div>
-    </div>
+// ═══ COURT AESTHETIC — matches Dave's reference court (2026-04-20) ═══
+// Deck: slate gray gradient (not tennis green). Surface: radial blue.
+// Kitchen: BURGUNDY (the signature move, not blue).
+// Lines: crisp white 0.95 opacity. Inset depth from lighting + shadows.
 
-    <!-- Level 1 — In Progress -->
-    <div style="background:rgba(43,139,252,.04);border:1px solid rgba(43,139,252,.15);border-radius:16px;padding:20px 24px;margin-bottom:12px">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
-        <div style="width:40px;height:40px;border-radius:12px;background:rgba(244,114,182,.15);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:var(--pink)">1</div>
-        <div style="flex:1">
-          <div style="font-size:15px;font-weight:700;color:var(--blue-l)">Ball Striking</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.4)">Started Feb 19, 2026 — 2 of 4 criteria met</div>
-        </div>
-        <div style="font-size:11px;font-weight:700;color:var(--blue-l);background:rgba(43,139,252,.1);padding:4px 10px;border-radius:6px;letter-spacing:.5px">IN PROGRESS</div>
-      </div>
-      <div style="display:flex;gap:4px">
-        <div style="flex:1;height:4px;border-radius:4px;background:var(--green)"></div>
-        <div style="flex:1;height:4px;border-radius:4px;background:var(--blue);animation:segPulse 2s ease-in-out infinite"></div>
-        <div style="flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.06)"></div>
-        <div style="flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.06)"></div>
-      </div>
-      <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06)">
-        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:8px">Next Up</div>
-        <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.8">
-          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--green)">✓</span> Complete Level 0</div>
-          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--green)">✓</span> Attended first Ball Striking clinic</div>
-          <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--blue-l)">→</span> <strong style="color:rgba(255,255,255,.8)">Attend 1 more clinic</strong> (next: Thursday 6pm)</div>
-          <div style="display:flex;align-items:center;gap:8px"><span style="color:rgba(255,255,255,.2)">○</span> Pass the 90-Second A/B Test</div>
-        </div>
-      </div>
-    </div>
+// Outside deck — slate gray with gradient via canvas texture
+function makeDeckTexture() {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 512;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 0, 512);
+  g.addColorStop(0, '#5E6878');
+  g.addColorStop(1, '#4A5462');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+  // Subtle noise for texture
+  for (let i = 0; i < 2000; i++) {
+    ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.06})`;
+    ctx.fillRect(Math.random() * 512, Math.random() * 512, 1, 1);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const deckGeo = new THREE.PlaneGeometry(COURT_W + 18, COURT_L + 18);
+const deckMat = new THREE.MeshStandardMaterial({
+  map: makeDeckTexture(), roughness: 0.88, metalness: 0.02
+});
+const deck = new THREE.Mesh(deckGeo, deckMat);
+deck.rotation.x = -Math.PI / 2;
+deck.position.y = -0.02;
+deck.receiveShadow = true;
+courtGroup.add(deck);
 
-    <!-- Levels 2-4 — Locked -->
-    <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px 24px;margin-bottom:8px;opacity:.5">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:36px;height:36px;border-radius:10px;background:rgba(251,191,36,.08);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:rgba(251,191,36,.5)">2</div>
-        <div style="flex:1;font-size:14px;font-weight:600;color:rgba(255,255,255,.35)">Baby Block</div>
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.2);letter-spacing:.5px">🔒 LOCKED</div>
-      </div>
-    </div>
-    <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px 24px;margin-bottom:8px;opacity:.4">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:36px;height:36px;border-radius:10px;background:rgba(52,211,153,.08);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:rgba(52,211,153,.4)">3</div>
-        <div style="flex:1;font-size:14px;font-weight:600;color:rgba(255,255,255,.3)">Reset Drop</div>
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.15);letter-spacing:.5px">🔒 LOCKED</div>
-      </div>
-    </div>
-    <div style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:16px 24px;margin-bottom:8px;opacity:.3">
-      <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:36px;height:36px;border-radius:10px;background:rgba(43,139,252,.08);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:rgba(43,139,252,.4)">4</div>
-        <div style="flex:1;font-size:14px;font-weight:600;color:rgba(255,255,255,.25)">Kitchen Offense</div>
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.1);letter-spacing:.5px">🔒 LOCKED</div>
-      </div>
-    </div>
+// Playing surface — radial gradient blue (bright center → deeper edges)
+function makeCourtTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 1024;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(512, 512, 40, 512, 512, 680);
+  g.addColorStop(0, '#2D5FA8');
+  g.addColorStop(0.7, '#234E8C');
+  g.addColorStop(1, '#1B3E72');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 1024, 1024);
+  // Vignette inset shadow to mimic reference court's embossed feel
+  const v = ctx.createRadialGradient(512, 512, 300, 512, 512, 720);
+  v.addColorStop(0, 'rgba(0,0,0,0)');
+  v.addColorStop(1, 'rgba(0,0,0,0.25)');
+  ctx.fillStyle = v; ctx.fillRect(0, 0, 1024, 1024);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const surfaceGeo = new THREE.PlaneGeometry(COURT_W, COURT_L);
+const surfaceMat = new THREE.MeshStandardMaterial({
+  map: makeCourtTexture(), roughness: 0.68, metalness: 0.05
+});
+const surface = new THREE.Mesh(surfaceGeo, surfaceMat);
+surface.rotation.x = -Math.PI / 2;
+surface.position.y = 0;
+surface.receiveShadow = true;
+courtGroup.add(surface);
 
-    <div style="text-align:center;padding:32px 0;color:rgba(255,255,255,.3);font-size:13px">
-      <p>Talk to your NEPC coach about advancing to the next level.</p>
-    </div>
+// Kitchen zones — BURGUNDY (the signature). Gradient + inner glow.
+function makeKitchenTexture() {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 256;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#6B0F1A');
+  g.addColorStop(1, '#52090F');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 256);
+  // Inner glow from bottom
+  const glow = ctx.createRadialGradient(256, 128, 20, 256, 128, 260);
+  glow.addColorStop(0, 'rgba(255,61,90,0.14)');
+  glow.addColorStop(1, 'rgba(255,61,90,0)');
+  ctx.fillStyle = glow; ctx.fillRect(0, 0, 512, 256);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const kitchenMat = new THREE.MeshStandardMaterial({
+  map: makeKitchenTexture(), roughness: 0.7, metalness: 0.02
+});
+for (const z of [KITCHEN / 2, -KITCHEN / 2]) {
+  const k = new THREE.Mesh(new THREE.PlaneGeometry(COURT_W, KITCHEN), kitchenMat);
+  k.rotation.x = -Math.PI / 2;
+  k.position.set(0, 0.003, z);
+  k.receiveShadow = true;
+  courtGroup.add(k);
+}
 
-  </div>
-</div><!-- /page-my-journey -->
+// Lines — crisp white 0.95 opacity, slight emissive for visibility under bloom
+const lineMat = new THREE.MeshStandardMaterial({
+  color: 0xFFFFFF, emissive: 0xFFFFFF, emissiveIntensity: 0.12, roughness: 0.5,
+  transparent: true, opacity: 0.95
+});
+function addLine(x, z, w, l) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, l), lineMat);
+  m.rotation.x = -Math.PI / 2;
+  m.position.set(x, 0.005, z);
+  m.receiveShadow = true;
+  courtGroup.add(m);
+}
+addLine(0,  COURT_L/2, COURT_W, LINE);            // back line far
+addLine(0, -COURT_L/2, COURT_W, LINE);            // back line near
+addLine( COURT_W/2, 0, LINE, COURT_L);            // sideline right
+addLine(-COURT_W/2, 0, LINE, COURT_L);            // sideline left
+addLine(0,  KITCHEN, COURT_W, LINE);              // kitchen line far
+addLine(0, -KITCHEN, COURT_W, LINE);              // kitchen line near
+// Center service lines (from kitchen to baseline on each side)
+addLine(0,  (COURT_L/2 + KITCHEN)/2, LINE, COURT_L/2 - KITCHEN);
+addLine(0, -(COURT_L/2 + KITCHEN)/2, LINE, COURT_L/2 - KITCHEN);
 
-</main>
+// Net — translucent mesh-textured box with posts
+const netGroup = new THREE.Group();
+const netPostMat = new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: 0.3, metalness: 0.8 });
+for (const x of [-COURT_W/2 - 0.3, COURT_W/2 + 0.3]) {
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 3.4, 12), netPostMat);
+  post.position.set(x, 1.7, 0);
+  post.castShadow = true;
+  netGroup.add(post);
+}
+// Net mesh (semi-transparent with subtle weave simulated via wireframe)
+const netMat = new THREE.MeshStandardMaterial({
+  color: 0x0F2138, transparent: true, opacity: 0.75,
+  side: THREE.DoubleSide, roughness: 0.9
+});
+const netMesh = new THREE.Mesh(new THREE.PlaneGeometry(COURT_W + 0.6, 3.0, 24, 8), netMat);
+netMesh.position.set(0, 1.5, 0);
+netGroup.add(netMesh);
+// Net tape (white top)
+const tape = new THREE.Mesh(new THREE.BoxGeometry(COURT_W + 0.6, 0.08, 0.08), lineMat);
+tape.position.set(0, 3.0, 0);
+netGroup.add(tape);
+// Wireframe "weave" overlay
+const weave = new THREE.LineSegments(
+  new THREE.WireframeGeometry(new THREE.PlaneGeometry(COURT_W + 0.6, 3.0, 18, 6)),
+  new THREE.LineBasicMaterial({ color: 0x3A4A60, transparent: true, opacity: 0.5 })
+);
+weave.position.set(0, 1.5, 0);
+netGroup.add(weave);
+courtGroup.add(netGroup);
 
+scene.add(courtGroup);
 
-<script>
-// ── Page navigation ──
-document.querySelectorAll('.nav-pill').forEach(p=>{
-  p.addEventListener('click',()=>{
-    document.querySelectorAll('.nav-pill').forEach(x=>x.classList.remove('active'));
-    p.classList.add('active');
-    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-    document.getElementById('page-'+p.dataset.page).classList.add('active');
-  });
+// ═══════════════════════════════════════════════════════════
+// PLAYERS — capsule primitives for v1 (R18 stack lock)
+// Placeholder until low-poly GLTF assets drop in.
+// ═══════════════════════════════════════════════════════════
+function makePlayer(color, z) {
+  const g = new THREE.Group();
+  // Body (capsule)
+  const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.1 });
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.6, 2.2, 8, 16), bodyMat);
+  body.position.y = 2.2;
+  body.castShadow = true;
+  g.add(body);
+  // Head (sphere)
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.55, 24, 16),
+    new THREE.MeshStandardMaterial({ color: 0xF5D1A8, roughness: 0.6 })
+  );
+  head.position.y = 4.2;
+  head.castShadow = true;
+  g.add(head);
+  // Paddle (thin box in hand)
+  const paddle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.9, 1.3, 0.08),
+    new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: 0.4, metalness: 0.2 })
+  );
+  paddle.position.set(0.8, 2.9, 0.3);
+  paddle.rotation.z = -0.25;
+  paddle.castShadow = true;
+  g.add(paddle);
+  g.position.z = z;
+  return g;
+}
+const playerFar  = makePlayer(0x1B4079, -20.5);
+const playerNear = makePlayer(0x8B1A2B,  20.5);
+scene.add(playerFar, playerNear);
+
+// ═══════════════════════════════════════════════════════════
+// BALL — emissive sphere, dimension-colored (swapped per shot)
+// ═══════════════════════════════════════════════════════════
+const ballMat = new THREE.MeshStandardMaterial({
+  color: 0xFFF4D6, emissive: 0xFFEEAA, emissiveIntensity: 1.8, roughness: 0.5, metalness: 0.1
+});
+const ball = new THREE.Mesh(new THREE.SphereGeometry(0.24, 20, 14), ballMat);
+ball.castShadow = true;
+ball.position.set(0, 3, 14);
+scene.add(ball);
+
+// Soft point light that follows the ball — adds local glow
+const ballLight = new THREE.PointLight(0xFFEEAA, 0.9, 8, 2);
+scene.add(ballLight);
+
+// ═══════════════════════════════════════════════════════════
+// BALL TRAIL — TubeGeometry rebuilt from CatmullRomCurve3 each frame
+// This is the single biggest "oh" moment — dimension color,
+// fades over ~0.5s as points drop off the tail.
+// ═══════════════════════════════════════════════════════════
+const TRAIL_MAX = 64;
+let trailPoints = [];
+let trailMesh = null;
+const trailMat = new THREE.MeshStandardMaterial({
+  color: 0x34D399, emissive: 0x34D399, emissiveIntensity: 2.2,
+  transparent: true, opacity: 0.85, roughness: 0.2, metalness: 0.0
 });
 
-// ── Detail panels: disabled by default (future/labs feature) ──
-let detailPanelsEnabled=false;
-
-function closeAllDetails(){
-  document.querySelectorAll('.level-detail').forEach(d=>d.classList.remove('open'));
-  document.querySelectorAll('.level-tier').forEach(t=>t.classList.remove('open'));
-  document.querySelector('.foundation-pillar')?.classList.remove('open');
+function rebuildTrail() {
+  if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); }
+  if (trailPoints.length < 4) return;
+  const curve = new THREE.CatmullRomCurve3(trailPoints);
+  const geo = new THREE.TubeGeometry(curve, Math.min(trailPoints.length * 3, 120), 0.09, 8, false);
+  trailMesh = new THREE.Mesh(geo, trailMat);
+  scene.add(trailMesh);
 }
-function toggleLevel(tier){
-  if(!detailPanelsEnabled) return;
-  const level=tier.dataset.level;
-  const detail=document.querySelector(`.level-detail[data-detail="${level}"]`);
-  const wasOpen=detail.classList.contains('open');
-  closeAllDetails();
-  if(!wasOpen){
-    detail.classList.add('open');
-    tier.classList.add('open');
-    setTimeout(()=>detail.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+function setDimensionColor(hex) {
+  ballMat.emissive.setHex(hex);
+  ballMat.color.setHex(hex).offsetHSL(0, 0, 0.15);
+  trailMat.color.setHex(hex);
+  trailMat.emissive.setHex(hex);
+  ballLight.color.setHex(hex);
+}
+
+// ═══════════════════════════════════════════════════════════
+// IMPACT BURST — particle pop at contact / landing
+// ═══════════════════════════════════════════════════════════
+const bursts = [];
+function spawnBurst(pos, colorHex) {
+  const count = 18;
+  const grp = new THREE.Group();
+  grp.position.copy(pos);
+  for (let i = 0; i < count; i++) {
+    const m = new THREE.Mesh(
+      new THREE.SphereGeometry(0.08, 8, 6),
+      new THREE.MeshStandardMaterial({
+        color: colorHex, emissive: colorHex, emissiveIntensity: 2.5,
+        transparent: true, opacity: 1
+      })
+    );
+    m.userData.vel = new THREE.Vector3(
+      (Math.random() - 0.5) * 4,
+      Math.random() * 3 + 1,
+      (Math.random() - 0.5) * 4
+    );
+    grp.add(m);
   }
+  grp.userData.t = 0;
+  scene.add(grp);
+  bursts.push(grp);
 }
-function toggleFoundation(){
-  if(!detailPanelsEnabled) return;
-  const detail=document.querySelector('.level-detail[data-detail="0"]');
-  const pillar=document.querySelector('.foundation-pillar');
-  const wasOpen=detail.classList.contains('open');
-  closeAllDetails();
-  if(!wasOpen){
-    detail.classList.add('open');
-    pillar.classList.add('open');
-    setTimeout(()=>detail.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
-  }
-}
-// To enable detail panels in a future version, set detailPanelsEnabled=true
-
-// ── Navigate to full level page ──
-function goToLevel(n){
-  const names=['Foundation','Ball Striking','Baby Block','Reset Drop','Kitchen Offense'];
-  alert('Opening '+names[n]+' content...\n\nIn the full app, this links to the drill-by-drill Teaching Standards page for this level.');
-}
-function navigateToPage(pageName){
-  document.querySelectorAll('.nav-pill').forEach(x=>x.classList.remove('active'));
-  const pill=document.querySelector('[data-page="'+pageName+'"]');
-  if(pill) pill.classList.add('active');
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+pageName).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-// ── Stagger reveal animation ──
-function revealPyramid(){
-  document.querySelectorAll('.level-tier').forEach(t=>t.classList.add('revealed'));
-  document.querySelector('.foundation-pillar')?.classList.add('revealed');
-}
-
-// Init
-setTimeout(revealPyramid,300);
-
-// ── INTERACTIVE PROGRESSION STORY ──
-(function(){
-  const STAGES = [
-    {
-      badge: "◆ 1D — YOU'VE SEEN IT",
-      badgeColor: "251,113,133",
-      copy: "Four friends play pickleball for the first time. You watch them: all stuck at the baseline playing tennis. We've all seen it before!",
-      title: "Tennis at the baseline",
-      sub: "Cross-net lobs only. Long rallies, but nothing happens — nobody can construct a point yet.",
-      dimsOn: [0],
-      view: "top",
-      players: [[120,30,"P1"],[280,30,"P2"],[120,410,"P3"],[280,410,"P4"]],
-      trails: ["M 120 410 Q 200 -60 280 30","M 280 410 Q 200 -60 120 30"],
-      ballDur: 5.6,
-      ballPath: "M 120 410 Q 200 -60 280 30 Q 200 470 280 410 Q 200 -60 120 30 Q 200 470 120 410",
-      ballColor: "#c8e632"
-    },
-    {
-      badge: "◆ +D1 DRIVE",
-      badgeColor: "244,114,182",
-      copy: "They learn to actually strike the ball. Faster, flatter drives across the net. The point sustains longer, but still from the baseline.",
-      title: "Ball striking",
-      sub: "Short, simple swing. Clean contact. No more lazy lobs — now the ball moves.",
-      dimsOn: [0,1],
-      view: "top",
-      players: [[120,30,"P1"],[280,30,"P2"],[120,410,"P3"],[280,410,"P4"]],
-      trails: ["M 120 410 L 280 30"],
-      ballDur: 1.8,
-      ballPath: "M 120 410 L 280 30 L 120 410",
-      ballColor: "#F472B6"
-    },
-    {
-      badge: "◆ +D2 DEFEND",
-      badgeColor: "251,191,36",
-      copy: "Classic setup: the serving team is stuck at the baseline. The return team advances to the kitchen line. Now the serving team drives hard — the return team has to absorb it with a baby block.",
-      title: "Baby block",
-      sub: "The return team's baby block neutralizes the drive. Ball drops soft in the kitchen at the banger's feet.",
-      dimsOn: [0,1,2],
-      view: "top",
-      players: [[120,30,"P1"],[280,30,"P2"],[120,265,"P3"],[280,265,"P4"]],
-      trails: ["M 280 30 L 120 265","M 120 265 Q 140 180 220 200"],
-      ballDur: 3.6,
-      ballPath: "M 280 30 L 120 265 Q 140 180 220 200 Q 280 120 280 30",
-      ballColor: "#FBBF24"
-    },
-    {
-      badge: "◆ +D3 DROP",
-      badgeColor: "52,211,153",
-      copy: "The serving team can't just drive forever. They learn the under-the-ball drop: a high arc from the transition zone that bounces in front of the return team — earning the right to advance to the kitchen.",
-      title: "Under the ball drop",
-      sub: "Side view. Ball arcs high, clears the net, drops in front of the receivers. Now the serving team can move forward.",
-      dimsOn: [0,1,2,3],
-      view: "side",
-      players: [],
-      trails: [],
-      ballDur: 3.6,
-      ballPath: "M 100 290 Q 180 40 260 330 Q 180 40 100 290",
-      ballColor: "#34D399"
-    },
-    {
-      badge: "◆ +D4 DINK — FULL 4D",
-      badgeColor: "43,139,252",
-      copy: "All four at the kitchen. Pressure dinks move the opponents around. A weak reply pops up — speed it up into the weak position — the reflex pop-up floats high — reload and finish.",
-      title: "Generating offense in the kitchen",
-      sub: "Pressure dink. Move the opponent. Find the window. Speed up. Reload. Finish.",
-      dimsOn: [0,1,2,3,4],
-      view: "top",
-      players: [[120,175,"P1"],[280,175,"P2"],[120,265,"P3"],[280,265,"P4"]],
-      trails: ["M 120 265 Q 160 200 280 185","M 280 185 Q 240 230 120 265","M 120 265 L 280 185","M 280 185 Q 240 80 180 240","M 180 240 L 260 60"],
-      ballDur: 7.2,
-      ballPath: "M 120 265 Q 160 200 280 185 Q 240 230 120 265 Q 160 200 280 185 L 280 265 L 120 185 Q 240 80 180 240 L 260 60 Q 200 200 120 265",
-      ballColor: "#2B8BFC"
+function updateBursts(dt) {
+  for (let i = bursts.length - 1; i >= 0; i--) {
+    const b = bursts[i];
+    b.userData.t += dt;
+    b.children.forEach(m => {
+      m.position.addScaledVector(m.userData.vel, dt);
+      m.userData.vel.y -= 14 * dt; // gravity
+      m.material.opacity = Math.max(0, 1 - b.userData.t / 0.8);
+    });
+    if (b.userData.t > 0.8) {
+      b.children.forEach(m => { m.geometry.dispose(); m.material.dispose(); });
+      scene.remove(b);
+      bursts.splice(i, 1);
     }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TRAJECTORY — parabola with controllable apex
+// Returns ball position at parametric t in [0,1]
+// ═══════════════════════════════════════════════════════════
+function trajectoryAt(shot, t) {
+  const { from, to, apex } = shot;
+  // Linear for x,z; parabolic peak in y
+  const x = from[0] + (to[0] - from[0]) * t;
+  const z = from[2] + (to[2] - from[2]) * t;
+  const baseY = from[1] + (to[1] - from[1]) * t;
+  // Parabola: 4 * apex_offset * t * (1-t)
+  const apexOffset = apex - (from[1] + to[1]) / 2;
+  const y = baseY + 4 * apexOffset * t * (1 - t);
+  return new THREE.Vector3(x, y, z);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ANIMATION STATE
+// ═══════════════════════════════════════════════════════════
+let shotT = 0;
+let shotRunning = false;
+let shotStart = 0;
+let shotBurstFired = false;
+
+function startShot(key) {
+  activeShotKey = key;
+  const s = SHOTS[key];
+  setDimensionColor(s.color);
+  trailPoints = [];
+  if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); trailMesh = null; }
+  ball.position.set(...s.shot.from);
+  // Animate camera to the view-for-skill position
+  animateCameraTo(s.cam.pos, s.cam.look, 1.1);
+  shotT = 0;
+  shotStart = performance.now();
+  shotRunning = true;
+  shotBurstFired = false;
+  updateSideCard(key);
+  updateShotChips(key);
+  updateBrandDot(s.color);
+  // Dim the hero overlay on first interaction
+  document.getElementById('center-hero').classList.add('dimmed');
+}
+
+function updateSideCard(key) {
+  const s = SHOTS[key];
+  const card = document.getElementById('side-card');
+  card.style.setProperty('--dim', '#' + s.color.toString(16).padStart(6, '0'));
+  document.getElementById('side-label').textContent = s.label;
+  document.getElementById('side-role').textContent  = s.role;
+  document.getElementById('side-mantra').textContent= s.mantra;
+  document.getElementById('side-traj').textContent  = s.traj;
+  card.classList.add('visible');
+}
+function updateShotChips(key) {
+  document.querySelectorAll('.shot-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.shot === key);
+  });
+}
+function updateBrandDot(hex) {
+  document.getElementById('brand-dot').style.background = '#' + hex.toString(16).padStart(6, '0');
+}
+
+// ═══════════════════════════════════════════════════════════
+// SMOOTH CAMERA TWEEN (cubic ease)
+// ═══════════════════════════════════════════════════════════
+let camTween = null;
+function animateCameraTo(pos, look, duration = 1.0) {
+  const startPos = camera.position.clone();
+  const startLook = controls.target.clone();
+  const endPos = new THREE.Vector3(...pos);
+  const endLook = new THREE.Vector3(...look);
+  const t0 = performance.now();
+  camTween = { startPos, startLook, endPos, endLook, t0, duration: duration * 1000 };
+}
+function updateCameraTween(now) {
+  if (!camTween) return;
+  const t = Math.min(1, (now - camTween.t0) / camTween.duration);
+  const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
+  camera.position.lerpVectors(camTween.startPos, camTween.endPos, e);
+  controls.target.lerpVectors(camTween.startLook, camTween.endLook, e);
+  if (t >= 1) camTween = null;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN ANIMATION LOOP
+// ═══════════════════════════════════════════════════════════
+let lastTime = performance.now();
+function animate() {
+  const now = performance.now();
+  const rawDt = Math.min(0.05, (now - lastTime) / 1000);
+  const dt = slowMo ? rawDt * 0.28 : rawDt;
+  lastTime = now;
+
+  controls.update();
+  updateCameraTween(now);
+
+  // Advance shot
+  if (shotRunning) {
+    const s = SHOTS[activeShotKey].shot;
+    shotT += dt / s.duration;
+    if (shotT >= 1) {
+      shotT = 1;
+      shotRunning = false;
+      if (!shotBurstFired) {
+        spawnBurst(ball.position.clone(), SHOTS[activeShotKey].color);
+        shotBurstFired = true;
+        // Auto-replay loop after a pause
+        setTimeout(() => { if (activeShotKey) startShot(activeShotKey); }, 1400);
+      }
+    }
+    const p = trajectoryAt(s, shotT);
+    ball.position.copy(p);
+    ballLight.position.copy(p);
+
+    // Add to trail, cap length
+    trailPoints.push(p.clone());
+    if (trailPoints.length > TRAIL_MAX) trailPoints.shift();
+    rebuildTrail();
+  } else {
+    // Trail decays when shot is done
+    if (trailPoints.length > 2) {
+      trailPoints.shift();
+      rebuildTrail();
+    }
+  }
+
+  updateBursts(dt);
+  composer.render();
+  requestAnimationFrame(animate);
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT + EVENTS
+// ═══════════════════════════════════════════════════════════
+document.querySelectorAll('.shot-chip').forEach(chip => {
+  chip.addEventListener('click', () => startShot(chip.dataset.shot));
+});
+document.getElementById('btn-camera').addEventListener('click', () => {
+  // Cycle through view-for-skill presets even within the same shot
+  camPresetIdx = (camPresetIdx + 1) % 3;
+  const s = SHOTS[activeShotKey];
+  const presets = [
+    { pos: s.cam.pos, look: s.cam.look },                          // skill-view (default)
+    { pos: [0, 34, 0.1], look: [0, 0, 0] },                        // top-down
+    { pos: [0, 5.5, 28], look: [0, 3, 0] }                         // receiver POV
   ];
+  animateCameraTo(presets[camPresetIdx].pos, presets[camPresetIdx].look, 0.8);
+});
+document.getElementById('btn-slowmo').addEventListener('click', () => {
+  slowMo = !slowMo;
+  document.getElementById('btn-slowmo').classList.toggle('active', slowMo);
+  document.getElementById('slowmo-badge').classList.toggle('on', slowMo);
+});
+document.getElementById('btn-replay').addEventListener('click', () => startShot(activeShotKey));
 
-  const $ = id => document.getElementById(id);
-  const badge = $('prog-badge'), copy = $('prog-copy'), title = $('prog-title'), sub = $('prog-sub');
-  const dyn = $('prog-dynamic'), stepDots = $('prog-step-dots');
-  const prev = $('prog-prev'), next = $('prog-next'), dims = $('prog-dims');
-  if(!badge) return;
+// Hide cam hint after first interaction
+['click', 'wheel', 'pointerdown'].forEach(ev =>
+  window.addEventListener(ev, () => {
+    document.getElementById('cam-hint').classList.add('hidden');
+    document.getElementById('center-hero').classList.add('dimmed');
+  }, { once: true })
+);
 
-  let stage = 0;
-  const visited = new Set([0]);
+// Resize
+window.addEventListener('resize', () => {
+  camera.aspect = vp.clientWidth / vp.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(vp.clientWidth, vp.clientHeight);
+  composer.setSize(vp.clientWidth, vp.clientHeight);
+  bloom.setSize(vp.clientWidth, vp.clientHeight);
+});
 
-  function buildSVG(s){
-    if(s.view === "side"){
-      // Side-view overlay for the Drop dimension: shows the high arc over the net
-      // Covers top-down court with a side-profile rendering
-      return `
-        <!-- Cover top-down court with fresh side-view background -->
-        <rect x="0" y="0" width="400" height="440" fill="#1e40af"/>
-        <!-- Ground strip (court surface seen from side) -->
-        <rect x="0" y="340" width="400" height="100" fill="#0d2d78"/>
-        <!-- Near-side kitchen band -->
-        <rect x="140" y="336" width="60" height="8" fill="#7f1d1d"/>
-        <!-- Far-side kitchen band -->
-        <rect x="200" y="336" width="60" height="8" fill="#7f1d1d"/>
-        <!-- Net (vertical bar at center) -->
-        <line x1="200" y1="340" x2="200" y2="180" stroke="#fff" stroke-width="3"/>
-        <line x1="192" y1="180" x2="208" y2="180" stroke="#fff" stroke-width="2.5"/>
-        <!-- Ground line -->
-        <line x1="0" y1="340" x2="400" y2="340" stroke="#fff" stroke-width="2"/>
-        <!-- Court outer border -->
-        <rect x="0" y="0" width="400" height="440" fill="none" stroke="#fff" stroke-width="2.5" rx="4"/>
-        <!-- Baseline labels (subtle) -->
-        <text x="50" y="365" fill="rgba(255,255,255,.35)" font-size="9" font-weight="700" letter-spacing="1">NEAR</text>
-        <text x="330" y="365" fill="rgba(255,255,255,.35)" font-size="9" font-weight="700" letter-spacing="1">FAR</text>
-        <!-- Trail: dashed arc showing the drop's path for a full cycle -->
-        <path d="M 100 290 Q 180 40 260 330" stroke="rgba(52,211,153,.35)" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/>
-        <!-- Near-side player (serving team, in transition zone) -->
-        <g transform="translate(100,0)">
-          <circle cx="0" cy="282" r="10" fill="#F5F3EE" stroke="#0A1628" stroke-width="2"/>
-          <rect x="-6" y="292" width="12" height="48" fill="#F5F3EE" stroke="#0A1628" stroke-width="2" rx="3"/>
-          <text x="0" y="285" text-anchor="middle" fill="#0A1628" font-size="9" font-weight="900">S</text>
-        </g>
-        <!-- Far-side receivers (return team, two at kitchen line) -->
-        <g transform="translate(255,0)">
-          <circle cx="0" cy="282" r="10" fill="#F5F3EE" stroke="#0A1628" stroke-width="2"/>
-          <rect x="-6" y="292" width="12" height="48" fill="#F5F3EE" stroke="#0A1628" stroke-width="2" rx="3"/>
-          <text x="0" y="285" text-anchor="middle" fill="#0A1628" font-size="9" font-weight="900">R1</text>
-        </g>
-        <g transform="translate(285,0)">
-          <circle cx="0" cy="282" r="10" fill="#F5F3EE" stroke="#0A1628" stroke-width="2"/>
-          <rect x="-6" y="292" width="12" height="48" fill="#F5F3EE" stroke="#0A1628" stroke-width="2" rx="3"/>
-          <text x="0" y="285" text-anchor="middle" fill="#0A1628" font-size="9" font-weight="900">R2</text>
-        </g>
-        <!-- Animated ball: the high-arc drop + return loop -->
-        <circle r="9" fill="${s.ballColor}" stroke="#0A1628" stroke-width="1.5">
-          <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
-        </circle>
-        <circle r="14" fill="${s.ballColor}" opacity=".22">
-          <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
-        </circle>
-      `;
-    }
-    // Default: top-down view (stages 0, 1, 2, 4)
-    const trailPaths = s.trails.map(p => `<path d="${p}"/>`).join('');
-    const playerDots = s.players.map(([x,y,l]) => `<g><circle cx="${x}" cy="${y}" r="16" fill="#F5F3EE" stroke="#0A1628" stroke-width="2.5"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="#0A1628" font-size="12" font-weight="900">${l}</text></g>`).join('');
-    return `
-      <g stroke="rgba(200,230,50,.13)" stroke-width="1.25" fill="none" stroke-dasharray="3 5">${trailPaths}</g>
-      ${playerDots}
-      <circle r="9" fill="${s.ballColor}" stroke="#0A1628" stroke-width="1.5">
-        <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
-      </circle>
-      <circle r="14" fill="${s.ballColor}" opacity=".22">
-        <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
-      </circle>
-    `;
-  }
-
-  function render(){
-    const s = STAGES[stage];
-    visited.add(stage);
-
-    // Fade text out, swap, fade in
-    document.querySelector('.prog-section').classList.add('prog-fade-out');
-    setTimeout(()=>{
-      badge.textContent = s.badge;
-      badge.style.background = `rgba(${s.badgeColor},.1)`;
-      badge.style.borderColor = `rgba(${s.badgeColor},.25)`;
-      badge.style.color = `rgba(${s.badgeColor},.95)`;
-      copy.textContent = s.copy;
-      title.textContent = s.title;
-      sub.textContent = s.sub;
-      dyn.innerHTML = buildSVG(s);
-
-      // Dim indicators — "on" = dimension is active at this stage, "current" = the most recently added dimension
-      dims.querySelectorAll('.prog-dim').forEach((el,i)=>{
-        el.classList.toggle('on', s.dimsOn.includes(i));
-        el.classList.toggle('current', i===stage);
-      });
-
-      // Step dots
-      stepDots.querySelectorAll('.prog-step').forEach((el,i)=>{
-        el.classList.toggle('active', i===stage);
-        el.classList.toggle('visited', i<stage && visited.has(i));
-      });
-
-      // Buttons
-      prev.disabled = stage===0;
-      next.disabled = stage===STAGES.length-1;
-      next.textContent = stage===STAGES.length-1 ? 'Full 4D ✓' : 'Next →';
-
-      document.querySelector('.prog-section').classList.remove('prog-fade-out');
-    }, 180);
-  }
-
-  prev.addEventListener('click',()=>{ if(stage>0){stage--; render();} });
-  next.addEventListener('click',()=>{ if(stage<STAGES.length-1){stage++; render();} });
-  stepDots.querySelectorAll('.prog-step').forEach((el,i)=>{
-    el.addEventListener('click',()=>{ stage=i; render(); });
-  });
-  // Dimension pills are clickable — jump directly to that stage
-  dims.querySelectorAll('.prog-dim').forEach((el,i)=>{
-    el.setAttribute('role','button');
-    el.setAttribute('tabindex','0');
-    el.addEventListener('click',()=>{ stage=i; render(); });
-    el.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); stage=i; render(); }});
-  });
-
-  render();
-})();
+// Fade loading screen, start
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('gone');
+    startShot('drop'); // Auto-play the Drop shot on load — arc is the most visible
+    animate();
+  }, 300);
+});
 </script>
+
 </body>
 </html>
