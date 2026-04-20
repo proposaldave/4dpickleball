@@ -1,0 +1,3289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEPC Training | Anticipating Out Balls</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --nepc-navy: #0A1A2F;
+            --nepc-navy-light: #1B4079;
+            --nepc-blue: #4DA6FF;
+            --nepc-red: #C8102E;
+            --glass: rgba(27, 64, 121, 0.4);
+            --text-main: #FFFFFF;
+            --text-muted: #CBD5E1;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--nepc-navy);
+            background-image: radial-gradient(circle at top right, #1b4079 0%, #0a1a2f 100%);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 { font-family: 'Montserrat', sans-serif; text-transform: uppercase; font-weight: 800; letter-spacing: -0.5px; }
+
+        .container { max-width: 650px; margin: 0 auto; padding: 20px 24px; }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-left: 6px solid var(--nepc-red);
+            padding-left: 20px;
+        }
+        header h1 { font-size: 2.8rem; line-height: 1; color: var(--white); }
+        header p { color: var(--nepc-blue); margin-top: 8px; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Intro Animation Area */
+        #intro-anim-wrap { margin-bottom: 20px; }
+        #intro-canvas {
+            width: 100%; height: auto; border-radius: 14px; display: block;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.08);
+        }
+        .scene-dots {
+            display: flex; justify-content: center; gap: 8px; padding: 8px 0 4px;
+        }
+        .scene-dot-ind {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,0.2); transition: background 0.3s;
+        }
+        .scene-dot-ind.active { background: var(--nepc-blue); }
+        #read-obj-btn {
+            background: none; border: none; color: var(--nepc-blue);
+            font-size: 0.78rem; font-family: 'Montserrat', sans-serif;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; padding: 2px 0 10px;
+            display: flex; align-items: center; gap: 4px; opacity: 0.7;
+        }
+        #read-obj-btn:hover { opacity: 1; }
+        #about-full {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border-radius: 16px; padding: 20px 24px; margin-bottom: 16px;
+            border: 1px solid rgba(255,255,255,0.1); display: none;
+        }
+        #about-full p { font-size: 0.92rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.7; }
+        #about-full p:last-child { margin-bottom: 0; }
+
+        /* Main Action Card */
+        .hero-card {
+            background: linear-gradient(135deg, var(--nepc-navy-light) 0%, #122a4d 100%);
+            border-radius: 20px; padding: 35px; margin-bottom: 24px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.4); cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center;
+        }
+        .hero-card:hover { transform: translateY(-8px); border-color: var(--nepc-blue); }
+        .hero-card h2 { color: var(--white); font-size: 2rem; margin-bottom: 10px; }
+        .hero-card p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 25px; }
+        .start-btn {
+            background: var(--nepc-blue); color: white; border: none;
+            padding: 16px 40px; border-radius: 50px; font-weight: 700;
+            font-family: 'Montserrat'; text-transform: uppercase; font-size: 1.1rem;
+            cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(77,166,255,0.4);
+            transition: background 0.2s;
+        }
+        .start-btn:hover { background: #3a8ee6; }
+
+        /* Gear button — fixed bottom-right */
+        #ideas-btn {
+            position: fixed; bottom: 24px; right: 24px; z-index: 8000;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: rgba(27,64,121,0.85); border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.7); font-size: 1.3rem; cursor: pointer;
+            backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        }
+        #ideas-btn:hover { background: rgba(77,166,255,0.25); border-color: var(--nepc-blue); color: white; transform: rotate(30deg); }
+
+        /* Ideas / future panel */
+        #ideas-panel {
+            position: fixed; bottom: 80px; right: 24px; z-index: 7999;
+            width: min(400px, calc(100vw - 48px));
+            background: linear-gradient(135deg, #0D1829, #1a2a4a);
+            border: 1px solid rgba(77,166,255,0.25); border-radius: 20px;
+            padding: 28px; box-shadow: 0 16px 60px rgba(0,0,0,0.6);
+            display: none; flex-direction: column; gap: 0;
+            animation: slideUpIn 0.22s ease forwards;
+        }
+        @keyframes slideUpIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .ideas-section-label {
+            font-family: 'Montserrat', sans-serif; font-size: 0.68rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 2.5px; color: var(--nepc-blue);
+            margin-bottom: 12px; margin-top: 4px;
+        }
+        .ideas-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+            gap: 12px;
+        }
+        .ideas-row:last-child { border-bottom: none; }
+        .ideas-row .label { font-family: 'Montserrat'; font-size: 0.82rem; font-weight: 800; color: var(--nepc-red); flex-shrink: 0; }
+        .ideas-row .desc { font-size: 0.82rem; color: var(--text-muted); text-align: right; line-height: 1.4; }
+        .ideas-future-item {
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;
+        }
+        .ideas-future-item:last-child { border-bottom: none; }
+        .ideas-future-item strong { color: rgba(255,255,255,0.8); font-family: 'Montserrat'; font-size: 0.78rem; }
+
+        /* 3D VIEWPORT */
+        #viewport-3d {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 9999; display: none; flex-direction: column;
+        }
+        /* Letterbox cinematic bars — larger for unmistakable movie feel */
+        .letterbox-top, .letterbox-bot {
+            position: absolute; left: 0; width: 100%; height: 62px;
+            background: #000;
+            z-index: 200; pointer-events: none;
+            border-bottom: 1px solid rgba(255,215,0,0.25);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.8);
+        }
+        .letterbox-top { top: 0; }
+        .letterbox-bot {
+            bottom: 0;
+            border-bottom: none; border-top: 1px solid rgba(255,215,0,0.25);
+            box-shadow: 0 -2px 20px rgba(0,0,0,0.8);
+        }
+        /* Heavy cinematic vignette — always on during play, dark corners */
+        #cine-vignette {
+            position: absolute; inset: 0; z-index: 199; pointer-events: none;
+            background: radial-gradient(ellipse at center,
+                transparent 45%,
+                rgba(0,0,0,0.35) 75%,
+                rgba(0,0,0,0.75) 100%);
+        }
+        /* Film grain overlay — animated noise for cinematic texture */
+        #film-grain {
+            position: absolute; inset: 0; z-index: 202; pointer-events: none;
+            opacity: 0.09; mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+            background-size: 200px 200px;
+            animation: grainShift 0.22s steps(4) infinite;
+        }
+        @keyframes grainShift {
+            0%   { transform: translate(0, 0); }
+            25%  { transform: translate(-3px, 2px); }
+            50%  { transform: translate(2px, -3px); }
+            75%  { transform: translate(-2px, -2px); }
+            100% { transform: translate(0, 0); }
+        }
+        /* Chromatic aberration edge — barely perceptible but feels "filmic" */
+        #chroma-edge {
+            position: absolute; inset: 0; z-index: 198; pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 50%, transparent 60%, rgba(255,0,60,0.04) 100%),
+                radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,150,255,0.04) 100%);
+            mix-blend-mode: screen;
+        }
+        /* Full-screen ROUND title card */
+        #round-title-card {
+            position: absolute; inset: 0; z-index: 250; pointer-events: none;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            background: radial-gradient(ellipse at center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.98) 100%);
+            opacity: 0; transition: opacity 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        #round-title-card.on { opacity: 1; }
+        #round-title-card .rtc-round {
+            font-size: 0.9rem; letter-spacing: 8px; font-weight: 800;
+            color: var(--nepc-red); text-transform: uppercase;
+            margin-bottom: 18px;
+            transform: translateY(30px); opacity: 0;
+            transition: transform 0.5s cubic-bezier(.2,.9,.3,1.1), opacity 0.5s;
+        }
+        #round-title-card.on .rtc-round { transform: translateY(0); opacity: 1; transition-delay: 0.15s; }
+        #round-title-card .rtc-name {
+            font-size: 4.5rem; letter-spacing: 3px; font-weight: 900;
+            color: white; text-transform: uppercase;
+            text-shadow: 0 4px 40px rgba(77,166,255,0.5), 0 2px 12px rgba(0,0,0,0.9);
+            margin-bottom: 14px; line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, #4da6ff 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            transform: scale(0.85); opacity: 0;
+            transition: transform 0.55s cubic-bezier(.2,.9,.3,1.2), opacity 0.5s;
+        }
+        #round-title-card.on .rtc-name { transform: scale(1); opacity: 1; transition-delay: 0.3s; }
+        #round-title-card .rtc-pos {
+            font-size: 0.88rem; letter-spacing: 6px; font-weight: 800;
+            color: #FFD700; text-transform: uppercase;
+            padding: 6px 18px; border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 4px;
+            transform: translateY(-20px); opacity: 0;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+        #round-title-card.on .rtc-pos { transform: translateY(0); opacity: 1; transition-delay: 0.5s; }
+        /* Hide letterbox content area during title card */
+        /* Broadcast lower-third showing level + position */
+        #broadcast-lower {
+            position: absolute; bottom: 0; left: 0; height: 30px;
+            padding: 0 18px; z-index: 201; pointer-events: none;
+            display: flex; align-items: center; gap: 14px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        #broadcast-lower .bc-round {
+            color: var(--nepc-red); font-size: 0.62rem; font-weight: 900;
+            letter-spacing: 2.5px; text-transform: uppercase;
+            background: rgba(200,16,46,0.15); padding: 3px 9px; border-radius: 2px;
+            border-left: 2px solid var(--nepc-red);
+        }
+        #broadcast-lower .bc-level {
+            color: white; font-size: 0.7rem; font-weight: 800;
+            letter-spacing: 1.5px; text-transform: uppercase;
+        }
+        #broadcast-lower .bc-pos {
+            color: #FFD700; font-size: 0.6rem; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            background: rgba(255,215,0,0.1); padding: 3px 8px; border-radius: 2px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+        #broadcast-lower .bc-live {
+            margin-left: auto;
+            color: white; font-size: 0.55rem; font-weight: 900;
+            letter-spacing: 2px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        #broadcast-lower .bc-live::before {
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
+            background: #ff2222; box-shadow: 0 0 8px rgba(255,40,40,0.6);
+            animation: liveDot 1.2s infinite;
+        }
+        @keyframes liveDot {
+            0%,100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        #canvas-wrap { flex-grow: 1; position: relative; width: 100%; height: 100%; overflow: hidden; }
+        .hud-top {
+            position: absolute; top: 20px; left: 0; width: 100%;
+            display: flex; justify-content: space-between; padding: 0 20px; z-index: 100;
+        }
+        .hud-bottom {
+            background: var(--nepc-navy); border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 16px 16px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; z-index: 100;
+        }
+        /* Decision waterfall gate styles */
+        .gate-tag { font-size: 0.58rem; color: #8A9BB0; text-transform: uppercase; letter-spacing: 1.2px; font-weight: 800; margin-bottom: 3px; }
+        .gate-icon { font-size: 1.3rem; line-height: 1; margin-bottom: 2px; }
+        .gate-name { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.5px; }
+        .gate-cue  { font-size: 0.6rem; color: #8A9BB0; margin-top: 3px; font-weight: 700; letter-spacing: 0.5px; }
+        .gate-out  { /* Gate 1 — visual only, not interactive */
+            background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.18);
+            border-radius: 15px; padding: 10px 5px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: #8A9BB0; cursor: default;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .gate-out.lit  { background: rgba(255,200,0,0.1); border-color: rgba(255,200,0,0.5); color: #FFD700; }
+        /* Coaching line below buttons */
+        #coaching-line {
+            font-size: 0.78rem; color: #8A9BB0; text-align: center; padding: 5px 16px 2px;
+            min-height: 22px; font-family: 'Montserrat'; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; transition: opacity 0.4s; opacity: 0;
+            background: var(--nepc-navy);
+        }
+        .btn-nav {
+            background: rgba(255,255,255,0.1); color: white; border: none;
+            padding: 10px 20px; border-radius: 50px; font-weight: 700; cursor: pointer;
+            font-family: 'Montserrat'; text-transform: uppercase; font-size: 0.8rem;
+            backdrop-filter: blur(5px);
+        }
+        .btn-decision {
+            background: var(--nepc-navy-light); color: white; border: 1px solid rgba(255,255,255,0.15);
+            padding: 18px 5px; border-radius: 15px; font-weight: 700; cursor: pointer;
+            font-family: 'Montserrat'; text-transform: uppercase; font-size: 0.9rem;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: all 0.15s; user-select: none; -webkit-user-select: none; touch-action: none;
+        }
+        .btn-decision:active, .btn-decision.active { transform: scale(0.96); }
+        .btn-decision span.key-hint { font-size: 0.65rem; color: #8A9BB0; margin-bottom: 4px; font-weight: 800; letter-spacing: 1px; }
+        .btn-ready span.key-hint { color: rgba(0, 50, 25, 0.65); }
+        .btn-ready { grid-column: 1 / -1; background: rgba(0,200,117,0.12); border-color: rgba(0,200,117,0.5); padding: 14px 5px; }
+        .btn-ready:active, .btn-ready.active { background: #00C875 !important; color: #000 !important; border-color: #00C875; }
+        .btn-volley { background: rgba(200,16,46,0.12); border-color: rgba(200,16,46,0.4); }
+        .btn-volley:active { background: var(--nepc-red) !important; }
+        .btn-bounce { background: rgba(77,166,255,0.1); border-color: rgba(77,166,255,0.3); }
+        .btn-bounce:active { background: var(--nepc-blue) !important; }
+
+        #flash-fx {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; opacity: 0; transition: opacity 0.1s; z-index: 50;
+        }
+        .msg-overlay {
+            position: absolute; top: 5%; left: 50%; transform: translateX(-50%);
+            text-align: center; pointer-events: none; z-index: 60;
+        }
+        .msg-overlay h2 { font-size: 4rem; color: white; font-family: 'Montserrat'; }
+        .stats-footer {
+            position: absolute; bottom: 15px; width: 100%; display: flex;
+            justify-content: space-between; padding: 0 25px;
+            font-family: 'Montserrat'; font-size: 1.1rem; color: white; pointer-events: none;
+        }
+        #txt-round { margin-left: 58%; }
+
+        footer { text-align: center; padding: 40px 20px; font-size: 0.75rem; color: var(--text-muted); opacity: 0.5; }
+
+        /* GAMIFICATION CSS */
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            15% { transform: translateX(-8px); }
+            30% { transform: translateX(8px); }
+            45% { transform: translateX(-6px); }
+            60% { transform: translateX(6px); }
+            75% { transform: translateX(-3px); }
+            90% { transform: translateX(3px); }
+        }
+        .shaking { animation: shake 0.45s ease; }
+
+        .float-pts {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            font-family: 'Montserrat'; font-size: 1.6rem; font-weight: 800;
+            pointer-events: none; z-index: 200; text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            animation: floatUp 0.9s ease forwards;
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; bottom: 120px; }
+            100% { opacity: 0; bottom: 200px; }
+        }
+
+        /* Timing label — floats just below +pts */
+        .timing-label {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            font-family: 'Montserrat'; font-size: 0.9rem; font-weight: 800;
+            pointer-events: none; z-index: 201; text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            animation: floatUpSlow 1.2s ease forwards;
+        }
+        @keyframes floatUpSlow {
+            0%   { opacity: 0; bottom: 80px; }
+            15%  { opacity: 1; }
+            80%  { opacity: 1; bottom: 140px; }
+            100% { opacity: 0; bottom: 155px; }
+        }
+
+        @keyframes comboPop {
+            0% { transform: translate(-50%,-50%) scale(0.3); opacity: 0; }
+            40% { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
+            70% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+        }
+        #combo-display {
+            position: absolute; top: 35%; left: 50%; transform: translate(-50%,-50%);
+            font-family: 'Montserrat'; font-size: 2.8rem; font-weight: 800;
+            pointer-events: none; z-index: 150; text-align: center;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.9); display: none;
+        }
+        #vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 55; opacity: 0; transition: opacity 0.15s;
+        }
+        #edge-glow {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 54; opacity: 0;
+            box-shadow: inset 0 0 60px 20px rgba(255,140,0,0.6); transition: opacity 0.2s;
+        }
+        #multiplier-badge {
+            position: absolute; top: 70px; right: 20px;
+            font-family: 'Montserrat'; font-size: 1.4rem; font-weight: 800;
+            color: #FFD700; text-shadow: 0 0 12px rgba(255,215,0,0.8);
+            pointer-events: none; z-index: 120; opacity: 0; transition: opacity 0.3s;
+        }
+        #read-time {
+            position: absolute; top: 70px; left: 20px;
+            font-family: 'Montserrat'; font-size: 0.82rem; font-weight: 700;
+            color: #8A9BB0; pointer-events: none; z-index: 120; line-height: 1.5;
+        }
+        #shot-history {
+            display: flex; justify-content: center; gap: 8px;
+            padding: 10px 0 0 0; z-index: 100; background: var(--nepc-navy);
+        }
+        .shot-dot {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: transparent; border: 2px solid #2D3E50; transition: all 0.2s;
+        }
+        .shot-dot.correct { background: #00C875; border-color: #00C875; }
+        .shot-dot.wrong { background: #C8102E; border-color: #C8102E; }
+        .shot-dot.current { border-color: white; box-shadow: 0 0 8px rgba(255,255,255,0.6); animation: pulse-dot 0.8s infinite alternate; }
+        @keyframes pulse-dot {
+            from { box-shadow: 0 0 4px rgba(255,255,255,0.4); }
+            to   { box-shadow: 0 0 12px rgba(255,255,255,0.9); }
+        }
+        #xp-bar-wrap { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: #1B2A3B; z-index: 130; }
+        #xp-bar { height: 100%; width: 0%; background: linear-gradient(90deg,#4DA6FF,#00C875); transition: width 0.4s ease; border-radius: 0 3px 3px 0; }
+
+        /* Level overlay */
+        #level-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10,26,47,0.97); z-index: 10000;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 40px;
+        }
+
+        /* Session summary */
+        #summary-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(10,26,47,0.98); z-index: 10001;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; overflow-y: auto;
+        }
+        .summary-card {
+            background: rgba(27,64,121,0.3); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 32px; max-width: 440px; width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .bar-track { height: 8px; background: #1B2A3B; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; border-radius: 4px; background: linear-gradient(90deg,#4DA6FF,#00C875); transition: width 1s ease; }
+        .bar-fill.gold { background: linear-gradient(90deg,#FFD700,#FF8C00); }
+
+        /* Mute button */
+        #mute-btn {
+            background: rgba(255,255,255,0.1); border: none; color: white;
+            padding: 10px 14px; border-radius: 50px; font-size: 1rem;
+            cursor: pointer; font-family: 'Montserrat'; backdrop-filter: blur(5px);
+        }
+
+        /* Speed lines — HARD ball */
+        #speed-lines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 45; opacity: 0; transition: opacity 0.1s ease-out;
+            background:
+                linear-gradient(93deg, transparent 50%, rgba(255,255,255,0.20) 63%, transparent 72%),
+                linear-gradient(91deg, transparent 57%, rgba(255,255,255,0.13) 69%, transparent 77%),
+                linear-gradient(95deg, transparent 44%, rgba(255,255,255,0.09) 58%, transparent 67%),
+                linear-gradient(90deg, transparent 62%, rgba(255,255,255,0.06) 73%, transparent 82%);
+        }
+
+        /* ============================================================
+           LANDING PAGE REDESIGN — cinematic, premium, jaw-dropping
+           ============================================================ */
+        body{ background:#040913 !important; }
+        /* Letterbox bars on landing (fixed) */
+        .lp-lb-top, .lp-lb-bot {
+            position: fixed; left: 0; width: 100%; height: 36px;
+            background: #000; z-index: 100; pointer-events: none;
+            border-bottom: 1px solid rgba(255,215,0,0.18);
+        }
+        .lp-lb-top { top: 0; }
+        .lp-lb-bot {
+            bottom: 0; border-bottom: none;
+            border-top: 1px solid rgba(255,215,0,0.18);
+            height: 28px;
+        }
+        /* Landing hero */
+        .hero-section{
+            position: relative; min-height: 100vh;
+            padding: 95px 24px 60px;
+            display: flex; flex-direction: column; justify-content: center;
+            overflow: hidden;
+        }
+        #hero-backdrop{
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+        .hero-inner{
+            max-width: 1100px; margin: 0 auto;
+            position: relative; z-index: 10; width: 100%;
+        }
+        .hero-kicker{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.72rem; color: var(--nepc-red);
+            font-weight: 800; letter-spacing: 4px; text-transform: uppercase;
+            margin-bottom: 14px;
+            padding-left: 14px; border-left: 3px solid var(--nepc-red);
+            display: inline-block;
+        }
+        .hero-science-badge{
+            display: inline-block;
+            font-family: 'Inter', sans-serif; font-size: 0.78rem;
+            color: #cbd5e1; font-weight: 500; line-height: 1.5;
+            margin-bottom: 26px; max-width: 640px;
+            padding: 9px 14px; border-radius: 999px;
+            background: rgba(77,166,255,0.08);
+            border: 1px solid rgba(77,166,255,0.25);
+        }
+        .hero-science-badge::before{
+            content: ''; display: inline-block; width: 6px; height: 6px;
+            border-radius: 50%; background: var(--nepc-blue);
+            box-shadow: 0 0 8px rgba(77,166,255,0.8);
+            margin-right: 8px; vertical-align: middle;
+        }
+        .hero-science-badge strong{ color: white; font-weight: 700; }
+        /* Hide the literal ● since ::before provides the dot */
+        .hero-science-badge{ text-indent: 0; }
+        .hero-title-stack{ position: relative; margin-bottom: 26px; }
+        .hero-title-outline{
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(3rem, 11vw, 7.5rem);
+            font-weight: 900; line-height: 0.88; letter-spacing: -2.5px;
+            text-transform: uppercase;
+            -webkit-text-stroke: 1.5px rgba(77,166,255,0.3);
+            color: transparent;
+            position: absolute; top: -10px; left: -6px;
+            pointer-events: none; opacity: 0.7; z-index: 0;
+            user-select: none;
+        }
+        .hero-title{
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(3rem, 11vw, 7.5rem);
+            font-weight: 900; line-height: 0.88; letter-spacing: -2.5px;
+            text-transform: uppercase; margin: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #6fb6ff 45%, #ffffff 100%);
+            background-size: 220% 220%;
+            -webkit-background-clip: text; background-clip: text;
+            color: transparent;
+            position: relative; z-index: 1;
+            animation: heroGradient 6s ease infinite;
+            text-shadow: 0 6px 40px rgba(77,166,255,0.22);
+        }
+        @keyframes heroGradient{
+            0%,100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .hero-sub{
+            font-size: clamp(0.98rem, 1.6vw, 1.18rem);
+            color: #cbd5e1; line-height: 1.5; font-weight: 500;
+            max-width: 600px; margin-bottom: 38px;
+        }
+        .hero-sub strong{ color: white; font-weight: 700; }
+        .hero-cta-row{ display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+        .hero-cta{
+            background: var(--nepc-red); color: white; border: none;
+            padding: 22px 56px; border-radius: 60px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900; font-size: 1.05rem;
+            text-transform: uppercase; letter-spacing: 2.5px; cursor: pointer;
+            position: relative;
+            box-shadow: 0 14px 44px rgba(200,16,46,0.55), 0 0 0 1px rgba(255,255,255,0.08) inset;
+            transition: all 0.2s;
+        }
+        .hero-cta::after{
+            content: ''; position: absolute; inset: -5px;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #C8102E, #ff5070, #C8102E);
+            z-index: -1; opacity: 0.35; filter: blur(10px);
+            animation: ctaGlow 2.2s ease infinite;
+        }
+        @keyframes ctaGlow{
+            0%,100% { opacity: 0.25; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(1.04); }
+        }
+        .hero-cta:hover{
+            transform: translateY(-3px);
+            box-shadow: 0 20px 60px rgba(200,16,46,0.7), 0 0 0 1px rgba(255,255,255,0.14) inset;
+        }
+        .hero-cta-mini{
+            background: transparent; color: #8A9BB0;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 16px 28px; border-radius: 60px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700; font-size: 0.8rem;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .hero-cta-mini:hover{
+            border-color: var(--nepc-blue); color: white;
+            background: rgba(77,166,255,0.08);
+        }
+        .hero-meta{
+            display: flex; gap: 26px; margin-top: 44px; flex-wrap: wrap;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700; font-size: 0.7rem; letter-spacing: 2px;
+            text-transform: uppercase; color: #8A9BB0;
+        }
+        .hero-meta span{ display: flex; align-items: center; gap: 8px; }
+        .hero-meta span::before{
+            content: ''; width: 5px; height: 5px; border-radius: 50%;
+            background: var(--nepc-blue); box-shadow: 0 0 8px rgba(77,166,255,0.7);
+        }
+
+        /* Credibility band */
+        .cred-band{
+            position: relative; z-index: 10;
+            background: rgba(8,16,30,0.7); backdrop-filter: blur(6px);
+            border-top: 1px solid rgba(77,166,255,0.18);
+            border-bottom: 1px solid rgba(77,166,255,0.18);
+            padding: 30px 24px;
+        }
+        .cred-inner{
+            max-width: 1100px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+        }
+        .cred-cell{ padding: 0 18px; border-left: 2px solid rgba(255,255,255,0.08); }
+        .cred-cell:first-child{ border-left-color: var(--nepc-red); }
+        .cred-cell .cred-num{
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 900; line-height: 1; margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff, #6fb6ff);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .cred-cell .cred-label{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem; font-weight: 800;
+            color: #8A9BB0; letter-spacing: 2px; text-transform: uppercase;
+            line-height: 1.45;
+        }
+
+        /* Generic section */
+        .lp-section{ position: relative; z-index: 10; padding: 60px 24px 30px; }
+        .lp-inner{ max-width: 1100px; margin: 0 auto; }
+        .section-tag{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.65rem; font-weight: 800;
+            color: var(--nepc-blue); letter-spacing: 3px; text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .section-h{
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+            font-weight: 900; color: white; letter-spacing: -1px;
+            text-transform: uppercase; margin: 0 0 28px; line-height: 1;
+        }
+
+        /* Preview frame wrapping intro-canvas */
+        .preview-frame{
+            background: #0A1A2F;
+            border: 1px solid rgba(255,215,0,0.15);
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 16px 52px rgba(0,0,0,0.55);
+            position: relative;
+        }
+        .preview-frame::before{
+            content: ''; position: absolute; top: 10px; left: 14px; z-index: 10;
+            width: 7px; height: 7px; border-radius: 50%; background: #ff5b5b;
+            box-shadow: 13px 0 #ffbb44, 26px 0 #55dd88;
+            opacity: 0.75;
+        }
+        .preview-frame #intro-canvas{
+            width: 100% !important; height: auto !important;
+            border-radius: 0 !important; border: none !important;
+            display: block;
+        }
+
+        /* Level tiles grid */
+        .levels-grid{
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+        .level-tile{
+            background: linear-gradient(180deg, rgba(27,64,121,0.28) 0%, rgba(10,20,40,0.5) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 18px 16px;
+            transition: all 0.2s;
+        }
+        .level-tile:hover{
+            transform: translateY(-3px);
+            border-color: rgba(77,166,255,0.4);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+        }
+        .level-tile .lt-num{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.62rem; font-weight: 800;
+            color: var(--nepc-red); letter-spacing: 2.5px; text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .level-tile .lt-name{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem; font-weight: 900;
+            color: white; line-height: 1.15; margin-bottom: 8px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .level-tile .lt-pos{
+            font-family: 'Inter', sans-serif; font-size: 0.7rem;
+            color: #8A9BB0; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700;
+        }
+
+        /* Bottom CTA strip */
+        .bot-cta-strip{
+            position: relative; z-index: 10;
+            background: linear-gradient(135deg, rgba(200,16,46,0.08) 0%, rgba(27,64,121,0.18) 100%);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 54px 24px 60px;
+            text-align: center;
+        }
+        .bot-cta-strip .line1{
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 900; color: white; text-transform: uppercase;
+            letter-spacing: -0.5px; line-height: 1.15;
+            margin: 0 auto 24px; max-width: 640px;
+        }
+        .bot-cta-strip .line1 em{
+            font-style: normal; color: var(--nepc-red);
+        }
+
+        /* Landing footer */
+        .landing-footer{
+            position: relative; z-index: 10;
+            padding: 30px 24px 54px;
+            text-align: center;
+            color: #5a6a80; font-size: 0.7rem;
+            letter-spacing: 2px; text-transform: uppercase;
+            font-family: 'Montserrat', sans-serif; font-weight: 700;
+        }
+
+        /* Preserve the intro animation button + about-full visually in new section */
+        .preview-section #read-obj-btn{
+            opacity: 0.7; margin-top: 18px;
+        }
+        .preview-section #about-full{
+            margin-top: 16px;
+        }
+
+        /* Level transition flash */
+        #level-flash {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: white; pointer-events: none; z-index: 9998;
+            opacity: 0; transition: opacity 0.12s;
+        }
+
+        /* Score roll — inline-block required for transform */
+        #txt-score { display: inline-block; transition: transform 0.18s cubic-bezier(0.175,0.885,0.32,1.275), color 0.35s; }
+    </style>
+</head>
+<body>
+
+    <div id="app-main">
+        <!-- Fixed cinematic letterbox bars (landing-only) -->
+        <div class="lp-lb-top"></div>
+        <div class="lp-lb-bot"></div>
+
+        <!-- HERO -->
+        <section class="hero-section">
+            <canvas id="hero-backdrop"></canvas>
+            <div class="hero-inner">
+                <div class="hero-kicker">4D Pickleball · Training Module</div>
+                <div class="hero-science-badge">Based on <strong>temporal occlusion research</strong> — the methodology elite tennis and cricket programs use to train anticipation</div>
+                <div class="hero-title-stack">
+                    <div class="hero-title-outline">Anticipating<br>Out Balls</div>
+                    <h1 class="hero-title">Anticipating<br>Out Balls</h1>
+                </div>
+                <p class="hero-sub"><strong>Rewire your read.</strong> Every rep trains your brain to make the swing-or-let-go call before your hands can move. Six levels — sometimes the ball gets faster, sometimes the opponent steps closer, and at Level 6 both at once.</p>
+                <div class="hero-cta-row">
+                    <button class="hero-cta" onclick="open3D()">Start Training →</button>
+                    <button class="hero-cta-mini" onclick="document.getElementById('preview-section').scrollIntoView({behavior:'smooth'})">How it works</button>
+                </div>
+                <div class="hero-meta">
+                    <span>6 levels · 5 shots each</span>
+                    <span>3–5 minutes</span>
+                    <span>Based on temporal occlusion research</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CREDIBILITY BAND -->
+        <section class="cred-band">
+            <div class="cred-inner">
+                <div class="cred-cell">
+                    <div class="cred-num">0.3s</div>
+                    <div class="cred-label">The read window<br>pros operate in</div>
+                </div>
+                <div class="cred-cell">
+                    <div class="cred-num">6</div>
+                    <div class="cred-label">Levels — the opponent<br>gets closer each round</div>
+                </div>
+                <div class="cred-cell">
+                    <div class="cred-num">1</div>
+                    <div class="cred-label">Habit — let the<br>out ball go</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PREVIEW SECTION (intro animation reframed) -->
+        <section class="lp-section preview-section" id="preview-section">
+            <div class="lp-inner">
+                <div class="section-tag">How it works</div>
+                <h2 class="section-h">You lost to the banger.<br>Here's why.</h2>
+                <div class="preview-frame">
+                    <canvas id="intro-canvas" width="600" height="160"
+                        onmouseenter="introPaused=true" onmouseleave="introPaused=false"
+                        onclick="advanceIntroScene()"></canvas>
+                </div>
+                <div class="scene-dots">
+                    <div class="scene-dot-ind active" id="idot-0"></div>
+                    <div class="scene-dot-ind" id="idot-1"></div>
+                    <div class="scene-dot-ind" id="idot-2"></div>
+                </div>
+                <button id="read-obj-btn" onclick="toggleFullObjective()">Read the full objective ↓</button>
+                <div id="about-full">
+                    <p>You just walked off the court. You lost to a banger. You know exactly why — you kept swinging at balls that were going out, and you handed them the match.</p>
+                    <p>Or a pro just told you the same thing in a lesson. Or, you're about to step on the court against a banger-team and you need to prime your brain.</p>
+                    <p>Either way, you already know the problem. Knowing it isn't the hard part. Rewiring your brain is.</p>
+                    <p>This module trains the swing-or-let-it-go decision — the one read that keeps bangers from feeding off your over-swings. You get into ready position. The ball comes. You call it early. Over reps, your brain gets faster at that call.</p>
+                    <p>Based on temporal occlusion research — the same methodology elite tennis and cricket programs use to train anticipation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LEVEL PROGRESSION -->
+        <section class="lp-section levels-section">
+            <div class="lp-inner">
+                <div class="section-tag">Progression</div>
+                <h2 class="section-h">Faster ball.<br>Closer opponent.</h2>
+                <div class="levels-grid" id="levels-grid"></div>
+            </div>
+        </section>
+
+        <!-- BOTTOM CTA -->
+        <section class="bot-cta-strip">
+            <div class="line1">Train the read.<br><em>The habit follows.</em></div>
+            <button class="hero-cta" onclick="open3D()">Start Training →</button>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="landing-footer">
+            4D Pickleball · Anticipating Out Balls · v1
+        </footer>
+    </div>
+
+    <!-- Gear / Additional Resources -->
+    <button id="ideas-btn" onclick="toggleIdeas()" title="Additional Resources">⚙</button>
+    <div id="ideas-panel">
+        <div class="ideas-section-label">Additional Resources</div>
+        <div class="ideas-row">
+            <span class="label">A.</span>
+            <span class="desc">SHOULDER HEIGHT IQ — If the ball contacts above shoulder at pace, it's almost always out. Contact point is your leading cue.</span>
+        </div>
+        <div class="ideas-row">
+            <span class="label">B.</span>
+            <span class="desc">THE WIND-UP CUE — A big paddle wind-up = pace. Big pace + high contact = out. Read the wind-up before the ball crosses the net.</span>
+        </div>
+        <div class="ideas-row">
+            <span class="label">C.</span>
+            <span class="desc">READ THE SOURCE — Watch where the ball is being struck: deep in the court + hard swing = likely out. Kitchen shot + soft touch = stay ready to volley or let it bounce.</span>
+        </div>
+    </div>
+
+    <!-- 3D VIEWPORT -->
+    <div id="viewport-3d">
+        <div id="canvas-wrap">
+            <div id="xp-bar-wrap"><div id="xp-bar"></div></div>
+            <div id="flash-fx"></div>
+            <div id="vignette"></div>
+            <div id="edge-glow"></div>
+            <div id="speed-lines"></div>
+            <!-- Cinematic layers (order: vignette → chroma → letterbox → grain → title card) -->
+            <div id="cine-vignette"></div>
+            <div id="chroma-edge"></div>
+            <div class="letterbox-top"></div>
+            <div class="letterbox-bot"></div>
+            <div id="film-grain"></div>
+            <!-- Full-screen ROUND title card fades in at level start -->
+            <div id="round-title-card">
+                <div class="rtc-round" id="rtc-round">ROUND 1</div>
+                <div class="rtc-name" id="rtc-name">SLOW MOTION</div>
+                <div class="rtc-pos" id="rtc-pos">BASELINE</div>
+            </div>
+            <!-- Broadcast lower-third — shows level, round, and opponent position -->
+            <div id="broadcast-lower">
+                <div class="bc-round" id="bc-round">R1 · 1/5</div>
+                <div class="bc-level" id="bc-level">SLOW MOTION</div>
+                <div class="bc-pos" id="bc-pos">BASELINE</div>
+                <div class="bc-live">LIVE</div>
+            </div>
+            <div class="hud-top">
+                <button class="btn-nav" onclick="close3D()">← EXIT</button>
+                <div style="display:flex;gap:10px;">
+                    <button id="mute-btn" onclick="toggleMute()">🔊</button>
+                    <button class="btn-nav" onclick="toggleCam()">SIDELINE</button>
+                    <button class="btn-nav" onclick="toggleSettings()" style="padding:10px 14px;font-size:1.1rem;" title="Features">⚙️</button>
+                </div>
+            </div>
+            <div id="read-time">AVG: --</div>
+            <!-- Cinematic replay banner — shows during slow-mo after wrong/timeout -->
+            <div id="replay-banner" style="position:absolute;top:28px;left:50%;transform:translateX(-50%);z-index:130;background:rgba(200,16,46,0.92);color:white;padding:6px 18px;border-radius:4px;font-family:'Montserrat',sans-serif;font-size:0.78rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;text-shadow:0 2px 6px rgba(0,0,0,0.5);box-shadow:0 4px 16px rgba(0,0,0,0.4);pointer-events:none;opacity:0;transition:opacity 0.2s;">
+                ● REPLAY · 0.3×
+            </div>
+            <!-- Diagnostic panel — always visible in bottom-left, shows last click's raw state -->
+            <div id="diag-panel" style="position:absolute;bottom:12px;left:12px;z-index:120;background:rgba(10,20,40,0.85);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;font-family:'Montserrat',sans-serif;font-size:0.62rem;color:#8A9BB0;line-height:1.5;letter-spacing:0.5px;text-transform:uppercase;pointer-events:none;max-width:220px;">
+                <div style="color:#FFD700;font-weight:800;margin-bottom:2px">LAST CLICK</div>
+                <div id="diag-content">press a gate to see diagnostic</div>
+            </div>
+            <div id="multiplier-badge"></div>
+            <div id="combo-display"></div>
+            <div id="game-msg" class="msg-overlay"></div>
+            <div class="stats-footer">
+                <span id="txt-round">LEVEL 1: 1/5</span>
+                <span id="txt-score">0 PTS</span>
+            </div>
+        </div>
+        <div id="shot-history"></div>
+        <div class="hud-bottom">
+            <button id="btn-ready" class="btn-decision btn-ready"
+                onmousedown="onReadyDown()" onmouseup="onReadyUp()"
+                ontouchstart="onReadyDown()" ontouchend="onReadyUp()">
+                <span class="key-hint">HOLD [SPACEBAR] — CHOOSE YOUR GATE WHEN BALL ARRIVES</span>
+                🤚 READY POSITION
+            </button>
+            <!-- Gate 1 — visual indicator (OUT triggered by releasing btn-ready) -->
+            <div class="gate-out" id="gate1-indicator">
+                <div class="gate-tag">GATE 1 · FASTEST</div>
+                <div class="gate-icon">💨</div>
+                <div class="gate-name">LET IT GO</div>
+                <div class="gate-cue">Release [1]</div>
+            </div>
+            <!-- Gate 2 — interactive button -->
+            <button class="btn-decision btn-volley" onclick="onVolley()">
+                <div class="gate-tag">GATE 2 · MEDIUM</div>
+                <div class="gate-icon">⚡</div>
+                <div class="gate-name">VOLLEY</div>
+                <div class="gate-cue">TAP [2]</div>
+            </button>
+            <!-- Gate 3 — interactive button -->
+            <button class="btn-decision btn-bounce" onclick="onBounce()">
+                <div class="gate-tag">GATE 3 · PATIENT</div>
+                <div class="gate-icon">↓</div>
+                <div class="gate-name">GROUNDSTROKE</div>
+                <div class="gate-cue">TAP [3]</div>
+            </button>
+        </div>
+        <div id="coaching-line"></div>
+    </div>
+
+    <!-- Level transition flash -->
+    <div id="level-flash"></div>
+
+    <!-- LEVEL OVERLAY -->
+    <div id="level-overlay">
+        <div id="level-overlay-content"></div>
+    </div>
+
+    <!-- SESSION SUMMARY -->
+    <div id="summary-overlay">
+        <div class="summary-card" id="summary-card"></div>
+    </div>
+
+    <script>
+        // ── INTRO ANIMATION ──
+        let introScene = 0, introTimer = Date.now(), introPaused = false;
+        let introRAF = null;
+        const INTRO_SCENE_DURATION = 3200; // ms per scene
+
+        function initIntroAnim() {
+            const canvas = document.getElementById('intro-canvas');
+            if (!canvas) return;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width  = Math.round(600 * dpr);
+            canvas.height = Math.round(160 * dpr);
+            canvas.style.width  = '600px';
+            canvas.style.height = '160px';
+            introTimer = Date.now();
+            drawIntro();
+        }
+
+        function advanceIntroScene() {
+            introScene = (introScene + 1) % 3;
+            introTimer = Date.now();
+            updateIntroDots();
+        }
+
+        function updateIntroDots() {
+            for (let i = 0; i < 3; i++) {
+                const d = document.getElementById('idot-' + i);
+                if (d) d.classList.toggle('active', i === introScene);
+            }
+        }
+
+        function toggleFullObjective() {
+            const el = document.getElementById('about-full');
+            const btn = document.getElementById('read-obj-btn');
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+                btn.textContent = 'Hide objective ↑';
+            } else {
+                el.style.display = 'none';
+                btn.textContent = 'Read the full objective ↓';
+            }
+        }
+
+        function drawIntro() {
+            introRAF = requestAnimationFrame(drawIntro);
+            const canvas = document.getElementById('intro-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const W = canvas.width / dpr, H = canvas.height / dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const elapsed = Date.now() - introTimer;
+
+            // Auto advance
+            if (!introPaused && elapsed > INTRO_SCENE_DURATION) {
+                introScene = (introScene + 1) % 3;
+                introTimer = Date.now();
+                updateIntroDots();
+            }
+
+            const t = (Date.now() - introTimer) / 1000; // seconds in current scene
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#0A1A2F';
+            ctx.fillRect(0, 0, W, H);
+
+            if (introScene === 0) drawIntroScene1(ctx, W, H, t);
+            else if (introScene === 1) drawIntroScene2(ctx, W, H, t);
+            else drawIntroScene3(ctx, W, H, t);
+        }
+
+        function drawMiniCourt(ctx, W, H) {
+            const gndY = H * 0.78;
+            const baseL = W * 0.08;   // opponent baseline x
+            const baseR = W * 0.92;   // player baseline x
+            // Sky/background
+            ctx.fillStyle = '#0D1F3C';
+            ctx.fillRect(0, 0, W, H);
+            // OOB zones (gray) beyond baselines
+            ctx.fillStyle = '#3e434a';
+            ctx.fillRect(0, gndY, baseL, H - gndY);
+            ctx.fillRect(baseR, gndY, W - baseR, H - gndY);
+            // "OUT" label in player's OOB zone (right)
+            ctx.globalAlpha = 0.55;
+            ctx.fillStyle = '#C8102E';
+            ctx.font = 'bold 9px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('OUT', baseR + (W - baseR) / 2, gndY + (H - gndY) * 0.6);
+            ctx.globalAlpha = 1;
+            // Court surface between baselines
+            ctx.fillStyle = '#1a3a6a';
+            ctx.fillRect(baseL, gndY, baseR - baseL, H - gndY);
+            // Kitchen zones (burgundy near net)
+            const netX = W * 0.5;
+            ctx.fillStyle = '#3A1020';
+            ctx.fillRect(netX - W * 0.14, gndY, W * 0.28, H - gndY);
+            // Ground line (full width)
+            ctx.fillStyle = 'rgba(255,255,255,0.55)';
+            ctx.fillRect(0, gndY - 1, W, 2);
+            // Baseline lines
+            ctx.fillStyle = 'rgba(255,255,255,0.80)';
+            ctx.fillRect(baseL - 1, gndY, 2, H - gndY);
+            ctx.fillRect(baseR - 1, gndY, 2, H - gndY);
+            // Kitchen lines
+            ctx.fillStyle = 'rgba(255,255,255,0.35)';
+            ctx.fillRect(netX - W * 0.14 - 1, gndY, 2, H - gndY);
+            ctx.fillRect(netX + W * 0.14 - 1, gndY, 2, H - gndY);
+            return { gndY, netX, baseL, baseR };
+        }
+
+        // Draw net separately so it can be layered on top of the ball
+        function drawNet(ctx, W, H) {
+            const gndY = H * 0.78;
+            const netX = W * 0.5;
+            ctx.fillStyle = 'rgba(255,255,255,0.75)';
+            ctx.fillRect(netX - 1, gndY - H * 0.18, 2, H * 0.18);
+            ctx.fillStyle = '#aaa';
+            ctx.fillRect(netX - 1, gndY - H * 0.22, 2, H * 0.04);
+        }
+
+        function drawFigure(ctx, x, gndY, color) {
+            const h = 48, w = 14;
+            // Body
+            ctx.fillStyle = color;
+            ctx.fillRect(x - w / 2, gndY - h, w, h * 0.72);
+            // Legs
+            ctx.fillStyle = '#1a2535';
+            ctx.fillRect(x - w / 2, gndY - h * 0.28, w * 0.45, h * 0.28);
+            ctx.fillRect(x + 1, gndY - h * 0.28, w * 0.45, h * 0.28);
+            // Head
+            ctx.fillStyle = '#d4956a';
+            ctx.beginPath();
+            ctx.arc(x, gndY - h - 10, 9, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawPaddle(ctx, px, py, angle) {
+            ctx.save();
+            ctx.translate(px + 14, py - 20);
+            ctx.rotate(angle);
+            // Handle
+            ctx.fillStyle = '#333';
+            ctx.fillRect(-2, -18, 4, 12);
+            // Face
+            ctx.fillStyle = '#1B4079';
+            ctx.fillRect(-5, -32, 10, 16);
+            ctx.restore();
+        }
+
+        function drawBall(ctx, bx, by, alpha) {
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = '#7DC43F';
+            ctx.beginPath();
+            ctx.arc(bx, by, 7, 0, Math.PI * 2);
+            ctx.fill();
+            // Holes
+            ctx.fillStyle = '#1a1a1a';
+            ctx.globalAlpha = alpha * 0.5;
+            [[0, -4], [3, 3], [-3, 3]].forEach(([dx, dy]) => {
+                ctx.beginPath();
+                ctx.arc(bx + dx, by + dy, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function drawOverlayText(ctx, W, H, headline, sub, color, alpha) {
+            ctx.globalAlpha = alpha;
+            // Background strip
+            const grad = ctx.createLinearGradient(0, H * 0.55, 0, H);
+            grad.addColorStop(0, 'rgba(10,26,47,0)');
+            grad.addColorStop(0.4, 'rgba(10,26,47,0.9)');
+            grad.addColorStop(1, 'rgba(10,26,47,0.95)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, H * 0.55, W, H * 0.45);
+            // Headline
+            ctx.fillStyle = color;
+            ctx.font = 'bold 22px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.letterSpacing = '1px';
+            ctx.fillText(headline, W / 2, H * 0.82);
+            // Sub
+            ctx.fillStyle = '#CBD5E1';
+            ctx.font = '600 13px Inter, sans-serif';
+            ctx.fillText(sub, W / 2, H * 0.93);
+            ctx.globalAlpha = 1;
+        }
+
+        function drawIntroScene1(ctx, W, H, t) {
+            // Scene 1: Ball bounces on player's side → player reads it → groundstroke return
+            const { gndY, netX, baseL, baseR } = drawMiniCourt(ctx, W, H);
+            const dur = INTRO_SCENE_DURATION / 1000;
+            const p = Math.min(t / dur, 1);
+
+            const oppX = W * 0.14, playerX = W * 0.82;
+            const contactP = 0.44; // ball reaches paddle at this progress point
+            const bounceP  = 0.32; // ball bounces at this progress point
+
+            // Phase 1 (p=0 → contactP): incoming ball from opp → player
+            if (p <= contactP) {
+                const bp = Math.min(p / contactP, 1);
+                const bx = oppX + (playerX - oppX) * bp;
+                // Arc: peaks in the middle, lands at player height near gndY
+                const by = gndY - H * 0.30 - Math.sin(bp * Math.PI) * H * 0.28;
+                drawBall(ctx, bx, by, 1.0);
+
+                // Bounce flash at ground (bounceP)
+                if (p > bounceP && p < bounceP + 0.08) {
+                    const bf = 1 - (p - bounceP) / 0.08;
+                    ctx.globalAlpha = bf * 0.5;
+                    ctx.fillStyle = '#4DA6FF';
+                    ctx.beginPath();
+                    ctx.arc(oppX + (playerX - oppX) * (bounceP / contactP), gndY, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            // Phase 2 (p=contactP → 1.0): ball returns oppX direction (right→left)
+            if (p > contactP) {
+                const bp2 = Math.min((p - contactP) / (1.0 - contactP), 1);
+                // Ball travels back toward and past the net
+                const bx = playerX - (playerX - oppX * 0.5) * bp2;
+                const by = gndY - H * 0.30 - Math.sin(bp2 * Math.PI) * H * 0.32;
+                const alpha = bp2 > 0.82 ? 1 - (bp2 - 0.82) / 0.18 : 1;
+                drawBall(ctx, bx, by, Math.max(0, alpha));
+            }
+
+            // Redraw net on top of ball
+            drawNet(ctx, W, H);
+
+            // Figures
+            drawFigure(ctx, oppX, gndY, '#C8102E');
+            drawFigure(ctx, playerX, gndY, '#2A7F6F');
+
+            // Paddle: swings forward at contact point (sweeps left → right → settle)
+            const swingAngle = p > 0.36
+                ? -0.3 + Math.min((p - 0.36) / 0.14, 1) * 1.0 - (p > 0.50 ? Math.min((p - 0.50) / 0.20, 1) * 0.5 : 0)
+                : -0.3;
+            drawPaddle(ctx, playerX, gndY, swingAngle);
+
+            // Contact flash (quick red burst — wrong swing on an out ball)
+            if (p > contactP - 0.03 && p < contactP + 0.09) {
+                const cf = Math.min((p - (contactP - 0.03)) / 0.04, 1) * (1 - Math.max(0, (p - contactP) / 0.09));
+                ctx.globalAlpha = cf * 0.55;
+                ctx.fillStyle = '#C8102E';
+                ctx.fillRect(0, 0, W, H);
+                ctx.globalAlpha = 1;
+            }
+
+            // Red flash — mistake reinforcement
+            if (p > 0.58) {
+                const fa = Math.min((p - 0.58) / 0.14, 0.42);
+                ctx.fillStyle = `rgba(200,16,46,${fa})`;
+                ctx.fillRect(0, 0, W, H);
+            }
+
+            // Text
+            if (p > 0.62) {
+                const ta = Math.min((p - 0.62) / 0.12, 1);
+                drawOverlayText(ctx, W, H, 'YOU SWUNG. IT WAS OUT.', 'You handed them the match.', '#C8102E', ta);
+            }
+        }
+
+        function drawIntroScene2(ctx, W, H, t) {
+            // Scene 2: Player holds → ball goes out → green
+            const { gndY, netX } = drawMiniCourt(ctx, W, H);
+            const dur = INTRO_SCENE_DURATION / 1000;
+            const p = Math.min(t / dur, 1);
+
+            const oppX = W * 0.14, playerX = W * 0.82;
+            drawFigure(ctx, oppX, gndY, '#C8102E');
+            drawFigure(ctx, playerX, gndY, '#2A7F6F');
+
+            // Ball arc: goes all the way past player (out)
+            if (p < 0.84) {
+                const bp = Math.min(p / 0.75, 1);
+                const bx = W * 0.14 + (W * 0.83) * bp;
+                const by = gndY - H * 0.22 - Math.sin(bp * Math.PI) * H * 0.36;
+                const alpha = p < 0.72 ? 1 : 1 - (p - 0.72) / 0.12;
+                drawBall(ctx, bx, by, Math.max(0, alpha));
+            }
+            // Redraw net on top of ball
+            drawNet(ctx, W, H);
+
+            // Player paddle stays idle
+            drawPaddle(ctx, playerX, gndY, -0.3);
+
+            // "HANDS DOWN" indicator — small check on player
+            if (p > 0.6 && p < 0.85) {
+                const fa = Math.min((p - 0.6) / 0.1, 1) * Math.min(1, (0.85 - p) / 0.1);
+                ctx.globalAlpha = fa;
+                ctx.fillStyle = '#00C875';
+                ctx.font = 'bold 14px Montserrat, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('✓ HELD', playerX, gndY - 55);
+                ctx.globalAlpha = 1;
+            }
+
+            // Green flash
+            if (p > 0.73) {
+                const fa = Math.min((p - 0.73) / 0.1, 0.4);
+                ctx.fillStyle = `rgba(0,200,117,${fa})`;
+                ctx.fillRect(0, 0, W, H);
+            }
+
+            if (p > 0.74) {
+                const ta = Math.min((p - 0.74) / 0.12, 1);
+                drawOverlayText(ctx, W, H, 'YOU READ IT.', 'Hands stay down. Brain wins.', '#00C875', ta);
+            }
+        }
+
+        function drawIntroScene3(ctx, W, H, t) {
+            // Scene 3: Dark — the lesson
+            const dur = INTRO_SCENE_DURATION / 1000;
+            const p = Math.min(t / dur, 1);
+            const fadeIn = Math.min(t / 0.6, 1);
+
+            ctx.fillStyle = '#060E1A';
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.globalAlpha = fadeIn;
+            ctx.fillStyle = '#4DA6FF';
+            ctx.font = '700 11px Montserrat, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('THE LESSON', W / 2, H * 0.28);
+
+            ctx.fillStyle = 'white';
+            ctx.font = '600 18px Montserrat, sans-serif';
+            ctx.fillText('Train the read.', W / 2, H * 0.50);
+            ctx.fillText('The habit follows.', W / 2, H * 0.66);
+
+            // Pulsing dots at bottom
+            const dotAlpha = (Math.sin(t * 2) + 1) / 2 * 0.5 + 0.3;
+            ctx.globalAlpha = fadeIn * dotAlpha;
+            ctx.fillStyle = '#4DA6FF';
+            ctx.font = '14px sans-serif';
+            ctx.fillText('● ● ●', W / 2, H * 0.88);
+            ctx.globalAlpha = 1;
+        }
+
+        // ── AUDIO ENGINE ──
+        let audioCtx = null, muted = false;
+        function getAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            return audioCtx;
+        }
+        function playTone(freq, dur, type = 'sine', vol = 0.25, delay = 0) {
+            if (muted) return;
+            try {
+                const ctx = getAudio();
+                const o = ctx.createOscillator();
+                const g = ctx.createGain();
+                o.connect(g); g.connect(ctx.destination);
+                o.type = type; o.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+                g.gain.setValueAtTime(vol, ctx.currentTime + delay);
+                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + dur);
+                o.start(ctx.currentTime + delay);
+                o.stop(ctx.currentTime + delay + dur + 0.05);
+            } catch (e) {}
+        }
+        function playCorrect() { playTone(440, 0.12); playTone(660, 0.15, 'sine', 0.2, 0.1); }
+        function playWrong() { playTone(80, 0.35, 'sawtooth', 0.3); }
+        function playTimeout() { playTone(440, 0.15); playTone(330, 0.15, 'sine', 0.2, 0.12); playTone(220, 0.2, 'sine', 0.15, 0.25); }
+        function playLevelUp() { [261.63, 329.63, 392, 523.25].forEach((f, i) => playTone(f, 0.12, 'sine', 0.22, i * 0.1)); }
+        function playLevelFail() { [261.63, 220, 174.61].forEach((f, i) => playTone(f, 0.18, 'sine', 0.22, i * 0.14)); }
+        function playCombo() { playTone(880, 0.08, 'sine', 0.15); playTone(1100, 0.1, 'sine', 0.12, 0.07); }
+        function toggleMute() { muted = !muted; document.getElementById('mute-btn').textContent = muted ? '🔇' : '🔊'; }
+        function toggleSettings() {
+            const m = document.getElementById('settings-modal');
+            m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+        }
+        function toggleIdeas() {
+            const p = document.getElementById('ideas-panel');
+            if (!p) return;
+            p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // ── LEVELS ──
+        const LEVELS = [
+            // Difficulty ramps via EITHER ball speed (dtFactor lower = faster) OR opponent distance
+            // (oppX lower = closer = less reaction time). Not both monotonic — alternates each level
+            // so the player trains each dimension separately before they combine at L6 (BANGER MODE).
+            //
+            //   L1  BASELINE  · slow     — easiest, learn the mechanic
+            //   L2  BASELINE  · faster   — same distance, speed up
+            //   L3  MID-COURT · slow     — reset speed, opponent steps in
+            //   L4  MID-COURT · faster   — mid-court at match speed
+            //   L5  KITCHEN   · medium   — closest position, speed backs off slightly
+            //   L6  KITCHEN   · real-time — both at kitchen AND full speed (final boss)
+            //
+            { name: 'SLOW MOTION',       dtFactor: 3.5, winMult: 1.6,  mix: [6, 4, 0],     pass: 3, num: 1, oppX: 21, posLabel: 'BASELINE',         rampType: 'INTRO'    },
+            { name: 'PICKING UP SPEED',  dtFactor: 2.6, winMult: 1.2,  mix: [4, 4, 2],     pass: 3, num: 2, oppX: 21, posLabel: 'BASELINE',         rampType: 'SPEED'    },
+            { name: 'MID-COURT READ',    dtFactor: 3.0, winMult: 1.0,  mix: [3, 4, 3],     pass: 4, num: 3, oppX: 14, posLabel: 'MID-COURT',        rampType: 'DISTANCE' },
+            { name: 'TRANSITION HEAT',   dtFactor: 2.4, winMult: 0.9,  mix: [2, 4, 4],     pass: 4, num: 4, oppX: 14, posLabel: 'MID-COURT',        rampType: 'SPEED'    },
+            { name: 'KITCHEN CATCH',     dtFactor: 2.6, winMult: 0.85, mix: [1.5, 3.5, 5], pass: 4, num: 5, oppX: 8,  posLabel: 'KITCHEN LINE',     rampType: 'DISTANCE' },
+            { name: 'BANGER MODE',       dtFactor: 1.0, winMult: 0.65, mix: [0.5, 1.5, 8], pass: 4, num: 6, oppX: 7,  posLabel: 'BOTH AT KITCHEN',  rampType: 'BOTH'     }
+        ];
+
+        // Physics-corrected shot constants — vy is reference value; actual vy computed dynamically
+        const SHOTS = {
+            HARD: { vx: 35, vy: 18, label: "HARD", ans: "OUT",    win: 1.1 },
+            MED:  { vx: 30, vy: 16, label: "MED",  ans: "VOLLEY", win: 1.4 }, // faster+flatter so it looks distinct from BOUNCE
+            SOFT: { vx: 20, vy: 18, label: "SOFT", ans: "BOUNCE", win: 1.7 }
+        };
+
+        // ── STATE ──
+        let scene, camera, renderer, ball, opponent, court, landingRing;
+        let pCam, oCam, isPerspective = true, camPreset = 2;
+        const CAM_PRESETS = [
+            { pos: [-22, 6, 10], look: [6, 1.5, 0], label: 'BACK-RIGHT', persp: true  }, // default: back-right corner
+            { pos: [-22, 5,  4], look: [8, 1.5, 0], label: 'CENTER',     persp: true  }, // classic centered
+            { pos: [-22, 9, 16], look: [2, 0.5, 0], label: 'SIDELINE',   persp: true  }, // deep sideline
+            { pos: [0, 40,   0], look: [0, 0, 0],   label: 'TOP-DOWN',   persp: false }, // orthographic overhead
+        ];
+        let active = false, canInput = false;
+        let ballP = { x: 22, y: 1.2, z: 0 }, ballV = { x: 0, y: 0, z: 0 };
+        let ghosts = [];
+        // Cinematic replay state — records trajectory during flight, plays slow-mo after wrong decisions
+        let ballTrajectory = [];
+        let replayActive = false, replayStartMs = 0;
+        const REPLAY_DUR_MS = 1100;  // slow-mo replay duration
+        let levelIdx = 0, trials = 0, correct = 0, currentShot = null;
+        let points = 0, streak = 0, bestStreak = 0, multiplier = 1;
+        let ballLaunchTime = 0, reactionTimes = [], avgRead = 0;
+        let sessionPoints = 0, highestLevel = 1, shotResults = [];
+        let pbAvgRead = sessionStorage.getItem('pb_avg_read') ? parseFloat(sessionStorage.getItem('pb_avg_read')) : null;
+        let pbScore = sessionStorage.getItem('pb_score') ? parseInt(sessionStorage.getItem('pb_score')) : 0;
+        let newPBRead = false, newPBScore = false;
+
+        // Gate tracking — per level, reset on advanceLevel/retryLevel
+        let gateCorrect = {OUT:0,VOLLEY:0,BOUNCE:0};
+        let gateTotal   = {OUT:0,VOLLEY:0,BOUNCE:0};
+
+        // Timing state
+        let sessionTimingScores = [], levelTimingScores = [], timingAvg = 0;
+
+        // Trial token — increments every new trial.
+        // All decision-timeout setTimeouts capture the current token and bail on mismatch.
+        // This prevents a timer queued during trial N from firing 'TIMEOUT' during trial N+1
+        // (which is the root cause of "the ball is still coming but the game said I failed").
+        let trialToken = 0;
+
+        // Player animation state
+        let playerReadyLerp = 0, swingProgress = 0;
+        let playerFigure = null;
+
+        // Visual effects state
+        let hemiLight = null, ballLight = null;
+        let camShakeFrames = 0, camShakeAmp = 0, camBasePos = null;
+        let particles = [];
+        let shockwaves = [];
+        let ballSquash = 0;         // 0..1 — squash-stretch envelope on bounce
+        let idlePhase = 0;          // drives breathing/idle sway
+
+        // ── INPUT MODEL ──
+        let holdingReady = false;
+        // If player commits during the 600ms wind-up (before canInput=true),
+        // remember the intent so we can fire the decision the moment input goes live.
+        // Fixes: "I pressed volley/groundstroke/let-go perfectly but the game said I didn't"
+        // — all three gates were silently dropping mid-windup presses.
+        let pendingEarlyOut = false;
+        let pendingDecision = null;  // 'VOLLEY' | 'BOUNCE' | null (OUT uses pendingEarlyOut above)
+
+        function onReadyDown() {
+            if (waitingForServe) {
+                holdingReady = true;
+                document.getElementById('btn-ready').classList.add('active');
+                launchBall();
+                return;
+            }
+            if (!canInput) return;
+            holdingReady = true;
+            document.getElementById('btn-ready').classList.add('active');
+        }
+        function onReadyUp() {
+            if (!holdingReady) return;
+            holdingReady = false;
+            document.getElementById('btn-ready').classList.remove('active');
+            if (!canInput) {
+                // Mid wind-up: queue the OUT commitment instead of dropping it silently.
+                if (!waitingForServe) pendingEarlyOut = true;
+                return;
+            }
+            handleDecision('OUT');
+        }
+        function onVolley() {
+            if (!canInput) {
+                // Mid wind-up: queue the VOLLEY commitment instead of dropping it silently.
+                if (!waitingForServe) pendingDecision = 'VOLLEY';
+                return;
+            }
+            swingProgress = 1.0; // trigger swing animation
+            holdingReady = false;
+            document.getElementById('btn-ready').classList.remove('active');
+            handleDecision('VOLLEY');
+        }
+        function onBounce() {
+            if (!canInput) {
+                // Mid wind-up: queue the BOUNCE commitment instead of dropping it silently.
+                if (!waitingForServe) pendingDecision = 'BOUNCE';
+                return;
+            }
+            swingProgress = 1.0; // trigger swing animation
+            holdingReady = false;
+            document.getElementById('btn-ready').classList.remove('active');
+            handleDecision('BOUNCE');
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.repeat) return;
+            // Spacebar OR [1] = ready position (spacebar is the primary — matches the on-screen prompt)
+            if (e.key === ' ' || e.code === 'Space' || e.key === '1') {
+                e.preventDefault();  // stop spacebar from scrolling the page
+                onReadyDown();
+            }
+            // [2] and [3] no longer require holdingReady — cognitively overloaded on keyboard
+            // (finger timing between release and [2]/[3] press was causing silent drops).
+            if (e.key === '2') onVolley();
+            if (e.key === '3') onBounce();
+        });
+        window.addEventListener('keyup', (e) => {
+            if ((e.key === ' ' || e.code === 'Space' || e.key === '1') && holdingReady) {
+                e.preventDefault();
+                onReadyUp();
+            }
+        });
+        // Fix stall when user clicks away — just reset holdingReady; don't touch waitingForServe
+        // (setting waitingForServe=true here causes double-launch if blur fires during wind-up)
+        window.addEventListener('blur', () => {
+            holdingReady = false;
+            const rb = document.getElementById('btn-ready');
+            if (rb) rb.classList.remove('active');
+        });
+
+        function open3D() {
+            if (typeof THREE === 'undefined') { alert("3D mode requires an internet connection."); return; }
+            document.getElementById('viewport-3d').style.display = 'flex';
+            setTimeout(() => { if (!scene) init3D(); else onWindowResize(); startSession(); }, 150);
+        }
+        function close3D() { document.getElementById('viewport-3d').style.display = 'none'; active = false; }
+
+        function startSession() {
+            levelIdx = 0; trials = 0; correct = 0; points = 0; streak = 0;
+            bestStreak = 0; multiplier = 1; reactionTimes = []; avgRead = 0;
+            sessionPoints = 0; highestLevel = 1; shotResults = [];
+            newPBRead = false; newPBScore = false;
+            sessionTimingScores = []; levelTimingScores = []; timingAvg = 0;
+            gateCorrect = {OUT:0,VOLLEY:0,BOUNCE:0}; gateTotal = {OUT:0,VOLLEY:0,BOUNCE:0};
+            playerReadyLerp = 0; swingProgress = 0;
+            buildShotQueue(); buildShotDots(); updateUI();
+            showRoundTitle(() => nextBall());
+        }
+        function showRoundTitle(onDone) {
+            const lv = LEVELS[levelIdx];
+            const card = document.getElementById('round-title-card');
+            const r = document.getElementById('rtc-round');
+            const n = document.getElementById('rtc-name');
+            const p = document.getElementById('rtc-pos');
+            if (!card) { if (onDone) onDone(); return; }
+            r.textContent = 'ROUND ' + lv.num;
+            n.textContent = lv.name;
+            p.textContent = lv.posLabel || 'BASELINE';
+            card.classList.add('on');
+            setTimeout(() => {
+                card.classList.remove('on');
+                setTimeout(() => { if (onDone) onDone(); }, 350);
+            }, 1800);
+        }
+
+        // ── SHOT DOTS ──
+        function buildShotDots() {
+            const el = document.getElementById('shot-history');
+            el.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const d = document.createElement('div');
+                d.className = 'shot-dot' + (i === 0 ? ' current' : '');
+                d.id = 'dot-' + i; el.appendChild(d);
+            }
+        }
+        function updateDot(idx, result) {
+            if (idx < 0) return;
+            const d = document.getElementById('dot-' + idx);
+            if (!d) return;
+            d.classList.remove('current');
+            d.classList.add(result ? 'correct' : 'wrong');
+            const next = document.getElementById('dot-' + (idx + 1));
+            if (next) next.classList.add('current');
+        }
+
+        // ── SHOT QUEUE ──
+        let shotQueue = [];
+        function buildShotQueue() {
+            const lv = LEVELS[levelIdx];
+            const mix = lv.mix;
+            // 5-shot round: seed with 3 variety, add 2 weighted by level mix
+            let queue = ['SOFT', 'MED', 'HARD'];
+            const total = mix[0] + mix[1] + mix[2];
+            for (let i = 0; i < 2; i++) {
+                const r = Math.random() * total;
+                if (r < mix[0]) queue.push('SOFT');
+                else if (r < mix[0] + mix[1]) queue.push('MED');
+                else queue.push('HARD');
+            }
+            // Shuffle with a constraint: no 3+ same shots in a row.
+            // Retry up to 30 times if shuffle produces a triple; fall back to a greedy rearrange.
+            for (let attempt = 0; attempt < 30; attempt++) {
+                for (let i = queue.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [queue[i], queue[j]] = [queue[j], queue[i]];
+                }
+                if (!hasTripleRun(queue)) break;
+            }
+            // Final guarantee: swap offenders with a different type further down.
+            for (let i = 2; i < queue.length; i++) {
+                if (queue[i] === queue[i-1] && queue[i] === queue[i-2]) {
+                    for (let j = i + 1; j < queue.length; j++) {
+                        if (queue[j] !== queue[i]) { [queue[i], queue[j]] = [queue[j], queue[i]]; break; }
+                    }
+                }
+            }
+            shotQueue = queue;
+        }
+        function hasTripleRun(arr) {
+            for (let i = 2; i < arr.length; i++) {
+                if (arr[i] === arr[i-1] && arr[i] === arr[i-2]) return true;
+            }
+            return false;
+        }
+        function pickShot() {
+            if (shotQueue.length === 0) buildShotQueue();
+            return shotQueue.shift();
+        }
+
+        // ── NEXT BALL ──
+        let waitingForServe = false;
+        let hasBounced = false;
+
+        function nextBall() {
+            if (trials >= 5) { endLevel(); return; }
+            trialToken++;                 // Invalidate any stale decision timers from prior trial
+            holdingReady = false;
+            pendingEarlyOut = false;      // Clear any queued OUT intent from prior trial
+            pendingDecision = null;       // Clear any queued VOLLEY/BOUNCE intent from prior trial
+            ballTrajectory = [];          // Fresh recording for this trial's replay
+            replayActive = false;
+            waitingForServe = false;
+            swingProgress = 0;
+            const readyBtn = document.getElementById('btn-ready');
+            if (readyBtn) readyBtn.classList.remove('active');
+            if (ball) ball.visible = true;
+
+            // First-time hint: Level 1, Ball 1 only
+            if (levelIdx === 0 && trials === 0) showFirstTimeHint();
+
+            currentShot = SHOTS[pickShot()];
+            hasBounced = false;
+            // Opponent position scales with level — closer at higher levels (less reaction time).
+            const oppX = LEVELS[levelIdx].oppX;
+            if (opponent) opponent.position.x = oppX;
+            // Ball launches from the opponent's paddle position — matches their level-scaled X.
+            ballP = { x: oppX + 1, y: 1.2, z: 0 };
+            ball.position.set(oppX + 1, 1.2, 0);
+            landingRing.material.opacity = 0;
+            active = false;
+            canInput = false;
+
+            const msg = document.getElementById('game-msg');
+            msg.innerHTML = `<div style="font-family:Montserrat;color:#ffffff;font-size:1.3rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;text-shadow:0 1px 6px rgba(0,0,0,0.7)">HOLD [SPACEBAR] TO GET INTO READY POSITION</div>`;
+            waitingForServe = true;
+        }
+
+        function launchBall() {
+            waitingForServe = false;
+            const msg = document.getElementById('game-msg');
+            msg.innerHTML = '';
+
+            // 3-step wind-up animation
+            if (opponent.userData && opponent.userData.paddleArm) {
+                // Backswing: arm to the right (-0.9) → forward swing sweeps left toward player (1.2) → return to idle (0.7)
+                opponent.userData.paddleArm.rotation.z = -0.9;
+                opponent.userData.paddle.rotation.z = -0.9;
+                setTimeout(() => {
+                    if (opponent.userData.paddleArm) { opponent.userData.paddleArm.rotation.z = 1.2; opponent.userData.paddle.rotation.z = 1.2; }
+                }, 270);
+                setTimeout(() => {
+                    if (opponent.userData.paddleArm) { opponent.userData.paddleArm.rotation.z = 0.7; opponent.userData.paddle.rotation.z = 0.7; }
+                }, 480);
+            } else {
+                opponent.rotation.z = 0.35;
+                setTimeout(() => { opponent.rotation.z = -0.2; }, 400);
+                setTimeout(() => { opponent.rotation.z = 0; }, 550);
+            }
+
+            setTimeout(() => {
+                // Ball trajectory is consistent across all levels — same arc shape every time.
+                // Speed is controlled by dtFactor in the render loop, not by scaling vxEff.
+                const vxEff = currentShot.vx;
+                // Physics-derived vy: targets correct landing zone, clears net.
+                // Launch distance = opponent's level-scaled X (closer at higher levels).
+                const launchX = LEVELS[levelIdx].oppX;
+                const xLand = currentShot.ans === 'OUT' ? -25 : (currentShot.ans === 'VOLLEY' ? -12 : -4);
+                const dist = launchX - xLand;
+                const vyLand = 16.1 * dist / vxEff - 0.8 * vxEff / dist;
+                const tNet = launchX / vxEff;
+                const vyNet = (1.8 + 16.1 * tNet * tNet) / tNet;
+                // Cap at 26 ft/s → apex ≤ ~12 ft (two stacked people height)
+                const vyFinal = Math.min(Math.max(vyLand, vyNet, currentShot.vy * 0.7), 26);
+                ballV = { x: vxEff, y: vyFinal, z: 0 };
+                active = true;
+                canInput = true;
+                ballLaunchTime = performance.now();
+                // Consume any commitment queued during wind-up (OUT, VOLLEY, or BOUNCE).
+                if (pendingEarlyOut) {
+                    pendingEarlyOut = false;
+                    handleDecision('OUT');
+                    return;
+                }
+                if (pendingDecision) {
+                    const d = pendingDecision;
+                    pendingDecision = null;
+                    handleDecision(d);
+                    return;
+                }
+                // Ball glow color + intensity by shot type — reads as danger/caution/safe
+                if (ballLight) {
+                    const lc = { OUT: 0xff2200, VOLLEY: 0xffaa00, BOUNCE: 0x44aaff };
+                    const li = { OUT: 2.6,      VOLLEY: 1.8,      BOUNCE: 1.2      };
+                    ballLight.color.setHex(lc[currentShot.ans] || 0xffffff);
+                    ballLight.intensity = li[currentShot.ans] || 1.0;
+                }
+                // Tint the ball itself via emissive — sells the read by color before contact
+                if (ball && ball.userData && ball.userData.ballMat) {
+                    const em = { OUT: 0xff3a18, VOLLEY: 0xffb048, BOUNCE: 0x7dc43f };
+                    const ei = { OUT: 0.8,      VOLLEY: 0.45,     BOUNCE: 0.2      };
+                    ball.userData.ballMat.emissive.setHex(em[currentShot.ans] || BALL_GREEN);
+                    ball.userData.ballMat.emissiveIntensity = ei[currentShot.ans] || 0.15;
+                    if (ball.userData.halo) {
+                        ball.userData.halo.material.opacity = currentShot.ans === 'OUT' ? 0.95
+                                                           : currentShot.ans === 'VOLLEY' ? 0.75 : 0.55;
+                    }
+                }
+                // Speed lines for HARD (OUT) balls
+                if (currentShot.ans === 'OUT') {
+                    const sl = document.getElementById('speed-lines');
+                    if (sl) { sl.style.opacity = '0.9'; setTimeout(() => { sl.style.opacity = '0'; }, 200); }
+                }
+
+                if (currentShot.ans !== 'BOUNCE') {
+                    const dtF  = LEVELS[levelIdx].dtFactor;
+                    const limit = currentShot.win * LEVELS[levelIdx].winMult;
+                    // Floor: ball must have crossed the net + 350ms read window before timeout fires.
+                    // Without this, fast levels (L5/L6) fire timeout before the ball reaches the player's side.
+                    const netCrossMs = (LEVELS[levelIdx].oppX / currentShot.vx) * dtF * 1000;
+                    const decisionMs = Math.max(limit * 1000 * dtF, netCrossMs + 350);
+                    const myToken = trialToken;
+                    setTimeout(() => {
+                        // Token check: if nextBall() ran since this timer was queued, skip — else this fires on the wrong trial.
+                        if (canInput && myToken === trialToken) handleDecision('TIMEOUT');
+                    }, decisionMs);
+                } else {
+                    // BOUNCE safety: no "too slow" timer would ever fire on BOUNCE shots.
+                    // If physics ever leaves the ball off-screen before hitting the cutoff (rare edge case),
+                    // the round would soft-lock. Worst-case fallback at 8× ball travel time.
+                    const dtF  = LEVELS[levelIdx].dtFactor;
+                    const fallbackMs = (47 / currentShot.vx) * dtF * 1000 + 2500; // traverse full court + buffer
+                    const myToken = trialToken;
+                    setTimeout(() => {
+                        if (canInput && myToken === trialToken) handleDecision('TIMEOUT');
+                    }, fallbackMs);
+                }
+
+                // Color the trail to match the shot type — sells the read before contact
+                const trailColor = currentShot.ans === 'OUT' ? 0xff4a22
+                                 : currentShot.ans === 'VOLLEY' ? 0xffb048
+                                 : BALL_GREEN;
+                ghosts.forEach(g => g.material.color.setHex(trailColor));
+                // Stagger trail drops tighter (30ms) so it reads as a streak not a comet
+                ghosts.forEach((g, i) => {
+                    setTimeout(() => {
+                        if (!active) return;
+                        g.position.copy(ball.position);
+                        g.visible = true;
+                        g.material.opacity = 0.85 * (g.userData.taper || 0.5);
+                        // Fade out — tail ghosts fade faster than head
+                        const fadeMs = 260 + i * 18;
+                        const start = performance.now();
+                        const startOp = g.material.opacity;
+                        const fade = () => {
+                            const t = (performance.now() - start) / fadeMs;
+                            if (t >= 1) { g.visible = false; g.material.opacity = 0; return; }
+                            g.material.opacity = startOp * (1 - t);
+                            requestAnimationFrame(fade);
+                        };
+                        requestAnimationFrame(fade);
+                    }, i * 30);
+                });
+            }, 600);
+        }
+
+        // ── TIMING SCORE ──
+        function calcTimingScore(val) {
+            if (val === 'BOUNCE') {
+                // BOUNCE = "let it bounce, hit off the ground." Committing early IS the anticipation skill.
+                // Generous scoring: any reasonable commit (pre or post bounce) is rewarded.
+                const bx = ballP.x;
+                if (!hasBounced) {
+                    if (bx > 5)    return { score: 100, label: '⚡ EARLY READ',   color: '#FFD700' };  // anticipated before ball gets close
+                    if (bx > -6)   return { score: 100, label: '⚡ CLEAN READ',   color: '#FFD700' };  // during flight — ideal
+                    if (bx > -10)  return { score: 90,  label: 'GOOD COMMIT',    color: '#00C875' };  // ball approaching kitchen
+                    return               { score: 70,  label: 'LATE COMMIT',    color: '#4DA6FF' };  // ball near landing
+                }
+                // Post-bounce — graded by vy. Rising ball = perfect attack window.
+                const vy = ballV.y;
+                if (vy > 12)  return { score: 80,  label: 'QUICK SWING',        color: '#00C875' };
+                if (vy > -5)  return { score: 100, label: '⚡ PERFECT SWING',   color: '#FFD700' };  // rising through apex — ideal
+                if (vy >= -12)return { score: 85,  label: 'GREAT TIMING',       color: '#00C875' };  // falling but readable
+                return              { score: 55,  label: 'LATE SWING',          color: '#FF8C00' };
+            }
+            if (val === 'VOLLEY') {
+                // Ball world coords: x=22 at launch, x=0 is net, player stands at x=-8, VOLLEY target lands at x=-12.
+                // Perfect volley = ball in the air between net and player (chest/reflex zone).
+                const bx = ballP.x;
+                // Generous VOLLEY scoring — any ball on player's side of the net is a reasonable volley.
+                // Player lives at x=-8. Ball path: x=22 launch → x=0 net → x=-12 target landing.
+                if (bx > 10)   return { score: 25,  label: 'TOO EARLY',      color: '#C8102E' };  // deep opponent side
+                if (bx > 2)    return { score: 60,  label: 'EARLY',          color: '#FF8C00' };  // still opponent side
+                if (bx >= -12) return { score: 100, label: '⚡ PERFECT',     color: '#FFD700' };  // anywhere player-side-of-net to landing = PERFECT
+                if (bx >= -15) return { score: 70,  label: 'SOLID',          color: '#4DA6FF' };  // past landing zone
+                return                { score: 25,  label: 'TOO LATE',       color: '#C8102E' };  // way past
+            }
+            if (val === 'OUT') {
+                // Use physics-derived "time to net crossing" — scales correctly with dtFactor across levels.
+                // Prior formula ignored dtFactor, so slow levels under-counted early releases.
+                const netCrossMs = (LEVELS[levelIdx].oppX / currentShot.vx) * LEVELS[levelIdx].dtFactor * 1000;
+                const ratio = (performance.now() - ballLaunchTime) / netCrossMs;
+                if (ratio < 0.35) return { score: 100, label: '⚡ DECISIVE',  color: '#FFD700' };  // released before ball traveled 35% to net
+                if (ratio < 0.70) return { score: 80,  label: 'CLEAN READ',   color: '#00C875' };  // released before ball reached net
+                if (ratio < 1.05) return { score: 60,  label: 'GOOD',         color: '#4DA6FF' };  // around net crossing
+                return                   { score: 35,  label: 'HESITATED',    color: '#FF8C00' };  // ball already past net
+            }
+            return { score: 50, label: '', color: '#4DA6FF' };
+        }
+
+        function showTimingLabel(label, color) {
+            if (!label) return;
+            const el = document.createElement('div');
+            el.className = 'timing-label';
+            el.style.color = color;
+            el.textContent = label;
+            document.getElementById('canvas-wrap').appendChild(el);
+            setTimeout(() => el.remove(), 1250);
+        }
+
+        // ── HANDLE DECISION ──
+        // Decision log for diagnosing timing-label disputes. Inspect: window.lastDecisions
+        window.lastDecisions = [];
+        function handleDecision(val) {
+            if (!canInput) return;
+            canInput = false;
+            const trialIdx = trials;
+            trials++;
+            const win = (val === currentShot.ans);
+            const reactionMs = performance.now() - ballLaunchTime;
+            // Snapshot state at click moment — what the scorer sees when labeling.
+            const _diagTiming = win ? calcTimingScore(val) : { label: 'WRONG', score: 0 };
+            const snap = {
+                trial: trials,
+                level: LEVELS[levelIdx].name,
+                pressed: val,
+                correctAnswer: currentShot ? currentShot.ans : null,
+                win,
+                ballX: ballP.x.toFixed(2),
+                ballY: ballP.y.toFixed(2),
+                ballVY: ballV.y.toFixed(2),
+                hasBounced,
+                reactionMs: Math.round(reactionMs),
+                timingLabel: _diagTiming.label,
+                timingScore: _diagTiming.score
+            };
+            window.lastDecisions.push(snap);
+            if (window.lastDecisions.length > 20) window.lastDecisions.shift();
+            console.log('%c[DECISION]', 'color:#FFD700;font-weight:bold',
+                `${snap.pressed} vs ${snap.correctAnswer} → ${snap.win ? '✓' : '✗'}`,
+                `bx=${snap.ballX}, vy=${snap.ballVY}, bounced=${snap.hasBounced}`,
+                `→ "${snap.timingLabel}" (${snap.timingScore}pts)`);
+            // Update on-screen diagnostic panel
+            const diag = document.getElementById('diag-content');
+            if (diag) {
+                const verdictColor = snap.win ? '#00C875' : '#C8102E';
+                const verdictIcon = snap.win ? '✓' : '✗';
+                diag.innerHTML =
+                    `<div style="color:${verdictColor};font-weight:800;font-size:0.68rem">${verdictIcon} ${snap.pressed} (correct: ${snap.correctAnswer})</div>` +
+                    `<div>bx=${snap.ballX}  vy=${snap.ballVY}  bounced=${snap.hasBounced}</div>` +
+                    `<div>reaction: ${snap.reactionMs}ms</div>` +
+                    `<div style="color:${_diagTiming.color};font-weight:800;margin-top:2px">→ ${snap.timingLabel} · ${snap.timingScore}pts</div>`;
+            }
+            shotResults[trialIdx] = win;
+            updateDot(trialIdx, win);
+            // Gate tracking
+            gateTotal[currentShot.ans]++;
+            if (win) gateCorrect[currentShot.ans]++;
+            // Flash the Gate 1 indicator when OUT is the answer
+            if (currentShot.ans === 'OUT') {
+                const g1 = document.getElementById('gate1-indicator');
+                if (g1) { g1.classList.add('lit'); setTimeout(() => g1.classList.remove('lit'), 600); }
+            }
+            document.getElementById('xp-bar').style.width = (trials / 5 * 100) + '%';
+
+            if (win) {
+                correct++;
+                reactionTimes.push(reactionMs);
+                avgRead = reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                multiplier = streak >= 8 ? 3 : streak >= 5 ? 2 : streak >= 3 ? 1.5 : 1;
+                const windowMs = currentShot.win * LEVELS[levelIdx].winMult * 1000;
+                const speedBonus = reactionMs < windowMs * 0.4 ? 50 : 0;
+
+                // Timing score
+                const timing = calcTimingScore(val);
+                const timingBonus = Math.round(timing.score * 0.4); // 0-40 bonus pts
+                sessionTimingScores.push(timing.score);
+                levelTimingScores.push(timing.score);
+                timingAvg = sessionTimingScores.reduce((a, b) => a + b, 0) / sessionTimingScores.length;
+
+                const earned = Math.round((100 + speedBonus + timingBonus) * multiplier);
+                points += earned; sessionPoints += earned;
+
+                if (reactionTimes.length >= 3 && (!pbAvgRead || avgRead / 1000 < pbAvgRead)) {
+                    newPBRead = true;
+                    sessionStorage.setItem('pb_avg_read', (avgRead / 1000).toFixed(3));
+                    showMsg('NEW BEST READ', '#FFD700', 0.8);
+                }
+                showFloatPts('+' + earned, '#4DA6FF');
+                showTimingLabel(timing.label, timing.color);
+                updateReadTimeHUD(reactionMs, timing);
+                playCorrect();
+                updateGhostColors();
+                animateScore(true);
+                // Particle burst on contact shots
+                if (val === 'VOLLEY' || val === 'BOUNCE') spawnParticles(ballP.x, Math.max(ballP.y, 0.4), 0x00C875);
+                const combos = { 2: 'NICE', 3: 'READING IT', 5: 'ON FIRE 🔥', 7: 'LOCKED IN ⚡', 10: 'UNSTOPPABLE 🔥🔥🔥' };
+                const hasCombo = !!combos[streak];
+                // Only show big timing banner if no combo is firing, or if timing is clearly positive.
+                // Prevents "NICE" and "LATE" appearing simultaneously.
+                if (!hasCombo || timing.score >= 60) {
+                    showMsg('✓ ' + timing.label, timing.color, 0.9);
+                }
+                if (hasCombo) { showCombo(combos[streak]); playCombo(); }
+                if (streak >= 8) pulseEdgeGlow();
+                if (streak >= 5) flashCourt();
+
+                // Return ball animation
+                if (val === 'VOLLEY' || val === 'BOUNCE') {
+                    active = false;
+                    const returnStartX = val === 'VOLLEY' ? Math.max(ballP.x, -8) : -11;
+                    const returnStartY = val === 'VOLLEY' ? Math.max(ballP.y, 1.0) : 0.4;
+                    ballP = { x: returnStartX, y: returnStartY, z: 0 };
+                    ball.position.set(returnStartX, returnStartY, 0);
+                    ball.visible = true;
+                    const retSpeed = currentShot.vx * 0.85 + 10;
+                    const retVY = val === 'VOLLEY' ? 10 : 14;
+                    let retV = { x: retSpeed, y: retVY };
+                    let retP = { x: returnStartX, y: returnStartY };
+                    let returning = true;
+                    const retLoop = () => {
+                        if (!returning) return;
+                        const dt = 1 / 60;
+                        retV.y -= 32.2 * dt;
+                        retP.x += retV.x * dt;
+                        retP.y += retV.y * dt;
+                        ball.position.set(retP.x, Math.max(retP.y, 0.4), 0);
+                        if (retP.x > 25 || retP.y < 0.3) {
+                            returning = false; ball.visible = false;
+                        } else { requestAnimationFrame(retLoop); }
+                    };
+                    requestAnimationFrame(retLoop);
+                } else {
+                    setTimeout(() => { ball.visible = false; active = false; }, 200);
+                }
+            } else {
+                streak = 0; multiplier = 1;
+                const penalty = val === 'TIMEOUT' ? -25 : 0;
+                if (penalty) points += penalty;
+                showFloatPts(val === 'TIMEOUT' ? '-25' : '✗', '#C8102E');
+                shakeScreen(); showVignette();
+                camShake();
+                animateScore(false);
+                updateGhostColors();
+                spawnParticles(ballP.x, Math.max(ballP.y, 0.4), 0xC8102E);
+                const lbl = { 'OUT': 'LET IT GO', 'VOLLEY': 'VOLLEY IT', 'BOUNCE': 'LET IT BOUNCE' }[currentShot.ans];
+                if (val === 'TIMEOUT') {
+                    playTimeout();
+                    showMsg('TOO SLOW — ' + lbl, '#C8102E', 1.2);
+                } else {
+                    playWrong();
+                    showMsg('WRONG — ' + lbl, '#C8102E', 1.2);
+                }
+            }
+            const mb = document.getElementById('multiplier-badge');
+            if (multiplier > 1) { mb.textContent = '×' + multiplier; mb.style.opacity = 1; } else mb.style.opacity = 0;
+            if (highestLevel < levelIdx + 1) highestLevel = levelIdx + 1;
+            // Coaching line
+            const COACHING = {
+                OUT:     { ok: 'Good read — high contact + pace = out.',         wrong: 'Too hot. High + hard = let it fly.',    timeout: 'Trust the wind-up cue. That one had OUT written on it.' },
+                VOLLEY:  { ok: 'Clean volley. You were ready before contact.',   wrong: "That pace was yours to volley — next time.", timeout: 'Paddle up earlier on medium-pace balls.' },
+                BOUNCE:  { ok: 'Patient read. Kitchen ball — let it come.',      wrong: 'Soft ball = wait for the bounce.',         timeout: 'Soft balls give you time — use it.' }
+            };
+            const gate = currentShot.ans;
+            const coaching = win ? COACHING[gate].ok : (val === 'TIMEOUT' ? COACHING[gate].timeout : COACHING[gate].wrong);
+            const cl = document.getElementById('coaching-line');
+            if (cl) {
+                cl.textContent = coaching;
+                cl.style.color = win ? '#00C875' : '#C8102E';
+                cl.style.opacity = '1';
+                setTimeout(() => { cl.style.opacity = '0'; }, 1400);
+            }
+            updateUI();
+            // Cinematic replay on WRONG/TIMEOUT — teaching moment, shows ball's actual path in slow-mo.
+            // Skipped on correct answers (they already have return animation as reward).
+            if (!win && ballTrajectory.length > 4) {
+                replayActive = true;
+                replayStartMs = performance.now();
+                const rb = document.getElementById('replay-banner');
+                if (rb) rb.style.opacity = '1';
+                setTimeout(nextBall, 1600 + REPLAY_DUR_MS);
+            } else {
+                setTimeout(nextBall, 1600);
+            }
+        }
+
+        // ── END LEVEL ──
+        function endLevel() {
+            active = false;
+            const lv = LEVELS[levelIdx];
+            const passed = correct >= lv.pass;
+            const tip = correct >= 9 ? 'Clean round. You\'re reading it early. That\'s the whole skill.'
+                : correct <= 5 ? 'Read at wind-up, not at contact. Watch the shoulder — it tells you pace before the paddle does.'
+                : 'Stay patient on the hard ones. Wind-up = ready position.';
+            if (passed) playLevelUp(); else playLevelFail();
+            const ol = document.getElementById('level-overlay');
+            const content = document.getElementById('level-overlay-content');
+            const lvTimingAvg = levelTimingScores.length
+                ? Math.round(levelTimingScores.reduce((a, b) => a + b, 0) / levelTimingScores.length)
+                : '--';
+            const timingColor = lvTimingAvg >= 80 ? '#FFD700' : lvTimingAvg >= 60 ? '#00C875' : '#4DA6FF';
+
+            if (passed) {
+                const isLast = levelIdx >= LEVELS.length - 1;
+                content.innerHTML = `
+                    <div style="font-size:1rem;color:#8A9BB0;text-transform:uppercase;letter-spacing:3px;margin-bottom:10px">Round Complete</div>
+                    <h1 style="color:#00C875;font-family:Montserrat;font-size:3.5rem;margin-bottom:8px">NEXT ROUND</h1>
+                    <div style="font-family:Montserrat;font-size:1.2rem;color:#4DA6FF;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px">${lv.name}</div>
+                    <div style="color:var(--text-muted);line-height:2.2;margin-bottom:24px">
+                        ${correct}/5 correct &nbsp;·&nbsp; ${points} pts<br>
+                        <span style="font-size:0.85rem;color:${timingColor}">Timing avg: ${lvTimingAvg}%</span>
+                    </div>
+                    ${isLast
+                        ? '<button style="background:#4DA6FF;color:white;border:none;padding:16px 48px;border-radius:50px;font-family:Montserrat;font-weight:800;font-size:1rem;text-transform:uppercase;cursor:pointer" onclick="showSummary()">See Results →</button>'
+                        : `<div style="color:#8A9BB0;font-size:0.9rem;margin-bottom:20px">NEXT: ${LEVELS[levelIdx + 1].name}</div>
+                           <button style="background:#4DA6FF;color:white;border:none;padding:16px 48px;border-radius:50px;font-family:Montserrat;font-weight:800;font-size:1rem;text-transform:uppercase;cursor:pointer" onclick="advanceLevel()">Continue →</button>`
+                    }`;
+            } else {
+                content.innerHTML = `
+                    <div style="font-size:1rem;color:#8A9BB0;text-transform:uppercase;letter-spacing:3px;margin-bottom:10px">Level Failed</div>
+                    <h1 style="color:#C8102E;font-family:Montserrat;font-size:3.5rem;margin-bottom:8px">NOT QUITE</h1>
+                    <div style="font-family:Montserrat;font-size:1.2rem;color:#4DA6FF;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px">${lv.name}</div>
+                    <div style="color:var(--text-muted);line-height:2.2;margin-bottom:16px">
+                        ${correct}/5 &nbsp;·&nbsp; needed ${lv.pass}/5<br>
+                        <span style="font-size:0.85rem;color:${timingColor}">Timing avg: ${lvTimingAvg}%</span>
+                    </div>
+                    <div style="background:rgba(200,16,46,0.1);border-left:3px solid #C8102E;border-radius:8px;padding:14px 18px;max-width:380px;color:var(--text-muted);font-size:0.9rem;margin-bottom:28px">${tip}</div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+                        <button style="background:#C8102E;color:white;border:none;padding:16px 36px;border-radius:50px;font-family:Montserrat;font-weight:800;font-size:1rem;text-transform:uppercase;cursor:pointer" onclick="retryLevel()">Try Again →</button>
+                    </div>`;
+            }
+            // Gate breakdown block
+            const gates = [
+                { key: 'OUT',    label: 'G1 · Let It Go' },
+                { key: 'VOLLEY', label: 'G2 · Volley'    },
+                { key: 'BOUNCE', label: 'G3 · Groundstroke' }
+            ];
+            const weakest = gates.reduce((w, g) =>
+                gateTotal[g.key] > 0 && (gateTotal[w.key] === 0 || (gateCorrect[g.key]/gateTotal[g.key]) < (gateCorrect[w.key]/gateTotal[w.key])) ? g : w
+            , gates[0]);
+            const gateHTML = `<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.1)">
+                <div style="font-size:0.68rem;color:#8A9BB0;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px">GATE BREAKDOWN</div>
+                <div style="display:flex;gap:10px;justify-content:center">` +
+                gates.map(g => {
+                    const pct = gateTotal[g.key] > 0 ? Math.round(gateCorrect[g.key] / gateTotal[g.key] * 100) : null;
+                    const isWeak = g.key === weakest.key && gateTotal[g.key] > 0;
+                    const c = pct === null ? '#4A5568' : pct >= 80 ? '#00C875' : pct >= 50 ? '#4DA6FF' : '#C8102E';
+                    return `<div style="flex:1;background:rgba(255,255,255,0.04)${isWeak?';border:1px solid rgba(200,16,46,0.4)':''};border-radius:10px;padding:8px 4px;text-align:center">
+                        <div style="font-size:0.62rem;color:#8A9BB0;margin-bottom:4px">${g.label}</div>
+                        <div style="font-size:1.2rem;font-family:Montserrat;font-weight:800;color:${c}">${pct !== null ? pct+'%' : '—'}</div>
+                        ${isWeak ? '<div style="font-size:0.58rem;color:#C8102E;margin-top:3px">WEAKEST</div>' : ''}
+                    </div>`;
+                }).join('') +
+                `</div></div>`;
+            content.innerHTML += gateHTML;
+
+            // Level transition cinematic: white flash + heading scale-in
+            const lvFlash = document.getElementById('level-flash');
+            if (lvFlash) { lvFlash.style.opacity = '1'; setTimeout(() => { lvFlash.style.opacity = '0'; }, 140); }
+            ol.style.display = 'flex';
+            setTimeout(() => {
+                const bigH = content.querySelector('h1');
+                if (bigH) {
+                    bigH.style.transform = 'scale(0.12)'; bigH.style.opacity = '0';
+                    bigH.style.transition = 'transform 0.38s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.18s';
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        bigH.style.transform = 'scale(1)'; bigH.style.opacity = '1';
+                    }));
+                }
+            }, 30);
+        }
+
+        function advanceLevel() {
+            levelIdx++; trials = 0; correct = 0; streak = 0; multiplier = 1;
+            levelTimingScores = [];
+            gateCorrect = {OUT:0,VOLLEY:0,BOUNCE:0}; gateTotal = {OUT:0,VOLLEY:0,BOUNCE:0};
+            document.getElementById('level-overlay').style.display = 'none';
+            document.getElementById('xp-bar').style.width = '0%';
+            buildShotQueue(); buildShotDots(); updateUI();
+            showRoundTitle(() => nextBall());
+        }
+        function retryLevel() {
+            trials = 0; correct = 0; streak = 0; multiplier = 1;
+            levelTimingScores = [];
+            gateCorrect = {OUT:0,VOLLEY:0,BOUNCE:0}; gateTotal = {OUT:0,VOLLEY:0,BOUNCE:0};
+            document.getElementById('level-overlay').style.display = 'none';
+            document.getElementById('xp-bar').style.width = '0%';
+            buildShotQueue(); buildShotDots(); updateUI(); nextBall();
+        }
+
+        // ── SUMMARY ──
+        function showSummary() {
+            document.getElementById('level-overlay').style.display = 'none';
+            sessionStorage.setItem('pb_score', Math.max(sessionPoints, pbScore));
+            const avgSec = reactionTimes.length ? (avgRead / 1000).toFixed(2) : '--';
+            const pct = getPercentile(avgRead / 1000);
+            const totalCorrect = shotResults.filter(Boolean).length;
+            const totalBalls = shotResults.length;
+            const acc = totalBalls ? Math.round(totalCorrect / totalBalls * 100) : 0;
+            const coachMsg = getCoachMsg();
+            const timingAvgFinal = sessionTimingScores.length ? Math.round(timingAvg) : '--';
+            const timingPerfects = sessionTimingScores.filter(s => s >= 90).length;
+            const timingColor = timingAvgFinal >= 80 ? '#FFD700' : timingAvgFinal >= 60 ? '#00C875' : '#4DA6FF';
+
+            const card = document.getElementById('summary-card');
+            card.innerHTML = `
+                <h2 style="font-family:Montserrat;margin-bottom:4px">TRAINING COMPLETE</h2>
+                <div style="color:#8A9BB0;font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px">Beat the Bangers Trainer · Session Complete</div>
+                <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0"></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.95rem;color:var(--text-muted)">
+                    <span>Total Score</span><span style="font-weight:700;color:${newPBScore?'#FFD700':'white'};font-family:Montserrat">${sessionPoints.toLocaleString()} pts${newPBScore?' 🏆':''}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.95rem;color:var(--text-muted)">
+                    <span>Highest Level</span><span style="font-weight:700;color:white;font-family:Montserrat">${LEVELS[Math.min(highestLevel-1,5)].name}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.95rem;color:var(--text-muted)">
+                    <span>Best Streak</span><span style="font-weight:700;color:white;font-family:Montserrat">${bestStreak} ${bestStreak>=5?'🔥':''}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.95rem;color:var(--text-muted)">
+                    <span>Avg Read Time</span><span style="font-weight:700;color:${newPBRead?'#FFD700':'white'};font-family:Montserrat">${avgSec}s${newPBRead?' ⚡':''}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.95rem;color:var(--text-muted)">
+                    <span>Accuracy</span><span style="font-weight:700;color:white;font-family:Montserrat">${totalCorrect}/${totalBalls} (${acc}%)</span>
+                </div>
+                <div style="font-size:0.75rem;color:#4DA6FF;text-transform:uppercase;letter-spacing:1px;margin:4px 0 2px">${pct}</div>
+                <div style="height:1px;background:rgba(255,255,255,0.1);margin:14px 0"></div>
+                <div style="margin:8px 0">
+                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-bottom:4px"><span>Overall Accuracy</span><span>${acc}%</span></div>
+                    <div class="bar-track"><div id="bar-acc" class="bar-fill"></div></div>
+                </div>
+                <div style="margin:8px 0">
+                    <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">
+                        <span>Timing Quality</span>
+                        <span style="color:${timingColor}">${timingAvgFinal}% avg · ${timingPerfects} perfect${timingPerfects!==1?'s':''}</span>
+                    </div>
+                    <div class="bar-track"><div id="bar-timing" class="bar-fill gold"></div></div>
+                </div>
+                <div style="background:rgba(0,200,117,0.1);border:1px solid rgba(0,200,117,0.3);border-radius:12px;padding:16px;margin-top:16px">
+                    <div style="color:#00C875;font-family:Montserrat;font-size:0.75rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Take This To The Court</div>
+                    <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.6">${coachMsg}</p>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px">
+                    <button onclick="restartFromSummary()" style="padding:14px;border:none;border-radius:12px;font-family:Montserrat;font-weight:800;font-size:0.9rem;text-transform:uppercase;cursor:pointer;background:#4DA6FF;color:white">Play Again</button>
+                    <button onclick="alert('Book at nepc.com')" style="padding:14px;border:none;border-radius:12px;font-family:Montserrat;font-weight:800;font-size:0.9rem;text-transform:uppercase;cursor:pointer;background:#C8102E;color:white">Book a Session →</button>
+                </div>`;
+            document.getElementById('summary-overlay').style.display = 'flex';
+            setTimeout(() => {
+                const ba = document.getElementById('bar-acc');
+                if (ba) ba.style.width = acc + '%';
+                const bt = document.getElementById('bar-timing');
+                if (bt) bt.style.width = (typeof timingAvgFinal === 'number' ? timingAvgFinal : 0) + '%';
+            }, 300);
+        }
+
+        function getPercentile(sec) {
+            if (!sec || isNaN(sec)) return '';
+            if (sec < 0.35) return 'TOP 1% — PRO LEVEL READ';
+            if (sec < 0.45) return 'TOP 5% — ELITE READ';
+            if (sec < 0.6)  return 'TOP 15% — STRONG READ';
+            if (sec < 0.75) return 'AVERAGE CLUB PLAYER';
+            return 'STILL DEVELOPING — KEEP TRAINING';
+        }
+
+        function getCoachMsg() {
+            const timingLow = timingAvg < 50 && sessionTimingScores.length > 2;
+            if (timingLow && currentShot && currentShot.ans === 'BOUNCE')
+                return "On the groundstroke: wait for the apex. The ball peaks right after the bounce — let it stop rising before you swing. That split-second of patience is the whole skill.";
+            if (avgRead > 750) return "You're reading at contact. Read at wind-up. Watch the opponent's shoulder — it tells you pace before the paddle does. Next game: watch the shoulder, not the ball.";
+            if (bestStreak < 3) return "Stay patient on the hard ones. When your opponent winds up big — drop your paddle hand before the ball leaves their paddle. Wind-up = ready position.";
+            if (correct >= 8) return "You're reading it early. Take that same stillness to the court. When you feel the urge to swing — pause. The habit is in your nervous system. Trust it.";
+            return "High arc + slow pace = groundstroke. Next game: every time you see a high floater, say 'bounce' out loud before you decide. Verbal cue locks in the habit faster.";
+        }
+
+        function restartFromSummary() {
+            document.getElementById('summary-overlay').style.display = 'none';
+            startSession();
+        }
+
+        function showFirstTimeHint() {
+            // Show a brief cascade explainer on L1 B1, auto-dismiss after 4s or on tap
+            const existing = document.getElementById('first-hint');
+            if (existing) return;
+            const hint = document.createElement('div');
+            hint.id = 'first-hint';
+            hint.style.cssText = 'position:absolute;bottom:180px;left:50%;transform:translateX(-50%);background:rgba(15,25,35,0.97);border:1px solid rgba(77,166,255,0.4);border-radius:16px;padding:18px 22px;max-width:320px;width:88%;z-index:80;text-align:center;cursor:pointer;';
+            hint.innerHTML = `
+                <div style="font-family:Montserrat;font-size:0.7rem;color:#4DA6FF;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px">How It Works</div>
+                <div style="display:flex;justify-content:space-around;gap:8px;margin-bottom:12px">
+                    <div style="flex:1;text-align:center">
+                        <div style="font-size:1.2rem">💨</div>
+                        <div style="font-size:0.68rem;font-weight:800;color:white;margin-top:3px">GATE 1</div>
+                        <div style="font-size:0.62rem;color:#8A9BB0">Release [1]<br>Let It Go</div>
+                    </div>
+                    <div style="color:#4DA6FF;align-self:center;font-size:1rem">→</div>
+                    <div style="flex:1;text-align:center">
+                        <div style="font-size:1.2rem">⚡</div>
+                        <div style="font-size:0.68rem;font-weight:800;color:white;margin-top:3px">GATE 2</div>
+                        <div style="font-size:0.62rem;color:#8A9BB0">Tap [2]<br>Volley</div>
+                    </div>
+                    <div style="color:#4DA6FF;align-self:center;font-size:1rem">→</div>
+                    <div style="flex:1;text-align:center">
+                        <div style="font-size:1.2rem">↓</div>
+                        <div style="font-size:0.68rem;font-weight:800;color:white;margin-top:3px">GATE 3</div>
+                        <div style="font-size:0.62rem;color:#8A9BB0">Tap [3]<br>Groundstroke</div>
+                    </div>
+                </div>
+                <div style="font-size:0.72rem;color:#8A9BB0">Hold [1] to get ready, then pick your gate when the ball arrives</div>
+                <div style="font-size:0.62rem;color:#4A5568;margin-top:8px">TAP TO DISMISS</div>`;
+            const vp = document.getElementById('viewport-3d');
+            if (vp) vp.appendChild(hint);
+            const dismiss = () => { hint.style.opacity = '0'; hint.style.transition = 'opacity 0.3s'; setTimeout(() => hint.remove(), 320); };
+            hint.addEventListener('click', dismiss);
+            hint.addEventListener('touchstart', dismiss);
+            setTimeout(dismiss, 5000);
+        }
+
+        // ── VISUAL EFFECTS ──
+        function shakeScreen() {
+            const vp = document.getElementById('viewport-3d');
+            vp.classList.remove('shaking'); void vp.offsetWidth; vp.classList.add('shaking');
+            setTimeout(() => vp.classList.remove('shaking'), 500);
+        }
+        function showVignette() {
+            const v = document.getElementById('vignette');
+            v.style.background = 'radial-gradient(ellipse at center,transparent 40%,rgba(200,16,46,0.55) 100%)';
+            v.style.opacity = 1; setTimeout(() => v.style.opacity = 0, 700);
+        }
+        function pulseEdgeGlow() {
+            const eg = document.getElementById('edge-glow');
+            eg.style.opacity = 1; setTimeout(() => { eg.style.opacity = 0; }, 300);
+            setTimeout(() => { eg.style.opacity = 0.7; }, 500); setTimeout(() => { eg.style.opacity = 0; }, 800);
+        }
+        function flashCourt() {
+            if (!court) return;
+            const orig = court.material.color.getHex();
+            court.material.color.setHex(0x5a9cd0);
+            setTimeout(() => court.material.color.setHex(orig), 200);
+        }
+        function showFloatPts(text, color) {
+            const el = document.createElement('div');
+            el.className = 'float-pts'; el.style.color = color; el.textContent = text;
+            document.getElementById('canvas-wrap').appendChild(el);
+            setTimeout(() => el.remove(), 950);
+        }
+        function updateReadTimeHUD(ms, timing) {
+            const sec = (ms / 1000).toFixed(2);
+            const avgSec = (avgRead / 1000).toFixed(2);
+            let color = 'white', label = '';
+            if (ms < 500) { color = '#00C875'; label = ' FAST'; }
+            else if (ms > 800) { color = '#C8102E'; label = ' HESITATED'; }
+            document.getElementById('read-time').innerHTML =
+                `<span style="color:${color}">${sec}s${label}</span> &nbsp; AVG: ${avgSec}s<br>` +
+                `<span style="color:${timing.color};font-size:0.72rem">${timing.label}</span>`;
+        }
+        function showMsg(text, color, duration) {
+            const msg = document.getElementById('game-msg');
+            msg.innerHTML = `<h2 style="font-family:Montserrat;color:${color};font-size:2.2rem">${text}</h2>`;
+            setTimeout(() => msg.innerHTML = '', duration * 1000);
+        }
+        function showCombo(word) {
+            const el = document.getElementById('combo-display');
+            el.textContent = word;
+            el.style.color = streak >= 7 ? '#FFD700' : streak >= 5 ? '#FF8C00' : '#4DA6FF';
+            el.style.display = 'block'; el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = 'comboPop 1.3s ease forwards';
+            setTimeout(() => { el.style.display = 'none'; }, 1350);
+        }
+        function updateUI() {
+            const lv = LEVELS[levelIdx];
+            document.getElementById('txt-round').innerText = `Round ${lv.num}: ${lv.name} · ${trials}/5`;
+            document.getElementById('txt-score').innerText = `${points.toLocaleString()} PTS`;
+            // Broadcast lower-third sync
+            const bcRound = document.getElementById('bc-round');
+            const bcLevel = document.getElementById('bc-level');
+            const bcPos = document.getElementById('bc-pos');
+            if (bcRound) bcRound.textContent = `R${lv.num} · ${Math.min(trials+1, 5)}/5`;
+            if (bcLevel) bcLevel.textContent = lv.name;
+            if (bcPos)   bcPos.textContent   = lv.posLabel || 'BASELINE';
+        }
+
+        // ── VISUAL EFFECTS HELPERS ──
+        function camShake() {
+            if (!isPerspective) return;
+            camShakeFrames = 24; camShakeAmp = 0.3; camBasePos = null;
+        }
+        function updateGhostColors() {
+            let color = BALL_GREEN, opacity = 0.25;
+            if (streak >= 7)      { color = 0xffffff; opacity = 0.65; }
+            else if (streak >= 5) { color = 0xff3300; opacity = 0.55; }
+            else if (streak >= 3) { color = 0xff7700; opacity = 0.45; }
+            ghosts.forEach(g => { g.material.color.setHex(color); g.material.opacity = opacity; });
+        }
+        function animateScore(gained) {
+            const el = document.getElementById('txt-score');
+            if (!el) return;
+            el.style.transform = 'scale(1.38)';
+            el.style.color = gained ? '#00C875' : '#C8102E';
+            setTimeout(() => { el.style.transform = ''; el.style.color = ''; }, 210);
+        }
+        function initParticles() {
+            for (let i = 0; i < 16; i++) {
+                const p = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.14, 6, 6),
+                    new THREE.MeshBasicMaterial({ color: 0x00C875, transparent: true, opacity: 0 })
+                );
+                p.visible = false;
+                p.userData = { vx: 0, vy: 0, vz: 0, life: 0 };
+                particles.push(p);
+                scene.add(p);
+            }
+        }
+        function spawnShockwave(x, z, color) {
+            const ring = shockwaves.find(r => r.userData.life <= 0);
+            if (!ring) return;
+            ring.position.set(x, 0.05, z);
+            ring.material.color.setHex(color);
+            ring.material.opacity = 0.9;
+            ring.scale.set(0.3, 0.3, 1);
+            ring.visible = true;
+            ring.userData.life = 0.6;
+        }
+
+        function spawnParticles(x, y, color) {
+            const count = 13; let spawned = 0;
+            for (let i = 0; i < particles.length && spawned < count; i++) {
+                if (particles[i].userData.life <= 0) {
+                    const p = particles[i];
+                    p.position.set(x, Math.max(y, 0.3), 0);
+                    p.material.color.setHex(color);
+                    p.material.opacity = 1; p.visible = true;
+                    const angle = (spawned / count) * Math.PI * 2;
+                    const speed = 2.5 + Math.random() * 3.5;
+                    p.userData.vx = Math.cos(angle) * speed;
+                    p.userData.vy = 1.5 + Math.random() * 2.5;
+                    p.userData.vz = (Math.random() - 0.5) * speed * 0.5;
+                    p.userData.life = 0.55;
+                    spawned++;
+                }
+            }
+        }
+
+        // ── THREE.JS ──
+        const COURT_BLUE = 0x0D47A1;  // dark stadium blue (Material Blue 900)
+        const COURT_BURG = 0x6B1F2A;
+        const COURT_OOB  = 0x707070;  // neutral gray
+        // Neon pickleball yellow-green (Franklin X-40 / Onix Fuse outdoor ball).
+        // Kept the constant name for backwards compatibility with callers.
+        const BALL_GREEN = 0xDAFF00;
+
+        function makePickleball() {
+            const group = new THREE.Group();
+            // Emissive material — neon ball glows with a stadium-lit "pop" by default.
+            const ballMat = new THREE.MeshStandardMaterial({
+                color: BALL_GREEN,
+                roughness: 0.38,
+                metalness: 0.02,
+                emissive: BALL_GREEN,
+                emissiveIntensity: 0.7  // cranked — reads as truly neon glowing against dark scene
+            });
+            const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), ballMat);
+            sphere.castShadow = true;
+            group.add(sphere);
+            group.userData = { ballMat };
+            // Halo sprite — neon outer glow that reads against navy court
+            const haloCanvas = document.createElement('canvas');
+            haloCanvas.width = haloCanvas.height = 128;
+            const hctx = haloCanvas.getContext('2d');
+            const grad = hctx.createRadialGradient(64, 64, 4, 64, 64, 60);
+            grad.addColorStop(0,    'rgba(255,255,255,0.95)');
+            grad.addColorStop(0.25, 'rgba(230,255,100,0.65)');
+            grad.addColorStop(0.6,  'rgba(218,255,0,0.18)');
+            grad.addColorStop(1,    'rgba(218,255,0,0)');
+            hctx.fillStyle = grad; hctx.fillRect(0, 0, 128, 128);
+            const haloTex = new THREE.CanvasTexture(haloCanvas);
+            const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+                map: haloTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.7
+            }));
+            halo.scale.set(2.2, 2.2, 1);  // larger halo — ball looks like a pulsing neon beacon
+            group.add(halo);
+            group.userData.halo = halo;
+            const holeMat = new THREE.MeshBasicMaterial({ color: 0x1a1a1a, side: THREE.DoubleSide });
+            const holeGeo = new THREE.CircleGeometry(0.085, 10);
+            const holePositions = [
+                [0,1,0],[0,-1,0],[1,0,0],[-1,0,0],[0,0,1],[0,0,-1],
+                [0.707,0.707,0],[0.707,-0.707,0],[-0.707,0.707,0],[-0.707,-0.707,0],
+                [0,0.707,0.707],[0,0.707,-0.707],[0,-0.707,0.707],[0,-0.707,-0.707],
+                [0.707,0,0.707],[0.707,0,-0.707],[-0.707,0,0.707],[-0.707,0,-0.707],
+                [0.577,0.577,0.577],[0.577,0.577,-0.577],[0.577,-0.577,0.577],[0.577,-0.577,-0.577],
+                [-0.577,0.577,0.577],[-0.577,0.577,-0.577],[-0.577,-0.577,0.577],[-0.577,-0.577,-0.577]
+            ];
+            holePositions.forEach(([x, y, z]) => {
+                const len = Math.sqrt(x*x+y*y+z*z);
+                const nx=x/len, ny=y/len, nz=z/len;
+                const hole = new THREE.Mesh(holeGeo, holeMat);
+                hole.position.set(nx*0.41, ny*0.41, nz*0.41);
+                hole.lookAt(nx*2, ny*2, nz*2);
+                group.add(hole);
+            });
+            return group;
+        }
+
+        function makePlayer() {
+            const g = new THREE.Group();
+            const tealMat  = new THREE.MeshStandardMaterial({ color: 0x2A7F6F });
+            const darkMat  = new THREE.MeshStandardMaterial({ color: 0x1a2535 });
+            const skinMat  = new THREE.MeshStandardMaterial({ color: 0xd4956a });
+            const shoeMat  = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+            // torso
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.4,1.6,12), tealMat);
+            torso.position.y = 1.9; g.add(torso);
+            // head
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.38,12,12), skinMat);
+            head.position.y = 3.15; g.add(head);
+            // shorts
+            const shorts = new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.38,0.8,12), darkMat);
+            shorts.position.y = 1.0; g.add(shorts);
+            // legs
+            [-0.18,0.18].forEach(xOff => {
+                const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.13,1.1,8), darkMat);
+                leg.position.set(xOff, 0.15, 0); g.add(leg);
+                const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.15,0.45), shoeMat);
+                shoe.position.set(xOff, -0.4, 0.08); g.add(shoe);
+            });
+            // left arm (idle)
+            const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,1.1,8), skinMat);
+            leftArm.rotation.z = 0.45;
+            leftArm.position.set(-0.6, 2.0, 0);
+            g.add(leftArm);
+            // right arm (idle)
+            const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,1.1,8), skinMat);
+            rightArm.rotation.z = -0.45;
+            rightArm.position.set(0.6, 2.0, 0);
+            g.add(rightArm);
+            // paddle arm (raised)
+            const paddleArm = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,1.1,8), skinMat);
+            paddleArm.rotation.z = -0.9;
+            paddleArm.position.set(0.9, 2.4, 0);
+            g.add(paddleArm);
+            // paddle handle — short, thin cylinder (real pickleball handle is ~5" long, 1" diameter)
+            const paddleHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.55,10), darkMat);
+            paddleHandle.rotation.z = -0.9;
+            paddleHandle.position.set(1.28, 2.72, 0);
+            g.add(paddleHandle);
+            // Grip wrap — red band on the handle (NEPC red accent + reads as grip-tape)
+            const paddleGrip = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.082,0.082,0.38,10),
+                new THREE.MeshStandardMaterial({ color: 0xC8102E, roughness: 0.7 })
+            );
+            paddleGrip.rotation.z = -0.9;
+            paddleGrip.position.set(1.20, 2.66, 0);
+            g.add(paddleGrip);
+            // paddle face — elongated, FLAT (real pickleball face ~8"w × 10"t × 0.5" thick)
+            const paddleFace = new THREE.Mesh(
+                new THREE.BoxGeometry(0.55,1.25,0.12),
+                new THREE.MeshStandardMaterial({ color: 0x1B4079, roughness: 0.35 })
+            );
+            paddleFace.rotation.z = -0.9;
+            paddleFace.position.set(1.82, 3.15, 0);
+            g.add(paddleFace);
+            // Edge guard — dark rim around the face
+            const paddleEdge = new THREE.Mesh(
+                new THREE.BoxGeometry(0.60,1.30,0.10),
+                new THREE.MeshStandardMaterial({ color: 0x0A1A2F, roughness: 0.8 })
+            );
+            paddleEdge.rotation.z = -0.9;
+            paddleEdge.position.set(1.82, 3.15, 0);
+            g.add(paddleEdge);
+
+            // Scale in Z to give depth when viewed from side camera
+            g.scale.z = 2.8;
+            // Store refs for animation
+            g.userData = { torso, paddleArm, paddleHandle, paddleFace, leftArm, rightArm };
+            return g;
+        }
+
+        function init3D() {
+            const container = document.getElementById('canvas-wrap');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0A1A2F);
+            const aspect = container.clientWidth / container.clientHeight;
+
+            // CAMERA: deep sideline angle — default view
+            pCam = new THREE.PerspectiveCamera(68, aspect, 0.1, 1000);
+            pCam.position.set(...CAM_PRESETS[2].pos);
+            pCam.lookAt(...CAM_PRESETS[2].look);
+
+            oCam = new THREE.OrthographicCamera(-28*aspect, 28*aspect, 18, -5, 0.1, 1000);
+            oCam.position.set(0, 40, 0);
+            oCam.lookAt(0, 0, 0); oCam.up.set(0, 0, -1);
+            camera = pCam;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            // Cinematic tone mapping — lifts highlights, crushes blacks, adds film-like color response
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.75;  // cranked for cinematic HDR feel
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
+
+            // Ambient — rebalanced down so shadows read; old 0.9 was flat
+            scene.add(new THREE.AmbientLight(0xb8d0ff, 0.45));
+            // Key light (sun) — warmer, brighter, casts shadows
+            const sun = new THREE.DirectionalLight(0xfff0d8, 1.25);
+            sun.position.set(10, 34, 10);
+            sun.castShadow = true;
+            sun.shadow.mapSize.width = 1024;
+            sun.shadow.mapSize.height = 1024;
+            sun.shadow.camera.left = -30;
+            sun.shadow.camera.right = 30;
+            sun.shadow.camera.top = 20;
+            sun.shadow.camera.bottom = -20;
+            sun.shadow.camera.near = 1;
+            sun.shadow.camera.far = 80;
+            sun.shadow.bias = -0.0008;
+            scene.add(sun);
+            // Cool fill from behind player — defines the opponent silhouette
+            const fill = new THREE.DirectionalLight(0x4488ff, 0.55);
+            fill.position.set(-20, 10, 8); scene.add(fill);
+            // Rim light from behind opponent — hero-shot contrast around the attacker
+            const rim = new THREE.DirectionalLight(0xff8855, 0.7);
+            rim.position.set(32, 12, -6); scene.add(rim);
+            // Pulsing hemisphere light (court glow)
+            hemiLight = new THREE.HemisphereLight(0x4da6ff, 0x1a3a4a, 0.3);
+            hemiLight.userData = { phase: 0 };
+            scene.add(hemiLight);
+            // Scene fog — pulls in slightly sooner so the crowd backdrop gets atmospheric fade
+            scene.fog = new THREE.Fog(0x0A1A2F, 38, 88);
+            // Ball travel point light — bumped range, brighter impact
+            ballLight = new THREE.PointLight(0xffffff, 0, 14, 2);
+            scene.add(ballLight);
+
+            // ── COURT ──
+            const surround = new THREE.Mesh(new THREE.PlaneGeometry(80,50), new THREE.MeshStandardMaterial({ color: COURT_OOB, roughness: 0.9 }));
+            surround.rotation.x = -Math.PI/2; surround.position.y = -0.01; surround.receiveShadow = true; scene.add(surround);
+            const CW = 20; // court width (Z): 20ft real dimensions
+            // Glossy court surface — low roughness creates real light reflections from the stadium lights overhead.
+            const courtMatP = new THREE.MeshStandardMaterial({ color: COURT_BLUE, roughness: 0.18, metalness: 0.25 });
+            const courtMatB = new THREE.MeshStandardMaterial({ color: COURT_BURG, roughness: 0.18, metalness: 0.25 });
+            const svcP = new THREE.Mesh(new THREE.PlaneGeometry(15,CW), courtMatP);
+            svcP.rotation.x = -Math.PI/2; svcP.position.set(-14.5, 0.01, 0); svcP.receiveShadow = true; scene.add(svcP);
+            const svcO = new THREE.Mesh(new THREE.PlaneGeometry(15,CW), courtMatP);
+            svcO.rotation.x = -Math.PI/2; svcO.position.set(14.5, 0.01, 0); svcO.receiveShadow = true; scene.add(svcO);
+            const kitP = new THREE.Mesh(new THREE.PlaneGeometry(7,CW), courtMatB);
+            kitP.rotation.x = -Math.PI/2; kitP.position.set(-3.5, 0.01, 0); kitP.receiveShadow = true; scene.add(kitP);
+            const kitO = new THREE.Mesh(new THREE.PlaneGeometry(7,CW), courtMatB);
+            kitO.rotation.x = -Math.PI/2; kitO.position.set(3.5, 0.01, 0); kitO.receiveShadow = true; scene.add(kitO);
+            court = svcP;
+
+            // Court lines
+            const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const drawLine = (lx, lz, x, z) => {
+                const m = new THREE.Mesh(new THREE.PlaneGeometry(lx, lz), lineMat);
+                m.rotation.x = -Math.PI/2; m.position.set(x, 0.03, z); scene.add(m);
+            };
+            const CWh = CW / 2; // half court width
+            drawLine(44, 0.15, 0, CWh); drawLine(44, 0.15, 0, -CWh);
+            drawLine(0.15, CW, 22, 0); drawLine(0.15, CW, -22, 0);
+            drawLine(0.15, CW, 7, 0);  drawLine(0.15, CW, -7, 0);
+            drawLine(0.15, CW, 0, 0);
+            drawLine(15, 0.15, 14.5, 0); drawLine(15, 0.15, -14.5, 0);
+
+            // Net — procedural mesh texture on a plane (tons lighter than real geometry) + solid white tape on top
+            const netCanvas = document.createElement('canvas');
+            netCanvas.width = 512; netCanvas.height = 128;
+            const nctx = netCanvas.getContext('2d');
+            nctx.clearRect(0, 0, 512, 128);
+            nctx.strokeStyle = 'rgba(235,240,250,0.95)';
+            nctx.lineWidth = 1.3;
+            // verticals
+            for (let x = 0; x <= 512; x += 8) {
+                nctx.beginPath(); nctx.moveTo(x, 0); nctx.lineTo(x, 128); nctx.stroke();
+            }
+            // horizontals
+            for (let y = 0; y <= 128; y += 8) {
+                nctx.beginPath(); nctx.moveTo(0, y); nctx.lineTo(512, y); nctx.stroke();
+            }
+            const netTex = new THREE.CanvasTexture(netCanvas);
+            netTex.wrapS = netTex.wrapT = THREE.RepeatWrapping;
+            netTex.repeat.set(1, 1);
+            const netMat = new THREE.MeshBasicMaterial({
+                map: netTex, side: THREE.DoubleSide, transparent: true, opacity: 0.85, alphaTest: 0.1
+            });
+            const netMesh = new THREE.Mesh(new THREE.PlaneGeometry(CW, 2.83), netMat);
+            netMesh.position.set(0, 1.415, 0); netMesh.rotation.y = Math.PI/2; scene.add(netMesh);
+            // White tape along the top of the net (standard tournament look)
+            const tapeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+            const tape = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.13, CW), tapeMat);
+            tape.position.set(0, 2.83, 0); scene.add(tape);
+            // Slightly nicer posts (metallic, thicker at base)
+            const postMat = new THREE.MeshStandardMaterial({ color: 0xcfd4dc, roughness: 0.35, metalness: 0.7 });
+            const netPost = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 3.2, 12), postMat);
+            netPost.position.set(0, 1.6, CWh + 0.1); netPost.castShadow = true; scene.add(netPost);
+            const netPost2 = netPost.clone(); netPost2.position.z = -(CWh + 0.1); scene.add(netPost2);
+
+            // Ball
+            ball = makePickleball(); ball.castShadow = true; scene.add(ball);
+
+            // ── STADIUM ATMOSPHERE ──
+            // Dark curved back wall (catches rim light, gives depth)
+            const backWallGeo = new THREE.CylinderGeometry(48, 48, 30, 40, 1, true, -Math.PI/2.2, Math.PI * 1.1);
+            const backWallMat = new THREE.MeshStandardMaterial({
+                color: 0x0A1828, side: THREE.BackSide, roughness: 0.95, metalness: 0
+            });
+            const backWall = new THREE.Mesh(backWallGeo, backWallMat);
+            backWall.position.set(40, 12, 0);
+            scene.add(backWall);
+
+            // Crowd silhouettes — two tiered rows of boxy heads/shoulders behind opponent baseline
+            const crowdHeadMat = new THREE.MeshStandardMaterial({ color: 0x141E30, roughness: 1, metalness: 0 });
+            const crowdBodyMat = new THREE.MeshStandardMaterial({ color: 0x0E1726, roughness: 1, metalness: 0 });
+            const crowdGroup = new THREE.Group();
+            for (let row = 0; row < 2; row++) {
+                const rowX = 30 + row * 4.5;
+                const rowY = 2.5 + row * 2.2;
+                const zSpacing = 1.2;
+                const zStart = -16;
+                const count = Math.ceil(32 / zSpacing);
+                for (let i = 0; i < count; i++) {
+                    const jitterX = (Math.random() - 0.5) * 0.5;
+                    const jitterY = (Math.random() - 0.5) * 0.3;
+                    const jitterZ = (Math.random() - 0.5) * 0.4;
+                    // shoulders
+                    const body = new THREE.Mesh(
+                        new THREE.BoxGeometry(0.9, 1.2, 0.85),
+                        crowdBodyMat
+                    );
+                    body.position.set(rowX + jitterX, rowY + jitterY, zStart + i * zSpacing + jitterZ);
+                    crowdGroup.add(body);
+                    // head
+                    const head = new THREE.Mesh(
+                        new THREE.SphereGeometry(0.32, 8, 8),
+                        crowdHeadMat
+                    );
+                    head.position.set(rowX + jitterX, rowY + jitterY + 0.9, zStart + i * zSpacing + jitterZ);
+                    crowdGroup.add(head);
+                }
+            }
+            scene.add(crowdGroup);
+
+            // Stadium light halos — warm point lights high above to fake venue spotlights
+            const stadium1 = new THREE.PointLight(0xfff0c8, 0.5, 60, 1.8);
+            stadium1.position.set(0, 22, 16); scene.add(stadium1);
+            const stadium2 = new THREE.PointLight(0xfff0c8, 0.5, 60, 1.8);
+            stadium2.position.set(0, 22, -16); scene.add(stadium2);
+
+            // Opponent figure — now with legs, shoes, and a non-paddle arm so it looks like a person
+            const oppGroup = new THREE.Group();
+            const oppBodyMat = new THREE.MeshStandardMaterial({ color: 0xC8102E, roughness: 0.7 });
+            const oppDarkMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.85 });
+            const oppSkinMat = new THREE.MeshStandardMaterial({ color: 0xc8a882, roughness: 0.85 });
+            const oppShoeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+            const oppTorso = new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.4,1.6,12), oppBodyMat);
+            oppTorso.position.y = 1.9; oppGroup.add(oppTorso);
+            const oppHead = new THREE.Mesh(new THREE.SphereGeometry(0.38,12,12), oppSkinMat);
+            oppHead.position.y = 3.15; oppGroup.add(oppHead);
+            const oppShorts = new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.38,0.8,12), oppDarkMat);
+            oppShorts.position.y = 1.0; oppGroup.add(oppShorts);
+            // Legs (staggered for athletic stance) + shoes
+            const oppLegL = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.13,1.1,8), oppDarkMat);
+            oppLegL.position.set(-0.18, 0.15, 0.15); oppGroup.add(oppLegL);
+            const oppLegR = new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.13,1.1,8), oppDarkMat);
+            oppLegR.position.set(0.18, 0.15, -0.15); oppGroup.add(oppLegR);
+            const oppShoeL = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.15,0.45), oppShoeMat);
+            oppShoeL.position.set(-0.18, -0.4, 0.2); oppGroup.add(oppShoeL);
+            const oppShoeR = new THREE.Mesh(new THREE.BoxGeometry(0.22,0.15,0.45), oppShoeMat);
+            oppShoeR.position.set(0.18, -0.4, -0.1); oppGroup.add(oppShoeR);
+            // Off-hand arm (not holding paddle)
+            const oppOffArm = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,1.1,8), oppSkinMat);
+            oppOffArm.rotation.z = -0.45; oppOffArm.position.set(0.6, 2.0, 0); oppGroup.add(oppOffArm);
+            // Paddle arm (starts raised, windup animation rotates it)
+            const oppPaddleArm = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,1.2,8), oppSkinMat);
+            oppPaddleArm.rotation.z = 0.7; oppPaddleArm.position.set(-0.8, 2.5, 0); oppGroup.add(oppPaddleArm);
+            // Opponent paddle face — flat, elongated (real pickleball proportions)
+            const oppPaddle = new THREE.Mesh(new THREE.BoxGeometry(0.55,1.25,0.12), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.55 }));
+            oppPaddle.rotation.z = 0.7; oppPaddle.position.set(-1.55, 2.95, 0); oppGroup.add(oppPaddle);
+            // Opponent paddle edge guard
+            const oppPaddleEdge = new THREE.Mesh(new THREE.BoxGeometry(0.60,1.30,0.10), new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.85 }));
+            oppPaddleEdge.rotation.z = 0.7; oppPaddleEdge.position.set(-1.55, 2.95, 0); oppGroup.add(oppPaddleEdge);
+            // Opponent paddle handle — thin, stubby
+            const oppPaddleHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.55,10), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.75 }));
+            oppPaddleHandle.rotation.z = 0.7; oppPaddleHandle.position.set(-1.15, 2.62, 0); oppGroup.add(oppPaddleHandle);
+            // Opponent grip wrap — red accent to match player
+            const oppGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.082,0.082,0.38,10), new THREE.MeshStandardMaterial({ color: 0xC8102E, roughness: 0.7 }));
+            oppGrip.rotation.z = 0.7; oppGrip.position.set(-1.08, 2.56, 0); oppGroup.add(oppGrip);
+            oppGroup.scale.z = 2.8;
+            oppGroup.position.set(21, 0, 0);
+            opponent = oppGroup; scene.add(opponent);
+            // Store arm refs for wind-up animation + a base-Y for idle breathing
+            opponent.userData = { paddleArm: oppPaddleArm, paddle: oppPaddle, torso: oppTorso, head: oppHead, baseY: 0 };
+
+            // Player figure — at kitchen line, facing opponent
+            playerFigure = makePlayer();
+            playerFigure.position.set(-8, 0, 0);
+            scene.add(playerFigure);
+
+            // Enable shadow casting on all figure meshes (sun now has a proper shadow camera)
+            [opponent, playerFigure].forEach(fig => {
+                fig.traverse(obj => { if (obj.isMesh) obj.castShadow = true; });
+            });
+
+            // Landing ring
+            landingRing = new THREE.Mesh(
+                new THREE.RingGeometry(0.4, 0.6, 32),
+                new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0 })
+            );
+            landingRing.rotation.x = -Math.PI/2; landingRing.position.y = 0.04; scene.add(landingRing);
+
+            // Shockwave rings — expanding rings on ball bounce. Pool of 3 for overlapping hits.
+            shockwaves = [];
+            for (let i = 0; i < 3; i++) {
+                const ring = new THREE.Mesh(
+                    new THREE.RingGeometry(0.4, 0.55, 40),
+                    new THREE.MeshBasicMaterial({
+                        color: 0xffffff, transparent: true, opacity: 0,
+                        side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false
+                    })
+                );
+                ring.rotation.x = -Math.PI / 2;
+                ring.visible = false;
+                ring.userData = { life: 0 };
+                shockwaves.push(ring); scene.add(ring);
+            }
+
+            // Ghost trail — 10 additive-blended spheres, size + opacity taper from head to tail
+            const TRAIL_N = 10;
+            for (let i = 0; i < TRAIL_N; i++) {
+                const t = i / (TRAIL_N - 1);           // 0=newest, 1=oldest
+                const size = 0.40 * (1 - t * 0.55);    // head full, tail ~45% size
+                const g = new THREE.Mesh(
+                    new THREE.SphereGeometry(size, 10, 10),
+                    new THREE.MeshBasicMaterial({
+                        color: BALL_GREEN,
+                        transparent: true,
+                        opacity: 0,                    // set per-activation in launchBall
+                        blending: THREE.AdditiveBlending,
+                        depthWrite: false
+                    })
+                );
+                g.visible = false;
+                g.userData = { taper: 1 - t * 0.7 };  // head 1.0, tail 0.3 — used to scale opacity
+                ghosts.push(g); scene.add(g);
+            }
+            // Particle pool
+            initParticles();
+            render();
+        }
+
+        function render() {
+            requestAnimationFrame(render);
+
+            // ── PLAYER ANIMATION ──
+            if (playerFigure && playerFigure.userData.paddleArm) {
+                const ud = playerFigure.userData;
+
+                // Lerp ready state
+                const readyTarget = holdingReady ? 1.0 : 0.0;
+                playerReadyLerp += (readyTarget - playerReadyLerp) * 0.12;
+
+                // Crouch on ready — NOTE: final position.y is set in the idle-breath block below,
+                // which combines this crouch with a gentle breath sway. Don't set here or it'll be overwritten.
+
+                // Paddle arm: idle rotation=-0.9, ready rotation=-0.5
+                const baseRot = -0.9 + 0.4 * playerReadyLerp;
+
+                // Swing offset (sin curve over swingProgress 1→0)
+                let swingOff = 0;
+                if (swingProgress > 0) {
+                    swingOff = Math.sin(swingProgress * Math.PI) * 1.3;
+                    swingProgress = Math.max(0, swingProgress - 0.045);
+                }
+
+                const finalRot = baseRot + swingOff;
+                ud.paddleArm.rotation.z = finalRot;
+                ud.paddleHandle.rotation.z = finalRot;
+                ud.paddleFace.rotation.z = finalRot;
+
+                // Shift paddle arm position with ready state
+                ud.paddleArm.position.x = 0.9 - 0.15 * playerReadyLerp;
+                ud.paddleArm.position.y = 2.4 + 0.2 * playerReadyLerp;
+                ud.paddleHandle.position.x = 1.35 - 0.2 * playerReadyLerp;
+                ud.paddleHandle.position.y = 2.75 + 0.2 * playerReadyLerp;
+                ud.paddleFace.position.x = 1.75 - 0.3 * playerReadyLerp;
+                ud.paddleFace.position.y = 3.05 + 0.2 * playerReadyLerp;
+
+                // Left arm raises slightly when ready
+                ud.leftArm.rotation.z = 0.45 + 0.3 * playerReadyLerp;
+                ud.leftArm.position.y = 2.0 + 0.15 * playerReadyLerp;
+            }
+
+            // Slow-mo replay: plays back recorded trajectory after a wrong/timeout decision
+            if (replayActive) {
+                const t = performance.now() - replayStartMs;
+                const pct = Math.min(t / REPLAY_DUR_MS, 1);
+                const ease = pct < 0.5 ? 2*pct*pct : 1 - Math.pow(-2*pct + 2, 2) / 2; // easeInOutQuad for cinematic feel
+                if (ballTrajectory.length > 1) {
+                    const idx = Math.floor(ease * (ballTrajectory.length - 1));
+                    const s = ballTrajectory[idx];
+                    if (s && ball) {
+                        ball.position.set(s.x, Math.max(s.y, 0.4), s.z);
+                        ball.visible = true;
+                    }
+                }
+                if (pct >= 1) {
+                    replayActive = false;
+                    if (ball) ball.visible = false;
+                    const rb = document.getElementById('replay-banner');
+                    if (rb) rb.style.opacity = '0';
+                }
+            }
+            if (active) {
+                const dt = 1 / (60 * LEVELS[levelIdx].dtFactor); // level-scaled: L1=1/240 (4×slow), L6=1/45 (faster than real)
+                const prevBallX = ballP.x;
+                ballV.y -= 32.2 * dt;
+                ballP.x -= ballV.x * dt;
+                ballP.y += ballV.y * dt;
+                ball.position.set(ballP.x, Math.max(ballP.y, 0.4), ballP.z);
+                // Record trajectory for slow-mo replay. Sample at ~30Hz (every 2nd frame).
+                if (ballTrajectory.length === 0 || ballTrajectory.length % 2 === 0) {
+                    ballTrajectory.push({ x: ballP.x, y: ballP.y, z: ballP.z });
+                }
+                // Cap to keep memory bounded
+                if (ballTrajectory.length > 400) ballTrajectory.shift();
+
+                // Net collision: ball crossed x=0 going toward player while below net top (2.83)
+                if (prevBallX > 0 && ballP.x <= 0 && ballP.y < 2.83 && ballP.y > 0.3) {
+                    ballP.x = 0.05; ball.position.x = 0.05;
+                    active = false; ball.visible = false;
+                    if (ballLight) ballLight.intensity = 0;
+                    // Do NOT set canInput=false here — let handleDecision do it, or it short-circuits itself
+                    if (canInput) {
+                        const t = trialToken;
+                        setTimeout(() => { if (trials < 10 && currentShot && canInput && t === trialToken) handleDecision('TIMEOUT'); }, 60);
+                    }
+                }
+                // Ball spin
+                ball.rotation.z += ballV.x * dt * 0.15;
+                ball.rotation.x += ballV.y * dt * 0.12;
+                // Ball light follows ball
+                if (ballLight) { ballLight.position.copy(ball.position); }
+
+                if (!isPerspective) { ball.position.y = 0.4; }
+
+                // Landing ring predictor
+                if (ballP.x < 5 && landingRing.material.opacity < 0.5) {
+                    let px = ballP.x, py = ballP.y, vx = ballV.x, vy = ballV.y;
+                    for (let s = 0; s < 200; s++) { vy -= 32.2/60; px -= vx/60; py += vy/60; if (py <= 0.4) break; }
+                    landingRing.position.set(px, 0.05, 0);
+                    landingRing.material.color.setHex(px < -22 ? 0xC8102E : 0x00C875);
+                    landingRing.material.opacity = 0.45;
+                }
+
+                // Ball passes player hard cutoff — do NOT set canInput=false here;
+                // handleDecision does it. Setting it here causes handleDecision to short-circuit and nextBall never fires.
+                // BOUNCE: cutoff only activates after hasBounced (gives player time to react post-bounce)
+                // VOLLEY: -16 so player has room to swing mid-air
+                // OUT: -10 — ball is flying past anyway, no need for wide window
+                const cutoffX = (currentShot && currentShot.ans === 'OUT') ? -10 :
+                                 (currentShot && currentShot.ans === 'BOUNCE') ? (hasBounced ? -19 : -1000) : -16;
+                if (ballP.x < cutoffX && canInput) {
+                    holdingReady = false;
+                    const rb = document.getElementById('btn-ready');
+                    if (rb) rb.classList.remove('active');
+                    const t = trialToken;
+                    setTimeout(() => { if (trials < 10 && currentShot && canInput && t === trialToken) handleDecision('TIMEOUT'); }, 80);
+                }
+
+                // BOUNCE ball: detect bounce on PLAYER's side only (x < 1, x > -23)
+                if (currentShot && currentShot.ans === 'BOUNCE' && !hasBounced
+                    && ballP.y <= 0.4 && ballP.x < 1 && ballP.x > -23) {
+                    hasBounced = true;
+                    ballP.y = 0.4;
+                    ballV.y = Math.min(Math.abs(ballV.y) * 0.65, 12);
+                    landingRing.position.set(ballP.x, 0.05, 0);
+                    landingRing.material.color.setHex(0x00C875);
+                    landingRing.material.opacity = 0.8;
+                    setTimeout(() => { landingRing.material.opacity = 0; }, 400);
+                    // Impact FX: shockwave ring + ball squash
+                    spawnShockwave(ballP.x, ballP.z, 0x7DC43F);
+                    ballSquash = 1;
+                }
+
+                // Kill ball when settled — OUT balls disappear on first ground contact (don't roll in court)
+                const isOut = currentShot && currentShot.ans === 'OUT';
+                const hitGround = ballP.y <= 0.4 && ballV.y <= 0;
+                if ((isOut && ballP.y <= 0.4) || (!isOut && hitGround) || ballP.x < -26) {
+                    // Fire one last shockwave on OUT impact — red to sell "way deep"
+                    if (isOut && ballP.y <= 0.4 && ball.visible) {
+                        spawnShockwave(ballP.x, ballP.z, 0xff3a18);
+                    }
+                    active = false;
+                    landingRing.material.opacity = 1;
+                    ball.visible = false;
+                    if (ballLight) { ballLight.intensity = 0; }
+                }
+            } else {
+                // Fade out ball light when not active
+                if (ballLight && ballLight.intensity > 0) ballLight.intensity = Math.max(0, ballLight.intensity - 0.06);
+            }
+
+            // Ball squash-stretch — briefly flatten on impact, spring back
+            if (ball) {
+                if (ballSquash > 0) ballSquash = Math.max(0, ballSquash - 0.07);
+                const squash = ballSquash;
+                ball.scale.set(1 + squash * 0.45, 1 - squash * 0.55, 1 + squash * 0.45);
+            }
+
+            // Shockwave ring expansion
+            shockwaves.forEach(ring => {
+                if (ring.userData.life <= 0) return;
+                ring.userData.life -= 1 / 60;
+                const t = 1 - Math.max(0, ring.userData.life) / 0.6;  // 0 → 1 over lifetime
+                const s = 0.3 + t * 4.2;                              // expand 0.3 → 4.5
+                ring.scale.set(s, s, 1);
+                ring.material.opacity = 0.9 * (1 - t);
+                if (ring.userData.life <= 0) { ring.visible = false; ring.material.opacity = 0; }
+            });
+
+            // Idle breathing on figures — subtle vertical sway when not actively swinging
+            idlePhase += 0.018;
+            const breath = Math.sin(idlePhase) * 0.035;
+            if (opponent) {
+                opponent.position.y = (opponent.userData.baseY || 0) + breath;
+                if (opponent.userData.head) opponent.userData.head.rotation.y = Math.sin(idlePhase * 0.7) * 0.08;
+            }
+            if (playerFigure) {
+                playerFigure.position.y = (-0.28 * (playerReadyLerp || 0)) + breath * 0.6;
+            }
+
+            // Hemisphere pulse + cinematic color-temperature shift per shot type during flight.
+            // Warm red = HARD/OUT (threat), neutral blue = VOLLEY, cool cyan = SOFT/BOUNCE (safe).
+            // Shift is subtle but the peripheral brain catches it faster than the ball.
+            if (hemiLight) {
+                hemiLight.userData.phase += 0.008;
+                hemiLight.intensity = 0.35 + Math.sin(hemiLight.userData.phase) * 0.07;
+                const targetSky = (active && currentShot)
+                    ? (currentShot.ans === 'OUT'    ? 0xff6a3a
+                     : currentShot.ans === 'VOLLEY' ? 0xffb048
+                     :                                0x4da6ff)
+                    : 0x4da6ff;
+                const currentSky = hemiLight.color.getHex();
+                if (currentSky !== targetSky) {
+                    const c = hemiLight.color;
+                    const tgt = new THREE.Color(targetSky);
+                    c.lerp(tgt, 0.06);
+                }
+            }
+
+            // Camera shake
+            if (camShakeFrames > 0) {
+                if (!camBasePos) camBasePos = { x: pCam.position.x, y: pCam.position.y, z: pCam.position.z };
+                camShakeFrames--;
+                const amp = camShakeAmp * (camShakeFrames / 24);
+                pCam.position.x = camBasePos.x + (Math.random() - 0.5) * amp * 2;
+                pCam.position.y = camBasePos.y + (Math.random() - 0.5) * amp * 1.5;
+                if (camShakeFrames === 0) {
+                    pCam.position.x = camBasePos.x; pCam.position.y = camBasePos.y; camBasePos = null;
+                }
+            }
+
+            // Particle update
+            particles.forEach(p => {
+                if (p.userData.life > 0) {
+                    p.userData.vy -= 12 / 60;
+                    p.userData.vx *= 0.93; p.userData.vz *= 0.93;
+                    p.position.x += p.userData.vx / 60;
+                    p.position.y += p.userData.vy / 60;
+                    p.position.z += p.userData.vz / 60;
+                    p.userData.life -= 1 / 60;
+                    p.material.opacity = Math.max(0, p.userData.life / 0.55);
+                    if (p.userData.life <= 0) { p.visible = false; p.material.opacity = 0; }
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        function toggleCam() {
+            camPreset = (camPreset + 1) % CAM_PRESETS.length;
+            const preset = CAM_PRESETS[camPreset];
+            isPerspective = preset.persp;
+            if (preset.persp) {
+                pCam.position.set(...preset.pos);
+                pCam.lookAt(...preset.look);
+                camera = pCam;
+            } else {
+                camera = oCam;
+            }
+            camBasePos = null; // reset cam shake base on view change
+            onWindowResize();
+            // Update button label to show current view
+            const btn = document.querySelector('.btn-nav[onclick="toggleCam()"]');
+            if (btn) btn.textContent = preset.label;
+        }
+        function onWindowResize() {
+            const container = document.getElementById('canvas-wrap');
+            if (!renderer || !container.clientWidth) return;
+            const w = container.clientWidth, h = container.clientHeight, aspect = w / h;
+            pCam.aspect = aspect; pCam.updateProjectionMatrix();
+            oCam.left = -25*aspect; oCam.right = 25*aspect; oCam.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        }
+        window.addEventListener('resize', onWindowResize);
+
+        // Start intro animation on load
+        window.addEventListener('load', initIntroAnim);
+
+        // ── LANDING PAGE: hero backdrop + level tiles ──
+        function initHeroBackdrop() {
+            const cv = document.getElementById('hero-backdrop');
+            if (!cv) return;
+            const c = cv.getContext('2d');
+            let W = 0, H = 0, DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+            function fit(){
+                const r = cv.getBoundingClientRect();
+                cv.width = r.width * DPR; cv.height = r.height * DPR;
+                W = r.width; H = r.height;
+                c.setTransform(DPR,0,0,DPR,0,0);
+            }
+            fit();
+            new ResizeObserver(fit).observe(cv);
+            // Neon-ball streaks flying diagonally across the hero
+            const streaks = [];
+            function spawnStreak(){
+                const fromLeft = Math.random() < 0.5;
+                const y = 0.15 + Math.random() * 0.7;
+                const speed = 1.6 + Math.random() * 2.4; // px per frame scaled
+                const tilt = -0.35 + Math.random() * 0.7; // y drift per unit x
+                streaks.push({
+                    x: fromLeft ? -120 : 1, y,
+                    vx: fromLeft ? speed : -speed,
+                    vy: tilt * 0.0015,
+                    life: 0, maxLife: 220 + Math.random()*100,
+                    r: 3 + Math.random()*2
+                });
+            }
+            // Court grid lines — fixed, subtle
+            function drawGrid(){
+                c.save();
+                c.globalAlpha = 0.07;
+                c.strokeStyle = '#4DA6FF';
+                c.lineWidth = 1;
+                // Perspective horizontal lines
+                for (let i = 0; i < 8; i++){
+                    const y = H * (0.55 + i*0.065);
+                    const squeeze = 1 - i*0.05;
+                    const xLeft = W * (0.5 - 0.5 * squeeze);
+                    const xRight = W * (0.5 + 0.5 * squeeze);
+                    c.beginPath(); c.moveTo(xLeft, y); c.lineTo(xRight, y); c.stroke();
+                }
+                // Perspective vertical lines
+                for (let i = -4; i <= 4; i++){
+                    const xTop = W * (0.5 + i*0.06);
+                    const xBot = W * (0.5 + i*0.22);
+                    c.beginPath(); c.moveTo(xTop, H*0.55); c.lineTo(xBot, H); c.stroke();
+                }
+                c.restore();
+            }
+            function tick(){
+                c.clearRect(0,0,W,H);
+                // Background radial glow
+                const g = c.createRadialGradient(W*0.7, H*0.2, 0, W*0.7, H*0.2, W*0.8);
+                g.addColorStop(0, 'rgba(27,64,121,0.5)');
+                g.addColorStop(0.5, 'rgba(27,64,121,0.15)');
+                g.addColorStop(1, 'rgba(27,64,121,0)');
+                c.fillStyle = g; c.fillRect(0,0,W,H);
+                // Court grid
+                drawGrid();
+                // Random streak spawning
+                if (Math.random() < 0.04 && streaks.length < 6) spawnStreak();
+                // Draw/update streaks
+                for (let i = streaks.length - 1; i >= 0; i--){
+                    const s = streaks[i];
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    s.life++;
+                    const px = s.x * W;
+                    const py = s.y * H;
+                    // Trail
+                    const trailLen = 12;
+                    for (let t = 0; t < trailLen; t++){
+                        const a = (1 - t/trailLen) * 0.45 * (1 - s.life/s.maxLife);
+                        c.globalAlpha = a;
+                        c.fillStyle = '#DAFF00';
+                        c.beginPath();
+                        c.arc(px - s.vx * t * 8, py - s.vy * t * 8, s.r * (1 - t/trailLen*0.3), 0, Math.PI*2);
+                        c.fill();
+                    }
+                    // Core glow
+                    c.globalAlpha = 0.9 * (1 - s.life/s.maxLife);
+                    const grad = c.createRadialGradient(px, py, 0, px, py, s.r * 6);
+                    grad.addColorStop(0, 'rgba(255,255,160,0.9)');
+                    grad.addColorStop(0.3, 'rgba(218,255,0,0.55)');
+                    grad.addColorStop(1, 'rgba(218,255,0,0)');
+                    c.fillStyle = grad;
+                    c.beginPath(); c.arc(px, py, s.r * 6, 0, Math.PI*2); c.fill();
+                    c.globalAlpha = 1;
+                    if (s.x > 1.2 || s.x < -0.2 || s.life > s.maxLife) streaks.splice(i, 1);
+                }
+                requestAnimationFrame(tick);
+            }
+            tick();
+        }
+
+        function buildLevelTiles(){
+            const grid = document.getElementById('levels-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            LEVELS.forEach((lv, i) => {
+                const tile = document.createElement('div');
+                tile.className = 'level-tile';
+                tile.innerHTML = `
+                    <div class="lt-num">Level ${lv.num}</div>
+                    <div class="lt-name">${lv.name}</div>
+                    <div class="lt-pos">${lv.posLabel || 'BASELINE'}</div>
+                `;
+                grid.appendChild(tile);
+            });
+        }
+
+        window.addEventListener('load', () => {
+            initHeroBackdrop();
+            buildLevelTiles();
+        });
+
+        // ── AUTOMATED SCORING TESTS ──
+        // Run from DevTools console: window.testScoring()
+        // Or visit the page with URL hash #test to auto-run on load and print results.
+        // Verifies calcTimingScore labels for the two bugs Dave reported + the OUT dtFactor fix.
+        window.testScoring = function() {
+            const results = [];
+            // Save and stash live state so tests don't blow up a real game in progress.
+            const saved = { currentShot, ballP: {...ballP}, ballV: {...ballV}, ballLaunchTime, hasBounced, levelIdx };
+
+            function run(name, setup, val, expectedLabel) {
+                setup();
+                const r = calcTimingScore(val);
+                const pass = r.label === expectedLabel;
+                results.push({ name, expected: expectedLabel, got: r.label, score: r.score, pass });
+                return pass;
+            }
+
+            // VOLLEY thresholds — generous scoring so any reasonable volley gets PERFECT
+            const volleyShot = SHOTS.MED;
+            run('VOLLEY: ball deep opponent side (bx=20)',
+                () => { currentShot = volleyShot; ballP.x = 20; },
+                'VOLLEY', 'TOO EARLY');
+            run('VOLLEY: ball on opponent side (bx=5)',
+                () => { currentShot = volleyShot; ballP.x = 5; },
+                'VOLLEY', 'EARLY');
+            run('VOLLEY: ball just past net (bx=-1)',
+                () => { currentShot = volleyShot; ballP.x = -1; },
+                'VOLLEY', '⚡ PERFECT');
+            run('VOLLEY: ball at chest/kitchen zone (bx=-6)',
+                () => { currentShot = volleyShot; ballP.x = -6; },
+                'VOLLEY', '⚡ PERFECT');
+            run('VOLLEY: ball at player (bx=-9)',
+                () => { currentShot = volleyShot; ballP.x = -9; },
+                'VOLLEY', '⚡ PERFECT');
+            run('VOLLEY: ball at landing (bx=-12)',
+                () => { currentShot = volleyShot; ballP.x = -12; },
+                'VOLLEY', '⚡ PERFECT');
+            run('VOLLEY: ball past landing (bx=-14)',
+                () => { currentShot = volleyShot; ballP.x = -14; },
+                'VOLLEY', 'SOLID');
+            run('VOLLEY: ball way past (bx=-18)',
+                () => { currentShot = volleyShot; ballP.x = -18; },
+                'VOLLEY', 'TOO LATE');
+
+            // BOUNCE — early commit rewarded + post-bounce swing graded on vy
+            const bounceShot = SHOTS.SOFT;
+            run('BOUNCE: early read — ball still opponent side (bx=10)',
+                () => { currentShot = bounceShot; hasBounced = false; ballP.x = 10; },
+                'BOUNCE', '⚡ EARLY READ');
+            run('BOUNCE: clean read — ball mid-flight (bx=-3)',
+                () => { currentShot = bounceShot; hasBounced = false; ballP.x = -3; },
+                'BOUNCE', '⚡ CLEAN READ');
+            run('BOUNCE: good commit — ball approaching (bx=-7)',
+                () => { currentShot = bounceShot; hasBounced = false; ballP.x = -7; },
+                'BOUNCE', 'GOOD COMMIT');
+            run('BOUNCE: post-bounce, rising through apex (vy=0)',
+                () => { currentShot = bounceShot; hasBounced = true; ballV.y = 0; },
+                'BOUNCE', '⚡ PERFECT SWING');
+            run('BOUNCE: post-bounce, rising fast (vy=6)',
+                () => { currentShot = bounceShot; hasBounced = true; ballV.y = 6; },
+                'BOUNCE', '⚡ PERFECT SWING');
+            run('BOUNCE: post-bounce, falling (vy=-8)',
+                () => { currentShot = bounceShot; hasBounced = true; ballV.y = -8; },
+                'BOUNCE', 'GREAT TIMING');
+
+            // OUT timing — scales with dtFactor at slow levels now
+            // At L1: netCrossMs = (22/35) * 3.5 * 1000 = 2200ms
+            const outShot = SHOTS.HARD;
+            run('OUT L1: released 100ms after launch',
+                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 100; },
+                'OUT', '⚡ DECISIVE');
+            run('OUT L1: released 500ms after launch',
+                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 500; },
+                'OUT', '⚡ DECISIVE');
+            run('OUT L1: released 1000ms after launch (was HESITATED pre-fix)',
+                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 1000; },
+                'OUT', 'CLEAN READ');
+            run('OUT L1: released 1800ms (ball approaching net)',
+                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 1800; },
+                'OUT', 'GOOD');
+            run('OUT L1: released 2500ms (ball past net)',
+                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 2500; },
+                'OUT', 'HESITATED');
+
+            // Pretty-print
+            const passed = results.filter(r => r.pass).length;
+            const failed = results.length - passed;
+            console.log('%c━━━ SCORING TESTS ━━━', 'font-weight:bold;color:#4DA6FF');
+            results.forEach(r => {
+                const icon = r.pass ? '✅' : '❌';
+                const style = r.pass ? 'color:#00C875' : 'color:#C8102E;font-weight:bold';
+                console.log(`%c${icon} ${r.name}`, style);
+                if (!r.pass) console.log(`    expected: "${r.expected}"  got: "${r.got}"`);
+            });
+            console.log(`%c━━━ ${passed}/${results.length} PASSED ${failed ? '· ' + failed + ' FAILED' : ''} ━━━`,
+                `font-weight:bold;color:${failed ? '#C8102E' : '#00C875'}`);
+
+            // Restore
+            currentShot = saved.currentShot;
+            ballP = saved.ballP; ballV = saved.ballV;
+            ballLaunchTime = saved.ballLaunchTime; hasBounced = saved.hasBounced;
+            levelIdx = saved.levelIdx;
+
+            return { passed, failed, total: results.length, results };
+        };
+
+        // Auto-run if URL hash is #test
+        if (window.location.hash === '#test') {
+            window.addEventListener('load', () => setTimeout(window.testScoring, 200));
+        }
+    </script>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" onclick="if(event.target===this)toggleSettings()" style="
+        display:none; position:fixed; inset:0; z-index:9999;
+        background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
+        align-items:center; justify-content:center;">
+        <div style="
+            background:linear-gradient(135deg,#0D1829,#1a2a4a);
+            border:1px solid rgba(125,196,63,0.3); border-radius:20px;
+            padding:36px 40px; max-width:420px; width:90%;
+            box-shadow:0 0 60px rgba(125,196,63,0.15); font-family:'Montserrat',sans-serif;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+                <div>
+                    <div style="font-size:0.7rem;letter-spacing:3px;color:#7DC43F;text-transform:uppercase;font-weight:800;margin-bottom:4px;">Coming Soon</div>
+                    <h2 style="margin:0;font-size:1.6rem;font-weight:800;color:white;text-transform:uppercase;letter-spacing:-0.5px;">NEPC Features</h2>
+                </div>
+                <button onclick="toggleSettings()" style="background:rgba(255,255,255,0.08);border:none;color:white;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="background:rgba(125,196,63,0.08);border:1px solid rgba(125,196,63,0.25);border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:16px;">
+                    <div style="font-size:1.8rem;line-height:1;">🏆</div>
+                    <div>
+                        <div style="font-weight:800;font-size:0.95rem;color:white;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">NEPC Leaderboard</div>
+                        <div style="font-size:0.78rem;color:#8A9BB0;line-height:1.4;">See how your read times stack up against other NEPC players. Weekly resets. Real rankings.</div>
+                    </div>
+                    <div style="margin-left:auto;flex-shrink:0;background:rgba(125,196,63,0.15);border:1px solid rgba(125,196,63,0.4);border-radius:20px;padding:4px 10px;font-size:0.65rem;font-weight:800;color:#7DC43F;text-transform:uppercase;letter-spacing:1px;white-space:nowrap;">Soon</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
