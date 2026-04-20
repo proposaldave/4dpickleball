@@ -3,13 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>4D Pickleball — Drive. Defend. Drop. Dink.</title>
-<meta name="description" content="Anyone can learn to play 4D Pickleball. A cinematic 3D walkthrough of the four dimensions: Drive, Defend, Drop, Dink.">
-<meta property="og:title" content="4D Pickleball — Drive. Defend. Drop. Dink.">
-<meta property="og:description" content="Anyone can learn to play 4D Pickleball. The four dimensions that turn tennis-at-the-baseline into real pickleball.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://4dpickleball.com">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232B8BFC'/%3E%3Ctext x='50' y='68' font-family='Inter,Arial,sans-serif' font-size='56' font-weight='900' fill='white' text-anchor='middle'%3E4D%3C/text%3E%3C/svg%3E">
+<title>4DP · Cinematic 3D Module Template</title>
+<meta name="description" content="Reference template for 4DP interactive 3D modules. Pure Three.js via CDN, post-processing bloom, dimension-colored trails, view-for-skill cameras.">
 <link rel="stylesheet" href="tokens.css">
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--4dp-ink); }
@@ -104,7 +99,7 @@
     font-size: 22px; letter-spacing: -.5px; line-height: 1; color: var(--4dp-text);
   }
   .shot-chip .coach {
-    display: none;
+    font-size: 11px; color: var(--4dp-text-mute); font-weight: 500; letter-spacing: .3px;
   }
   @media (max-width: 760px) {
     .shot-bar { flex-wrap: wrap; gap: 8px; padding: 16px 12px 20px; }
@@ -128,12 +123,12 @@
     color: var(--dim); margin-bottom: 10px;
   }
   .side-card .coach-name {
-    display: none;
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: 28px; line-height: 1; color: var(--4dp-text); margin-bottom: 4px;
   }
   .side-card .coach-role {
-    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
-    font-size: 26px; line-height: 1.1; color: var(--4dp-text); margin-bottom: 14px;
-    text-transform: none; letter-spacing: -.3px;
+    font-size: 12px; color: var(--4dp-text-dim); font-weight: 500;
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px;
   }
   .side-card .mantra {
     font-size: 14px; color: var(--4dp-text); line-height: 1.5; font-style: italic;
@@ -147,30 +142,14 @@
     .side-card.visible { transform: none; }
   }
 
-  /* Camera hint — prominent, pulses gently so users notice it's interactive */
+  /* Camera hint */
   .cam-hint {
-    position: fixed; bottom: 150px; left: 50%; transform: translateX(-50%); z-index: 10;
-    display: inline-flex; align-items: center; gap: 10px;
-    padding: 10px 18px; border-radius: var(--4dp-r-pill);
-    background: rgba(10,22,40,.8); backdrop-filter: blur(14px);
-    border: 1px solid var(--4dp-hairline-s);
-    font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--4dp-text); pointer-events: none;
+    position: fixed; bottom: 130px; left: 28px; z-index: 10;
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--4dp-text-faint); pointer-events: none;
     opacity: 1; transition: opacity 1s ease;
-    animation: camHintPulse 2.4s ease-in-out infinite;
-    box-shadow: 0 4px 24px rgba(43,139,252,.25);
-    white-space: nowrap;
   }
-  .cam-hint svg { width: 16px; height: 16px; opacity: .9; }
-  .cam-hint.hidden { opacity: 0; animation: none; }
-  @keyframes camHintPulse {
-    0%, 100% { box-shadow: 0 4px 24px rgba(43,139,252,.18); border-color: var(--4dp-hairline-s); }
-    50%      { box-shadow: 0 4px 32px rgba(43,139,252,.6);  border-color: rgba(43,139,252,.55); }
-  }
-  @media (max-width: 760px) {
-    .cam-hint { bottom: auto; top: 76px; left: 50%; transform: translateX(-50%); font-size: 10px; padding: 7px 14px; }
-    .cam-hint svg { width: 13px; height: 13px; }
-  }
+  .cam-hint.hidden { opacity: 0; }
 
   /* Slow-mo indicator */
   .slowmo-badge {
@@ -203,7 +182,7 @@
 <div id="vignette"></div>
 
 <div class="hud-top">
-  <span class="brand-pill"><span class="d" id="brand-dot"></span> 4D Pickleball · Cinematic</span>
+  <span class="brand-pill"><span class="d" id="brand-dot"></span> 4D Pickleball</span>
   <div class="hud-controls">
     <button class="ctrl-btn" id="btn-camera">Camera</button>
     <button class="ctrl-btn" id="btn-slowmo">Slow-Mo</button>
@@ -212,21 +191,19 @@
 </div>
 
 <div class="center-hero" id="center-hero">
-  <div class="eyebrow">◆ 4D Pickleball</div>
-  <h1>Anyone can learn<br>to play 4D Pickleball.</h1>
-  <p class="sub">Drive. Defend. Drop. Dink. Four dimensions, one progression. Pick a shot below to watch it in 3D — then drag and zoom to explore.</p>
+  <div class="eyebrow">◆ 3D Module Template</div>
+  <h1>Every shot has a shape.</h1>
+  <p class="sub">Cinematic Three.js + bloom + trail rendering + view-for-skill cameras. Pick a shot below to watch it in full.</p>
 </div>
 
 <div class="slowmo-badge" id="slowmo-badge">◉ Slow-Mo</div>
 
-<div class="cam-hint" id="cam-hint">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h14M5 15h14M9 5l-4 4 4 4M15 19l4-4-4-4"/></svg>
-  Drag to orbit · Scroll to zoom
-</div>
+<div class="cam-hint" id="cam-hint">Click + drag to orbit · Scroll to zoom</div>
 
 <div class="side-card" id="side-card">
   <div class="label" id="side-label">Shot 3 · Drop</div>
-  <div class="coach-role" id="side-role">Under the ball drop</div>
+  <div class="coach-name" id="side-coach">Coach Dave</div>
+  <div class="coach-role" id="side-role">Level 3 · Reset Drop</div>
   <div class="mantra" id="side-mantra">"Let the ball come to you. The reset isn't a shot — it's a pause button."</div>
   <div class="trajectory" id="side-traj">Apex ≈ 8 ft · Lands soft inside the kitchen from the transition zone.</div>
 </div>
@@ -235,18 +212,22 @@
   <button class="shot-chip dim-drive"  data-shot="drive">
     <span class="num">01 · Drive</span>
     <span class="name">Ball Striking</span>
+    <span class="coach">Coach Ryann</span>
   </button>
   <button class="shot-chip dim-defend" data-shot="defend">
     <span class="num">02 · Defend</span>
     <span class="name">Baby Block</span>
+    <span class="coach">Coach Caleb</span>
   </button>
   <button class="shot-chip dim-drop active" data-shot="drop">
     <span class="num">03 · Drop</span>
-    <span class="name">Under the Ball Drop</span>
+    <span class="name">Reset Drop</span>
+    <span class="coach">Coach Dave</span>
   </button>
   <button class="shot-chip dim-dink"   data-shot="dink">
     <span class="num">04 · Dink</span>
     <span class="name">Kitchen Offense</span>
+    <span class="coach">Ben &amp; Casey</span>
   </button>
 </div>
 
@@ -280,19 +261,24 @@ const SHOTS = {
     label: '01 · Drive',
     dim: 'drive',
     color: 0xF472B6,
-    role: 'Ball striking',
+    coach: 'Coach Ryann',
+    role: 'Level 1 · Ball Striking',
     mantra: '"Simpler motion, fewer errors, faster hands."',
     traj: 'Flat, fast drive from the baseline — short compact swing, clean contact.',
+    // View-for-skill: side camera so arc / flatness is visible
     cam: { pos: [0, 4, 36], look: [0, 3, 0] },
+    // Trajectory: from far baseline to near baseline, flat parabola
     shot: { from: [0, 3.0, -20], to: [0, 3.0, 20], apex: 4.5, duration: 1.2 }
   },
   defend: {
     label: '02 · Defend',
     dim: 'defend',
     color: 0xFBBF24,
-    role: 'Baby block',
+    coach: 'Coach Caleb',
+    role: 'Level 2 · Baby Block',
     mantra: '"Boring is beautiful. Do almost nothing — absorb the pace."',
     traj: 'Attack comes in hot. Defender absorbs at shoulder height, redirects soft into the kitchen.',
+    // View-for-skill: defender POV, incoming perspective
     cam: { pos: [0, 5.5, 28], look: [0, 3, 0] },
     shot: { from: [0, 4.0, -20], to: [0, 2.0, 14], apex: 5.5, duration: 1.0, phases: 'attack-then-reset' }
   },
@@ -300,9 +286,11 @@ const SHOTS = {
     label: '03 · Drop',
     dim: 'drop',
     color: 0x34D399,
-    role: 'Under the ball drop',
-    mantra: '"Let the ball come to you. The drop isn\'t a shot — it\'s a pause button."',
+    coach: 'Coach Dave',
+    role: 'Level 3 · Reset Drop',
+    mantra: '"Let the ball come to you. The reset isn\'t a shot — it\'s a pause button."',
     traj: 'Apex ≈ 8 ft · Lands soft inside the kitchen from the transition zone.',
+    // View-for-skill: side camera — the arc IS the lesson (R18)
     cam: { pos: [38, 6, 0], look: [0, 4, 0] },
     shot: { from: [0, 3.0, 14], to: [0, 1.0, -4], apex: 9.0, duration: 1.8 }
   },
@@ -310,9 +298,11 @@ const SHOTS = {
     label: '04 · Dink',
     dim: 'dink',
     color: 0x2B8BFC,
-    role: 'Kitchen offense',
+    coach: 'Ben & Casey',
+    role: 'Level 4 · Kitchen Offense',
     mantra: '"Pressure creates errors. Place the ball where they have to hit up."',
     traj: 'Short arc, cross-court — clears the net by inches, lands deep in the kitchen.',
+    // View-for-skill: elevated isometric for placement
     cam: { pos: [16, 14, 20], look: [-3, 2, -4] },
     shot: { from: [5, 2.5, 7.5], to: [-7, 1.0, -6.5], apex: 4.0, duration: 1.2 }
   }
@@ -326,8 +316,8 @@ const CAM_PRESETS_BY_SHOT = {}; // filled later
 // ── Scene, camera, renderer ──
 const vp = document.getElementById('viewport');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0F1F3A);
-scene.fog = new THREE.Fog(0x0F1F3A, 65, 140);
+scene.background = new THREE.Color(0x0A1628);
+scene.fog = new THREE.Fog(0x0A1628, 45, 90);
 
 const camera = new THREE.PerspectiveCamera(45, vp.clientWidth / vp.clientHeight, 0.1, 400);
 camera.position.set(...SHOTS[activeShotKey].cam.pos);
@@ -355,18 +345,19 @@ controls.maxPolarAngle = Math.PI * 0.49;
 // ── Post-processing: bloom makes the ball + trail glow cinematically ──
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-const bloom = new UnrealBloomPass(new THREE.Vector2(vp.clientWidth, vp.clientHeight), 0.85, 0.75, 0.6);
+// Bloom tuned so lines do NOT halo. Only bright-emissive elements (ball ~1.8,
+// trail ~2.2, bursts ~2.5) exceed the 0.82 threshold and glow.
+const bloom = new UnrealBloomPass(new THREE.Vector2(vp.clientWidth, vp.clientHeight), 0.55, 0.55, 0.82);
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
 // ═══════════════════════════════════════════════════════════
 // LIGHTING — directional key + soft ambient + fill
 // ═══════════════════════════════════════════════════════════
-// Brighter lighting — original was too dark to read on phones + mid-brightness monitors
-const ambient = new THREE.AmbientLight(0xC8DEF0, 0.75);
+const ambient = new THREE.AmbientLight(0xB8D4E8, 0.35);
 scene.add(ambient);
 
-const key = new THREE.DirectionalLight(0xFFF6E4, 1.9);
+const key = new THREE.DirectionalLight(0xFFF4E0, 1.15);
 key.position.set(18, 30, 14);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
@@ -376,18 +367,9 @@ key.shadow.camera.near = 1;    key.shadow.camera.far   = 70;
 key.shadow.bias = -0.0003;
 scene.add(key);
 
-const fill = new THREE.DirectionalLight(0x9EC0E0, 0.7);
+const fill = new THREE.DirectionalLight(0x88A8CC, 0.3);
 fill.position.set(-22, 14, -12);
 scene.add(fill);
-
-// Warm rim/back-light so players aren't silhouettes
-const rim = new THREE.DirectionalLight(0xFFD9A8, 0.6);
-rim.position.set(0, 18, -28);
-scene.add(rim);
-
-// Hemisphere for ambient sky→ground gradient pickup
-const hemi = new THREE.HemisphereLight(0xC0DDF5, 0x2A3A55, 0.45);
-scene.add(hemi);
 
 // ═══════════════════════════════════════════════════════════
 // COURT — procedural with NEPC court colors
@@ -489,10 +471,12 @@ for (const z of [KITCHEN / 2, -KITCHEN / 2]) {
   courtGroup.add(k);
 }
 
-// Lines — crisp white 0.95 opacity, slight emissive for visibility under bloom
+// Lines — warm off-white, very low emissive so they read "lit" without bloom-bombing.
+// Bloom threshold below (0.82) excludes the lines from the bloom pass entirely —
+// only the ball / trail / impact bursts bloom now.
 const lineMat = new THREE.MeshStandardMaterial({
-  color: 0xFFFFFF, emissive: 0xFFFFFF, emissiveIntensity: 0.12, roughness: 0.5,
-  transparent: true, opacity: 0.95
+  color: 0xDEDBD0, emissive: 0xDEDBD0, emissiveIntensity: 0.02, roughness: 0.62,
+  transparent: true, opacity: 0.86
 });
 function addLine(x, z, w, l) {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, l), lineMat);
@@ -544,39 +528,138 @@ courtGroup.add(netGroup);
 scene.add(courtGroup);
 
 // ═══════════════════════════════════════════════════════════
-// PLAYERS — capsule primitives for v1 (R18 stack lock)
-// Placeholder until low-poly GLTF assets drop in.
+// PLAYERS — right-handed pickleball players in ready stance
+// Primitives for v1 (R18 stack lock). Jersey + shorts + arms +
+// paddle in the right hand, held forward at chest height.
+// Rotate group so the "right hand" is always on the player's
+// actual right side, no matter which way they face the net.
 // ═══════════════════════════════════════════════════════════
-function makePlayer(color, z) {
+function makePlayer({ jersey, shorts, z, facing }) {
+  // facing: +1 = faces +z, -1 = faces -z (rotate whole group)
   const g = new THREE.Group();
-  // Body (capsule)
-  const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.1 });
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.6, 2.2, 8, 16), bodyMat);
-  body.position.y = 2.2;
-  body.castShadow = true;
-  g.add(body);
-  // Head (sphere)
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(0.55, 24, 16),
-    new THREE.MeshStandardMaterial({ color: 0xF5D1A8, roughness: 0.6 })
-  );
-  head.position.y = 4.2;
+
+  const skin = new THREE.MeshStandardMaterial({ color: 0xE7B48C, roughness: 0.7 });
+  const shortMat = new THREE.MeshStandardMaterial({ color: shorts, roughness: 0.7, metalness: 0.05 });
+  const jerseyMat = new THREE.MeshStandardMaterial({ color: jersey, roughness: 0.55, metalness: 0.1 });
+  const paddleFaceMat = new THREE.MeshStandardMaterial({ color: 0x8B1A2B, roughness: 0.35, metalness: 0.25 });
+  const paddleEdgeMat = new THREE.MeshStandardMaterial({ color: 0x0A1628, roughness: 0.3, metalness: 0.55 });
+  const gripMat = new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: 0.85 });
+  const shoeMat  = new THREE.MeshStandardMaterial({ color: 0xF5F3EE, roughness: 0.5 });
+
+  // Legs (athletic ready stance — slightly apart)
+  for (const sign of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 1.1, 6, 10), shortMat);
+    leg.position.set(sign * 0.28, 0.9, 0);
+    leg.castShadow = true;
+    g.add(leg);
+    // Shoe
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.22, 0.9), shoeMat);
+    shoe.position.set(sign * 0.28, 0.14, 0.12);
+    shoe.castShadow = true;
+    g.add(shoe);
+  }
+
+  // Shorts block (connects the legs visually)
+  const shortsBlock = new THREE.Mesh(new THREE.CapsuleGeometry(0.52, 0.28, 6, 10), shortMat);
+  shortsBlock.position.y = 1.7;
+  shortsBlock.castShadow = true;
+  g.add(shortsBlock);
+
+  // Torso (jersey)
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.55, 1.1, 8, 14), jerseyMat);
+  torso.position.y = 2.55;
+  torso.castShadow = true;
+  g.add(torso);
+
+  // Neck + head
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.24, 0.28, 12), skin);
+  neck.position.y = 3.3;
+  neck.castShadow = true;
+  g.add(neck);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 16), skin);
+  head.position.y = 3.75;
   head.castShadow = true;
   g.add(head);
-  // Paddle (thin box in hand)
-  const paddle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.9, 1.3, 0.08),
-    new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: 0.4, metalness: 0.2 })
+  // Simple cap (brim suggests athletic gear)
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), jerseyMat);
+  cap.position.y = 3.82;
+  cap.scale.y = 0.6;
+  cap.castShadow = true;
+  g.add(cap);
+
+  // LEFT arm (non-paddle hand) — hangs ready at side
+  const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.9, 5, 8), jerseyMat);
+  leftArm.position.set(-0.62, 2.55, 0.1);
+  leftArm.rotation.z = 0.18;
+  leftArm.castShadow = true;
+  g.add(leftArm);
+  const leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 8), skin);
+  leftHand.position.set(-0.72, 1.95, 0.12);
+  leftHand.castShadow = true;
+  g.add(leftHand);
+
+  // RIGHT arm — bent forward at elbow, paddle held up in ready position
+  // Upper arm
+  const upperArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.15, 0.7, 5, 8), jerseyMat);
+  upperArm.position.set(0.58, 2.62, 0.25);
+  upperArm.rotation.z = 0.22;
+  upperArm.rotation.x = 0.4;
+  upperArm.castShadow = true;
+  g.add(upperArm);
+  // Forearm (angled forward toward net)
+  const forearm = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.7, 5, 8), skin);
+  forearm.position.set(0.68, 2.35, 0.95);
+  forearm.rotation.x = Math.PI / 2 - 0.25;
+  forearm.castShadow = true;
+  g.add(forearm);
+
+  // PADDLE in right hand — grip → edge → face (proper pickleball paddle proportions)
+  const paddleGroup = new THREE.Group();
+  // Grip (handle)
+  const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.085, 0.5, 12), gripMat);
+  grip.position.y = -0.7;
+  grip.castShadow = true;
+  paddleGroup.add(grip);
+  // Throat (transition from grip to face)
+  const throat = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.08, 0.12, 8), paddleEdgeMat);
+  throat.position.y = -0.38;
+  paddleGroup.add(throat);
+  // Paddle face — elongated oval via scaled box (~7.5" wide × 16" tall total)
+  const face = new THREE.Mesh(new THREE.BoxGeometry(0.62, 1.1, 0.06), paddleFaceMat);
+  face.position.y = 0.22;
+  face.castShadow = true;
+  paddleGroup.add(face);
+  // Bevel / edge guard
+  const edge = new THREE.Mesh(new THREE.BoxGeometry(0.66, 1.14, 0.04), paddleEdgeMat);
+  edge.position.y = 0.22;
+  edge.position.z = -0.01;
+  paddleGroup.add(edge);
+  // 4DP logo dot on the face
+  const paddleLogo = new THREE.Mesh(
+    new THREE.CircleGeometry(0.08, 16),
+    new THREE.MeshStandardMaterial({ color: 0xF5F3EE, emissive: 0xF5F3EE, emissiveIntensity: 0.2 })
   );
-  paddle.position.set(0.8, 2.9, 0.3);
-  paddle.rotation.z = -0.25;
-  paddle.castShadow = true;
-  g.add(paddle);
+  paddleLogo.position.set(0, 0.22, 0.032);
+  paddleGroup.add(paddleLogo);
+
+  // Position paddle at the end of the forearm, face pointing toward net (forward)
+  paddleGroup.position.set(0.72, 2.9, 1.55);
+  paddleGroup.rotation.x = -0.4;
+  paddleGroup.rotation.z = 0.15;
+  g.add(paddleGroup);
+
+  // Slight athletic forward lean
+  g.rotation.x = -0.05;
+
   g.position.z = z;
+  // Rotate whole player so right-hand always stays on player's actual right
+  if (facing === -1) g.rotation.y = Math.PI;
   return g;
 }
-const playerFar  = makePlayer(0x1B4079, -20.5);
-const playerNear = makePlayer(0x8B1A2B,  20.5);
+// Far player faces the near player (toward +z because they're at -z)
+const playerFar  = makePlayer({ jersey: 0x1B4079, shorts: 0x0F2138, z: -20, facing: +1 });
+// Near player faces the far player (toward -z because they're at +z)
+const playerNear = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z:  20, facing: -1 });
 scene.add(playerFar, playerNear);
 
 // ═══════════════════════════════════════════════════════════
@@ -691,15 +774,19 @@ let shotRunning = false;
 let shotStart = 0;
 let shotBurstFired = false;
 
-function startShot(key) {
+function startShot(key, resetCamera = true) {
   activeShotKey = key;
   const s = SHOTS[key];
   setDimensionColor(s.color);
   trailPoints = [];
   if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); trailMesh = null; }
   ball.position.set(...s.shot.from);
-  // Animate camera to the view-for-skill position
-  animateCameraTo(s.cam.pos, s.cam.look, 1.1);
+  // Only snap camera to the view-for-skill preset on explicit shot change or Replay.
+  // Auto-replay and internal calls preserve whatever camera angle the user dragged to.
+  if (resetCamera) {
+    animateCameraTo(s.cam.pos, s.cam.look, 1.1);
+    camPresetIdx = 0; // reset preset index so next Camera-button press starts from skill-view
+  }
   shotT = 0;
   shotStart = performance.now();
   shotRunning = true;
@@ -716,6 +803,7 @@ function updateSideCard(key) {
   const card = document.getElementById('side-card');
   card.style.setProperty('--dim', '#' + s.color.toString(16).padStart(6, '0'));
   document.getElementById('side-label').textContent = s.label;
+  document.getElementById('side-coach').textContent = s.coach;
   document.getElementById('side-role').textContent  = s.role;
   document.getElementById('side-mantra').textContent= s.mantra;
   document.getElementById('side-traj').textContent  = s.traj;
@@ -774,8 +862,8 @@ function animate() {
       if (!shotBurstFired) {
         spawnBurst(ball.position.clone(), SHOTS[activeShotKey].color);
         shotBurstFired = true;
-        // Auto-replay loop after a pause
-        setTimeout(() => { if (activeShotKey) startShot(activeShotKey); }, 1400);
+        // Auto-replay loop — preserve the user's camera angle (don't snap back to preset)
+        setTimeout(() => { if (activeShotKey) startShot(activeShotKey, false); }, 1400);
       }
     }
     const p = trajectoryAt(s, shotT);

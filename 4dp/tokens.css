@@ -10,12 +10,17 @@
 
 :root {
   /* ── BASE SURFACES ──
-     Navy ink, not SaaS gray. Warmer, court-surround feel. */
-  --4dp-ink:        #0A1628;   /* page background */
-  --4dp-surface:    #0F2138;   /* cards, panels */
-  --4dp-surface-2:  #16304A;   /* raised elements */
+     Navy ink, not SaaS gray. Warmer, court-surround feel.
+     Lifted 2026-04-20 per Dave feedback (previous #0A1628 read too dark). */
+  --4dp-ink:        #0E1F38;   /* page background — subtle lift from #0A1628 */
+  --4dp-ink-deep:   #081225;   /* for gradients / vignettes only */
+  --4dp-surface:    #12253E;   /* cards, panels */
+  --4dp-surface-2:  #183353;   /* raised elements */
   --4dp-hairline:   rgba(245,243,238,.08);
   --4dp-hairline-s: rgba(245,243,238,.14);
+
+  /* Atmospheric body background — three soft glows over the ink base.
+     Modules apply `.body-atmosphere` on <body> to opt in (non-breaking for existing pages). */
 
   /* ── TEXT ──
      Warm off-white, never pure white. Ink-on-paper feel. */
@@ -130,6 +135,16 @@
 }
 
 .tokens-base * { box-sizing: border-box; }
+
+/* Atmospheric body — subtle radial glows over ink base. Opt-in. */
+.body-atmosphere {
+  background-color: var(--4dp-ink);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 15% -10%, rgba(77,166,255,.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 110%, rgba(155,93,229,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(77,166,255,.03) 0%, transparent 70%);
+  background-attachment: fixed;
+}
 
 /* ═══════════════════════════════════════════════════════════
    TYPOGRAPHY UTILITIES

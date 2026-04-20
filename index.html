@@ -558,128 +558,16 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
   </div>
 
-  <!-- ═══ INTERACTIVE PROGRESSION STORY ═══ -->
-  <section class="prog-section">
-    <div class="hero-badge prog-badge" id="prog-badge">◆ 1D — YOU'VE SEEN THIS GAME</div>
-
-    <p class="prog-copy" id="prog-copy">Four friends play pickleball for the first time. You watch them: all stuck at the baseline playing tennis. We've all seen it before!</p>
-
-    <!-- Dimension dots: light up as you progress through the story -->
-    <div class="prog-dims" id="prog-dims">
-      <span class="prog-dim" data-d="0" style="--dc:#F5F3EE">
-        <!-- 1D: a single horizontal line — the baseline rally -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><line x1="1" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-        <span class="pd-label">1D</span>
-      </span>
-      <span class="prog-dim" data-d="1" style="--dc:#F472B6">
-        <!-- Drive: arrow / fast line — a drive with motion trail -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><path d="M 2 11 L 12 3 M 9 3 L 12 3 L 12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-        <span class="pd-label">+Drive</span>
-      </span>
-      <span class="prog-dim" data-d="2" style="--dc:#FBBF24">
-        <!-- Defend: shield — block icon -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><path d="M 7 1.5 L 12 3.5 L 12 7 Q 12 11 7 12.5 Q 2 11 2 7 L 2 3.5 Z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg>
-        <span class="pd-label">+Defend</span>
-      </span>
-      <span class="prog-dim" data-d="3" style="--dc:#34D399">
-        <!-- Drop: high arc with a drop into kitchen (small arc + ball at end) -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><path d="M 2 11 Q 7 1 12 11" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="12" cy="11" r="1.4" fill="currentColor"/></svg>
-        <span class="pd-label">+Drop</span>
-      </span>
-      <span class="prog-dim" data-d="4" style="--dc:#2B8BFC">
-        <!-- Dink: short low arc over a net -->
-        <svg class="pd-icon" viewBox="0 0 14 14"><line x1="7" y1="3" x2="7" y2="11" stroke="currentColor" stroke-width="1.5" opacity=".55"/><path d="M 2 9 Q 7 4 12 9" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
-        <span class="pd-label">+Dink</span>
-      </span>
-    </div>
-
-    <div class="prog-court-wrap">
-      <svg class="prog-court" viewBox="0 0 400 440" id="prog-court" aria-label="Animated pickleball court">
-        <defs>
-          <!-- Playing surface: radial blue gradient (bright center → deeper edges). Matches Dave's reference aesthetic. -->
-          <radialGradient id="courtSurface" cx="50%" cy="50%" r="70%">
-            <stop offset="0%"  stop-color="#2D5FA8"/>
-            <stop offset="70%" stop-color="#234E8C"/>
-            <stop offset="100%" stop-color="#1B3E72"/>
-          </radialGradient>
-          <!-- Kitchen (NVZ): burgundy gradient — the signature. Not blue. -->
-          <linearGradient id="kitchenBand" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"  stop-color="#6B0F1A"/>
-            <stop offset="100%" stop-color="#52090F"/>
-          </linearGradient>
-          <!-- Inset vignette for cinematic depth -->
-          <radialGradient id="courtVignette" cx="50%" cy="50%" r="75%">
-            <stop offset="55%" stop-color="#000" stop-opacity="0"/>
-            <stop offset="100%" stop-color="#000" stop-opacity=".32"/>
-          </radialGradient>
-        </defs>
-
-        <!-- Playing surface -->
-        <rect x="0" y="0" width="400" height="440" fill="url(#courtSurface)"/>
-        <!-- Kitchen (burgundy band) -->
-        <rect x="0" y="170" width="400" height="100" fill="url(#kitchenBand)"/>
-        <!-- Vignette overlay (gives embossed feel) -->
-        <rect x="0" y="0" width="400" height="440" fill="url(#courtVignette)" pointer-events="none"/>
-
-        <!-- Net: bold white bar (4px) across kitchen center -->
-        <line x1="0" y1="220" x2="400" y2="220" stroke="#fff" stroke-width="4"/>
-        <!-- Kitchen boundary lines: 2px crisp white -->
-        <line x1="0" y1="170" x2="400" y2="170" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-        <line x1="0" y1="270" x2="400" y2="270" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-        <!-- Center service lines — only outside the kitchen -->
-        <line x1="200" y1="0" x2="200" y2="170" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-        <line x1="200" y1="270" x2="200" y2="440" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-
-        <!-- Dynamic overlay: stage-specific trails, players, ball -->
-        <g id="prog-dynamic"></g>
-      </svg>
-    </div>
-
-    <!-- Stage title + one-liner (updates each step) -->
-    <div class="prog-stage-meta">
-      <h2 class="prog-stage-title" id="prog-title">Tennis at the baseline</h2>
-      <p class="prog-stage-sub" id="prog-sub">Ball loops between the four baseline corners. Long, high rallies. Nobody at the kitchen.</p>
-    </div>
-
-    <!-- Prev / dots / next -->
-    <div class="prog-controls">
-      <button class="prog-btn" id="prog-prev" aria-label="Previous stage">← Back</button>
-      <div class="prog-step-dots" id="prog-step-dots">
-        <span class="prog-step active" data-s="0"></span>
-        <span class="prog-step" data-s="1"></span>
-        <span class="prog-step" data-s="2"></span>
-        <span class="prog-step" data-s="3"></span>
-        <span class="prog-step" data-s="4"></span>
-      </div>
-      <button class="prog-btn prog-btn-primary" id="prog-next" aria-label="Next stage">Next →</button>
-    </div>
-  </section>
-
   <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21) -->
-  <section style="max-width:1100px;margin:48px auto;padding:0 24px">
-    <div style="text-align:center;margin-bottom:24px">
-      <div class="hero-badge">◆ See it in 3D</div>
-      <p style="font-family:var(--font-display);font-style:italic;font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-1px;line-height:1.05;color:var(--warm);margin-top:14px">
-        Every shot has a shape.
-      </p>
-    </div>
+  <section style="max-width:1200px;margin:40px auto 32px;padding:0 24px">
     <iframe
       src="4dp/3d_module_template.html"
-      title="4DP cinematic 3D module"
+      title="4D Pickleball cinematic 3D module"
       loading="lazy"
       style="width:100%;aspect-ratio:16/9;border:0;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);display:block"
     ></iframe>
-    <p style="text-align:center;font-size:13px;color:rgba(245,243,238,.4);margin-top:12px">Click a dimension below. Drag to rotate. Slow-mo + Replay top-right.</p>
+    <p style="text-align:center;font-size:13px;color:rgba(245,243,238,.45);margin-top:14px;letter-spacing:.3px">Click a dimension below. Drag to orbit. Scroll to zoom. Slow-mo + Replay top-right.</p>
   </section>
-
-  <!-- One-line pull-quote — every rally moves through all four -->
-  <div style="max-width:760px;margin:0 auto;padding:56px 24px;text-align:center;border-top:1px solid rgba(255,255,255,.06)">
-    <p style="font-family:var(--font-display);font-style:italic;font-size:clamp(28px,4.2vw,48px);font-weight:400;letter-spacing:-.8px;line-height:1.15;color:var(--warm)">
-      Every rally moves through all four.<br>
-      <span style="color:var(--warm-dim)">Your weakest dimension is what holds back the rest.</span>
-    </p>
-  </div>
-
 
 </div><!-- /page-pyramid -->
 
