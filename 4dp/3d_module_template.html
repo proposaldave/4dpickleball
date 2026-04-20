@@ -752,11 +752,11 @@ const SHOTS = {
         // 3RD HIT - DRIVE: near team volleys at kitchen line
         { from: [ 5, 2.2, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // 4TH HIT - BABY BLOCK: lands 2ft past far kitchen line, BOUNCES
-        { from: [-3, 1.5, 8], to: [ 0, 0.15, -9], apex: 3.3, dur: 0.85, cinematic: true },
+        { from: [-3, 1.5, 8], to: [ 2, 0.15, -9], apex: 3.3, dur: 0.85, cinematic: true },
         // BOUNCE -> far paddle (farRight sprints in from baseline to z=-11)
-        { from: [ 0, 0.15, -9], to: [-1, 2.3, -11], apex: 2.2, dur: 0.50 },
+        { from: [ 2, 0.15, -9], to: [ 3, 2.3, -11], apex: 2.2, dur: 0.50 },
         // 5TH HIT - LOW-TO-HIGH LIFT: far lifts up, arrives HIGH at near kitchen (sitter)
-        { from: [-1, 2.3, -11], to: [ 2, 3.5, 6], apex: 5.5, dur: 0.85 },
+        { from: [ 3, 2.3, -11], to: [ 2, 3.5, 6], apex: 5.5, dur: 0.85 },
         // 6TH HIT - PUTAWAY: nearRight takes the sitter overhead and ANGLES it sharp
         // cross-court into the OPEN corner — past the serving team (who is clustered
         // center-left around x=-3). Lands deep at far-left corner (x=-8, z=-16). Fast,
@@ -771,10 +771,10 @@ const SHOTS = {
       { nearLeft:[-5,12],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[2,-15] },
-      { nearLeft:[-3,8],    nearRight:[4,8],    farLeft:[-3,-15],   farRight:[2,-12] },
-      { nearLeft:[-3,8],    nearRight:[2.5,8],  farLeft:[-3,-15],   farRight:[2,-12] },
-      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-15],   farRight:[2,-12] }
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-18],   farRight:[3,-15] },
+      { nearLeft:[-3,8],    nearRight:[4,8],    farLeft:[-3,-15],   farRight:[3,-12] },
+      { nearLeft:[-3,8],    nearRight:[2.5,8],  farLeft:[-3,-15],   farRight:[3,-12] },
+      { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-15],   farRight:[3,-12] }
     ],
     moments: [
       { at: 0.40, label: 'RETURNER SPRINTS IN',
@@ -832,8 +832,8 @@ const SHOTS = {
       { nearLeft:[-5,12],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-17],   farRight:[2,-15] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-14],   farRight:[2,-12] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-17],   farRight:[3,-15] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-14],   farRight:[3,-12] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-11],   farRight:[2,-10] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
@@ -901,8 +901,8 @@ const SHOTS = {
       { nearLeft:[-5,12],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-17],   farRight:[2,-15] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[2,-12] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-18],   farRight:[3,-15] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[3,-12] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-10],   farRight:[2,-9] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
@@ -1158,7 +1158,11 @@ function makePlayer({ jersey, shorts, z, x = 0, facing, hat }) {
   neck.position.y = 3.3; neck.castShadow = true; g.add(neck);
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 16), skin);
   head.position.y = 3.75; head.castShadow = true; g.add(head);
-  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), jerseyMat);
+  // Hat — each player gets a distinct color (Dave's request) so they're easy to tell apart.
+  // Falls back to jersey color if no hat passed (back-compat).
+  const hatColor = (hat != null) ? hat : jersey;
+  const hatMat = new THREE.MeshStandardMaterial({ color: hatColor, roughness: 0.55, metalness: 0.1, emissive: hatColor, emissiveIntensity: 0.06 });
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), hatMat);
   cap.position.y = 3.82; cap.scale.y = 0.6; cap.castShadow = true; g.add(cap);
 
   const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.9, 5, 8), jerseyMat);
@@ -1204,7 +1208,14 @@ function makePlayer({ jersey, shorts, z, x = 0, facing, hat }) {
 
   g.rotation.x = -0.05;
   g.position.set(x, 0, z);
-  if (facing === -1) g.rotation.y = Math.PI;
+  if (facing === -1) {
+    g.rotation.y = Math.PI;
+    // Mirror X so the paddle appears on the camera-visible side from the +x skill-view.
+    // Without this, near-side players' paddles render BEHIND their bodies, which reads
+    // as left-handed. Combined with the 180° Y rotation, this preserves "paddle on
+    // right hand" visually from every skill-view camera angle.
+    g.scale.x = -1;
+  }
 
   // Expose for animation: whole-arm swing, paddle-face twist, head tracking, body lean
   g.userData.rightArm = rightArm;
