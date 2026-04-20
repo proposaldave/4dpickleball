@@ -485,9 +485,9 @@ const SHOTS = {
         // SPEEDUP — fast flat ball at far-right body
         { from: [-4, 1.4, 5], to: [ 3, 1.6, -5], apex: 1.9, dur: 0.45 },
         // POP-UP — defensive reflex, ball floats high back to near court
-        { from: [ 3, 1.6, -5], to: [-3, 2.8, 3], apex: 4.5, dur: 0.70 },
-        // FINISH — overhead smash, steep down into far-right back corner
-        { from: [-3, 2.8, 3], to: [ 4, 0.15, -12], apex: 3.2, dur: 0.55 }
+        { from: [ 3, 1.6, -5], to: [-3, 2.8, 3], apex: 4.5, dur: 0.70, cinematic: true },
+        // FINISH — overhead smash, steep down into far-right back corner (auto slow-mo)
+        { from: [-3, 2.8, 3], to: [ 4, 0.15, -12], apex: 3.2, dur: 0.55, cinematic: true }
       ]
     },
     // ── 4D player movement — same opening as 3D, then all four at the KITCHEN LINE.
@@ -576,7 +576,9 @@ composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
 // ═══════════════════════════════════════════════════════════
-// LIGHTING — directional key + soft ambient + fill
+// LIGHTING — key + ambient + fill + rim
+// Stadium-ish feel: warm key from above, cool fill from opposite side,
+// cool rim from behind to separate players from the navy background.
 // ═══════════════════════════════════════════════════════════
 const ambient = new THREE.AmbientLight(0xB8D4E8, 0.35);
 scene.add(ambient);
@@ -594,6 +596,12 @@ scene.add(key);
 const fill = new THREE.DirectionalLight(0x88A8CC, 0.3);
 fill.position.set(-22, 14, -12);
 scene.add(fill);
+
+// Rim light — cool blue from behind/above, catches the top of the players'
+// heads and shoulders. Separates silhouettes from the dark backdrop.
+const rim = new THREE.DirectionalLight(0x5BA8FF, 0.42);
+rim.position.set(0, 22, -35);
+scene.add(rim);
 
 // ═══════════════════════════════════════════════════════════
 // COURT — procedural with NEPC court colors
@@ -1246,10 +1254,23 @@ let lastTime = performance.now();
 function animate() {
   const now = performance.now();
   const rawDt = Math.min(0.05, (now - lastTime) / 1000);
-  // When paused, dt=0 so the ball + players freeze in place but the render loop
-  // keeps running (user can still orbit the camera).
-  const dt = paused ? 0 : (slowMo ? rawDt * 0.28 : rawDt);
+  // Auto-slow-mo on cinematic segments (4D pop-up + finish = the hero moment).
+  // When paused, dt=0 so the ball + players freeze but the render loop keeps running.
+  let autoSlowMo = false;
+  if (shotRunning) {
+    const dim = SHOTS[activeShotKey];
+    if (dim && dim.shot && dim.shot.segments) {
+      const info = getSegmentInfo(dim.shot, shotT);
+      const seg = info ? dim.shot.segments[info.idx] : null;
+      if (seg && seg.cinematic) autoSlowMo = true;
+    }
+  }
+  const speedMult = slowMo ? 0.28 : (autoSlowMo ? 0.42 : 1.0);
+  const dt = paused ? 0 : rawDt * speedMult;
   lastTime = now;
+  // Badge reflects auto slow-mo too, so viewer knows why playback is slow
+  const _sloBadge = document.getElementById('slowmo-badge');
+  if (_sloBadge) _sloBadge.classList.toggle('on', slowMo || autoSlowMo);
 
   controls.update();
   updateCameraTween(now);
