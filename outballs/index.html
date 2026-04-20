@@ -978,13 +978,7 @@
                 <ellipse cx="218" cy="78" rx="8" ry="4" fill="rgba(255,255,255,0.55)" transform="rotate(-25 218 78)"/>
             </svg>
             <div class="hero-inner">
-                <div class="hero-kicker">
-                    <svg class="kicker-paddle" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <rect x="5" y="2" width="14" height="13" rx="2" fill="#C8102E"/>
-                        <rect x="10" y="14" width="4" height="7" fill="#0A1A2F"/>
-                        <circle cx="21" cy="4" r="2.5" fill="#DAFF00"/>
-                    </svg>4D Pickleball · Training Module
-                </div>
+                <div class="hero-kicker">4D Pickleball · Training Module</div>
                 <div class="hero-title-stack">
                     <div class="hero-title-outline">Anticipating<br>Out Balls</div>
                     <h1 class="hero-title">Anticipating<br>Out Balls</h1>
@@ -1012,7 +1006,7 @@
                 </div>
                 <div class="cred-cell">
                     <div class="cred-num">6</div>
-                    <div class="cred-label">Levels — the opponent<br>gets closer each round</div>
+                    <div class="cred-label">Levels — faster ball<br>OR closer opponent</div>
                 </div>
                 <div class="cred-cell">
                     <div class="cred-num">1</div>
@@ -2212,7 +2206,7 @@
             if (ball) ball.visible = true;
 
             // First-time hint: Level 1, Ball 1 only
-            if (levelIdx === 0 && trials === 0) showFirstTimeHint();
+            // Old 3-gate in-game hint removed — the pregame splash (R14) now teaches the 2-key scheme.
 
             currentShot = SHOTS[pickShot()];
             hasBounced = false;
@@ -3062,9 +3056,8 @@
             rightArm.position.set(0.6, 2.0, 0);
             g.add(rightArm);
             // BACKHAND BLOCK READY STANCE — paddle up in front of chest, angled across body.
-            // This is what we actually teach — not neutral ready. Paddle face toward incoming ball (+x).
-            const PADDLE_ROT = 0.45;        // arm raised up-forward
-            const PADDLE_FACE_Y_ROT = -0.5; // paddle face rotates around Y to face opponent (+x direction)
+            // All paddle parts share one rotation so they read as a single paddle in hand.
+            const PADDLE_ROT = 0.45;
             const paddleArm = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,1.1,8), skinMat);
             paddleArm.rotation.z = PADDLE_ROT;
             paddleArm.position.set(0.25, 2.8, 0.3);
@@ -3080,28 +3073,22 @@
             paddleGrip.rotation.z = PADDLE_ROT;
             paddleGrip.position.set(0.48, 2.98, 0.35);
             g.add(paddleGrip);
-            // Paddle face — rotated to face the incoming ball (+x axis, opponent side)
-            const paddleFace = new THREE.Mesh(
-                new THREE.BoxGeometry(0.55,1.25,0.12),
-                new THREE.MeshStandardMaterial({ color: 0x1B4079, roughness: 0.35 })
-            );
-            paddleFace.rotation.z = PADDLE_ROT;
-            paddleFace.rotation.y = PADDLE_FACE_Y_ROT;
-            paddleFace.position.set(0.9, 3.35, 0.4);
-            g.add(paddleFace);
+            // Edge guard (draw first — face sits on top)
             const paddleEdge = new THREE.Mesh(
                 new THREE.BoxGeometry(0.60,1.30,0.10),
                 new THREE.MeshStandardMaterial({ color: 0x0A1A2F, roughness: 0.8 })
             );
             paddleEdge.rotation.z = PADDLE_ROT;
-            paddleEdge.rotation.y = PADDLE_FACE_Y_ROT;
             paddleEdge.position.set(0.9, 3.35, 0.4);
             g.add(paddleEdge);
-            // Off-hand supporting the paddle shaft (two-handed block)
-            const leftArmTop = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.09,0.95,8), skinMat);
-            leftArmTop.rotation.z = 0.3;
-            leftArmTop.position.set(-0.1, 2.75, 0.25);
-            g.add(leftArmTop);
+            // Paddle face — sits flush on top of edge guard, same orientation as handle
+            const paddleFace = new THREE.Mesh(
+                new THREE.BoxGeometry(0.55,1.25,0.12),
+                new THREE.MeshStandardMaterial({ color: 0x1B4079, roughness: 0.35 })
+            );
+            paddleFace.rotation.z = PADDLE_ROT;
+            paddleFace.position.set(0.9, 3.35, 0.4);
+            g.add(paddleFace);
 
             // Scale in Z to give depth when viewed from side camera
             g.scale.z = 2.8;
