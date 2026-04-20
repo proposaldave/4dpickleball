@@ -569,6 +569,44 @@
             0%,100% { transform: translateY(-50%) rotate(18deg); }
             50%     { transform: translateY(calc(-50% - 10px)) rotate(20deg); }
         }
+
+        /* ── Mobile/tablet polish for the landing page ── */
+        @media (max-width: 768px){
+            .lp-lb-top,.lp-lb-bot{height:24px;}
+            .lp-lb-bot{height:18px;}
+            .hero-section{padding:75px 18px 48px;min-height:90vh;}
+            .hero-kicker{font-size:0.66rem;letter-spacing:2.4px;margin-bottom:14px;}
+            .hero-title{font-size:clamp(2.4rem,11vw,4.4rem);letter-spacing:-1.5px;line-height:1;}
+            .hero-sub{font-size:0.95rem;line-height:1.45;}
+            .hero-science-note{font-size:0.72rem;margin:32px 0 14px;}
+            .hero-cta{padding:14px 24px;font-size:13px;}
+            .hero-meta{font-size:0.7rem;}
+            /* The cinematic Three.js court is heavy + small on mobile — fade
+               the overlay so the hero text is the focal point. */
+            #hero-backdrop{opacity:0.55;}
+            .hero-paddle-art{display:none;}
+            /* Brain-sequence diagram — let it shrink */
+            .reads-diagram{height:auto;width:100%;}
+            .reads-diagram-wrap{padding:14px 8px;}
+            .reads-section h2,.section-h{font-size:clamp(1.6rem,7vw,2.4rem);}
+            /* Read cards — single column on tiny screens */
+            .reads-cards{grid-template-columns:1fr!important;gap:10px!important;}
+            /* Pregame splash sized for narrow viewports */
+            .pgs-card{padding:24px 22px;border-radius:18px;width:calc(100% - 24px);max-width:440px;}
+            .pgs-h{font-size:clamp(26px,8vw,42px);line-height:1;}
+            .pgs-key kbd{min-width:84px;padding:9px 12px;font-size:11px;letter-spacing:1.5px;}
+            .pgs-key-name{font-size:12px;letter-spacing:1.4px;}
+            .pgs-key-desc{font-size:12px;}
+            .pgs-go{padding:14px;font-size:14px;}
+            /* Bottom CTA strip */
+            .bot-cta-strip .line1{font-size:clamp(1.5rem,6vw,2.2rem);line-height:1.1;}
+        }
+        @media (max-width: 480px){
+            .hero-section{padding:60px 14px 36px;}
+            .hero-title{font-size:clamp(2.2rem,12vw,3.6rem);}
+            .hero-cta{padding:13px 22px;font-size:12px;}
+            .reads-section{padding:30px 12px;}
+        }
         @media (max-width: 860px){
             .hero-paddle-art{ opacity: 0.35; right: -10%; }
         }
