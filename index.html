@@ -443,27 +443,37 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <!-- Animated 1D court -->
     <div style="max-width:360px;margin:0 auto 28px">
-      <svg viewBox="0 0 400 440" style="width:100%;display:block;border-radius:18px;background:#1759B0;box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06)">
-        <!-- Court surface -->
-        <rect x="0" y="0" width="400" height="440" fill="#1759B0"/>
-        <!-- Kitchen (NVZ) — empty, highlighted with red warning border -->
-        <rect x="0" y="170" width="400" height="100" fill="rgba(251,113,133,.08)" stroke="rgba(251,113,133,.3)" stroke-width="1" stroke-dasharray="4 4"/>
+      <svg viewBox="0 0 400 440" style="width:100%;display:block;border-radius:18px;background:#0a5e9e;box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.06)">
+        <!-- Court surface — NEPC court blue -->
+        <rect x="0" y="0" width="400" height="440" fill="#0a5e9e"/>
+        <!-- Kitchen (NVZ) — NEPC NVZ blue, dimmed to feel "empty" -->
+        <rect x="0" y="170" width="400" height="100" fill="#0b6db5" opacity=".55"/>
+        <!-- Red warning tint to emphasize emptiness -->
+        <rect x="0" y="170" width="400" height="100" fill="rgba(251,113,133,.08)" stroke="rgba(251,113,133,.35)" stroke-width="1" stroke-dasharray="5 4"/>
         <!-- Net -->
         <line x1="0" y1="220" x2="400" y2="220" stroke="#fff" stroke-width="3"/>
         <!-- Kitchen lines -->
-        <line x1="0" y1="170" x2="400" y2="170" stroke="#fff" stroke-width="1.5" stroke-dasharray="8 4" opacity=".8"/>
-        <line x1="0" y1="270" x2="400" y2="270" stroke="#fff" stroke-width="1.5" stroke-dasharray="8 4" opacity=".8"/>
+        <line x1="0" y1="170" x2="400" y2="170" stroke="#fff" stroke-width="1.5" stroke-dasharray="8 4" opacity=".75"/>
+        <line x1="0" y1="270" x2="400" y2="270" stroke="#fff" stroke-width="1.5" stroke-dasharray="8 4" opacity=".75"/>
         <!-- Center lines -->
-        <line x1="200" y1="0" x2="200" y2="170" stroke="#fff" stroke-width="1" opacity=".4"/>
-        <line x1="200" y1="270" x2="200" y2="440" stroke="#fff" stroke-width="1" opacity=".4"/>
+        <line x1="200" y1="0" x2="200" y2="170" stroke="#fff" stroke-width="1" opacity=".35"/>
+        <line x1="200" y1="270" x2="200" y2="440" stroke="#fff" stroke-width="1" opacity=".35"/>
         <!-- Outer border -->
         <rect x="0" y="0" width="400" height="440" fill="none" stroke="#fff" stroke-width="2"/>
-        <!-- Net label — tucked to the left edge so it doesn't collide with kitchen label -->
-        <text x="30" y="216" fill="#fff" font-size="9" font-weight="700" opacity=".45" letter-spacing="1.5">NET</text>
-        <!-- Empty kitchen indicator — centered cleanly in the far-side kitchen band, above the net -->
-        <text x="200" y="202" text-anchor="middle" fill="rgba(251,113,133,.9)" font-size="12" font-weight="800" font-style="italic" letter-spacing=".5">empty kitchen</text>
+        <!-- Net label — tucked to the left edge -->
+        <text x="26" y="216" fill="#fff" font-size="9" font-weight="700" opacity=".4" letter-spacing="1.5">NET</text>
+        <!-- Empty kitchen indicator — sits above the net in the far-side kitchen band -->
+        <text x="200" y="202" text-anchor="middle" fill="rgba(251,113,133,.95)" font-size="12" font-weight="800" font-style="italic" letter-spacing=".5">empty kitchen</text>
 
-        <!-- 4 players stuck at baselines -->
+        <!-- Faint trail lines showing all 4 possible rally paths -->
+        <g stroke="rgba(200,230,50,.13)" stroke-width="1.25" fill="none" stroke-dasharray="3 5">
+          <path d="M 120 410 Q 200 -70 280 30"/>
+          <path d="M 280 30 Q 360 220 280 410"/>
+          <path d="M 280 410 Q 200 -70 120 30"/>
+          <path d="M 120 30 Q 40 220 120 410"/>
+        </g>
+
+        <!-- 4 players stuck at baselines (rendered AFTER trails so they sit on top) -->
         <g>
           <circle cx="120" cy="30" r="16" fill="#F5F3EE" stroke="#0A1628" stroke-width="2.5"/>
           <text x="120" y="35" text-anchor="middle" fill="#0A1628" font-size="12" font-weight="900">P1</text>
@@ -475,21 +485,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <text x="280" y="415" text-anchor="middle" fill="#0A1628" font-size="12" font-weight="900">P4</text>
         </g>
 
-        <!-- Faint shadow trail showing past arcs -->
-        <path d="M 120 400 Q 200 -80 280 30" stroke="rgba(200,230,50,.18)" stroke-width="1.5" fill="none" stroke-dasharray="3 5"/>
-        <path d="M 280 30 Q 200 -80 120 400" stroke="rgba(200,230,50,.12)" stroke-width="1.5" fill="none" stroke-dasharray="3 5"/>
-
-        <!-- Animated ball: arcs between diagonally-opposite baseline players -->
-        <circle r="9" fill="#c8e632" stroke="#a0b828" stroke-width="1.5">
-          <animateMotion dur="3.2s" repeatCount="indefinite" keyTimes="0;0.5;1" keyPoints="0;0.5;1" path="M 120 400 Q 200 -80 280 30 Q 200 -80 120 400"/>
+        <!-- Animated ball: full 4-stroke rally — P3 → P2 → P4 → P1 → P3 cycle so every player hits the ball -->
+        <circle r="9" fill="#c8e632" stroke="#0A1628" stroke-width="1.5">
+          <animateMotion dur="5.6s" repeatCount="indefinite" path="M 120 410 Q 200 -70 280 30 Q 360 220 280 410 Q 200 -70 120 30 Q 40 220 120 410"/>
+        </circle>
+        <!-- Soft glow halo on the ball -->
+        <circle r="13" fill="#c8e632" opacity=".18">
+          <animateMotion dur="5.6s" repeatCount="indefinite" path="M 120 410 Q 200 -70 280 30 Q 360 220 280 410 Q 200 -70 120 30 Q 40 220 120 410"/>
         </circle>
       </svg>
     </div>
 
-    <p style="font-size:15px;color:var(--warm-mute);max-width:500px;margin:0 auto;line-height:1.65;font-style:italic">
-      Every pickleball player has played this game. Most never leave it.
-    </p>
-    <p style="font-size:22px;color:var(--warm);max-width:460px;margin:18px auto 0;line-height:1.35;font-weight:600;font-family:var(--font-body)">
+    <p style="font-size:22px;color:var(--warm);max-width:460px;margin:8px auto 0;line-height:1.35;font-weight:600;font-family:var(--font-body)">
       4D is how you escape it.
     </p>
     <div style="display:inline-flex;align-items:center;gap:10px;margin-top:28px;padding:10px 20px;border-radius:100px;background:rgba(43,139,252,.1);border:1px solid rgba(43,139,252,.25);font-size:13px;font-weight:600;color:var(--blue-l);letter-spacing:.3px">
