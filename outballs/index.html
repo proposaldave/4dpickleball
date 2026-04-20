@@ -8,6 +8,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@700;800;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Bloom post-processing (r128 non-module build of examples/js) -->
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 
     <style>
         :root {
@@ -1006,7 +1013,7 @@
                 </div>
                 <div class="cred-cell">
                     <div class="cred-num">6</div>
-                    <div class="cred-label">Levels — faster ball<br>OR closer opponent</div>
+                    <div class="cred-label">Levels — faster balls,<br>closer opponents</div>
                 </div>
                 <div class="cred-cell">
                     <div class="cred-num">1</div>
@@ -1018,9 +1025,9 @@
         <!-- THE 3 READS — visual teaching diagram -->
         <section class="lp-section reads-section">
             <div class="lp-inner">
-                <div class="section-tag">The 3 reads</div>
-                <h2 class="section-h">Read the ball speed.</h2>
-                <p class="reads-intro">Every incoming ball is one of three things. Read it in the first 0.3 seconds and your brain makes the right call.</p>
+                <div class="section-tag">The brain sequence</div>
+                <h2 class="section-h">Run this every ball.</h2>
+                <p class="reads-intro">Every time your opponent hits the ball, your brain runs these three checks — in this order.</p>
 
                 <!-- Court + 3 trajectories diagram -->
                 <div class="reads-diagram-wrap">
@@ -1115,19 +1122,19 @@
                 <div class="reads-cards">
                     <div class="read-card read-card-fast">
                         <div class="rc-num">1</div>
-                        <div class="rc-speed">FASTEST</div>
+                        <div class="rc-speed">MAX SPEED</div>
                         <div class="rc-outcome">OUT</div>
                         <div class="rc-action">Let it go</div>
                     </div>
                     <div class="read-card read-card-mid">
                         <div class="rc-num">2</div>
-                        <div class="rc-speed">MEDIUM</div>
+                        <div class="rc-speed">FAST SPEED</div>
                         <div class="rc-outcome">VOLLEY</div>
-                        <div class="rc-action">Block it</div>
+                        <div class="rc-action">Out of the air</div>
                     </div>
                     <div class="read-card read-card-slow">
                         <div class="rc-num">3</div>
-                        <div class="rc-speed">SLOWEST</div>
+                        <div class="rc-speed">SLOW SPEED</div>
                         <div class="rc-outcome">BOUNCE</div>
                         <div class="rc-action">Groundstroke</div>
                     </div>
@@ -1913,6 +1920,7 @@
 
         // Visual effects state
         let hemiLight = null, ballLight = null;
+        let bloomComposer = null;
         let camShakeFrames = 0, camShakeAmp = 0, camBasePos = null;
         let particles = [];
         let shockwaves = [];
@@ -3105,6 +3113,22 @@
             renderer.outputEncoding = THREE.sRGBEncoding;
             container.appendChild(renderer.domElement);
 
+            // ═ Cinematic bloom post-processing (matches 4dp/3d_module_template.html) ═
+            try {
+                if (typeof THREE.EffectComposer === 'function' && typeof THREE.UnrealBloomPass === 'function') {
+                    bloomComposer = new THREE.EffectComposer(renderer);
+                    bloomComposer.addPass(new THREE.RenderPass(scene, pCam));
+                    const bloom = new THREE.UnrealBloomPass(
+                        new THREE.Vector2(container.clientWidth, container.clientHeight),
+                        0.85,  // strength
+                        0.75,  // radius
+                        0.6    // threshold
+                    );
+                    bloomComposer.addPass(bloom);
+                    window._bloom = bloom;  // expose for tuning
+                }
+            } catch(e) { console.warn('Bloom unavailable:', e); }
+
             // Ambient — rebalanced down so shadows read; old 0.9 was flat
             scene.add(new THREE.AmbientLight(0xb8d0ff, 0.45));
             // Key light (sun) — warmer, brighter, casts shadows
@@ -3138,12 +3162,47 @@
             scene.add(ballLight);
 
             // ── COURT ──
-            const surround = new THREE.Mesh(new THREE.PlaneGeometry(80,50), new THREE.MeshStandardMaterial({ color: COURT_OOB, roughness: 0.9 }));
+            const surround = new THREE.Mesh(new THREE.PlaneGeometry(80,50), new THREE.MeshStandardMaterial({ map: _mkDeckTex(), roughness: 0.88, metalness: 0.02 }));
             surround.rotation.x = -Math.PI/2; surround.position.y = -0.01; surround.receiveShadow = true; scene.add(surround);
             const CW = 20; // court width (Z): 20ft real dimensions
-            // Glossy court surface — low roughness creates real light reflections from the stadium lights overhead.
-            const courtMatP = new THREE.MeshStandardMaterial({ color: COURT_BLUE, roughness: 0.18, metalness: 0.25 });
-            const courtMatB = new THREE.MeshStandardMaterial({ color: COURT_BURG, roughness: 0.18, metalness: 0.25 });
+            // NEPC-style court textures (ported from 4dp/3d_module_template.html).
+            // Slate deck outside, radial blue playing surface, burgundy kitchen with inner glow.
+            function _mkDeckTex(){
+                const c = document.createElement('canvas'); c.width = c.height = 512;
+                const ctx = c.getContext('2d');
+                const g = ctx.createLinearGradient(0, 0, 0, 512);
+                g.addColorStop(0, '#5E6878'); g.addColorStop(1, '#4A5462');
+                ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+                for (let i = 0; i < 2000; i++){
+                    ctx.fillStyle = `rgba(0,0,0,${Math.random()*0.06})`;
+                    ctx.fillRect(Math.random()*512, Math.random()*512, 1, 1);
+                }
+                return new THREE.CanvasTexture(c);
+            }
+            function _mkCourtTex(){
+                const c = document.createElement('canvas'); c.width = c.height = 1024;
+                const ctx = c.getContext('2d');
+                const g = ctx.createRadialGradient(512, 512, 40, 512, 512, 680);
+                g.addColorStop(0, '#2D5FA8'); g.addColorStop(0.7, '#234E8C'); g.addColorStop(1, '#1B3E72');
+                ctx.fillStyle = g; ctx.fillRect(0, 0, 1024, 1024);
+                const v = ctx.createRadialGradient(512, 512, 300, 512, 512, 720);
+                v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,0.25)');
+                ctx.fillStyle = v; ctx.fillRect(0, 0, 1024, 1024);
+                return new THREE.CanvasTexture(c);
+            }
+            function _mkKitchenTex(){
+                const c = document.createElement('canvas'); c.width = 512; c.height = 256;
+                const ctx = c.getContext('2d');
+                const g = ctx.createLinearGradient(0, 0, 0, 256);
+                g.addColorStop(0, '#6B0F1A'); g.addColorStop(1, '#52090F');
+                ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 256);
+                const glow = ctx.createRadialGradient(256, 128, 20, 256, 128, 260);
+                glow.addColorStop(0, 'rgba(255,61,90,0.14)'); glow.addColorStop(1, 'rgba(255,61,90,0)');
+                ctx.fillStyle = glow; ctx.fillRect(0, 0, 512, 256);
+                return new THREE.CanvasTexture(c);
+            }
+            const courtMatP = new THREE.MeshStandardMaterial({ map: _mkCourtTex(), roughness: 0.68, metalness: 0.05 });
+            const courtMatB = new THREE.MeshStandardMaterial({ map: _mkKitchenTex(), roughness: 0.7, metalness: 0.02 });
             const svcP = new THREE.Mesh(new THREE.PlaneGeometry(15,CW), courtMatP);
             svcP.rotation.x = -Math.PI/2; svcP.position.set(-14.5, 0.01, 0); svcP.receiveShadow = true; scene.add(svcP);
             const svcO = new THREE.Mesh(new THREE.PlaneGeometry(15,CW), courtMatP);
@@ -3579,7 +3638,12 @@
                 }
             });
 
-            renderer.render(scene, camera);
+            // Bloom composer if available and perspective cam active; orthographic top-down falls back to direct render
+            if (bloomComposer && isPerspective) {
+                bloomComposer.render();
+            } else {
+                renderer.render(scene, camera);
+            }
         }
 
         function toggleCam() {
