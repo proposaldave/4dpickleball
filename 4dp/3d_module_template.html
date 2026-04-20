@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" crossorigin>
-<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="dns-prefetch" href="https://unpkg.com">
+<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/build/three.module.js" crossorigin>
+<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js" crossorigin>
 <title>4DP · Cinematic 3D Module Template</title>
 <meta name="description" content="Reference template for 4DP interactive 3D modules. Cinematic rally animation with procedural audio, coach-grade key-moment annotations, story mode, multi-angle replay, and a 12-key shortcut deck.">
 <link rel="stylesheet" href="tokens.css">
@@ -633,8 +634,8 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
   }
 }
 </script>
@@ -1031,7 +1032,7 @@ courtGroup.add(deck);
 function makeCourtTexture() {
   const c = document.createElement('canvas'); c.width = 512; c.height = 512;  // was 1024 — 4x less pixel work for sharp enough look
   const ctx = c.getContext('2d');
-  const g = ctx.createRadialGradient(512, 512, 40, 512, 512, 680);
+  const g = ctx.createRadialGradient(256, 256, 20, 256, 256, 340);
   g.addColorStop(0, '#2D5FA8'); g.addColorStop(0.7, '#234E8C'); g.addColorStop(1, '#1B3E72');
   ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
   const v = ctx.createRadialGradient(256, 256, 150, 256, 256, 360);
@@ -1383,47 +1384,80 @@ function getStrokeType(dimKey, segIdx, hitterPlayer) {
 }
 
 // Compute stroke motion at phase ∈ [0,1] with contact at contactFrac.
-// Returns arm delta + paddle-face delta + body-lean scale (applied on top of ready pose).
+// Returns arm deltas + paddle-face delta + body-lean scale (applied on top of ready pose).
+//
+// AXIS CONVENTIONS for the right-arm shoulder-pivoted group:
+//   armY (rotation.y) — HORIZONTAL sweep: negative = arm behind player (windup),
+//                       positive = arm swept across body to front (follow-through).
+//                       This is the PRIMARY forehand swing axis.
+//   armX (rotation.x) — VERTICAL tilt: positive = arm rises, negative = arm lowers
+//                       (used for low-to-high finish, or overhead load for smash).
+//   armZ (rotation.z) — ROLL around the arm's long axis (rarely needed).
+//
+// This is the critical axis correction 2026-04-20: a pickleball forehand is a
+// HORIZONTAL sweep behind-to-across, not a vertical up-down rotation. The v1
+// used armX as primary which made the swing look like a tennis overhead, not
+// a groundstroke.
 function strokeMotion(strokeType, phase, contactFrac) {
   if (strokeType === 'volley') {
-    // No windup. Short forward push from the kitchen-ready position. Firm wrist.
+    // No windup. Short forward push from kitchen-ready. Firm wrist, minimal arm motion.
     const pushCurve = Math.sin(Math.max(0, Math.min(1, phase)) * Math.PI);
     return {
-      armX: 0.45 * pushCurve,                 // small forward from -0.55 ready
-      armZ: 0.20 * pushCurve,                 // paddle face rotates slightly through
-      paddleFaceAdj: 0.08 * pushCurve,        // just a touch of face open
-      leanScale: 0.35                         // quarter-lean
+      armX: 0, armY: 0.25 * pushCurve, armZ: 0,
+      paddleFaceAdj: 0.05 * pushCurve,
+      leanScale: 0.30
     };
   }
   if (strokeType === 'smash') {
+    // Overhead: big vertical LOAD up-back, SLAM forward-down. Primary axis = X.
     if (phase <= contactFrac) {
       const w = phase / contactFrac;
       const load = Math.sin(w * Math.PI);
-      return { armX: -1.35 * load, armZ: -0.25 * load, paddleFaceAdj: -0.50 * Math.sin(phase * Math.PI), leanScale: 0.7 };
+      return { armX: -1.35 * load, armY: 0, armZ: 0, paddleFaceAdj: -0.45 * Math.sin(phase * Math.PI), leanScale: 0.7 };
     } else {
       const w = (phase - contactFrac) / (1 - contactFrac);
       const slam = Math.sin(w * Math.PI);
-      return { armX: 1.95 * slam, armZ: 0.30 * slam, paddleFaceAdj: -0.50 * Math.sin(phase * Math.PI), leanScale: 0.95 };
+      return { armX: 1.85 * slam, armY: 0.10 * slam, armZ: 0, paddleFaceAdj: -0.45 * Math.sin(phase * Math.PI), leanScale: 0.95 };
     }
   }
   if (strokeType === 'drop') {
+    // Soft underhand lift. Small horizontal prep back, smooth forward-up lift.
+    // Paddle face opens (positive paddleFaceAdj).
     if (phase <= contactFrac) {
       const w = phase / contactFrac;
-      return { armX: -0.40 * Math.sin(w * Math.PI), armZ: 0, paddleFaceAdj: 0.55 * Math.sin(phase * Math.PI), leanScale: 0.35 };
+      const prep = Math.sin(w * Math.PI);
+      return { armX: 0, armY: -0.30 * prep, armZ: 0, paddleFaceAdj: 0.55 * Math.sin(phase * Math.PI), leanScale: 0.30 };
     } else {
       const w = (phase - contactFrac) / (1 - contactFrac);
-      return { armX: 0.65 * Math.sin(w * Math.PI), armZ: 0.12 * Math.sin(w * Math.PI), paddleFaceAdj: 0.55 * Math.sin(phase * Math.PI), leanScale: 0.5 };
+      const lift = Math.sin(w * Math.PI);
+      return { armX: -0.15 * lift, armY: 0.35 * lift, armZ: 0, paddleFaceAdj: 0.55 * Math.sin(phase * Math.PI), leanScale: 0.45 };
     }
   }
-  // groundstroke — classic forehand: windup back, drive forward + across body
+  // GROUNDSTROKE — classic pickleball forehand. HORIZONTAL sweep.
+  //   Windup: arm swings BEHIND player (armY very negative) at roughly waist level.
+  //   Contact: arm extended to the side/forward meeting the ball.
+  //   Follow-through: arm sweeps ACROSS body to front-left (armY positive) and UP
+  //                   (armX slightly negative for high finish over opposite shoulder).
   if (phase <= contactFrac) {
     const w = phase / contactFrac;
-    const lift = Math.sin(w * Math.PI);
-    return { armX: -0.95 * lift, armZ: -0.15 * lift, paddleFaceAdj: -0.25 * Math.sin(phase * Math.PI), leanScale: 1.0 };
+    const turn = Math.sin(w * Math.PI);
+    return {
+      armX: 0.05 * turn,           // slight low-set
+      armY: -1.10 * turn,          // PRIMARY: arm swings way behind
+      armZ: 0,
+      paddleFaceAdj: -0.15 * Math.sin(phase * Math.PI),
+      leanScale: 0.85
+    };
   } else {
     const w = (phase - contactFrac) / (1 - contactFrac);
     const swing = Math.sin(w * Math.PI);
-    return { armX: 1.35 * swing, armZ: 0.40 * swing, paddleFaceAdj: -0.25 * Math.sin(phase * Math.PI), leanScale: 1.0 };
+    return {
+      armX: -0.25 * swing,         // finishes HIGH
+      armY: 1.15 * swing,          // PRIMARY: arm sweeps across body
+      armZ: 0,
+      paddleFaceAdj: -0.15 * Math.sin(phase * Math.PI),
+      leanScale: 1.0
+    };
   }
 }
 
@@ -1471,8 +1505,11 @@ function updateSwingAnimation(dimKey, shotT) {
     const motion = strokeMotion(strokeType, phase, contactFrac);
     const ready = READY_POSE[getPlayerZone(p)];
 
-    // Apply stroke motion on top of ready pose
+    // Apply stroke motion on top of ready pose.
+    // armY is the PRIMARY axis for groundstroke sweep (behind player → across body).
+    // armX handles vertical tilt (low-to-high finish, overhead load/slam).
     p.userData.rightArm.rotation.x = ready.arm.x + motion.armX;
+    p.userData.rightArm.rotation.y = ready.arm.y + (motion.armY ?? 0);
     p.userData.rightArm.rotation.z = ready.arm.z + motion.armZ;
     p.userData.paddle.rotation.x = ready.paddle.x + motion.paddleFaceAdj;
     p.userData.paddle.rotation.z = ready.paddle.z;
