@@ -748,9 +748,9 @@ const SHOTS = {
         // BOUNCE -> farRight paddle
         { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
         // 3RD HIT - DRIVE: near team volleys at kitchen line
-        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 2.8, dur: 0.80 },
+        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // 4TH HIT - BABY BLOCK: lands 2ft past far kitchen line, BOUNCES
-        { from: [-3, 1.5, 8], to: [ 0, 0.15, -9], apex: 2.2, dur: 0.85, cinematic: true },
+        { from: [-3, 1.5, 8], to: [ 0, 0.15, -9], apex: 3.3, dur: 0.85, cinematic: true },
         // BOUNCE -> far paddle (farRight sprints in from baseline to z=-11)
         { from: [ 0, 0.15, -9], to: [-1, 2.3, -11], apex: 2.2, dur: 0.50 },
         // 5TH HIT - LOW-TO-HIGH LIFT: far lifts up, arrives HIGH at near kitchen (sitter)
@@ -797,9 +797,9 @@ const SHOTS = {
         { from: [-3, 0.15, 15], to: [-5, 3, 20], apex: 3.2, dur: 0.40 },
         { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.80 },
         { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
-        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 2.8, dur: 0.80 },
+        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // 4TH HIT - BABY BLOCK: lands in far transition, BOUNCES (physics-correct)
-        { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 2.0, dur: 0.85 },
+        { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 3.2, dur: 0.85 },
         // BOUNCE -> far paddle (far team moved in to transition)
         { from: [ 0, 0.15, -10], to: [-1, 2.3, -12], apex: 2.2, dur: 0.50 },
         // 5TH HIT - UNDER-BALL DROP: soft lift, BOUNCES in near kitchen
@@ -807,7 +807,7 @@ const SHOTS = {
         // BOUNCE -> near paddle (let it bounce, take at waist height from kitchen line)
         { from: [ 0, 0.15, 5], to: [-1, 2.3, 7], apex: 2.5, dur: 0.50 },
         // 6TH HIT - CROSS-COURT DINK: groundstroke, BOUNCES in far kitchen
-        { from: [-1, 2.3, 7], to: [ 3, 0.15, -5], apex: 2.5, dur: 0.80 },
+        { from: [-1, 2.3, 7], to: [ 3, 0.15, -5], apex: 3.5, dur: 0.80 },
         // Ball dies - far stretches, cannot clean return off the bounce
         { from: [ 3, 0.15, -5], to: [ 1, 0.3, -9], apex: 0.8, dur: 0.60 }
       ]
@@ -849,9 +849,9 @@ const SHOTS = {
         { from: [-3, 0.15, 15], to: [-5, 3, 20], apex: 3.2, dur: 0.38 },
         { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.75 },
         { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.38 },
-        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 2.8, dur: 0.80 },
+        { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // BABY BLOCK: lands in far transition, BOUNCES
-        { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 2.0, dur: 0.80 },
+        { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 3.2, dur: 0.80 },
         // BOUNCE -> far paddle
         { from: [ 0, 0.15, -10], to: [-1, 2.3, -12], apex: 2.2, dur: 0.48 },
         // DROP: soft lift, BOUNCES in near kitchen
@@ -859,13 +859,13 @@ const SHOTS = {
         // BOUNCE -> near paddle
         { from: [ 0, 0.15, 5], to: [-1, 2.3, 7], apex: 2.3, dur: 0.48 },
         // PRESSURE DINK: groundstroke cross-court, BOUNCES in far kitchen
-        { from: [-1, 2.3, 7], to: [ 4, 0.15, -5], apex: 2.5, dur: 0.75 },
+        { from: [-1, 2.3, 7], to: [ 4, 0.15, -5], apex: 3.5, dur: 0.75 },
         // BOUNCE -> far paddle
         { from: [ 4, 0.15, -5], to: [ 3, 2.3, -7], apex: 2.2, dur: 0.45 },
         // RETURN DINK too high -> near VOLLEYS (out of air, no bounce)
-        { from: [ 3, 2.3, -7], to: [-4, 1.8, 6], apex: 2.3, dur: 0.65 },
+        { from: [ 3, 2.3, -7], to: [-4, 1.8, 6], apex: 3.2, dur: 0.65 },
         // SPEEDUP: near volleys fast flat at far body
-        { from: [-4, 1.8, 6], to: [ 3, 1.5, -6], apex: 1.7, dur: 0.42 },
+        { from: [-4, 1.8, 6], to: [ 3, 1.5, -6], apex: 3.2, dur: 0.42 },
         // POP-UP: far reflex volley, ball floats high back (cinematic)
         { from: [ 3, 1.5, -6], to: [-3, 3.2, 4], apex: 4.5, dur: 0.70, cinematic: true },
         // FINISH: near overhead smash, lands on ground in far backcourt
@@ -1364,11 +1364,11 @@ function updateSwingAnimation(dimKey, shotT) {
     p.userData.rightArm.rotation.x = armX;
     p.userData.rightArm.rotation.z = armZ;
 
-    // Paddle face intent: open for drop, closed for drive. Peaks at contact.
+    // Paddle face intent: open for drop, closed for drive. Peaks at contact + early follow.
     const paddle = p.userData.paddle;
     const pd = p.userData.paddleDefault;
     if (paddle && pd) {
-      const intentCurve = Math.sin(Math.PI * Math.min(1, phase / contactFrac));
+      const intentCurve = Math.sin(phase * Math.PI);   // peaks mid-window, near contact
       paddle.rotation.x = pd.rx + faceIntent * intentCurve;
     }
 
@@ -2022,6 +2022,8 @@ window.__4dp = {
   }),
   scrub,  // use the full scrub() so moments/segments replay cleanly
   startShot, setSlowMo, setPaused, setAudio, setTimelineVisible,
+  // Synchronous pose-application (for QA verification when rAF is throttled)
+  applyPoseNow: () => { updateSwingAnimation(activeShotKey, shotT); updateHeadTracking(); },
   SHOTS,
   // Live references for QA + downstream modules
   get players() { return players; },
@@ -2333,6 +2335,12 @@ function animate() {
       rebuildTrail();
     }
   }
+
+  // Ball spin — rotates every frame so the ball reads as a physical object.
+  // ~1 rotation / 0.5s = fast pickleball topspin feel. Runs during pause too
+  // (a spinning ball mid-flight looks alive; a frozen sphere looks like cardboard).
+  ball.rotation.x += dt * 6.0;
+  ball.rotation.z += dt * 3.5;
 
   // Ball polish (shadow + squash) — runs EVERY frame so effects persist during pauses.
   // Dave 2026-04-20: the #1 cinematic trick to sell bouncing realism.
