@@ -1417,6 +1417,9 @@ window.addEventListener('resize', () => {
 
 // Fade loading screen. On FIRST load only, hold the scene still for ~1s so the
 // viewer can read the court + player positions before the ball starts flying.
+// If user interacts during the pause (picks a shot, hits Space, clicks Replay),
+// shotRunning will already be true when the timer fires — in that case skip the
+// auto-start to avoid restarting the user's shot.
 window.addEventListener('load', () => {
   setTimeout(() => {
     document.getElementById('loading').classList.add('gone');
@@ -1428,6 +1431,7 @@ window.addEventListener('load', () => {
     shotRunning = false;
     animate();
     setTimeout(() => {
+      if (shotRunning) return;  // user already started a shot during the pause
       shotT = 0;
       shotStart = performance.now();
       shotBurstFired = false;
