@@ -618,7 +618,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
       <div class="dim-frame">
         <iframe
           id="dim-iframe"
-          src="4dp/3d_module_template.html?embedded=1"
+          data-src="4dp/3d_module_template.html?embedded=1"
           title="4D Pickleball cinematic 3D module"
           loading="lazy"
         ></iframe>
@@ -727,11 +727,14 @@ function revealPyramid(){
 setTimeout(revealPyramid,300);
 
 // ── Shot chips: clicks postMessage into the iframe to switch shots ──
-// Dynamic iframe cachebust — forces fresh template fetch on every page load
-// (prevents browser from caching a broken template version).
+// Dynamic iframe load — never sets src in HTML (browsers cache that URL).
+// JS constructs fresh URL with Date.now() cachebust so every load fetches current template.
 (function(){
   const f = document.getElementById('dim-iframe');
-  if (f) f.src = f.getAttribute('src') + '&v=' + Date.now();
+  if (f && !f.src) {
+    const ds = f.getAttribute('data-src') || f.dataset.src;
+    if (ds) f.src = ds + '&v=' + Date.now();
+  }
 })();
 const dimIframe = document.getElementById('dim-iframe');
 document.querySelectorAll('.dim-chip').forEach(chip => {

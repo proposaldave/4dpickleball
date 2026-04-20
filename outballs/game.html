@@ -1414,16 +1414,23 @@ function animate(){
         STATE.canInput = false;
         const shot = s;
         STATE.results.push(false);
-        // Timeout miss also counts against the shot-type tally
         if (shot.kind === 'OUT' || shot.kind === 'VOLLEY' || shot.kind === 'BOUNCE') {
           STATE.statsByKind[shot.kind].total++;
         }
         STATE.streak = 0;
         updateDot(STATE.trial, false);
-        // If the player was still holding SPACE when flight ended, they
-        // never committed — flag as NO_COMMIT so the verdict explains what
-        // they should have done instead of just generic "Missed."
         const verdictKind = STATE.holdingReady ? 'NO_COMMIT' : 'TIMEOUT';
+        // If the player NEVER committed on an OUT ball (held SPACE all the
+        // way through), the ball literally HITS them — snap ball to chest,
+        // spawn red impact burst, flinch the paddle. Sells the lesson:
+        // "you didn't react quickly enough, the ball hit you."
+        if (verdictKind === 'NO_COMMIT' && shot.kind === 'OUT') {
+          const impact = new THREE.Vector3(SINGLES_X, PLAYER_CHEST_Y, PLAYER_Z - 0.3);
+          ball.position.copy(impact);
+          ballLight.position.copy(impact);
+          spawnBurst(impact.clone(), 0xFB7185);  // red impact burst
+          animateDefenderHit();
+        }
         showVerdict(false, verdictKind, shot);
         STATE.trial++;
         setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
