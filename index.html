@@ -412,15 +412,22 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
 }
 .prog-dim{
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;
   padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.2px;
-  color:rgba(255,255,255,.25);border:1px solid transparent;
+  color:rgba(255,255,255,.3);border:1px solid transparent;background:transparent;
   transition:all .4s cubic-bezier(.16,1,.3,1);white-space:nowrap;
 }
+.prog-dim:hover{color:rgba(255,255,255,.6);background:rgba(255,255,255,.04)}
 .prog-dim.on{
   color:var(--dc);background:color-mix(in srgb,var(--dc) 12%,transparent);
   border-color:color-mix(in srgb,var(--dc) 35%,transparent);
   box-shadow:0 0 20px color-mix(in srgb,var(--dc) 25%,transparent);
+}
+.prog-dim.current{
+  color:var(--dc);background:color-mix(in srgb,var(--dc) 20%,transparent);
+  border-color:var(--dc);
+  box-shadow:0 0 28px color-mix(in srgb,var(--dc) 40%,transparent);
+  transform:scale(1.06);
 }
 .prog-dim.on .pd-label{font-weight:800}
 .prog-court-wrap{max-width:380px;margin:0 auto 24px}
@@ -492,7 +499,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   <div class="hero">
     <div class="hero-badge">◆ 4D Pickleball</div>
 
-    <h1>Let's play<br>4D Pickleball.</h1>
+    <h1>You can play<br>4D Pickleball.</h1>
 
     <div style="display:inline-flex;align-items:center;justify-content:center;gap:16px;margin:36px 0 8px;flex-wrap:wrap">
       <span class="fd-word" style="--fd-c:#F472B6">Drive.</span>
@@ -521,15 +528,20 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
     <div class="prog-court-wrap">
       <svg class="prog-court" viewBox="0 0 400 440" id="prog-court" aria-label="Animated pickleball court">
         <!-- Static court markings (never change between stages) -->
-        <rect x="0" y="0" width="400" height="440" fill="#0a5e9e"/>
-        <rect x="0" y="170" width="400" height="100" fill="#0b6db5" opacity=".55"/>
+        <!-- Playing surface: rich royal blue -->
+        <rect x="0" y="0" width="400" height="440" fill="#1e40af" rx="4"/>
+        <!-- Kitchen (NVZ): deep crimson — visually signals the no-volley zone -->
+        <rect x="0" y="170" width="400" height="100" fill="#7f1d1d"/>
+        <!-- Net: bold white bar across kitchen -->
         <line x1="0" y1="220" x2="400" y2="220" stroke="#fff" stroke-width="3"/>
-        <line x1="0" y1="170" x2="400" y2="170" stroke="#fff" stroke-width="1.5" stroke-dasharray="8 4" opacity=".75"/>
-        <line x1="0" y1="270" x2="400" y2="270" stroke="#fff" stroke-width="1.5" stroke-dasharray="8 4" opacity=".75"/>
-        <line x1="200" y1="0" x2="200" y2="170" stroke="#fff" stroke-width="1" opacity=".35"/>
-        <line x1="200" y1="270" x2="200" y2="440" stroke="#fff" stroke-width="1" opacity=".35"/>
-        <rect x="0" y="0" width="400" height="440" fill="none" stroke="#fff" stroke-width="2"/>
-        <text x="26" y="216" fill="#fff" font-size="9" font-weight="700" opacity=".4" letter-spacing="1.5">NET</text>
+        <!-- Kitchen boundary lines (solid, pure white for that crisp court look) -->
+        <line x1="0" y1="170" x2="400" y2="170" stroke="#fff" stroke-width="2"/>
+        <line x1="0" y1="270" x2="400" y2="270" stroke="#fff" stroke-width="2"/>
+        <!-- Center service lines — only outside the kitchen -->
+        <line x1="200" y1="0" x2="200" y2="170" stroke="#fff" stroke-width="2"/>
+        <line x1="200" y1="270" x2="200" y2="440" stroke="#fff" stroke-width="2"/>
+        <!-- Outer border -->
+        <rect x="0" y="0" width="400" height="440" fill="none" stroke="#fff" stroke-width="2.5" rx="4"/>
         <!-- Dynamic overlay: stage-specific trails, players, ball -->
         <g id="prog-dynamic"></g>
       </svg>
@@ -970,12 +982,12 @@ setTimeout(revealPyramid,300);
       badgeColor: "251,113,133",
       copy: "Four friends play pickleball for the first time. You watch them: all stuck at the baseline playing tennis. We've all seen it before!",
       title: "Tennis at the baseline",
-      sub: "The ball loops between the four baseline corners. Long, high rallies. Nobody at the kitchen.",
+      sub: "Lobs cross-court, drives straight down. Long, high rallies. Nobody at the kitchen.",
       dimsOn: [0],
       players: [[120,30,"P1"],[280,30,"P2"],[120,410,"P3"],[280,410,"P4"]],
-      trails: ["M 120 410 Q 200 -70 280 30","M 280 30 Q 360 220 280 410","M 280 410 Q 200 -70 120 30","M 120 30 Q 40 220 120 410"],
+      trails: ["M 120 410 Q 200 -60 280 30","M 280 30 L 280 410","M 280 410 Q 200 -60 120 30","M 120 30 L 120 410"],
       ballDur: 6.4,
-      ballPath: "M 120 410 Q 200 -70 280 30 Q 360 220 280 410 Q 200 -70 120 30 Q 40 220 120 410",
+      ballPath: "M 120 410 Q 200 -60 280 30 L 280 410 Q 200 -60 120 30 L 120 410",
       ballColor: "#c8e632"
     },
     {
@@ -986,9 +998,9 @@ setTimeout(revealPyramid,300);
       sub: "Short, simple, repeatable swing. Clean contact on the back of the ball. No more lazy lobs.",
       dimsOn: [0,1],
       players: [[120,30,"P1"],[280,30,"P2"],[120,410,"P3"],[280,410,"P4"]],
-      trails: ["M 120 410 L 280 30","M 280 30 L 120 410"],
-      ballDur: 2.4,
-      ballPath: "M 120 410 Q 200 180 280 30 Q 200 180 120 410",
+      trails: ["M 120 410 L 280 30"],
+      ballDur: 2.0,
+      ballPath: "M 120 410 L 280 30 L 120 410",
       ballColor: "#F472B6"
     },
     {
@@ -996,12 +1008,12 @@ setTimeout(revealPyramid,300);
       badgeColor: "251,191,36",
       copy: "Now the opponent hits hard. You can't just swing back. You learn the baby block — absorb the pace, drop the ball soft at your feet.",
       title: "Baby block",
-      sub: "One side advances to mid-court to handle the attacks. The baby block neutralizes the banger.",
+      sub: "One side advances to mid-court to handle the attack. Block softly back over the net.",
       dimsOn: [0,1,2],
       players: [[120,140,"P1"],[280,30,"P2"],[120,310,"P3"],[280,410,"P4"]],
-      trails: ["M 280 410 L 120 310","M 120 310 Q 150 250 200 250"],
-      ballDur: 2.4,
-      ballPath: "M 280 410 L 120 310 Q 150 250 200 250 L 280 410",
+      trails: ["M 280 410 L 120 310","M 120 310 Q 180 120 280 410"],
+      ballDur: 2.8,
+      ballPath: "M 280 410 L 120 310 Q 180 120 280 410",
       ballColor: "#FBBF24"
     },
     {
@@ -1009,12 +1021,12 @@ setTimeout(revealPyramid,300);
       badgeColor: "52,211,153",
       copy: "Defense isn't enough — you need to get to the kitchen. The reset drop gets you there, soft under the ball.",
       title: "Reset drop",
-      sub: "From transition zone, drop the ball into the kitchen. Earn the right to advance.",
+      sub: "From the transition zone, drop the ball softly into the kitchen. Earn the right to advance.",
       dimsOn: [0,1,2,3],
       players: [[120,175,"P1"],[280,30,"P2"],[120,310,"P3"],[280,410,"P4"]],
-      trails: ["M 280 410 Q 200 120 120 310","M 120 310 Q 100 240 190 205"],
-      ballDur: 3.2,
-      ballPath: "M 280 410 Q 200 120 120 310 Q 100 240 190 205 Q 240 260 280 410",
+      trails: ["M 120 310 Q 60 240 190 210"],
+      ballDur: 2.8,
+      ballPath: "M 120 310 Q 60 240 190 210 Q 60 240 120 310",
       ballColor: "#34D399"
     },
     {
@@ -1072,9 +1084,10 @@ setTimeout(revealPyramid,300);
       sub.textContent = s.sub;
       dyn.innerHTML = buildSVG(s);
 
-      // Dim indicators
+      // Dim indicators — "on" = dimension is active at this stage, "current" = the most recently added dimension
       dims.querySelectorAll('.prog-dim').forEach((el,i)=>{
         el.classList.toggle('on', s.dimsOn.includes(i));
+        el.classList.toggle('current', i===stage);
       });
 
       // Step dots
@@ -1096,6 +1109,13 @@ setTimeout(revealPyramid,300);
   next.addEventListener('click',()=>{ if(stage<STAGES.length-1){stage++; render();} });
   stepDots.querySelectorAll('.prog-step').forEach((el,i)=>{
     el.addEventListener('click',()=>{ stage=i; render(); });
+  });
+  // Dimension pills are clickable — jump directly to that stage
+  dims.querySelectorAll('.prog-dim').forEach((el,i)=>{
+    el.setAttribute('role','button');
+    el.setAttribute('tabindex','0');
+    el.addEventListener('click',()=>{ stage=i; render(); });
+    el.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); stage=i; render(); }});
   });
 
   render();
