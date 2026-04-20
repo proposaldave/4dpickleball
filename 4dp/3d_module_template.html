@@ -188,7 +188,7 @@
 
 <div class="center-hero" id="center-hero">
   <div class="eyebrow">◆ 3D Module Template</div>
-  <h1>Every shot has a shape.</h1>
+  <h1>Anyone can learn<br>4D Pickleball.</h1>
   <p class="sub">Cinematic Three.js + bloom + trail rendering + view-for-skill cameras. Pick a shot below to watch it in full.</p>
 </div>
 
@@ -844,7 +844,9 @@ function startShot(key, resetCamera = true) {
   setDimensionColor(s.color);
   trailPoints = [];
   if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); trailMesh = null; }
-  ball.position.set(...s.shot.from);
+  // Multi-segment shots have from inside segments[0]; single-arc shots have it on shot directly
+  const firstFrom = s.shot.segments ? s.shot.segments[0].from : s.shot.from;
+  ball.position.set(...firstFrom);
   // Only snap camera to the view-for-skill preset on explicit shot change or Replay.
   // Auto-replay and internal calls preserve whatever camera angle the user dragged to.
   if (resetCamera) {
@@ -1007,7 +1009,7 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', () => {
   setTimeout(() => {
     document.getElementById('loading').classList.add('gone');
-    startShot('drop'); // Auto-play the Drop shot on load — arc is the most visible
+    startShot('drive'); // Auto-play 1D Drive first — start of the story
     animate();
   }, 300);
 });
