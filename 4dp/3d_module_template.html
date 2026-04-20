@@ -1205,7 +1205,7 @@ function animate() {
         spawnBurst(ball.position.clone(), SHOTS[activeShotKey].color);
         shotBurstFired = true;
         // Auto-replay loop — preserve the user's camera angle (don't snap back to preset)
-        setTimeout(() => { if (activeShotKey) startShot(activeShotKey, false); }, 1400);
+        setTimeout(() => { if (activeShotKey) startShot(activeShotKey, false); }, 1000);
       }
     }
     const p = trajectoryAt(s, shotT);
