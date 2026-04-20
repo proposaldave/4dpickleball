@@ -803,9 +803,9 @@ const SHOTS = {
         { from: [-5, 3, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.80 },
         { from: [ 3, 0.15, -15], to: [ 5, 3, -20], apex: 3.2, dur: 0.40 },
         { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
-        { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 3.2, dur: 0.85 },
-        { from: [ 0, 0.15, -10], to: [-1, 2.3, -12], apex: 2.2, dur: 0.50 },
-        { from: [-1, 2.3, -12], to: [ 0, 0.15, 5], apex: 6.5, dur: 1.00, cinematic: true },
+        { from: [-3, 1.5, 8], to: [ 2, 0.15, -10], apex: 3.2, dur: 0.85 },
+        { from: [ 2, 0.15, -10], to: [ 3, 2.3, -12], apex: 2.2, dur: 0.50 },
+        { from: [ 3, 2.3, -12], to: [ 0, 0.15, 5], apex: 6.5, dur: 1.00, cinematic: true },
         { from: [ 0, 0.15, 5], to: [-1, 2.3, 7], apex: 2.5, dur: 0.50 },
         // 6TH HIT - cross-court dink (near -> far kitchen, BOUNCES)
         { from: [-1, 2.3, 7], to: [ 3, 0.15, -5], apex: 3.5, dur: 0.80 },
@@ -834,7 +834,7 @@ const SHOTS = {
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-17],   farRight:[3,-15] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-14],   farRight:[3,-12] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-2,-11],   farRight:[2,-10] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-11],   farRight:[3,-10] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-3,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
@@ -873,11 +873,11 @@ const SHOTS = {
         { from: [ 3, 0.15, -15], to: [ 5, 2.2, -20], apex: 2.3, dur: 0.38 },
         { from: [ 5, 2.2, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // BABY BLOCK: lands in far transition, BOUNCES
-        { from: [-3, 1.5, 8], to: [ 0, 0.15, -10], apex: 3.2, dur: 0.80 },
+        { from: [-3, 1.5, 8], to: [ 2, 0.15, -10], apex: 3.2, dur: 0.80 },
         // BOUNCE -> far paddle
-        { from: [ 0, 0.15, -10], to: [-1, 2.3, -12], apex: 2.2, dur: 0.48 },
+        { from: [ 2, 0.15, -10], to: [ 3, 2.3, -12], apex: 2.2, dur: 0.48 },
         // DROP: soft lift, BOUNCES in near kitchen
-        { from: [-1, 2.3, -12], to: [ 0, 0.15, 5], apex: 6.5, dur: 0.90 },
+        { from: [ 3, 2.3, -12], to: [ 0, 0.15, 5], apex: 6.5, dur: 0.90 },
         // BOUNCE -> near paddle
         { from: [ 0, 0.15, 5], to: [-1, 2.3, 7], apex: 2.3, dur: 0.48 },
         // PRESSURE DINK: groundstroke cross-court, BOUNCES in far kitchen
@@ -903,7 +903,7 @@ const SHOTS = {
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-18],   farRight:[3,-15] },
       { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[3,-12] },
-      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-10],   farRight:[2,-9] },
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-3,-11],   farRight:[3,-10] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
       { nearLeft:[-1,8],    nearRight:[3,8],    farLeft:[-3,-8],    farRight:[3,-8] },
@@ -1226,10 +1226,13 @@ function makePlayer({ jersey, shorts, z, x = 0, facing, hat }) {
   g.userData.bodyLeanDefault = -0.05;
   return g;
 }
-const playerFarLeft   = makePlayer({ jersey: 0x1B4079, shorts: 0x0F2138, z: -20, x: -5, facing: +1 });
-const playerFarRight  = makePlayer({ jersey: 0x1B4079, shorts: 0x0F2138, z: -20, x:  5, facing: +1 });
-const playerNearLeft  = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z:  20, x: -5, facing: -1 });
-const playerNearRight = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z:  20, x:  5, facing: -1 });
+// Distinct hat colors per player (Dave 2026-04-20) — easy-ID at a glance. Team jerseys
+// still distinguish teams (navy far vs burgundy near); hats distinguish positions within
+// each team. Colors are bright enough to pop against both jerseys.
+const playerFarLeft   = makePlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0x4ADE80, z: -20, x: -5, facing: +1 });  // GREEN
+const playerFarRight  = makePlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0xFB923C, z: -20, x:  5, facing: +1 });  // ORANGE
+const playerNearLeft  = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, hat: 0xFDE047, z:  20, x: -5, facing: -1 });  // YELLOW
+const playerNearRight = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, hat: 0x22D3EE, z:  20, x:  5, facing: -1 });  // CYAN
 scene.add(playerFarLeft, playerFarRight, playerNearLeft, playerNearRight);
 const playerFar = playerFarLeft, playerNear = playerNearLeft;
 
