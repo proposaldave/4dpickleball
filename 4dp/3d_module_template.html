@@ -757,8 +757,11 @@ const SHOTS = {
         { from: [ 0, 0.15, -9], to: [-1, 2.3, -11], apex: 2.2, dur: 0.50 },
         // 5TH HIT - LOW-TO-HIGH LIFT: far lifts up, arrives HIGH at near kitchen (sitter)
         { from: [-1, 2.3, -11], to: [ 2, 3.5, 6], apex: 5.5, dur: 0.85 },
-        // 6TH HIT - PUTAWAY SMASH: nearRight overhead, steep down into far backcourt
-        { from: [ 2, 3.5, 6], to: [-3, 0.15, -17], apex: 3.0, dur: 0.50, cinematic: true }
+        // 6TH HIT - PUTAWAY: nearRight takes the sitter overhead and ANGLES it sharp
+        // cross-court into the OPEN corner — past the serving team (who is clustered
+        // center-left around x=-3). Lands deep at far-left corner (x=-8, z=-16). Fast,
+        // flat, unreachable. Apex just barely clears the net at this sharp angle.
+        { from: [ 2, 3.5, 6], to: [-8, 0.15, -16], apex: 2.5, dur: 0.42, cinematic: true }
       ]
     },
     playerFrames: [
