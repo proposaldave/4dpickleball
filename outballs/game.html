@@ -114,6 +114,9 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 .rc-kicker{font-size:10px;font-weight:900;letter-spacing:8px;color:var(--4dp-gold);text-transform:uppercase;margin-bottom:16px;opacity:0;transform:translateY(20px);transition:all .5s var(--4dp-ease) .1s;}
 .rc-name{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(52px,8vw,108px);letter-spacing:-2.5px;line-height:1;color:var(--4dp-text);margin-bottom:14px;opacity:0;transform:scale(.85);transition:all .6s var(--4dp-ease) .3s;}
 .rc-pos{font-size:11px;font-weight:800;letter-spacing:5px;text-transform:uppercase;padding:7px 18px;border:1px solid rgba(251,191,36,.3);border-radius:999px;color:var(--4dp-gold);opacity:0;transform:translateY(-18px);transition:all .5s var(--4dp-ease) .55s;}
+.rc-court{margin-top:24px;opacity:0;transform:translateY(12px);transition:all .5s var(--4dp-ease) .55s;}
+#round-card.on .rc-court{opacity:1;transform:none;}
+.rc-court svg{display:block;}
 #round-card.on .rc-kicker,#round-card.on .rc-name,#round-card.on .rc-pos{opacity:1;transform:none;}
 
 /* End of session card */
@@ -235,7 +238,8 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div id="round-card">
   <div class="rc-kicker" id="rc-kicker">Round 1</div>
   <div class="rc-name" id="rc-name">Warmup Speed</div>
-  <div class="rc-pos" id="rc-pos">Baseline</div>
+  <div class="rc-pos" id="rc-pos" style="display:none"></div>
+  <div class="rc-court" id="rc-court"></div>
 </div>
 
 <!-- Round-fail retry card — shown when correct < pass threshold -->
@@ -924,11 +928,62 @@ function showRoundFail(correct, onRetry, onContinue){
   retryBtn.onclick = () => { close(); onRetry(); };
   contBtn.onclick = () => { close(); onContinue(); };
 }
+// Compact top-down court with the two players' dots — replaces the old
+// text line "Opponent at baseline" etc. Less text, more visual clarity.
+function renderRoundCourt(lv){
+  const el = document.getElementById('rc-court');
+  if (!el) return;
+  // Court is 20 wide × 44 long (world units). Map to SVG 100 × 200 + 10px border.
+  // z ∈ [-22, +22] → SVG y ∈ [10, 210]  (1 unit = 4.545 SVG)
+  // x ∈ [-10, +10] → SVG x ∈ [10, 110]  (1 unit = 5 SVG)
+  const zToY = z => 110 + z * 4.545;
+  const xToX = x => 60 + x * 5;
+  const defY = zToY(PLAYER_Z);      // defender at kitchen line (z=8)
+  const oppY = zToY(lv.oppZ);       // attacker per level
+  const singlesX = xToX(SINGLES_X); // both players on singles lane (x=+5)
+  el.innerHTML = `
+    <svg viewBox="0 0 120 220" width="132" height="242" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="rc-court-g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2D5FA8"/>
+          <stop offset="100%" stop-color="#234E8C"/>
+        </linearGradient>
+        <linearGradient id="rc-kitchen-g" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6B0F1A"/>
+          <stop offset="100%" stop-color="#52090F"/>
+        </linearGradient>
+      </defs>
+      <!-- Deck surround -->
+      <rect x="0" y="0" width="120" height="220" rx="10" fill="rgba(94,104,120,0.22)"/>
+      <!-- Court surface -->
+      <rect x="10" y="10" width="100" height="200" fill="url(#rc-court-g)" rx="2"/>
+      <!-- Kitchen bands (both sides of net) -->
+      <rect x="10" y="${zToY(-7)}" width="100" height="${zToY(7) - zToY(-7)}" fill="url(#rc-kitchen-g)"/>
+      <!-- Perimeter -->
+      <rect x="10" y="10" width="100" height="200" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" rx="2"/>
+      <!-- Kitchen lines -->
+      <line x1="10" y1="${zToY(-7)}" x2="110" y2="${zToY(-7)}" stroke="rgba(255,255,255,.8)" stroke-width="1.1"/>
+      <line x1="10" y1="${zToY(7)}"  x2="110" y2="${zToY(7)}"  stroke="rgba(255,255,255,.8)" stroke-width="1.1"/>
+      <!-- Center service line (baseline → kitchen, each side) -->
+      <line x1="60" y1="10" x2="60" y2="${zToY(-7)}" stroke="rgba(255,255,255,.55)" stroke-width="0.8"/>
+      <line x1="60" y1="${zToY(7)}" x2="60" y2="210" stroke="rgba(255,255,255,.55)" stroke-width="0.8"/>
+      <!-- Net -->
+      <line x1="6" y1="110" x2="114" y2="110" stroke="#FFFFFF" stroke-width="2.5"/>
+      <!-- Attacker (red) — at oppZ -->
+      <circle cx="${singlesX}" cy="${oppY}" r="6" fill="#C8102E" stroke="#0A1628" stroke-width="1.5"/>
+      <circle cx="${singlesX}" cy="${oppY}" r="2.5" fill="#FFF3D0" opacity="0.5"/>
+      <!-- Defender (green) — always at kitchen line -->
+      <circle cx="${singlesX}" cy="${defY}" r="6" fill="#2A7F6F" stroke="#0A1628" stroke-width="1.5"/>
+      <circle cx="${singlesX}" cy="${defY}" r="2.5" fill="#D0F3E8" opacity="0.5"/>
+    </svg>
+  `;
+}
 function showRoundCard(onDone){
   const lv = LEVELS[STATE.levelIdx];
   document.getElementById('rc-kicker').textContent = 'Round ' + lv.num;
   document.getElementById('rc-name').textContent = lv.name;
-  document.getElementById('rc-pos').textContent = lv.pos;
+  // rc-pos kept hidden — court diagram replaces the positional text
+  renderRoundCourt(lv);
   const card = document.getElementById('round-card');
   card.classList.add('on');
   setTimeout(() => { card.classList.remove('on'); setTimeout(onDone, 300); }, 1900);
