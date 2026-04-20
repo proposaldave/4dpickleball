@@ -204,7 +204,7 @@
 </div>
 
 <div class="shot-bar">
-  <button class="shot-chip dim-drive"  data-shot="drive">
+  <button class="shot-chip dim-drive active" data-shot="drive">
     <span class="num">1D · Drive</span>
     <span class="name">Ball Striking</span>
   </button>
@@ -212,11 +212,11 @@
     <span class="num">2D · Defend</span>
     <span class="name">Baby Block</span>
   </button>
-  <button class="shot-chip dim-drop active" data-shot="drop">
+  <button class="shot-chip dim-drop" data-shot="drop">
     <span class="num">3D · Drop</span>
     <span class="name">Under the Ball Drop</span>
   </button>
-  <button class="shot-chip dim-dink"   data-shot="dink">
+  <button class="shot-chip dim-dink" data-shot="dink">
     <span class="num">4D · Dink</span>
     <span class="name">Kitchen Offense</span>
   </button>
@@ -291,7 +291,7 @@ const SHOTS = {
   }
 };
 
-let activeShotKey = 'drop';
+let activeShotKey = 'drive';
 let slowMo = false;
 let camPresetIdx = 0;
 const CAM_PRESETS_BY_SHOT = {}; // filled later
@@ -324,6 +324,16 @@ controls.target.set(...SHOTS[activeShotKey].cam.look);
 controls.minDistance = 10;
 controls.maxDistance = 80;
 controls.maxPolarAngle = Math.PI * 0.49;
+// Drone-mode: auto-orbit on page load until the user grabs the camera
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.9;
+// Stop drone mode the moment the user interacts (drag / scroll / touch)
+const stopAutoRotate = () => { controls.autoRotate = false; };
+controls.addEventListener('start', stopAutoRotate);
+// Also stop it when the user picks a specific shot (deliberate framing choice)
+document.querySelectorAll('.shot-chip').forEach(chip => {
+  chip.addEventListener('click', stopAutoRotate, { once: false });
+});
 
 // ── Post-processing: bloom makes the ball + trail glow cinematically ──
 const composer = new EffectComposer(renderer);
