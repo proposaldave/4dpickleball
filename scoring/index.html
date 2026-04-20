@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Positioning & Scoring — Four Dimensions Academy</title>
+    <title>Positioning & Scoring — 4D Pickleball</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -164,31 +164,46 @@
     .hd-serve  { background: var(--team-serve);  color: var(--team-serve); }
     .hd-return { background: var(--team-return); color: var(--team-return); }
 
-    #hero-server          { animation: heroServer 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-    #hero-server-partner  { animation: heroServerPartner 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-    #hero-returner        { animation: heroReturner 6s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-    #hero-returner-partner { left: 31%; top: 25%; }
+    #hero-server          { animation: heroServer 7s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    #hero-server-partner  { animation: heroServerPartner 7s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    #hero-returner        { animation: heroReturner 7s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    #hero-returner-partner { left: 34%; top: 25%; }
 
-    @keyframes heroServer        { 0%, 32% { left: 105%; top: 25%; } 48%, 90% { left: 69%; top: 25%; } 95%, 100% { left: 105%; top: 25%; } }
-    @keyframes heroServerPartner { 0%, 32% { left: 105%; top: 75%; } 48%, 90% { left: 69%; top: 75%; } 95%, 100% { left: 105%; top: 75%; } }
-    @keyframes heroReturner      { 0%, 16% { left: -5%;  top: 75%; } 32%, 90% { left: 31%; top: 75%; } 95%, 100% { left: -5%;  top: 75%; } }
+    /* All four start visible at start-of-point formation, then rally, then reset */
+    @keyframes heroServer {
+        0%, 18%   { left: 96%; top: 25%; }            /* ready behind baseline */
+        40%       { left: 96%; top: 25%; }            /* holds during serve + two-bounce */
+        65%, 82%  { left: 69%; top: 25%; }            /* advances to NVZ after return */
+        95%, 100% { left: 96%; top: 25%; }            /* reset to ready */
+    }
+    @keyframes heroServerPartner {
+        0%, 18%   { left: 96%; top: 75%; }
+        40%       { left: 96%; top: 75%; }
+        65%, 82%  { left: 69%; top: 75%; }
+        95%, 100% { left: 96%; top: 75%; }
+    }
+    @keyframes heroReturner {
+        0%, 18%   { left: 4%; top: 75%; }             /* ready to receive */
+        32%       { left: 4%; top: 75%; }             /* hits return */
+        55%, 82%  { left: 34%; top: 75%; }            /* runs to NVZ */
+        95%, 100% { left: 4%; top: 75%; }             /* reset */
+    }
 
     .hero-ball {
         position: absolute; width: 10px; height: 10px;
         background: var(--nepc-green); border-radius: 50%;
         box-shadow: 0 0 16px var(--nepc-green);
         z-index: 4; transform: translate(-50%, -50%);
-        animation: heroBall 6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        animation: heroBall 7s infinite cubic-bezier(0.4, 0, 0.2, 1);
     }
     @keyframes heroBall {
-        0%   { left: 105%; top: 25%; opacity: 1; }
-        16%  { left: -5%;  top: 75%; opacity: 1; }
-        32%  { left: 105%; top: 25%; opacity: 1; }
-        48%  { left: 31%;  top: 25%; opacity: 1; }
-        64%  { left: 69%;  top: 75%; opacity: 1; }
-        80%  { left: 31%;  top: 75%; opacity: 1; }
-        90%  { left: 69%;  top: 25%; opacity: 0; }
-        100% { left: 105%; top: 25%; opacity: 0; }
+        0%, 14%  { left: 94%; top: 25%; opacity: 1; } /* in server's hand */
+        28%      { left: 15%; top: 75%; opacity: 1; } /* served deep cross-court */
+        42%      { left: 85%; top: 25%; opacity: 1; } /* returned deep */
+        58%      { left: 34%; top: 75%; opacity: 1; } /* 3rd shot drop */
+        72%      { left: 66%; top: 25%; opacity: 1; } /* dink back */
+        86%      { left: 34%; top: 75%; opacity: 0; } /* rally fades */
+        100%     { left: 94%; top: 25%; opacity: 1; } /* reset for next loop */
     }
 
     /* Intro heading */
@@ -754,6 +769,25 @@
         display: none;
     }
     .sim-feedback .instruction-text { color: var(--success); font-weight: 700; }
+    .sim-feedback-explain {
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: rgba(255,255,255,0.78);
+        background: rgba(10, 26, 47, 0.45);
+        border-left: 3px solid rgba(46, 213, 115, 0.55);
+        padding: 12px 14px;
+        border-radius: 8px;
+        text-align: left;
+        display: none;
+        animation: explainFadeIn 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+    .sim-feedback-explain strong { color: #fff; }
+    .sim-feedback-explain em { color: var(--nepc-blue); font-style: normal; font-weight: 600; }
+    @keyframes explainFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: none; }
+    }
 
     /* =========================================================
        COMPLETION
@@ -910,7 +944,7 @@
         </div>
 
         <div class="intro-header-wrap">
-            <span class="intro-kicker">Four Dimensions Pickleball &middot; Module 1</span>
+            <span class="intro-kicker">4D Pickleball &middot; Scoring</span>
             <h1 class="intro-heading">
                 <span class="word" style="--i:1">Master</span>
                 <span class="word" style="--i:2">Basic</span>
@@ -919,8 +953,8 @@
                 <span class="word" style="--i:5">Scorekeeping</span>
             </h1>
             <p class="intro-sub">
-                Pickleball scoring is famously unique. First, watch the court to learn how players move and how the serve rotates.
-                Then test yourself with 10 quick scenarios to lock it in.
+                Pickleball scoring is famously weird. First, watch the court to see how players move and how the serve rotates.
+                Then lock it in with six quick scenarios.
             </p>
         </div>
 
@@ -949,7 +983,7 @@
             <div class="top-row">
                 <div class="accent-line"></div>
                 <div>
-                    <div class="kicker">Four Dimensions Pickleball &middot; Module 1</div>
+                    <div class="kicker">4D Pickleball &middot; Scoring</div>
                     <h1 id="screen-header">Positioning</h1>
                 </div>
             </div>
@@ -1043,7 +1077,8 @@
                     <div id="answer-options"></div>
                     <div id="sim-feedback" class="slim-instruction sim-feedback">
                         <div id="sim-feedback-text" class="instruction-text">Correct!</div>
-                        <button class="btn btn-primary" style="margin-top: 12px; min-height: 48px;" onclick="nextScenario()">Next Scenario &rarr;</button>
+                        <div id="sim-feedback-explain" class="sim-feedback-explain"></div>
+                        <button id="sim-next-btn" class="btn btn-primary" style="margin-top: 14px; min-height: 48px;" onclick="nextScenario()">Next Scenario &rarr;</button>
                     </div>
                 </div>
             </div>
@@ -1055,15 +1090,15 @@
         <div class="top-row">
             <div class="accent-line"></div>
             <div>
-                <div class="kicker">Four Dimensions Academy</div>
+                <div class="kicker">4D Pickleball</div>
                 <h1>Training Complete</h1>
             </div>
         </div>
         <div class="slim-instruction" style="padding: 32px 22px;">
             <div class="step-label">Ready to test it</div>
             <div class="instruction-text">
-                You've seen the rules in action. Now test your skills in the Scoring Simulator.
-                10 rapid-fire scenarios. Let's see what you've got.
+                You've seen the rules in action. Six quick scenarios to lock it in.
+                Aim for a perfect run.
             </div>
         </div>
         <div class="button-group">
@@ -1076,7 +1111,7 @@
         <div class="top-row">
             <div class="accent-line"></div>
             <div>
-                <div class="kicker">Four Dimensions Academy</div>
+                <div class="kicker">4D Pickleball</div>
                 <h1>Simulator Complete</h1>
             </div>
         </div>
@@ -1088,7 +1123,7 @@
             <div class="stat-row">
                 <div class="stat"><div class="stat-v" id="stat-perfect">0</div><div class="stat-l">Perfect</div></div>
                 <div class="stat"><div class="stat-v" id="stat-streak">0</div><div class="stat-l">Best Streak</div></div>
-                <div class="stat"><div class="stat-v">10</div><div class="stat-l">Scenarios</div></div>
+                <div class="stat"><div class="stat-v">6</div><div class="stat-l">Scenarios</div></div>
             </div>
         </div>
 
@@ -1207,12 +1242,24 @@ function resumeAnimations() {
 
 function setBall(left, top, show=true) {
     const ball = document.getElementById('ball');
-    ball.style.transition = 'none';
-    ball.style.display = show ? 'block' : 'none';
-    ball.style.left = left; ball.style.top = top;
-    ball.classList.toggle('idle', show);
-    void ball.offsetWidth;
-    ball.style.transition = 'all 0.6s linear';
+    const wasVisible = show && ball.style.display !== 'none' && ball.style.left && ball.style.top;
+
+    if (wasVisible) {
+        // Ball is already visible — slide smoothly rather than teleporting
+        ball.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        ball.style.left = left;
+        ball.style.top = top;
+        ball.classList.toggle('idle', show);
+    } else {
+        // First placement (or re-showing after hide) — instant, then re-enable motion transition
+        ball.style.transition = 'none';
+        ball.style.display = show ? 'block' : 'none';
+        ball.style.left = left;
+        ball.style.top = top;
+        ball.classList.toggle('idle', show);
+        void ball.offsetWidth;
+        ball.style.transition = 'all 0.6s linear';
+    }
 }
 
 function spawnTrailDot(leftPct, topPct) {
@@ -1391,18 +1438,17 @@ document.addEventListener('keydown', (e) => {
 // =========================================================
 const steps = [
     {
-        header: "The Setup", step: "Starting Position",
-        text: "<strong>Red</strong> serves. <strong>Green</strong> returns.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        header: "The Start", step: "Who stands where",
+        text: "<strong>Red</strong> serves. <strong>Green</strong> returns. Everyone has a job &mdash; let's meet them.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: false,
-        static: true,
-        tooltips: { p1: "Server", p4: "Returner's Partner" },
-        animSequence: async (id) => { setBall('100%','25%',true); }
+        tooltips: { p1: "Server", p2: "Server's Partner", p3: "Returner", p4: "Returner's Partner" },
+        animSequence: async (id) => { setBall(`calc(96% - 18px)`, '25%', true); }
     },
     {
         header: "Meet the Kitchen", step: "Non-Volley Zone",
-        text: "The red zones either side of the net are <strong>The Kitchen</strong> &mdash; officially the <strong>Non-Volley Zone (NVZ)</strong>. You'll hear this word a lot; it has its own rule coming up.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        text: "The red strips either side of the net are <strong>The Kitchen</strong> &mdash; officially the <strong>Non-Volley Zone (NVZ)</strong>. You'll hear this word a lot; it has its own rule coming up.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: false,
         static: true,
         tooltips: {},
@@ -1413,19 +1459,19 @@ const steps = [
     {
         header: "The Serve Target", step: "Clearing the line",
         text: "The serve must land <strong>diagonally</strong>, completely past the Kitchen line. Landing ON the kitchen line is a fault. Any other line is IN.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: false,
         tooltips: { p1: "Serves Diagonal" },
         onEnter: () => { setKitchenPulse(true); setServeTarget({left:'0%', top:'50%', width:'34.1%', height:'50%'}); },
         onExit:  () => { setKitchenPulse(false); setServeTarget(null); },
         animSequence: async (id) => {
-            setBall('108%','25%',true);
+            setBall('96%','25%',true);
             if (!await sleep(500, id)) return;
             if (!await moveBall('34.1%','75%', id)) return;
             spawnScorePopup('34.1%','75%','FAULT: ON LINE!','var(--nepc-red)', true);
-            if (!await sleep(1500, id)) return;
-            setBall('108%','25%',true);
-            if (!await sleep(500, id)) return;
+            if (!await sleep(1200, id)) return;
+            if (!await moveBall('96%','25%', id, 500)) return;
+            if (!await sleep(400, id)) return;
             if (!await moveBall('15%','75%', id)) return;
             spawnBounceRing('15%','75%');
             spawnScorePopup('15%','75%','GOOD SERVE','var(--nepc-green)');
@@ -1434,11 +1480,11 @@ const steps = [
     {
         header: "The Two-Bounce Rule", step: "Watch the ball",
         text: "The ball must bounce <strong>once on each side</strong> before anyone can hit it in the air. Both serving-team players <strong>stay back</strong> so the ball has room to bounce on their side.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: false,
-        tooltips: { p1: "Stays back", p2: "Stays back", p3: "Stays back" },
+        tooltips: { p1: "Stays back", p2: "Stays back" },
         animSequence: async (id) => {
-            setBall('108%','25%',true);
+            setBall('96%','25%',true);
             if (!await sleep(500, id)) return;
             if (!await moveBall('15%','75%', id)) return;
             spawnBounceRing('15%','75%');
@@ -1446,30 +1492,30 @@ const steps = [
             if (!await moveBall('85%','25%', id)) return;
             spawnBounceRing('85%','25%');
             if (!await sleep(300, id)) return;
-            await moveBall('108%','25%', id);
+            await moveBall('96%','25%', id);
         }
     },
     {
-        header: "The Return & Run", step: "Closing the gap",
+        header: "Return & Run", step: "Closing the gap",
         text: "After returning the serve, Player 3 <strong>immediately runs</strong> to the kitchen line.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: false,
         tooltips: { p3: "Return & Run!" },
         animSequence: async (id) => {
-            setBall('108%','25%',true);
+            setBall('96%','25%',true);
             if (!await sleep(300, id)) return;
-            if (!await moveBall('-8%','75%', id)) return;
+            if (!await moveBall('4%','75%', id)) return;
             if (!await sleep(200, id)) return;
             moveBall('85%','25%', id);
-            document.getElementById('p3').style.left = '31%';
-            if (!await sleep(800, id)) return;
-            document.getElementById('p3').style.left = '-8%';
+            document.getElementById('p3').style.left = '34%';
+            if (!await sleep(1000, id)) return;
+            document.getElementById('p3').style.left = '4%';
         }
     },
     {
         header: "The Kitchen Rule", step: "No Volley Zone",
         text: "You cannot hit the ball <strong>out of the air</strong> while touching the Kitchen zone.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: false,
         tooltips: { p4: "Volleying from Kitchen" },
         onEnter: () => setKitchenPulse(true),
@@ -1481,20 +1527,20 @@ const steps = [
             if (!await moveBall('45%','25%', id)) return;
             spawnScorePopup('45%','25%','KITCHEN VIOLATION!','var(--nepc-red)', true);
             if (!await sleep(1500, id)) return;
-            document.getElementById('p4').style.left = '31%';
+            document.getElementById('p4').style.left = '34%';
         }
     },
     {
-        header: "The Golden Rule", step: "Scoring Logic",
-        text: "<strong>Only the serving team</strong> can score points.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        header: "Who Scores", step: "Scoring Logic",
+        text: "<strong>Only the serving team</strong> can score points. Return a rally? You get the serve &mdash; not a point.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: true, score: [0,0,2],
         tooltips: { p1: "Serving Team", p3: "Receiving Team" },
         animSequence: async (id) => {
-            setBall('108%','25%',true);
+            setBall('96%','25%',true);
             if (!await sleep(500, id)) return;
-            if (!await moveBall('31%','75%', id)) return;
-            if (!await moveBall('108%','25%', id)) return;
+            if (!await moveBall('34%','75%', id)) return;
+            if (!await moveBall('96%','25%', id)) return;
             spawnScorePopup('80%','50%',"+1 POINT","var(--team-serve)");
             document.getElementById('s-val-1').classList.add('highlight');
             if (!await sleep(1000, id)) return;
@@ -1503,45 +1549,48 @@ const steps = [
     },
     {
         header: "Switching Sides", step: "Winning a point",
-        text: "When you score, <strong>only the serving team</strong> switches sides.",
-        positions: { p1:{left:'108%',top:'25%'}, p2:{left:'108%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'-8%',top:'25%'} },
+        text: "When the serving team scores, <strong>they switch sides</strong>. The returning team stays put.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'4%',top:'25%'} },
         showScore: true, score: [1,0,2],
-        tooltips: { p1: "Moves left", p2: "Moves right", p4: "Stays put" },
+        tooltips: { p1: "Moves down", p2: "Moves up", p4: "Stays put" },
         animSequence: async (id) => {
-            setBall('108%','25%',false);
+            setBall('96%','25%', false);
+            if (!await sleep(600, id)) return;
+            spawnScorePopup('80%','50%',"+1 POINT","var(--team-serve)");
+            if (!await sleep(700, id)) return;
             document.getElementById('p1').style.top = '75%';
             document.getElementById('p2').style.top = '25%';
-            await sleep(1000, id);
+            if (!await sleep(1000, id)) return;
         }
     },
     {
         header: "Sideout", step: "Losing the Serve",
-        text: "Lose the rally? <strong>The serve goes to the other team</strong> (Sideout).",
-        positions: { p1:{left:'108%',top:'75%'}, p2:{left:'108%',top:'25%'}, p3:{left:'-8%',top:'75%'}, p4:{left:'-8%',top:'25%'} },
+        text: "When the serving team <strong>loses a rally</strong> (and Server 2 has also lost), the other team takes over the serve. That's a <strong>sideout</strong>.",
+        positions: { p1:{left:'96%',top:'75%'}, p2:{left:'96%',top:'25%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
         showScore: true, score: [0,1,1],
         tooltips: { p1: "Lost rally", p3: "New Server 1" },
         animSequence: async (id) => {
-            setBall('108%','75%',true);
+            setBall('96%','75%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('31%','75%', id)) return;
+            if (!await moveBall('34%','75%', id)) return;
             spawnScorePopup('20%','50%',"SIDEOUT","var(--team-return)");
-            setBall('-8%','75%',true);
-            document.getElementById('p1').style.left = '69%';
-            document.getElementById('p2').style.left = '108%';
+            if (!await sleep(700, id)) return;
+            if (!await moveBall('4%','75%', id, 450)) return;
         }
     },
     {
         header: "Server 2", step: "Continuing the Turn",
-        text: "If Server 1 loses, <strong>Server 2 gets a turn</strong> before giving the ball back.",
-        positions: { p3:{left:'-8%',top:'75%'}, p4:{left:'-8%',top:'25%'}, p1:{left:'108%',top:'75%'}, p2:{left:'69%',top:'25%'} },
+        text: "If Server 1 loses a rally, <strong>Server 2 gets a turn</strong> before the serve leaves the team.",
+        positions: { p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'}, p1:{left:'96%',top:'75%'}, p2:{left:'96%',top:'25%'} },
         showScore: true, score: [0,1,2],
-        tooltips: { p3: "Lost rally", p4: "Server 2" },
+        tooltips: { p2: "Lost rally", p1: "Server 2 now up" },
         animSequence: async (id) => {
-            setBall('-8%','75%',true);
+            setBall('96%','25%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('69%','25%', id)) return;
-            spawnScorePopup('20%','50%',"SECOND SERVE","var(--nepc-blue)");
-            setBall('-8%','25%',true);
+            if (!await moveBall('4%','75%', id)) return;
+            spawnScorePopup('50%','50%',"SECOND SERVE","var(--nepc-blue)");
+            if (!await sleep(700, id)) return;
+            if (!await moveBall('96%','75%', id, 550)) return;
         }
     }
 ];
@@ -1550,16 +1599,60 @@ const steps = [
 // SIMULATOR
 // =========================================================
 const scenarios = [
-    { step: "Scenario 1 of 10", text: "Game just started. Red is serving first. What is the score?", correct: "0-0-2", options: ["0-0-2","0-0-1","0-0-0"], positions:{p1:{left:'108%',top:'25%'},p2:{left:'108%',top:'75%'},p3:{left:'-8%',top:'75%'},p4:{left:'31%',top:'25%'}}, ballHolder: 1 },
-    { step: "Scenario 2 of 10", text: "Red wins the first rally. They switch sides. Score?", correct: "1-0-2", options: ["1-0-2","1-0-1","0-1-2"], positions:{p1:{left:'108%',top:'75%'},p2:{left:'108%',top:'25%'},p3:{left:'31%',top:'75%'},p4:{left:'-8%',top:'25%'}}, ballHolder: 1 },
-    { step: "Scenario 3 of 10", text: "Player 1 serves. It clears the net but lands exactly ON the kitchen line. What happens?", correct: "Fault - Sideout", options: ["Fault - Sideout","Play On","Let - Re-serve"], positions:{p1:{left:'108%',top:'75%'},p2:{left:'108%',top:'25%'},p3:{left:'31%',top:'75%'},p4:{left:'-8%',top:'25%'}}, ballHolder: 1 },
-    { step: "Scenario 4 of 10", text: "The ball goes to Green. New score?", correct: "0-1-1", options: ["0-1-1","1-0-1","0-1-2"], positions:{p3:{left:'-8%',top:'75%'},p4:{left:'-8%',top:'25%'},p1:{left:'69%',top:'75%'},p2:{left:'108%',top:'25%'}}, ballHolder: 3 },
-    { step: "Scenario 5 of 10", text: "Green Server 1 wins the rally and switches sides. Score?", correct: "1-1-1", options: ["1-1-1","1-0-1","0-2-1"], positions:{p3:{left:'-8%',top:'25%'},p4:{left:'-8%',top:'75%'},p1:{left:'108%',top:'75%'},p2:{left:'69%',top:'25%'}}, ballHolder: 3 },
-    { step: "Scenario 6 of 10", text: "Green Server 1 loses the next rally. What happens?", correct: "Server 2's turn (1-1-2)", options: ["Server 2's turn (1-1-2)","Sideout to Red","Switch sides again"], positions:{p4:{left:'-8%',top:'75%'},p3:{left:'-8%',top:'25%'},p1:{left:'69%',top:'75%'},p2:{left:'108%',top:'25%'}}, ballHolder: 4 },
-    { step: "Scenario 7 of 10", text: "Player 4 steps into the Kitchen and hits the ball before it bounces. What happens?", correct: "Kitchen Violation (Fault)", options: ["Kitchen Violation (Fault)","Play On","Point for Green"], positions:{p4:{left:'45%',top:'75%'},p3:{left:'-8%',top:'25%'},p1:{left:'69%',top:'75%'},p2:{left:'108%',top:'25%'}}, ballHolder: 4 },
-    { step: "Scenario 8 of 10", text: "Green Server 2 lost that rally. What happens next?", correct: "Sideout (1-2-1)", options: ["Sideout (1-2-1)","Sideout (1-2-2)","Server 1 tries again"], positions:{p2:{left:'108%',top:'25%'},p1:{left:'108%',top:'75%'},p3:{left:'-8%',top:'75%'},p4:{left:'31%',top:'25%'}}, ballHolder: 2 },
-    { step: "Scenario 9 of 10", text: "Fast forward: 10-10. Red Server 1 on the right wins the point. Score?", correct: "11-10-1", options: ["11-10-1","10-11-1","11-10-2"], positions:{p2:{left:'108%',top:'75%'},p1:{left:'108%',top:'25%'},p3:{left:'31%',top:'75%'},p4:{left:'-8%',top:'25%'}}, ballHolder: 2 },
-    { step: "Scenario 10 of 10", text: "Score is 11-10. Red Server 1 loses the rally. What happens?", correct: "Server 2's turn (11-10-2)", options: ["Server 2's turn (11-10-2)","Sideout (10-11-1)","Red wins the game"], positions:{p1:{left:'108%',top:'25%'},p2:{left:'108%',top:'75%'},p3:{left:'-8%',top:'75%'},p4:{left:'31%',top:'25%'}}, ballHolder: 1 }
+    {
+        step: "Scenario 1 of 6",
+        text: "New game. Red serves first. What's the score?",
+        correct: "0-0-2",
+        options: ["0-0-2","0-0-1","0-0-0"],
+        explain: "Every pickleball game starts at <strong>0-0-2</strong>. The third number is the server number &mdash; but the first server of the game is treated as <em>Server 2</em> so only one player gets to serve before the first sideout. It's a one-time quirk.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        ballHolder: 1
+    },
+    {
+        step: "Scenario 2 of 6",
+        text: "Red wins the rally. What happens next?",
+        correct: "Red switches sides, 1-0-2",
+        options: ["Red switches sides, 1-0-2","Red stays put, 1-0-2","Green switches sides, 0-1-1"],
+        explain: "Only the <strong>serving team</strong> switches sides when they score. The returning team stays put. This keeps the server on the right side for even scores and left for odd &mdash; a fast cue for correctness during a long match.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        ballHolder: 1
+    },
+    {
+        step: "Scenario 3 of 6",
+        text: "Red serves. The ball clears the net but lands exactly ON the kitchen line. What happens?",
+        correct: "Fault",
+        options: ["Fault","Play On","Let &mdash; Re-serve"],
+        explain: "The serve must <strong>land past the kitchen line</strong>. Every other boundary line is in, but the kitchen line is a fault. If it was a first serve, it's now second serve. If it was second, it's a sideout.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        ballHolder: 1
+    },
+    {
+        step: "Scenario 4 of 6",
+        text: "Player 4 smashes a ball out of the air while her foot is touching the kitchen. What happens?",
+        correct: "Kitchen violation &mdash; fault",
+        options: ["Kitchen violation &mdash; fault","Point for Green","Play On"],
+        explain: "You cannot <strong>volley</strong> (hit before the ball bounces) while any part of you touches the kitchen. Even your momentum carrying you into the zone <em>after</em> the shot is a fault. That's why it's called the Non-Volley Zone.",
+        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'45%',top:'25%'} },
+        ballHolder: 4
+    },
+    {
+        step: "Scenario 5 of 6",
+        text: "Mid-game. Score 5-3-1. Red's Server 1 loses the rally. What happens?",
+        correct: "Server 2's turn &mdash; 5-3-2",
+        options: ["Server 2's turn &mdash; 5-3-2","Sideout to Green, 3-5-1","Green gets +1 point"],
+        explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. The score doesn't change &mdash; only the third digit flips from 1 to 2. The team keeps serving until both partners lose.",
+        positions: { p1:{left:'4%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        ballHolder: 1
+    },
+    {
+        step: "Scenario 6 of 6",
+        text: "Now Red's Server 2 loses the next rally. What happens?",
+        correct: "Sideout &mdash; Green serves, 3-5-1",
+        options: ["Sideout &mdash; Green serves, 3-5-1","Server 2 tries again","Score becomes 5-3-0"],
+        explain: "Both Red servers have lost. Serve goes to Green &mdash; <strong>that's a sideout</strong>. Notice the score flips: Green's 3 is now first because they're serving. Green starts as Server 1.",
+        positions: { p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'}, p1:{left:'96%',top:'75%'}, p2:{left:'96%',top:'25%'} },
+        ballHolder: 3
+    }
 ];
 
 // =========================================================
@@ -1772,13 +1865,16 @@ function renderScenario() {
 
 function handleAnswer(btn, choice) {
     const s = scenarios[simIndex];
+    const POINTS_FIRST = 100 / scenarios.length;      // 16.67 for 6
+    const POINTS_RETRY = POINTS_FIRST / 2;
+
     if (choice === s.correct) {
         btn.style.backgroundColor = 'var(--success)';
         btn.style.borderColor = 'var(--success)';
         btn.style.color = '#fff';
         sfxCorrect();
         const firstTry = attempts === 0;
-        totalScore += firstTry ? 10 : 5;
+        totalScore += firstTry ? POINTS_FIRST : POINTS_RETRY;
         if (firstTry) {
             perfectCount++;
             streak++;
@@ -1799,12 +1895,16 @@ function handleAnswer(btn, choice) {
 
         document.getElementById('answer-options').style.display = 'none';
         document.getElementById('sim-feedback-text').innerText = firstTry ? "Nailed it." : "Got it!";
+        const explainEl = document.getElementById('sim-feedback-explain');
+        explainEl.innerHTML = s.explain || '';
+        explainEl.style.display = s.explain ? 'block' : 'none';
         document.getElementById('sim-feedback').style.display = 'flex';
     } else {
         btn.classList.add('shake');
         btn.style.backgroundColor = 'var(--nepc-red)';
         btn.style.borderColor = 'var(--nepc-red)';
         btn.style.color = '#fff';
+        btn.disabled = true;
         sfxWrong();
         attempts++;
         streak = 0;
@@ -1818,15 +1918,16 @@ function handleAnswer(btn, choice) {
 // =========================================================
 async function shareResult() {
     const tier = document.getElementById('tier-badge').innerText;
-    const text = `I scored ${totalScore}/100 on the Four Dimensions Academy pickleball module — ${tier}. ${perfectCount}/10 perfect, best streak ${bestStreak}.`;
-    const url = 'https://nepclub.com';
+    const displayScore = Math.round(totalScore);
+    const text = `I scored ${displayScore}/100 on the 4D Pickleball scoring module — ${tier}. ${perfectCount}/${scenarios.length} perfect, best streak ${bestStreak}.`;
+    const url = 'https://4dpickleball.com/scoring/';
     const shareBtn = document.getElementById('share-btn');
 
     sfxClick();
 
     if (navigator.share) {
         try {
-            await navigator.share({ title: 'Four Dimensions Academy', text, url });
+            await navigator.share({ title: '4D Pickleball — Scoring', text, url });
             return;
         } catch (e) { /* user cancelled or share failed — fall through */ }
     }
@@ -1868,7 +1969,11 @@ function showCompletion() {
     const valEl = document.getElementById('final-score-val');
     const ratingEl = document.getElementById('final-rating');
 
-    document.getElementById('stat-perfect').innerText = perfectCount;
+    // Snap to 100 on a perfect run (float arithmetic slop guard)
+    if (perfectCount === scenarios.length) totalScore = 100;
+    else totalScore = Math.round(totalScore);
+
+    document.getElementById('stat-perfect').innerText = `${perfectCount}/${scenarios.length}`;
     document.getElementById('stat-streak').innerText = bestStreak;
 
     // Tier styling
@@ -1905,7 +2010,7 @@ function showCompletion() {
     void valEl.offsetWidth;
     valEl.classList.add('animating');
 
-    let v = 0; const target = totalScore; const duration = 1200; const start = performance.now();
+    let v = 0; const target = Math.round(totalScore); const duration = 1200; const start = performance.now();
     function tick(t) {
         const prog = Math.min(1, (t - start) / duration);
         const eased = 1 - Math.pow(1 - prog, 3);
