@@ -683,71 +683,63 @@ const SHOTS = {
     story: 'Four feet planted. Four tennis players. One inevitable shank.',
     shot: {
       segments: [
-        // 1ST HIT — SERVE: farRight underhand from 2ft behind baseline → bounces in near court
-        { from: [ 5, 2.0, -22], to: [-3, 0.15, 15], apex: 7.5, dur: 0.85 },
-        // BOUNCE → nearLeft paddle (receiver at baseline, groundstroke height)
-        { from: [-3, 0.15, 15], to: [-5, 2.2, 20], apex: 2.3, dur: 0.40 },
-        // 2ND HIT — RETURN: nearLeft groundstroke → bounces in far court
-        { from: [-5, 2.2, 20], to: [ 3, 0.15, -15], apex: 7.5, dur: 0.80 },
-        // BOUNCE → farRight paddle
-        { from: [ 3, 0.15, -15], to: [ 5, 2.2, -20], apex: 2.3, dur: 0.40 },
-        // 3RD HIT: farRight groundstrokes back → bounces in near court
-        { from: [ 5, 2.2, -20], to: [-4, 0.15, 16], apex: 7.0, dur: 0.75 },
-        // BOUNCE → nearLeft paddle
-        { from: [-4, 0.15, 16], to: [-5, 2.2, 20], apex: 2.1, dur: 0.40 },
-        // 4TH HIT: nearLeft groundstrokes → bounces center-right in far court
-        { from: [-5, 2.2, 20], to: [ 2, 0.15, -14], apex: 7.0, dur: 0.75 },
-        // BOUNCE → farRight paddle
-        { from: [ 2, 0.15, -14], to: [ 5, 2.2, -20], apex: 2.1, dur: 0.40 },
-        // 5TH HIT: farRight down the middle → bounces in near center court
-        { from: [ 5, 2.2, -20], to: [-2, 0.15, 14], apex: 6.8, dur: 0.75 },
-        // BOUNCE → nearLeft paddle
-        { from: [-2, 0.15, 14], to: [-5, 2.2, 20], apex: 2.1, dur: 0.40 },
-        // 6TH HIT: nearLeft cross-court → bounces in far court
-        { from: [-5, 2.2, 20], to: [ 3, 0.15, -13], apex: 6.8, dur: 0.75 },
-        // BOUNCE → farRight paddle (ball dragging farRight sideways)
-        { from: [ 3, 0.15, -13], to: [ 5, 2.2, -20], apex: 2.1, dur: 0.40 },
-        // 7TH HIT — SHANK: farRight off-balance mishit. Weak forward pop that
-        // doesn't have enough energy to clear the net — ball dies on their OWN side
-        // ~6ft short of the net (physics-correct: apex 3.2 means y≈1.5 at z=0, net height=3).
-        { from: [ 5, 2.2, -20], to: [ 2, 0.15, -6], apex: 3.2, dur: 0.95, cinematic: true }
+        // 1ST HIT - SERVE: farRight cross-court underhand, bounces in near deuce court
+        { from: [ 5, 2.0, -22], to: [-3, 0.15, 14], apex: 7.5, dur: 0.85 },
+        // BOUNCE -> nearLeft paddle (left back)
+        { from: [-3, 0.15, 14], to: [-5, 3, 21], apex: 3.2, dur: 0.40 },
+        // 2ND HIT - RETURN: nearLeft DOWN THE LINE, bounces in far-left court
+        { from: [-5, 3, 21], to: [-3, 0.15, -16], apex: 7.5, dur: 0.85 },
+        // BOUNCE -> farLeft paddle (forces 3rd player into the rally)
+        { from: [-3, 0.15, -16], to: [-5, 3, -22], apex: 3.2, dur: 0.40 },
+        // 3RD HIT - farLeft cross-court, bounces in near-right court (forces 4th player)
+        { from: [-5, 3, -22], to: [ 3, 0.15, 13], apex: 7.0, dur: 0.80 },
+        // BOUNCE -> nearRight paddle
+        { from: [ 3, 0.15, 13], to: [ 5, 3, 16], apex: 3.0, dur: 0.40 },
+        // 4TH HIT - nearRight DOWN THE LINE, bounces far-right
+        { from: [ 5, 3, 16], to: [ 3, 0.15, -15], apex: 6.8, dur: 0.80 },
+        // BOUNCE -> farRight paddle
+        { from: [ 3, 0.15, -15], to: [ 5, 3, -22], apex: 3.0, dur: 0.40 },
+        // 5TH HIT - farRight cross-court, bounces near-left
+        { from: [ 5, 3, -22], to: [-3, 0.15, 14], apex: 6.8, dur: 0.80 },
+        // BOUNCE -> nearLeft paddle
+        { from: [-3, 0.15, 14], to: [-5, 3, 21], apex: 3.0, dur: 0.40 },
+        // 6TH HIT - nearLeft cross-court, bounces far-right
+        { from: [-5, 3, 21], to: [ 3, 0.15, -14], apex: 6.8, dur: 0.80 },
+        // BOUNCE -> farRight paddle (ball pulls farRight wide)
+        { from: [ 3, 0.15, -14], to: [ 5, 3, -22], apex: 3.0, dur: 0.40 },
+        // 7TH HIT - SHANK: farRight off-balance mishit, dies on their own side (no net clearance)
+        { from: [ 5, 3, -22], to: [ 4, 0.15, -10], apex: 3.2, dur: 0.95, cinematic: true }
       ]
     },
-    // ── 1D player movement — "four tennis players who don't know pickleball yet"
-    // Server (farRight) and partner (farLeft) behind baseline. Receiver (nearLeft) at
-    // baseline. Receiver's partner (nearRight) AT KITCHEN LINE — one player at the line
-    // per standard positioning. The 1D error: receiver NEVER advances to join their
-    // partner at the kitchen; they stay split backcourt/frontcourt the entire rally.
-    // All shots bounce (groundstrokes). Lateral sliding only — no z-forward motion.
     playerFrames: [
-      // F0 — pre-serve (relaxed stance)
+      // F0 - pre-serve, all in tennis-transition stances
       { nearLeft:[-5,22],   nearRight:[5,16],   farLeft:[-5,-22],   farRight:[5,-22] },
-      // F1 — serve bouncing in near court; EVERYONE tracks toward center
-      { nearLeft:[-4,22],   nearRight:[4,16],   farLeft:[-4,-22],   farRight:[4,-22] },
-      // F2 — nearLeft lunges for return contact; partners shift with the ball
-      { nearLeft:[-5.5,21.5], nearRight:[3,16], farLeft:[-3.5,-22], farRight:[5,-21.5] },
-      // F3 — return bouncing far-right; near recovers, far races wide
-      { nearLeft:[-4,22.5], nearRight:[4.5,15.5], farLeft:[-3,-22.5], farRight:[5.5,-21] },
-      // F4 — farRight hits 3rd shot cross-court; weight forward
-      { nearLeft:[-5,22],   nearRight:[5,16.5], farLeft:[-4.5,-22], farRight:[6,-21] },
-      // F5 — 3rd bouncing center-near; nearLeft tracks in
-      { nearLeft:[-3.5,21], nearRight:[3.5,17], farLeft:[-5.5,-22], farRight:[4.5,-22.5] },
-      // F6 — nearLeft hits 4th (cross-court); partner covers open side
-      { nearLeft:[-4.5,21], nearRight:[5.5,16], farLeft:[-5,-23], farRight:[4,-22] },
-      // F7 — 4th bouncing far-middle; far team sliding right-to-center
-      { nearLeft:[-3,22.5], nearRight:[4,15.5], farLeft:[-3,-22.5], farRight:[3,-22] },
-      // F8 — farRight stretches to reach 5th shot; off-balance forehand
-      { nearLeft:[-4,22],   nearRight:[6,16.5], farLeft:[-5,-22], farRight:[2.5,-21] },
-      // F9 — 5th bouncing near-left; nearLeft moving back-left to track
-      { nearLeft:[-5.5,22.5], nearRight:[4,16], farLeft:[-4,-22], farRight:[4.5,-22.5] },
-      // F10 — nearLeft hits 6th (big weight transfer on forehand)
-      { nearLeft:[-3,21],   nearRight:[5,17], farLeft:[-5,-22], farRight:[5.5,-22] },
-      // F11 — 6th bouncing far-right; farRight PULLED WIDE chasing ball
-      { nearLeft:[-2.5,22], nearRight:[5.5,15.5], farLeft:[-5.5,-22], farRight:[6.5,-21.5] },
-      // F12 — farRight DIVES wide — off-balance mishit (the shank)
-      { nearLeft:[-3,21.5], nearRight:[6,17], farLeft:[-4.5,-22.5], farRight:[7,-22.5] },
-      // F13 — after shank; farRight recovers, near watches ball die
-      { nearLeft:[-3.5,21], nearRight:[5.5,16], farLeft:[-4,-22], farRight:[5,-22] }
+      // F1 - serve bouncing in near-left; nearLeft tracks, all alert
+      { nearLeft:[-5,22],   nearRight:[5,16],   farLeft:[-5,-22],   farRight:[5,-21.5] },
+      // F2 - nearLeft return contact (steps into ball)
+      { nearLeft:[-5,21],   nearRight:[5,16],   farLeft:[-5,-22],   farRight:[5,-22] },
+      // F3 - return flying down the line; farLeft tracks ball coming to him
+      { nearLeft:[-4.5,22], nearRight:[5,16],   farLeft:[-5,-22],   farRight:[5.5,-22] },
+      // F4 - farLeft contact (3rd hit) - sets ball cross-court
+      { nearLeft:[-5,22],   nearRight:[5,15.5], farLeft:[-5,-21],   farRight:[5,-22] },
+      // F5 - 3rd shot bouncing near-right; nearRight tracks forward
+      { nearLeft:[-5,22],   nearRight:[4.5,15], farLeft:[-5,-22],   farRight:[5,-22] },
+      // F6 - nearRight contact (4th hit) - down the line back
+      { nearLeft:[-4.5,22], nearRight:[5,15],   farLeft:[-4.5,-22], farRight:[5.5,-22] },
+      // F7 - 4th shot bouncing far-right; farRight ready
+      { nearLeft:[-4,22.5], nearRight:[5.5,16], farLeft:[-5,-22],   farRight:[5,-21.5] },
+      // F8 - farRight contact (5th hit) - cross-court
+      { nearLeft:[-5,22],   nearRight:[6,16],   farLeft:[-5,-22],   farRight:[5,-21] },
+      // F9 - 5th shot bouncing near-left; nearLeft tracks
+      { nearLeft:[-5.5,22], nearRight:[5,16.5], farLeft:[-5,-22],   farRight:[4.5,-22] },
+      // F10 - nearLeft contact (6th hit) - cross-court
+      { nearLeft:[-5,21],   nearRight:[5,16],   farLeft:[-5,-22],   farRight:[5,-22.5] },
+      // F11 - 6th shot bouncing far-right; farRight pulled WIDE
+      { nearLeft:[-4,22.5], nearRight:[5,16],   farLeft:[-5.5,-22], farRight:[5.5,-21.5] },
+      // F12 - farRight stretches off-balance (the shank)
+      { nearLeft:[-3.5,22], nearRight:[6,16.5], farLeft:[-5,-22],   farRight:[6,-22.5] },
+      // F13 - after shank dies short on far's own side
+      { nearLeft:[-3,22],   nearRight:[5.5,16], farLeft:[-5,-22],   farRight:[5,-22] }
     ],
     // Moments — pedagogical callouts. Each fires at `at` fraction of total shotT;
     // label pins to `arrow` target (ball | player:<key> | court:[x,z]) for `hold` seconds.
@@ -782,16 +774,16 @@ const SHOTS = {
         // 3RD HIT - DRIVE: near team volleys at kitchen line
         { from: [ 5, 2.2, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         // 4TH HIT - BABY BLOCK: lands 2ft past far kitchen line, BOUNCES
-        { from: [-3, 1.5, 8], to: [ 2, 0.15, -9], apex: 3.3, dur: 0.85, cinematic: true },
+        { from: [-3, 1.5, 8], to: [ 2, 0.15, -9], apex: 3.3, dur: 0.85 },
         // BOUNCE -> far paddle (farRight sprints in from baseline to z=-11)
         { from: [ 2, 0.15, -9], to: [ 3, 2.3, -11], apex: 2.2, dur: 0.50 },
         // 5TH HIT - LOW-TO-HIGH LIFT: far lifts up, arrives HIGH at near kitchen (sitter)
-        { from: [ 3, 2.3, -11], to: [ 2, 3.5, 6], apex: 5.5, dur: 0.85 },
+        { from: [ 3, 2.3, -11], to: [ 2, 4.2, 6], apex: 5.8, dur: 0.90, cinematic: true },
         // 6TH HIT - PUTAWAY: nearRight takes the sitter overhead and ANGLES it sharp
         // cross-court into the OPEN corner — past the serving team (who is clustered
         // center-left around x=-3). Lands deep at far-left corner (x=-8, z=-16). Fast,
         // flat, unreachable. Apex just barely clears the net at this sharp angle.
-        { from: [ 2, 3.5, 6], to: [-10, 0.15, -9], apex: 3.0, dur: 0.42 }
+        { from: [ 2, 4.2, 6], to: [-10, 0.15, -9], apex: 3.5, dur: 0.42, cinematic: true }
       ]
     },
     playerFrames: [
@@ -835,8 +827,8 @@ const SHOTS = {
         { from: [ 5, 3, -20], to: [-3, 1.5, 8], apex: 3.8, dur: 0.80 },
         { from: [-3, 1.5, 8], to: [ 2, 0.15, -10], apex: 3.2, dur: 0.85 },
         { from: [ 2, 0.15, -10], to: [ 3, 2.3, -12], apex: 2.2, dur: 0.50 },
-        { from: [ 3, 2.3, -12], to: [ 0, 0.15, 5], apex: 6.5, dur: 1.00, cinematic: true },
-        { from: [ 0, 0.15, 5], to: [-1, 2.3, 7], apex: 2.5, dur: 0.50 },
+        { from: [ 3, 2.3, -12], to: [ 0, 0.15, 4], apex: 6.5, dur: 1.00, cinematic: true },
+        { from: [ 0, 0.15, 4], to: [-1, 2.3, 7], apex: 2.5, dur: 0.50 },
         // 6TH HIT - cross-court dink (near -> far kitchen, BOUNCES)
         { from: [-1, 2.3, 7], to: [ 3, 0.15, -5], apex: 3.5, dur: 0.80 },
         // BOUNCE -> far paddle (farRight lets it bounce, picks up at kitchen line)
@@ -908,9 +900,9 @@ const SHOTS = {
         // BOUNCE -> far paddle
         { from: [ 2, 0.15, -10], to: [ 3, 2.3, -12], apex: 2.2, dur: 0.48 },
         // DROP: soft lift, BOUNCES in near kitchen
-        { from: [ 3, 2.3, -12], to: [ 0, 0.15, 5], apex: 6.5, dur: 0.90 },
+        { from: [ 3, 2.3, -12], to: [ 0, 0.15, 4], apex: 6.5, dur: 0.90 },
         // BOUNCE -> near paddle
-        { from: [ 0, 0.15, 5], to: [-1, 2.3, 7], apex: 2.3, dur: 0.48 },
+        { from: [ 0, 0.15, 4], to: [-1, 2.3, 7], apex: 2.3, dur: 0.48 },
         // PRESSURE DINK: groundstroke cross-court, BOUNCES in far kitchen
         { from: [-1, 2.3, 7], to: [ 4, 0.15, -5], apex: 3.5, dur: 0.75 },
         // BOUNCE -> far paddle

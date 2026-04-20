@@ -1178,6 +1178,29 @@ window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); onReadyDown(); return; }
   if (e.key === 'Enter') { e.preventDefault(); onSwing(); return; }
+  // Number keys 1–9 → skip directly to that round (dev/practice convenience)
+  if (e.key >= '1' && e.key <= '9') {
+    const roundNum = parseInt(e.key, 10);
+    const idx = roundNum - 1;
+    if (idx >= 0 && idx < LEVELS.length) {
+      e.preventDefault();
+      // Reset trial state, jump to the requested level, beginLevel will show
+      // the round card and start fresh.
+      STATE.levelIdx = idx;
+      STATE.trial = 0;
+      STATE.canInput = false;
+      STATE.holdingReady = false;
+      STATE._outHitPlayer = false;
+      ball.visible = false;
+      clearTrail();
+      // Hide any open card overlays
+      document.getElementById('round-card').classList.remove('on');
+      const retry = document.getElementById('retry-card'); if (retry) retry.style.display = 'none';
+      const endC  = document.getElementById('end-card');  if (endC) endC.classList.remove('on');
+      beginLevel();
+    }
+    return;
+  }
 });
 window.addEventListener('keyup', (e) => {
   if ((e.key === ' ' || e.code === 'Space') && STATE.holdingReady) { e.preventDefault(); onReadyUp(); }
@@ -1211,6 +1234,7 @@ function handleDecision(kind){
   const shot = STATE.currentShot;
   let correct = false;
   let tooLate = false;
+  let tooEarlySwing = false;
   if (kind === 'OUT') {
     // Late-release penalty with benefit of the doubt — loosened 2026-04-20
     // per Dave. Two gates:
@@ -1223,7 +1247,15 @@ function handleDecision(kind){
     correct = (shot.kind === 'OUT') && !tooLate;
   } else if (kind === 'SWING') {
     STATE.swingResolved = STATE.hasBounced ? 'BOUNCE' : 'VOLLEY';
-    correct = (STATE.swingResolved === shot.kind);
+    // TOO EARLY — swung before the ball crossed the net (still on the
+    // opponent's side, z < 0). The "contact" is a mis-hit that sails wide
+    // right past the sideline. Always counted wrong, even on OUT shots.
+    if (ball.position.z < 0) {
+      tooEarlySwing = true;
+      correct = false;
+    } else {
+      correct = (STATE.swingResolved === shot.kind);
+    }
   }
   STATE.results.push(correct);
   // Per-shot-type tally for the end-of-session report card
@@ -1273,16 +1305,38 @@ function handleDecision(kind){
     animateDefenderHit();
   } else {
     STATE.streak = 0;
+    // Too-early swing — show contact + ball spraying wide right (out by the
+    // sideline). Visualizes the mis-hit you'd produce by swinging before
+    // the ball even reaches your half.
+    if (tooEarlySwing) {
+      animateDefenderHit();
+      launchSprayOut();
+    }
   }
   updateDot(STATE.trial, correct);
   setScore(correct);
   updateStreakDisplay();
-  showVerdict(correct, tooLate ? 'TOO_LATE' : kind, shot);
+  showVerdict(correct, tooLate ? 'TOO_LATE' : tooEarlySwing ? 'TOO_EARLY' : kind, shot);
   STATE.trial++;
   // Let flight + verdict finish
   setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
 }
 
+// Mis-hit deflection — ball sprays WIDE RIGHT past the sideline (court x
+// goes to ±10; we send to x≈16). Used when the player swings too early.
+function launchSprayOut(){
+  const fromY = ball.position.y;
+  STATE.currentShot = {
+    kind: 'SPRAY',
+    from: [ball.position.x, fromY, ball.position.z],
+    to:   [16 + Math.random() * 2, 0.4, ball.position.z + 4 + Math.random() * 4],
+    apex: Math.max(fromY + 0.4, 2.0),
+    duration: 0.7
+  };
+  STATE.shotT = 0;
+  STATE.shotDur = 0.7;
+  STATE.hasBounced = false;
+}
 function launchReturnShot(){
   const hitY = ball.position.y;
   // Aim the return BACK INTO the opponent's half — roughly center of their
@@ -1335,11 +1389,10 @@ function showVerdict(correct, kind, shot){
     big.style.color = '#34D399';
     sub.textContent = shot.kind === 'OUT' ? 'Out ball · let it fly' : shot.kind === 'VOLLEY' ? 'Volley it — block' : 'Groundstroke — patient';
   } else {
-    // Swinging at a ball that was going out gets its own "Oops." call-out —
-    // classic banger-bait mistake, worth its own verdict so the lesson lands.
     const swungAtOut = (kind === 'SWING' && shot.kind === 'OUT');
     big.textContent = kind === 'NO_COMMIT' ? 'No commit.'
                     : kind === 'TOO_LATE'  ? 'Too late.'
+                    : kind === 'TOO_EARLY' ? 'Too early.'
                     : swungAtOut           ? 'Oops.'
                     : 'Missed.';
     big.style.color = '#FB7185';
@@ -1347,6 +1400,8 @@ function showVerdict(correct, kind, shot){
       sub.textContent = 'Release to let it go · Right click to hit';
     } else if (kind === 'TOO_LATE') {
       sub.textContent = 'You had the right read.';
+    } else if (kind === 'TOO_EARLY') {
+      sub.textContent = 'You swung before the ball crossed the net — wait for it.';
     } else if (kind === 'TIMEOUT') {
       sub.textContent = shot.kind === 'OUT' ? 'That was going out — release to let it go' : shot.kind === 'VOLLEY' ? 'That was a volley — right click to hit' : 'Let it bounce — right click to hit';
     } else {
@@ -1475,7 +1530,11 @@ function animate(){
   }
   controls.update();
 
-  if (STATE.phase === 'FLIGHT' && STATE.currentShot) {
+  if (STATE.phase === 'FLIGHT' && STATE.currentShot && !STATE._outHitPlayer) {
+    // _outHitPlayer flag — set when a no-commit intercept snapped the ball
+    // to the player. Skipping this whole block keeps the ball frozen at the
+    // impact position; without the skip, trajectoryAt would overwrite it on
+    // the next frame and the ball would resume flying past.
     STATE.shotT += dt / STATE.shotDur;
     if (STATE.shotT >= 1) STATE.shotT = 1;
     const s = STATE.currentShot;
