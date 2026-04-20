@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link rel="dns-prefetch" href="https://unpkg.com">
-<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/build/three.module.js" crossorigin>
-<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js" crossorigin>
+<!-- NOTE: NO modulepreload here. modulepreload initiates the module graph
+     BEFORE the importmap registers, breaking bare-specifier resolution
+     ('three' → fails). Preconnect is enough for CDN warmup. -->
+
 <title>4DP · Cinematic 3D Module Template</title>
 <meta name="description" content="Reference template for 4DP interactive 3D modules. Cinematic rally animation with procedural audio, coach-grade key-moment annotations, story mode, multi-angle replay, and a 12-key shortcut deck.">
 <link rel="stylesheet" href="tokens.css">
@@ -486,6 +488,7 @@
 </style>
 </head>
 <body>
+<script>window.__errs=[];window.addEventListener("error",e=>window.__errs.push("ERR: "+e.message+" @"+e.filename+":"+e.lineno));window.addEventListener("unhandledrejection",e=>window.__errs.push("REJ: "+(e.reason?.message||e.reason)));</script>
 
 <!-- Embedded/showcase mode detection runs BEFORE the module so the internal overlays hide with no flash. -->
 <script>
