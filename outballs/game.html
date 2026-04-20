@@ -1236,7 +1236,13 @@ function showVerdict(correct, kind, shot){
     big.style.color = '#34D399';
     sub.textContent = shot.kind === 'OUT' ? 'Out ball · let it fly' : shot.kind === 'VOLLEY' ? 'Volley it — block' : 'Groundstroke — patient';
   } else {
-    big.textContent = kind === 'NO_COMMIT' ? 'No commit.' : kind === 'TOO_LATE' ? 'Too late.' : 'Missed.';
+    // Swinging at a ball that was going out gets its own "Oops." call-out —
+    // classic banger-bait mistake, worth its own verdict so the lesson lands.
+    const swungAtOut = (kind === 'SWING' && shot.kind === 'OUT');
+    big.textContent = kind === 'NO_COMMIT' ? 'No commit.'
+                    : kind === 'TOO_LATE'  ? 'Too late.'
+                    : swungAtOut           ? 'Oops.'
+                    : 'Missed.';
     big.style.color = '#FB7185';
     if (kind === 'NO_COMMIT') {
       sub.textContent = 'Release SPACEBAR to let it go · Hit ENTER to hit';

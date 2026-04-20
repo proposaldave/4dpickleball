@@ -1016,7 +1016,7 @@ scene.add(ambient);
 const key = new THREE.DirectionalLight(0xFFF4E0, 1.15);
 key.position.set(18, 30, 14);
 key.castShadow = true;
-key.shadow.mapSize.set(1024, 1024);  // was 2048 — 4x faster compile
+key.shadow.mapSize.set(512, 512);  // was 2048 — 4x faster compile
 key.shadow.camera.left = -30;  key.shadow.camera.right = 30;
 key.shadow.camera.top  =  35;  key.shadow.camera.bottom= -35;
 key.shadow.camera.near = 1;    key.shadow.camera.far   = 70;
@@ -2828,7 +2828,7 @@ window.addEventListener('resize', () => {
 // If user interacts during the pause, skip the auto-start so we don't restart their shot.
 window.addEventListener('load', () => {
   applyDeepLink();
-  setTimeout(() => {
+  (() => {
     document.getElementById('loading').classList.add('gone');
     startShot(activeShotKey);
     shotRunning = false;
@@ -2841,7 +2841,7 @@ window.addEventListener('load', () => {
       lastSegFiredIdx = -1;
       shotRunning = true;
     }, 1000);
-  }, 300);
+  })();
 });
 </script>
 
