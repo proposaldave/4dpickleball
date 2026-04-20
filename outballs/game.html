@@ -148,6 +148,19 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 /* Back button */
 #back-btn{position:fixed;top:18px;left:24px;z-index:11;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:10px;padding:9px 16px;font-family:var(--4dp-font-body);font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text);cursor:pointer;}
 
+/* Controls help button + popup — click "?" bottom-right to see all input bindings */
+#help-btn{position:fixed;bottom:104px;right:18px;z-index:13;width:38px;height:38px;border-radius:50%;background:rgba(10,22,40,.78);backdrop-filter:blur(12px);border:1px solid var(--4dp-hairline-s);font-family:var(--4dp-font-body);font-weight:800;font-size:18px;color:var(--4dp-text);cursor:pointer;transition:all .2s var(--4dp-ease);}
+#help-btn:hover{background:rgba(245,243,238,.10);transform:scale(1.06);}
+#help-popup{position:fixed;bottom:152px;right:18px;z-index:14;display:none;width:300px;background:rgba(10,22,40,.95);backdrop-filter:blur(16px);border:1px solid var(--4dp-hairline-s);border-radius:14px;padding:18px 20px;box-shadow:0 12px 40px rgba(0,0,0,.6);}
+#help-popup.on{display:block;animation:helpIn .25s var(--4dp-ease);}
+@keyframes helpIn{from{opacity:0;transform:translateY(8px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+#help-popup h4{margin:0 0 12px;font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--4dp-gold);}
+.help-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(245,243,238,.06);font-size:12px;color:var(--4dp-text-dim);}
+.help-row:last-child{border:0;}
+.help-row .keys{flex:0 0 130px;font-family:var(--4dp-font-body);font-weight:800;font-size:10px;letter-spacing:1px;color:var(--4dp-text);text-transform:uppercase;}
+.help-row .keys span{display:inline-block;padding:2px 6px;border-radius:5px;background:rgba(245,243,238,.10);border:1px solid rgba(245,243,238,.20);margin-right:3px;font-size:9px;}
+.help-row .desc{flex:1;line-height:1.4;}
+
 /* Loading */
 #loading{position:fixed;inset:0;z-index:300;background:var(--4dp-ink);display:flex;align-items:center;justify-content:center;color:var(--4dp-text);font-family:var(--4dp-font-display);font-style:italic;font-size:30px;transition:opacity .5s ease;}
 #loading.gone{opacity:0;pointer-events:none;visibility:hidden;}
@@ -182,6 +195,26 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 </div>
 
 <button id="back-btn" onclick="window.location.href='./'">← Back</button>
+<button id="help-btn" title="Show controls" onclick="document.getElementById('help-popup').classList.toggle('on')">?</button>
+<div id="help-popup">
+  <h4>Controls</h4>
+  <div class="help-row">
+    <div class="keys"><span>L-CLICK</span><span>SPACE</span></div>
+    <div class="desc">Hold to ready · release to let the ball go out</div>
+  </div>
+  <div class="help-row">
+    <div class="keys"><span>R-CLICK</span><span>ENTER</span></div>
+    <div class="desc">Hit (volley or groundstroke)</div>
+  </div>
+  <div class="help-row">
+    <div class="keys"><span>1</span>–<span>9</span></div>
+    <div class="desc">Skip to that round</div>
+  </div>
+  <div class="help-row">
+    <div class="keys"><span>CAMERA</span></div>
+    <div class="desc">Top-right button — cycle camera angles</div>
+  </div>
+</div>
 
 <div class="progress-dots" id="progress-dots"></div>
 
@@ -1214,7 +1247,11 @@ window.addEventListener('contextmenu', (e) => {
   if (!e.target.closest('button, #pregame, #end-card, #retry-card')) e.preventDefault();
 });
 window.addEventListener('mousedown', (e) => {
-  if (e.target.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera')) return;
+  // Skip game-input routing if the click hits any UI control surface.
+  if (e.target.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #help-btn, #help-popup')) return;
+  // Click anywhere ELSE while help popup is open → close it (and skip game input that frame)
+  const help = document.getElementById('help-popup');
+  if (help && help.classList.contains('on')) { help.classList.remove('on'); return; }
   if (e.button === 0)      { e.preventDefault(); onReadyDown(); }
   else if (e.button === 2) { e.preventDefault(); onSwing(); }
 });
@@ -1641,10 +1678,17 @@ function startGame(){
   const loading = document.getElementById('loading');
   if (loading) { loading.classList.add('gone'); loading.style.opacity = '0'; loading.style.visibility = 'hidden'; }
   animate();
-  // If the parent landing page already showed its own "Two keys. One decision."
+  // If the parent landing page already showed its own "Two clicks. One decision."
   // splash and set sessionStorage.pregame_seen=1, skip ours so the player
   // isn't walked through the same explainer twice.
   try {
+    // Honor a round-jump request set by the landing page (1-9 keypress).
+    const r = sessionStorage.getItem('requestedRound');
+    if (r) {
+      sessionStorage.removeItem('requestedRound');
+      const idx = Math.max(0, Math.min(LEVELS.length - 1, parseInt(r, 10) - 1));
+      STATE.levelIdx = idx;
+    }
     if (sessionStorage.getItem('pregame_seen') === '1') {
       if (typeof window.dismissPregame === 'function') window.dismissPregame();
     }

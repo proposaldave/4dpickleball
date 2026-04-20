@@ -2011,6 +2011,23 @@
             if (rb) rb.classList.remove('active');
         });
 
+        // Landing-page 1-9 → jump straight into the game at that round.
+        // Stashes the requested round in sessionStorage; game.html reads it
+        // on startup and applies it inside its own beginLevel() call.
+        window.addEventListener('keydown', (ev) => {
+            if (ev.repeat) return;
+            if (ev.key >= '1' && ev.key <= '9') {
+                ev.preventDefault();
+                try { sessionStorage.setItem('requestedRound', ev.key); } catch(e) {}
+                // Jump straight into the game (skip the splash if it's up).
+                const splash = document.getElementById('pregame-splash');
+                if (splash && splash.classList.contains('on')) {
+                    if (typeof dismissPregame === 'function') dismissPregame();
+                } else if (typeof open3D === 'function') {
+                    open3D();
+                }
+            }
+        });
         function open3D() {
             if (typeof THREE === 'undefined') { alert("3D mode requires an internet connection."); return; }
             // Always show the pregame splash before launching the game — the
