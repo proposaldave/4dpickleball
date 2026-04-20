@@ -727,14 +727,15 @@ function revealPyramid(){
 setTimeout(revealPyramid,300);
 
 // ── Shot chips: clicks postMessage into the iframe to switch shots ──
-// Dynamic iframe load — never sets src in HTML (browsers cache that URL).
-// JS constructs fresh URL with Date.now() cachebust so every load fetches current template.
+// Dynamic iframe load — ALWAYS sets src from data-src with fresh cachebust.
+// (Previous version checked !f.src but browsers return non-empty string for
+// iframes with no src attribute after a refresh — skipped setting and left empty.)
 (function(){
   const f = document.getElementById('dim-iframe');
-  if (f && !f.src) {
-    const ds = f.getAttribute('data-src') || f.dataset.src;
-    if (ds) f.src = ds + '&v=' + Date.now();
-  }
+  if (!f) { console.warn('[4DP] dim-iframe not found'); return; }
+  const ds = f.getAttribute('data-src');
+  if (!ds) { console.warn('[4DP] dim-iframe has no data-src'); return; }
+  f.src = ds + '&v=' + Date.now();
 })();
 const dimIframe = document.getElementById('dim-iframe');
 document.querySelectorAll('.dim-chip').forEach(chip => {

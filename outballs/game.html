@@ -980,6 +980,7 @@ function nextTrial(){
   STATE.pendingDecision = null;
   STATE.hasBounced = false;
   STATE._outLandedBurst = false;
+  STATE._outHitPlayer = false;
   STATE.canInput = false;
   STATE.holdingReady = false;
   // Drop defender back to rest pose between trials — they stand straight,
@@ -1407,6 +1408,28 @@ function animate(){
       spawnBurst(new THREE.Vector3(p.x, 0.15, p.z), 0xFB7185);
       STATE._outLandedBurst = true;
     }
+    // MID-FLIGHT NO-COMMIT on OUT — if the ball reaches the player's z
+    // position and they're STILL holding SPACE, the ball smashes into them
+    // instead of continuing past. Can't wait for end-of-flight because by
+    // then the ball is already 30 units behind them. This fires the verdict
+    // AT the impact so you see the ball hit your chest, not fly past.
+    if (s.kind === 'OUT' && STATE.canInput && STATE.holdingReady &&
+        !STATE._outHitPlayer && p.z >= PLAYER_Z - 0.6) {
+      STATE._outHitPlayer = true;
+      STATE.canInput = false;
+      STATE.results.push(false);
+      STATE.statsByKind.OUT.total++;
+      STATE.streak = 0;
+      updateDot(STATE.trial, false);
+      const impact = new THREE.Vector3(SINGLES_X, PLAYER_CHEST_Y, PLAYER_Z - 0.3);
+      ball.position.copy(impact);
+      ballLight.position.copy(impact);
+      spawnBurst(impact.clone(), 0xFB7185);
+      animateDefenderHit();
+      showVerdict(false, 'NO_COMMIT', s);
+      STATE.trial++;
+      setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+    }
     // End of flight: if no decision made, figure out why it was a miss.
     if (STATE.shotT >= 1 && STATE.canInput){
       const isBounceNotYet = (s.kind === 'BOUNCE' && !STATE.hasBounced);
@@ -1420,17 +1443,9 @@ function animate(){
         STATE.streak = 0;
         updateDot(STATE.trial, false);
         const verdictKind = STATE.holdingReady ? 'NO_COMMIT' : 'TIMEOUT';
-        // If the player NEVER committed on an OUT ball (held SPACE all the
-        // way through), the ball literally HITS them — snap ball to chest,
-        // spawn red impact burst, flinch the paddle. Sells the lesson:
-        // "you didn't react quickly enough, the ball hit you."
-        if (verdictKind === 'NO_COMMIT' && shot.kind === 'OUT') {
-          const impact = new THREE.Vector3(SINGLES_X, PLAYER_CHEST_Y, PLAYER_Z - 0.3);
-          ball.position.copy(impact);
-          ballLight.position.copy(impact);
-          spawnBurst(impact.clone(), 0xFB7185);  // red impact burst
-          animateDefenderHit();
-        }
+        // (NO_COMMIT on OUT balls is already handled mid-flight above with
+        // a ball-to-chest impact — this end-of-flight branch only fires
+        // for non-OUT shots or releases the player made late.)
         showVerdict(false, verdictKind, shot);
         STATE.trial++;
         setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
