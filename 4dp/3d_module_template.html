@@ -1694,45 +1694,83 @@ function setAudioGain(v) {
   masterGain.gain.cancelScheduledValues(now);
   masterGain.gain.linearRampToValueAtTime(v, now + 0.12);
 }
-function playPaddle(freq = 480, hardness = 1.0) {
+// Paddle "pock" — real pickleball paddles make a bright, sharp, short pop.
+// Primary pitch ~1000-1500Hz (not 500Hz tennis-style). Ultra-fast 2ms attack.
+// Two oscillators through bandpass + high-passed noise crack. 90ms decay.
+// Tuned 2026-04-20 (Dave "optimize audio"): brighter + sharper + shorter than v1.
+function playPaddle(freq = 1100, hardness = 1.0) {
   if (!audioOn || !audioCtx) return;
   const t = audioCtx.currentTime;
-  const o = audioCtx.createOscillator();
+
+  const oSine = audioCtx.createOscillator();
+  oSine.type = 'sine';
+  oSine.frequency.setValueAtTime(freq, t);
+  oSine.frequency.exponentialRampToValueAtTime(freq * 0.55, t + 0.06);
+
+  const oSaw = audioCtx.createOscillator();
+  oSaw.type = 'sawtooth';
+  oSaw.frequency.setValueAtTime(freq * 1.5, t);
+  oSaw.frequency.exponentialRampToValueAtTime(freq * 0.9, t + 0.04);
+
+  const bp = audioCtx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.setValueAtTime(freq * 1.2, t);
+  bp.Q.value = 6;
+
   const g = audioCtx.createGain();
-  o.type = 'triangle';
-  o.frequency.setValueAtTime(freq, t);
-  o.frequency.exponentialRampToValueAtTime(freq * 0.4, t + 0.12);
   g.gain.setValueAtTime(0.0, t);
-  g.gain.linearRampToValueAtTime(0.45 * hardness, t + 0.004);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-  o.connect(g); g.connect(masterGain);
-  o.start(t); o.stop(t + 0.22);
-  // Transient click (noise burst) layered for percussive attack
-  const nDur = 0.035;
+  g.gain.linearRampToValueAtTime(0.34 * hardness, t + 0.002);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+
+  oSine.connect(bp); oSaw.connect(bp);
+  bp.connect(g); g.connect(masterGain);
+  oSine.start(t); oSine.stop(t + 0.12);
+  oSaw.start(t);  oSaw.stop(t + 0.08);
+
+  // Impact crack — 12ms white noise, high-passed 2500Hz
+  const nDur = 0.012;
   const nBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * nDur), audioCtx.sampleRate);
   const nData = nBuf.getChannelData(0);
   for (let i = 0; i < nData.length; i++) nData[i] = (Math.random() * 2 - 1) * (1 - i / nData.length);
   const nSrc = audioCtx.createBufferSource();
   nSrc.buffer = nBuf;
+  const hp = audioCtx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 2500;
   const nG = audioCtx.createGain();
-  nG.gain.setValueAtTime(0.28 * hardness, t);
+  nG.gain.setValueAtTime(0.30 * hardness, t);
   nG.gain.exponentialRampToValueAtTime(0.001, t + nDur);
-  nSrc.connect(nG); nG.connect(masterGain);
+  nSrc.connect(hp); hp.connect(nG); nG.connect(masterGain);
   nSrc.start(t); nSrc.stop(t + nDur);
 }
+// Bounce "tock" — short, crisp, mid-frequency. Not a boomy low thud.
+// Tuned 2026-04-20: brighter + shorter than v1's 160->80Hz low rumble.
 function playBounce() {
   if (!audioOn || !audioCtx) return;
   const t = audioCtx.currentTime;
   const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
   o.type = 'sine';
-  o.frequency.setValueAtTime(160, t);
-  o.frequency.exponentialRampToValueAtTime(80, t + 0.18);
+  o.frequency.setValueAtTime(420, t);
+  o.frequency.exponentialRampToValueAtTime(220, t + 0.10);
+  const g = audioCtx.createGain();
   g.gain.setValueAtTime(0.0, t);
-  g.gain.linearRampToValueAtTime(0.32, t + 0.004);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+  g.gain.linearRampToValueAtTime(0.22, t + 0.003);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
   o.connect(g); g.connect(masterGain);
-  o.start(t); o.stop(t + 0.28);
+  o.start(t); o.stop(t + 0.14);
+  // Click layered for impact
+  const nDur = 0.008;
+  const nBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * nDur), audioCtx.sampleRate);
+  const nData = nBuf.getChannelData(0);
+  for (let i = 0; i < nData.length; i++) nData[i] = (Math.random() * 2 - 1) * (1 - i / nData.length);
+  const nSrc = audioCtx.createBufferSource();
+  nSrc.buffer = nBuf;
+  const bp2 = audioCtx.createBiquadFilter();
+  bp2.type = 'bandpass'; bp2.frequency.value = 1800; bp2.Q.value = 1.0;
+  const nG = audioCtx.createGain();
+  nG.gain.setValueAtTime(0.16, t);
+  nG.gain.exponentialRampToValueAtTime(0.001, t + nDur);
+  nSrc.connect(bp2); bp2.connect(nG); nG.connect(masterGain);
+  nSrc.start(t); nSrc.stop(t + nDur);
 }
 function playNetWhoosh() {
   if (!audioOn || !audioCtx) return;
@@ -1783,21 +1821,29 @@ function playMomentSting(freq = 520) {
   o.start(t); o.stop(t + 0.5);
 }
 function startAmbient() {
+  // Soft stadium-ish ambience: low-pass filtered pink-ish noise, very quiet.
+  // Replaces v1's 55Hz sine which was too rumbly over long sessions.
   if (!audioOn || !audioCtx || ambientOsc) return;
   const t = audioCtx.currentTime;
-  ambientOsc = audioCtx.createOscillator();
-  ambientOsc.type = 'sine';
-  ambientOsc.frequency.value = 55;
+  const dur = 6;
+  const buf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * dur), audioCtx.sampleRate);
+  const d = buf.getChannelData(0);
+  let last = 0;
+  for (let i = 0; i < d.length; i++) {
+    const w = (Math.random() * 2 - 1);
+    last = last * 0.97 + w * 0.03;
+    d[i] = last;
+  }
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf; src.loop = true;
+  const lp = audioCtx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 480; lp.Q.value = 0.6;
   ambientGain = audioCtx.createGain();
   ambientGain.gain.value = 0.0;
-  ambientGain.gain.linearRampToValueAtTime(0.06, t + 1.2);
-  const lfo = audioCtx.createOscillator();
-  lfo.frequency.value = 0.15;
-  const lfoG = audioCtx.createGain();
-  lfoG.gain.value = 0.025;
-  lfo.connect(lfoG); lfoG.connect(ambientGain.gain);
-  ambientOsc.connect(ambientGain); ambientGain.connect(masterGain);
-  ambientOsc.start(); lfo.start();
+  ambientGain.gain.linearRampToValueAtTime(0.032, t + 2.5);
+  src.connect(lp); lp.connect(ambientGain); ambientGain.connect(masterGain);
+  src.start();
+  ambientOsc = src;  // track for stop
 }
 function stopAmbient() {
   if (!ambientOsc || !audioCtx) return;
@@ -1807,7 +1853,7 @@ function stopAmbient() {
   ambientOsc.stop(t + 0.7);
   ambientOsc = null; ambientGain = null;
 }
-const PADDLE_FREQ_BY_DIM = { drive: 640, defend: 420, drop: 380, dink: 520 };
+const PADDLE_FREQ_BY_DIM = { drive: 1300, defend: 980, drop: 900, dink: 1150 };  // bright pickleball pock
 
 // ═════ SEGMENT-BOUNDARY FX — classify each segment start, fire visuals + audio ═════
 // Ball-launching segments (from.y ≥ 1.5) = paddle strike → white + dimension shockwave + pluck
@@ -2587,7 +2633,7 @@ function setAudio(on) {
   if (audioOn) {
     ensureAudio();
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    setAudioGain(0.7);
+    setAudioGain(0.55);
     startAmbient();
   } else {
     stopAmbient();
