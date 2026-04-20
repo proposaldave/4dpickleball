@@ -314,12 +314,12 @@
         .btn-decision:active, .btn-decision.active { transform: scale(0.96); }
         .btn-decision span.key-hint { font-size: 0.65rem; color: #8A9BB0; margin-bottom: 4px; font-weight: 800; letter-spacing: 1px; }
         .btn-ready span.key-hint { color: rgba(0, 50, 25, 0.65); }
-        .btn-ready { grid-column: 1 / -1; background: rgba(0,200,117,0.12); border-color: rgba(0,200,117,0.5); padding: 14px 5px; }
+        .btn-ready { background: rgba(0,200,117,0.12); border-color: rgba(0,200,117,0.5); padding: 18px 10px; }
         .btn-ready:active, .btn-ready.active { background: #00C875 !important; color: #000 !important; border-color: #00C875; }
-        .btn-volley { background: rgba(200,16,46,0.12); border-color: rgba(200,16,46,0.4); }
-        .btn-volley:active { background: var(--nepc-red) !important; }
-        .btn-bounce { background: rgba(77,166,255,0.1); border-color: rgba(77,166,255,0.3); }
-        .btn-bounce:active { background: var(--nepc-blue) !important; }
+        .btn-swing { background: rgba(200,16,46,0.15); border-color: rgba(200,16,46,0.5); padding: 18px 10px; }
+        .btn-swing:active, .btn-swing.active { background: var(--nepc-red) !important; color: white !important; border-color: var(--nepc-red); }
+        /* Two-button grid — equal columns */
+        .hud-bottom-2btn { grid-template-columns: 1fr 1fr !important; }
 
         #flash-fx {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -507,24 +507,35 @@
             padding-left: 14px; border-left: 3px solid var(--nepc-red);
             display: inline-block;
         }
-        .hero-science-badge{
-            display: inline-block;
+        /* Subtle science citation — sits quietly below the main hero sub-copy */
+        .hero-science-note{
             font-family: 'Inter', sans-serif; font-size: 0.78rem;
-            color: #cbd5e1; font-weight: 500; line-height: 1.5;
-            margin-bottom: 26px; max-width: 640px;
-            padding: 9px 14px; border-radius: 999px;
-            background: rgba(77,166,255,0.08);
-            border: 1px solid rgba(77,166,255,0.25);
+            color: #8A9BB0; font-weight: 500; line-height: 1.5;
+            margin: -18px 0 32px; max-width: 560px;
+            padding-left: 14px; border-left: 2px solid rgba(77,166,255,0.4);
         }
-        .hero-science-badge::before{
-            content: ''; display: inline-block; width: 6px; height: 6px;
-            border-radius: 50%; background: var(--nepc-blue);
-            box-shadow: 0 0 8px rgba(77,166,255,0.8);
-            margin-right: 8px; vertical-align: middle;
+        .hero-science-note strong{ color: #cbd5e1; font-weight: 700; }
+
+        /* Iconic pickleball paddle+ball graphic — floats right of hero text */
+        .hero-paddle-art{
+            position: absolute;
+            right: 4%; top: 50%;
+            transform: translateY(-50%) rotate(18deg);
+            width: clamp(220px, 28vw, 420px);
+            height: auto;
+            opacity: 0.92;
+            pointer-events: none;
+            z-index: 5;
+            filter: drop-shadow(0 22px 60px rgba(218,255,0,0.15)) drop-shadow(0 12px 30px rgba(0,0,0,0.5));
+            animation: paddleFloat 6s ease-in-out infinite;
         }
-        .hero-science-badge strong{ color: white; font-weight: 700; }
-        /* Hide the literal ● since ::before provides the dot */
-        .hero-science-badge{ text-indent: 0; }
+        @keyframes paddleFloat{
+            0%,100% { transform: translateY(-50%) rotate(18deg); }
+            50%     { transform: translateY(calc(-50% - 10px)) rotate(20deg); }
+        }
+        @media (max-width: 860px){
+            .hero-paddle-art{ opacity: 0.35; right: -10%; }
+        }
         .hero-title-stack{ position: relative; margin-bottom: 26px; }
         .hero-title-outline{
             font-family: 'Montserrat', sans-serif;
@@ -745,6 +756,88 @@
             margin-top: 16px;
         }
 
+        /* ── "3 reads" teaching diagram section ── */
+        .reads-section{
+            background: linear-gradient(180deg, rgba(8,16,30,0) 0%, rgba(15,30,55,0.3) 100%);
+            padding-top: 70px;
+        }
+        .reads-intro{
+            color: #cbd5e1; font-size: 0.98rem; line-height: 1.55;
+            max-width: 640px; margin-bottom: 34px;
+        }
+        .reads-diagram-wrap{
+            background: linear-gradient(180deg, rgba(10,26,47,0.7) 0%, rgba(6,14,25,0.9) 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 16px 50px rgba(0,0,0,0.55);
+            overflow: hidden;
+        }
+        .reads-diagram{
+            width: 100%; height: auto; display: block;
+        }
+        .reads-cards{
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 14px;
+        }
+        .read-card{
+            padding: 22px 20px 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(180deg, rgba(27,64,121,0.22) 0%, rgba(10,20,40,0.5) 100%);
+            position: relative; overflow: hidden;
+        }
+        .read-card::before{
+            content: ''; position: absolute; top: 0; left: 0; width: 5px; height: 100%;
+        }
+        .read-card-fast::before{ background: #ff5566; box-shadow: 0 0 14px rgba(255,85,102,0.5); }
+        .read-card-mid::before { background: #ffaa44; box-shadow: 0 0 14px rgba(255,170,68,0.5); }
+        .read-card-slow::before{ background: #4DA6FF; box-shadow: 0 0 14px rgba(77,166,255,0.5); }
+        .read-card .rc-num{
+            position: absolute; top: 12px; right: 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.4rem; font-weight: 900; line-height: 1;
+            color: rgba(255,255,255,0.08);
+        }
+        .read-card .rc-speed{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.62rem; font-weight: 800; letter-spacing: 2.5px;
+            text-transform: uppercase; margin-bottom: 6px;
+        }
+        .read-card-fast .rc-speed{ color: #ff5566; }
+        .read-card-mid  .rc-speed{ color: #ffaa44; }
+        .read-card-slow .rc-speed{ color: #4DA6FF; }
+        .read-card .rc-outcome{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.6rem; font-weight: 900; color: white;
+            line-height: 1; margin-bottom: 4px; text-transform: uppercase;
+        }
+        .read-card .rc-action{
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.82rem; font-weight: 800; letter-spacing: 1.2px;
+            text-transform: uppercase; margin-bottom: 14px;
+        }
+        .read-card-fast .rc-action{ color: #ff5566; }
+        .read-card-mid  .rc-action{ color: #ffaa44; }
+        .read-card-slow .rc-action{ color: #4DA6FF; }
+        .read-card .rc-desc{
+            font-size: 0.82rem; color: #8A9BB0; line-height: 1.5;
+        }
+
+        /* Level tile — add paddle+ball mini icon */
+        .level-tile .lt-icon{
+            width: 32px; height: 32px; margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Small paddle icon next to kicker */
+        .kicker-paddle{
+            width: 14px; height: 14px; vertical-align: middle;
+            margin-right: 6px; margin-top: -2px;
+            display: inline-block;
+        }
+
         /* Level transition flash */
         #level-flash {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -766,14 +859,78 @@
         <!-- HERO -->
         <section class="hero-section">
             <canvas id="hero-backdrop"></canvas>
+            <!-- Iconic SVG paddle + ball — the pickleball visual anchor (no logo required) -->
+            <svg class="hero-paddle-art" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <defs>
+                    <radialGradient id="ballGrad" cx="40%" cy="40%" r="60%">
+                        <stop offset="0%" stop-color="#ffffb0"/>
+                        <stop offset="50%" stop-color="#DAFF00"/>
+                        <stop offset="100%" stop-color="#7a9a00"/>
+                    </radialGradient>
+                    <radialGradient id="ballGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="rgba(218,255,0,0.55)"/>
+                        <stop offset="60%" stop-color="rgba(218,255,0,0.14)"/>
+                        <stop offset="100%" stop-color="rgba(218,255,0,0)"/>
+                    </radialGradient>
+                    <linearGradient id="paddleFace" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#2a5aa0"/>
+                        <stop offset="50%" stop-color="#1B4079"/>
+                        <stop offset="100%" stop-color="#0d2040"/>
+                    </linearGradient>
+                    <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#000"/>
+                        <stop offset="100%" stop-color="#1a1a1a"/>
+                    </linearGradient>
+                </defs>
+                <!-- Paddle face (elongated widebody shape) -->
+                <rect x="40" y="40" width="220" height="260" rx="24" ry="24" fill="url(#edgeGrad)"/>
+                <rect x="52" y="52" width="196" height="236" rx="18" ry="18" fill="url(#paddleFace)"/>
+                <!-- Face highlight -->
+                <rect x="62" y="60" width="40" height="220" rx="12" ry="12" fill="rgba(255,255,255,0.08)"/>
+                <!-- Throat (transition from face to handle) -->
+                <path d="M 120 300 L 180 300 L 170 320 L 130 320 Z" fill="url(#edgeGrad)"/>
+                <!-- Handle -->
+                <rect x="132" y="318" width="36" height="86" rx="6" ry="6" fill="#0A1A2F"/>
+                <!-- Grip wrap (red band) -->
+                <rect x="128" y="330" width="44" height="58" rx="3" ry="3" fill="#C8102E"/>
+                <!-- Grip texture lines -->
+                <g stroke="rgba(0,0,0,0.3)" stroke-width="1">
+                    <line x1="128" y1="342" x2="172" y2="342"/>
+                    <line x1="128" y1="354" x2="172" y2="354"/>
+                    <line x1="128" y1="366" x2="172" y2="366"/>
+                    <line x1="128" y1="378" x2="172" y2="378"/>
+                </g>
+                <!-- Handle butt cap -->
+                <rect x="128" y="396" width="44" height="8" rx="2" ry="2" fill="#000"/>
+                <!-- Ball glow -->
+                <circle cx="230" cy="90" r="80" fill="url(#ballGlow)"/>
+                <!-- Ball -->
+                <circle cx="230" cy="90" r="34" fill="url(#ballGrad)"/>
+                <!-- Ball holes -->
+                <g fill="#1a1a1a">
+                    <circle cx="220" cy="80" r="2.2"/>
+                    <circle cx="240" cy="82" r="2.2"/>
+                    <circle cx="230" cy="72" r="2.2"/>
+                    <circle cx="220" cy="100" r="2.2"/>
+                    <circle cx="240" cy="102" r="2.2"/>
+                </g>
+                <!-- Ball highlight -->
+                <ellipse cx="218" cy="78" rx="8" ry="4" fill="rgba(255,255,255,0.55)" transform="rotate(-25 218 78)"/>
+            </svg>
             <div class="hero-inner">
-                <div class="hero-kicker">4D Pickleball · Training Module</div>
-                <div class="hero-science-badge">Based on <strong>temporal occlusion research</strong> — the methodology elite tennis and cricket programs use to train anticipation</div>
+                <div class="hero-kicker">
+                    <svg class="kicker-paddle" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="5" y="2" width="14" height="13" rx="2" fill="#C8102E"/>
+                        <rect x="10" y="14" width="4" height="7" fill="#0A1A2F"/>
+                        <circle cx="21" cy="4" r="2.5" fill="#DAFF00"/>
+                    </svg>4D Pickleball · Training Module
+                </div>
                 <div class="hero-title-stack">
                     <div class="hero-title-outline">Anticipating<br>Out Balls</div>
                     <h1 class="hero-title">Anticipating<br>Out Balls</h1>
                 </div>
-                <p class="hero-sub"><strong>Rewire your read.</strong> Every rep trains your brain to make the swing-or-let-go call before your hands can move. Six levels — sometimes the ball gets faster, sometimes the opponent steps closer, and at Level 6 both at once.</p>
+                <p class="hero-sub"><strong>Rewire your brain.</strong> Every rep trains you to make the swing-or-let-go call before your hands can move. Six levels — sometimes the ball gets faster, sometimes the opponent steps closer, and at Level 6 both at once.</p>
+                <p class="hero-science-note">Based on <strong>temporal occlusion research</strong> — the methodology elite tennis and cricket programs use to train anticipation.</p>
                 <div class="hero-cta-row">
                     <button class="hero-cta" onclick="open3D()">Start Training →</button>
                     <button class="hero-cta-mini" onclick="document.getElementById('preview-section').scrollIntoView({behavior:'smooth'})">How it works</button>
@@ -781,7 +938,7 @@
                 <div class="hero-meta">
                     <span>6 levels · 5 shots each</span>
                     <span>3–5 minutes</span>
-                    <span>Based on temporal occlusion research</span>
+                    <span>Keyboard + touch</span>
                 </div>
             </div>
         </section>
@@ -800,6 +957,129 @@
                 <div class="cred-cell">
                     <div class="cred-num">1</div>
                     <div class="cred-label">Habit — let the<br>out ball go</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- THE 3 READS — visual teaching diagram -->
+        <section class="lp-section reads-section">
+            <div class="lp-inner">
+                <div class="section-tag">The 3 reads</div>
+                <h2 class="section-h">Ball speed tells you<br>everything.</h2>
+                <p class="reads-intro">Every incoming ball is one of three things. Read it in the first 0.3 seconds and your brain makes the right call before your hands can move.</p>
+
+                <!-- Court + 3 trajectories diagram -->
+                <div class="reads-diagram-wrap">
+                    <svg class="reads-diagram" viewBox="0 0 900 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="court-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#2d6fb5"/>
+                                <stop offset="100%" stop-color="#1a4a80"/>
+                            </linearGradient>
+                            <linearGradient id="kitchen-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#7b1e2f"/>
+                                <stop offset="100%" stop-color="#4a1020"/>
+                            </linearGradient>
+                            <linearGradient id="fast-path" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#ff5566" stop-opacity="0.2"/>
+                                <stop offset="50%" stop-color="#ff5566" stop-opacity="0.9"/>
+                                <stop offset="100%" stop-color="#ff5566" stop-opacity="0.9"/>
+                            </linearGradient>
+                            <linearGradient id="mid-path" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#ffaa44" stop-opacity="0.2"/>
+                                <stop offset="100%" stop-color="#ffaa44" stop-opacity="0.9"/>
+                            </linearGradient>
+                            <linearGradient id="slow-path" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#4DA6FF" stop-opacity="0.2"/>
+                                <stop offset="100%" stop-color="#4DA6FF" stop-opacity="0.9"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- Ground -->
+                        <rect x="0" y="185" width="900" height="55" fill="url(#court-grad)"/>
+                        <rect x="360" y="185" width="180" height="55" fill="url(#kitchen-grad)"/>
+                        <!-- Court lines -->
+                        <line x1="0" y1="185" x2="900" y2="185" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+                        <line x1="60" y1="185" x2="60" y2="240" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+                        <line x1="840" y1="185" x2="840" y2="240" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>
+                        <line x1="360" y1="185" x2="360" y2="240" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                        <line x1="540" y1="185" x2="540" y2="240" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"/>
+                        <!-- Net -->
+                        <rect x="449" y="145" width="2" height="40" fill="white"/>
+                        <rect x="440" y="145" width="20" height="3" fill="white"/>
+                        <!-- OUT labels behind baselines -->
+                        <text x="30" y="215" text-anchor="middle" fill="#ff5566" font-family="Montserrat" font-size="11" font-weight="800" letter-spacing="1.5">OUT</text>
+                        <text x="870" y="215" text-anchor="middle" fill="#ff5566" font-family="Montserrat" font-size="11" font-weight="800" letter-spacing="1.5">OUT</text>
+
+                        <!-- Attacker figure (left) -->
+                        <g transform="translate(120, 135)">
+                            <rect x="-6" y="0" width="12" height="28" fill="#C8102E"/>
+                            <circle cx="0" cy="-6" r="7" fill="#d4956a"/>
+                            <rect x="-6" y="28" width="4" height="20" fill="#1a2535"/>
+                            <rect x="2" y="28" width="4" height="20" fill="#1a2535"/>
+                            <!-- paddle mid-swing -->
+                            <rect x="-20" y="-8" width="14" height="18" fill="#1B4079" stroke="#0A1A2F" stroke-width="1"/>
+                            <line x1="-6" y1="6" x2="-10" y2="15" stroke="#d4956a" stroke-width="3" stroke-linecap="round"/>
+                        </g>
+                        <!-- Defender figure (right — backhand block ready) -->
+                        <g transform="translate(720, 135)">
+                            <rect x="-6" y="0" width="12" height="28" fill="#2A7F6F"/>
+                            <circle cx="0" cy="-6" r="7" fill="#d4956a"/>
+                            <rect x="-6" y="28" width="4" height="20" fill="#1a2535"/>
+                            <rect x="2" y="28" width="4" height="20" fill="#1a2535"/>
+                            <!-- backhand block paddle up in front -->
+                            <rect x="-12" y="-14" width="14" height="16" fill="#1B4079" stroke="#0A1A2F" stroke-width="1" transform="rotate(-15 -5 -6)"/>
+                            <line x1="-5" y1="4" x2="-8" y2="10" stroke="#d4956a" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="-5" y1="4" x2="-2" y2="10" stroke="#d4956a" stroke-width="2.5" stroke-linecap="round"/>
+                        </g>
+
+                        <!-- FASTEST (red) — flat trajectory past defender into OUT zone -->
+                        <path d="M 140 140 Q 420 100, 770 135 T 880 180"
+                              stroke="url(#fast-path)" stroke-width="3" fill="none" stroke-dasharray="none" stroke-linecap="round"/>
+                        <circle cx="880" cy="180" r="5" fill="#ff5566"/>
+                        <text x="780" y="90" fill="#ff5566" font-family="Montserrat" font-size="14" font-weight="800" letter-spacing="1.5">1 · OUT</text>
+                        <text x="780" y="106" fill="#cbd5e1" font-family="Inter" font-size="11" font-weight="600">Let it go</text>
+
+                        <!-- MEDIUM (orange) — mid arc, intercepted at defender's chest -->
+                        <path d="M 140 135 Q 420 80, 705 125"
+                              stroke="url(#mid-path)" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <circle cx="705" cy="125" r="5" fill="#ffaa44"/>
+                        <text x="460" y="68" fill="#ffaa44" font-family="Montserrat" font-size="14" font-weight="800" letter-spacing="1.5">2 · VOLLEY</text>
+                        <text x="460" y="84" fill="#cbd5e1" font-family="Inter" font-size="11" font-weight="600">Block it</text>
+
+                        <!-- SLOWEST (blue) — high arc, lands in kitchen, bounces up -->
+                        <path d="M 140 130 Q 280 30, 450 185"
+                              stroke="url(#slow-path)" stroke-width="3" fill="none" stroke-linecap="round"/>
+                        <path d="M 450 185 Q 560 120, 690 165"
+                              stroke="#4DA6FF" stroke-width="2.5" stroke-dasharray="4,4" fill="none" stroke-linecap="round" opacity="0.7"/>
+                        <ellipse cx="450" cy="186" rx="12" ry="3" fill="none" stroke="#4DA6FF" stroke-width="1.5" opacity="0.8"/>
+                        <text x="200" y="40" fill="#4DA6FF" font-family="Montserrat" font-size="14" font-weight="800" letter-spacing="1.5">3 · BOUNCE</text>
+                        <text x="200" y="56" fill="#cbd5e1" font-family="Inter" font-size="11" font-weight="600">Groundstroke</text>
+                    </svg>
+                </div>
+
+                <!-- 3 read cards -->
+                <div class="reads-cards">
+                    <div class="read-card read-card-fast">
+                        <div class="rc-num">1</div>
+                        <div class="rc-speed">FASTEST</div>
+                        <div class="rc-outcome">OUT</div>
+                        <div class="rc-action">Let it go</div>
+                        <div class="rc-desc">Fast ball + high contact = flies past the baseline. This is the #1 read — check it first, every single rep.</div>
+                    </div>
+                    <div class="read-card read-card-mid">
+                        <div class="rc-num">2</div>
+                        <div class="rc-speed">MEDIUM</div>
+                        <div class="rc-outcome">VOLLEY</div>
+                        <div class="rc-action">Block it</div>
+                        <div class="rc-desc">Chest-height drive with pace but not extreme. Paddle up in backhand block, absorb and redirect.</div>
+                    </div>
+                    <div class="read-card read-card-slow">
+                        <div class="rc-num">3</div>
+                        <div class="rc-speed">SLOWEST</div>
+                        <div class="rc-outcome">BOUNCE</div>
+                        <div class="rc-action">Groundstroke</div>
+                        <div class="rc-desc">Soft ball, high arc. Let it land in the kitchen, rise off the bounce, and drive it.</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -923,33 +1203,22 @@
             </div>
         </div>
         <div id="shot-history"></div>
-        <div class="hud-bottom">
+        <!-- Two-button scheme: SPACEBAR hold = ready (release = LET IT GO) · ENTER = SWING (auto-resolves volley vs groundstroke) -->
+        <div class="hud-bottom hud-bottom-2btn">
             <button id="btn-ready" class="btn-decision btn-ready"
                 onmousedown="onReadyDown()" onmouseup="onReadyUp()"
                 ontouchstart="onReadyDown()" ontouchend="onReadyUp()">
-                <span class="key-hint">HOLD [SPACEBAR] — CHOOSE YOUR GATE WHEN BALL ARRIVES</span>
-                🤚 READY POSITION
+                <span class="key-hint">HOLD [SPACEBAR]</span>
+                <div class="gate-icon">🤚</div>
+                <div class="gate-name">READY — LET IT GO</div>
+                <div class="gate-cue">Hold to stay in ready · release if ball is going out</div>
             </button>
-            <!-- Gate 1 — visual indicator (OUT triggered by releasing btn-ready) -->
-            <div class="gate-out" id="gate1-indicator">
-                <div class="gate-tag">GATE 1 · FASTEST</div>
-                <div class="gate-icon">💨</div>
-                <div class="gate-name">LET IT GO</div>
-                <div class="gate-cue">Release [1]</div>
-            </div>
-            <!-- Gate 2 — interactive button -->
-            <button class="btn-decision btn-volley" onclick="onVolley()">
-                <div class="gate-tag">GATE 2 · MEDIUM</div>
+            <button id="btn-swing" class="btn-decision btn-swing"
+                onclick="onSwing()" ontouchstart="onSwing()">
+                <span class="key-hint">TAP [ENTER]</span>
                 <div class="gate-icon">⚡</div>
-                <div class="gate-name">VOLLEY</div>
-                <div class="gate-cue">TAP [2]</div>
-            </button>
-            <!-- Gate 3 — interactive button -->
-            <button class="btn-decision btn-bounce" onclick="onBounce()">
-                <div class="gate-tag">GATE 3 · PATIENT</div>
-                <div class="gate-icon">↓</div>
-                <div class="gate-name">GROUNDSTROKE</div>
-                <div class="gate-cue">TAP [3]</div>
+                <div class="gate-name">SWING</div>
+                <div class="gate-cue">Volley it or let it bounce — the game reads your timing</div>
             </button>
         </div>
         <div id="coaching-line"></div>
@@ -1156,157 +1425,324 @@
             ctx.globalAlpha = 1;
         }
 
+        // ── INTRO ANIMATION — "3 reads" scenes ──
+        // Attacker in forehand drive position, defender in backhand block ready.
+        // Three scenes teach the read hierarchy: FASTEST→OUT, MEDIUM→VOLLEY, SLOWEST→BOUNCE.
+
+        // Attacker body + forehand drive paddle (animated by swingP: 0=windup, 0.5=contact, 1=follow-through)
+        function drawAttacker(ctx, x, gndY, swingP) {
+            const h = 52, w = 14;
+            // Shadow under feet
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath(); ctx.ellipse(x, gndY + 1, 11, 3, 0, 0, Math.PI*2); ctx.fill();
+            // Legs — splay slightly wider for power stance
+            ctx.fillStyle = '#1a2535';
+            ctx.fillRect(x - w*0.6, gndY - h*0.32, w*0.45, h*0.32);
+            ctx.fillRect(x + w*0.15, gndY - h*0.32, w*0.45, h*0.32);
+            // Shoes
+            ctx.fillStyle = '#C8102E';
+            ctx.fillRect(x - w*0.65, gndY - 3, w*0.5, 3);
+            ctx.fillRect(x + w*0.15, gndY - 3, w*0.5, 3);
+            // Body (slightly rotated toward forehand side — weight shifts as swing progresses)
+            const leanX = swingP < 0.5 ? -swingP * 2 : (swingP - 0.5) * 4;
+            ctx.fillStyle = '#C8102E';
+            ctx.fillRect(x - w/2 + leanX, gndY - h, w, h * 0.68);
+            // Shirt fold highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(x - w/2 + leanX, gndY - h, w * 0.3, h * 0.68);
+            // Head
+            ctx.fillStyle = '#d4956a';
+            ctx.beginPath(); ctx.arc(x + leanX, gndY - h - 9, 8.5, 0, Math.PI * 2); ctx.fill();
+            // Hair
+            ctx.fillStyle = '#1a1a1a';
+            ctx.beginPath(); ctx.arc(x + leanX, gndY - h - 11, 8.5, Math.PI, 0); ctx.fill();
+
+            // Forehand drive paddle
+            // Windup (swingP 0-0.4): paddle drops back to attacker's right (our left = -x)
+            // Contact (swingP 0.4-0.6): paddle swings through in front, high contact point
+            // Follow-through (swingP 0.6-1.0): paddle crosses to attacker's left (our right = +x)
+            const shoulderX = x + leanX + 4;
+            const shoulderY = gndY - h * 0.82;
+            // Interpolate paddle position along an arc around the shoulder
+            const swingAngle = -Math.PI * 1.1 + swingP * Math.PI * 1.6; // -198° → +90°
+            const armLen = 18;
+            const wristX = shoulderX + Math.cos(swingAngle) * armLen;
+            const wristY = shoulderY + Math.sin(swingAngle) * armLen;
+            // Arm
+            ctx.strokeStyle = '#d4956a';
+            ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(shoulderX, shoulderY); ctx.lineTo(wristX, wristY); ctx.stroke();
+            // Paddle face tangent to swing arc — face perpendicular to travel direction
+            const paddleFaceAngle = swingAngle + Math.PI / 2;
+            ctx.save();
+            ctx.translate(wristX, wristY);
+            ctx.rotate(paddleFaceAngle);
+            // Handle
+            ctx.fillStyle = '#0A1A2F';
+            ctx.fillRect(-2, 0, 4, 10);
+            // Grip
+            ctx.fillStyle = '#C8102E';
+            ctx.fillRect(-2, 3, 4, 5);
+            // Face
+            ctx.fillStyle = '#1B4079';
+            ctx.fillRect(-9, -22, 18, 22);
+            ctx.strokeStyle = '#0A1A2F';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(-9, -22, 18, 22);
+            ctx.restore();
+            // Return paddle contact point (for ball launch)
+            return { contactX: wristX, contactY: wristY - 10 };
+        }
+
+        // Defender body + backhand block ready (static pose — paddle up in front, chest level)
+        function drawDefender(ctx, x, gndY) {
+            const h = 50, w = 14;
+            ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            ctx.beginPath(); ctx.ellipse(x, gndY + 1, 11, 3, 0, 0, Math.PI*2); ctx.fill();
+            // Legs — athletic stance, slightly wider
+            ctx.fillStyle = '#1a2535';
+            ctx.fillRect(x - w*0.55, gndY - h*0.32, w*0.4, h*0.32);
+            ctx.fillRect(x + w*0.15, gndY - h*0.32, w*0.4, h*0.32);
+            // Shoes
+            ctx.fillStyle = '#0A1A2F';
+            ctx.fillRect(x - w*0.6, gndY - 3, w*0.45, 3);
+            ctx.fillRect(x + w*0.15, gndY - 3, w*0.45, 3);
+            // Body (teal — defender)
+            ctx.fillStyle = '#2A7F6F';
+            ctx.fillRect(x - w/2, gndY - h, w, h * 0.7);
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.fillRect(x - w/2, gndY - h, w * 0.3, h * 0.7);
+            // Head
+            ctx.fillStyle = '#d4956a';
+            ctx.beginPath(); ctx.arc(x, gndY - h - 9, 8.5, 0, Math.PI * 2); ctx.fill();
+            // Hair
+            ctx.fillStyle = '#2a1810';
+            ctx.beginPath(); ctx.arc(x, gndY - h - 11, 8.5, Math.PI, 0); ctx.fill();
+
+            // BACKHAND BLOCK READY POSITION
+            // Paddle held up in front of body, angled ~+0.35 rad (across body, face toward incoming)
+            // Both arms involved — backhand grip with off-hand supporting shaft
+            const paddleCenterX = x - 4; // slightly across body toward backhand side
+            const paddleCenterY = gndY - h * 0.82;
+            // Both arms forward + up, hands at paddle
+            ctx.strokeStyle = '#d4956a';
+            ctx.lineWidth = 3; ctx.lineCap = 'round';
+            // Right arm (paddle hand)
+            ctx.beginPath();
+            ctx.moveTo(x + w/2 - 1, gndY - h * 0.78);
+            ctx.lineTo(paddleCenterX + 2, paddleCenterY + 3);
+            ctx.stroke();
+            // Left arm (off-hand supporting)
+            ctx.beginPath();
+            ctx.moveTo(x - w/2 + 1, gndY - h * 0.78);
+            ctx.lineTo(paddleCenterX - 4, paddleCenterY + 2);
+            ctx.stroke();
+            // Paddle — angled up and slightly across body, face angled toward incoming ball (left)
+            ctx.save();
+            ctx.translate(paddleCenterX, paddleCenterY);
+            ctx.rotate(-0.35);
+            // Handle
+            ctx.fillStyle = '#0A1A2F';
+            ctx.fillRect(-2, 0, 4, 10);
+            // Grip
+            ctx.fillStyle = '#C8102E';
+            ctx.fillRect(-2, 3, 4, 5);
+            // Face — oriented to face incoming ball
+            ctx.fillStyle = '#1B4079';
+            ctx.fillRect(-9, -22, 18, 22);
+            ctx.strokeStyle = '#0A1A2F';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(-9, -22, 18, 22);
+            // Face highlight
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.fillRect(-8, -21, 5, 20);
+            ctx.restore();
+        }
+
+        // Big bold speed-type chip at top of scene
+        function drawSpeedChip(ctx, W, H, label, color, alpha) {
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = color;
+            ctx.font = 'bold 10px Montserrat, sans-serif';
+            ctx.textAlign = 'left';
+            // Dot
+            ctx.beginPath(); ctx.arc(16, 20, 3, 0, Math.PI*2); ctx.fill();
+            // Label
+            ctx.fillText(label, 24, 23);
+            ctx.globalAlpha = 1;
+        }
+
         function drawIntroScene1(ctx, W, H, t) {
-            // Scene 1: Ball bounces on player's side → player reads it → groundstroke return
+            // Scene 1 — FASTEST → OUT
+            // Attacker rips a forehand drive. Ball flies fast + flat + high contact → OUT (past baseline).
+            // Lesson: First thing your brain should check every rep.
             const { gndY, netX, baseL, baseR } = drawMiniCourt(ctx, W, H);
             const dur = INTRO_SCENE_DURATION / 1000;
             const p = Math.min(t / dur, 1);
 
-            const oppX = W * 0.14, playerX = W * 0.82;
-            const contactP = 0.44; // ball reaches paddle at this progress point
-            const bounceP  = 0.32; // ball bounces at this progress point
+            const attackerX = W * 0.20, defenderX = W * 0.70;
+            // Attacker swing timing: windup 0-0.18, contact 0.18-0.25, follow-through 0.25-0.5
+            const swingP = Math.min(p / 0.40, 1);
+            const contact = drawAttacker(ctx, attackerX, gndY, swingP);
+            drawDefender(ctx, defenderX, gndY);
 
-            // Phase 1 (p=0 → contactP): incoming ball from opp → player
-            if (p <= contactP) {
-                const bp = Math.min(p / contactP, 1);
-                const bx = oppX + (playerX - oppX) * bp;
-                // Arc: peaks in the middle, lands at player height near gndY
-                const by = gndY - H * 0.30 - Math.sin(bp * Math.PI) * H * 0.28;
-                drawBall(ctx, bx, by, 1.0);
-
-                // Bounce flash at ground (bounceP)
-                if (p > bounceP && p < bounceP + 0.08) {
-                    const bf = 1 - (p - bounceP) / 0.08;
-                    ctx.globalAlpha = bf * 0.5;
-                    ctx.fillStyle = '#4DA6FF';
-                    ctx.beginPath();
-                    ctx.arc(oppX + (playerX - oppX) * (bounceP / contactP), gndY, 10, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
+            // Ball: launches at p=0.20 (attacker's contact point), flies flat+fast past defender into OUT
+            if (p > 0.18) {
+                const bp = Math.min((p - 0.18) / 0.62, 1); // reaches landing at p=0.80
+                const startX = contact.contactX + 4, startY = contact.contactY - 4;
+                const endX = baseR + (W - baseR) * 0.75; // deep in OUT zone
+                const endY = gndY + (H - gndY) * 0.1;
+                const arcH = H * 0.22;
+                const bx = startX + (endX - startX) * bp;
+                const by = startY - arcH * Math.sin(bp * Math.PI * 0.8) + (endY - startY) * Math.pow(bp, 1.4);
+                // Speed lines
+                if (bp < 0.9) {
+                    ctx.strokeStyle = `rgba(255,90,90,${0.5 * (1 - bp*0.5)})`;
+                    ctx.lineWidth = 1.2;
+                    for (let i = 1; i <= 4; i++) {
+                        const off = i * 9;
+                        ctx.beginPath();
+                        ctx.moveTo(bx - off, by + i * 1.5);
+                        ctx.lineTo(bx - off + 5, by + i * 1.5);
+                        ctx.stroke();
+                    }
                 }
+                drawBall(ctx, bx, by, 1);
             }
-
-            // Phase 2 (p=contactP → 1.0): ball returns oppX direction (right→left)
-            if (p > contactP) {
-                const bp2 = Math.min((p - contactP) / (1.0 - contactP), 1);
-                // Ball travels back toward and past the net
-                const bx = playerX - (playerX - oppX * 0.5) * bp2;
-                const by = gndY - H * 0.30 - Math.sin(bp2 * Math.PI) * H * 0.32;
-                const alpha = bp2 > 0.82 ? 1 - (bp2 - 0.82) / 0.18 : 1;
-                drawBall(ctx, bx, by, Math.max(0, alpha));
-            }
-
-            // Redraw net on top of ball
+            // Net on top
             drawNet(ctx, W, H);
 
-            // Figures
-            drawFigure(ctx, oppX, gndY, '#C8102E');
-            drawFigure(ctx, playerX, gndY, '#2A7F6F');
+            // Speed chip
+            drawSpeedChip(ctx, W, H, '⚡ FASTEST', '#ff5566', Math.min(p / 0.12, 1));
 
-            // Paddle: swings forward at contact point (sweeps left → right → settle)
-            const swingAngle = p > 0.36
-                ? -0.3 + Math.min((p - 0.36) / 0.14, 1) * 1.0 - (p > 0.50 ? Math.min((p - 0.50) / 0.20, 1) * 0.5 : 0)
-                : -0.3;
-            drawPaddle(ctx, playerX, gndY, swingAngle);
-
-            // Contact flash (quick red burst — wrong swing on an out ball)
-            if (p > contactP - 0.03 && p < contactP + 0.09) {
-                const cf = Math.min((p - (contactP - 0.03)) / 0.04, 1) * (1 - Math.max(0, (p - contactP) / 0.09));
-                ctx.globalAlpha = cf * 0.55;
-                ctx.fillStyle = '#C8102E';
-                ctx.fillRect(0, 0, W, H);
-                ctx.globalAlpha = 1;
-            }
-
-            // Red flash — mistake reinforcement
-            if (p > 0.58) {
-                const fa = Math.min((p - 0.58) / 0.14, 0.42);
+            // OUT red flash at landing + label
+            if (p > 0.78) {
+                const fa = Math.min((p - 0.78) / 0.08, 0.4);
                 ctx.fillStyle = `rgba(200,16,46,${fa})`;
                 ctx.fillRect(0, 0, W, H);
             }
-
-            // Text
-            if (p > 0.62) {
-                const ta = Math.min((p - 0.62) / 0.12, 1);
-                drawOverlayText(ctx, W, H, 'YOU SWUNG. IT WAS OUT.', 'You handed them the match.', '#C8102E', ta);
+            if (p > 0.72) {
+                const ta = Math.min((p - 0.72) / 0.12, 1);
+                drawOverlayText(ctx, W, H, 'OUT · LET IT GO', 'Fast + high contact = going long', '#ff5566', ta);
             }
         }
 
         function drawIntroScene2(ctx, W, H, t) {
-            // Scene 2: Player holds → ball goes out → green
-            const { gndY, netX } = drawMiniCourt(ctx, W, H);
+            // Scene 2 — MEDIUM → VOLLEY
+            // Attacker drives mid-pace to defender's chest. Defender blocks with backhand volley.
+            const { gndY, netX, baseL, baseR } = drawMiniCourt(ctx, W, H);
             const dur = INTRO_SCENE_DURATION / 1000;
             const p = Math.min(t / dur, 1);
 
-            const oppX = W * 0.14, playerX = W * 0.82;
-            drawFigure(ctx, oppX, gndY, '#C8102E');
-            drawFigure(ctx, playerX, gndY, '#2A7F6F');
+            const attackerX = W * 0.20, defenderX = W * 0.70;
+            const swingP = Math.min(p / 0.40, 1);
+            const contact = drawAttacker(ctx, attackerX, gndY, swingP);
+            drawDefender(ctx, defenderX, gndY);
 
-            // Ball arc: goes all the way past player (out)
-            if (p < 0.84) {
-                const bp = Math.min(p / 0.75, 1);
-                const bx = W * 0.14 + (W * 0.83) * bp;
-                const by = gndY - H * 0.22 - Math.sin(bp * Math.PI) * H * 0.36;
-                const alpha = p < 0.72 ? 1 : 1 - (p - 0.72) / 0.12;
-                drawBall(ctx, bx, by, Math.max(0, alpha));
+            // Ball: launches at p=0.20, arcs to defender's chest at p=0.58, then redirects back
+            if (p > 0.18 && p < 0.60) {
+                const bp = Math.min((p - 0.18) / 0.42, 1);
+                const startX = contact.contactX + 4, startY = contact.contactY - 4;
+                const chestX = defenderX - 10, chestY = gndY - 38;
+                const arcH = H * 0.14;
+                const bx = startX + (chestX - startX) * bp;
+                const by = startY - arcH * Math.sin(bp * Math.PI) + (chestY - startY) * bp;
+                drawBall(ctx, bx, by, 1);
             }
-            // Redraw net on top of ball
-            drawNet(ctx, W, H);
-
-            // Player paddle stays idle
-            drawPaddle(ctx, playerX, gndY, -0.3);
-
-            // "HANDS DOWN" indicator — small check on player
-            if (p > 0.6 && p < 0.85) {
-                const fa = Math.min((p - 0.6) / 0.1, 1) * Math.min(1, (0.85 - p) / 0.1);
-                ctx.globalAlpha = fa;
-                ctx.fillStyle = '#00C875';
-                ctx.font = 'bold 14px Montserrat, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('✓ HELD', playerX, gndY - 55);
+            // Contact flash at defender's paddle (block)
+            if (p > 0.58 && p < 0.68) {
+                const cf = Math.min((p - 0.58) / 0.04, 1) * (1 - Math.max(0, (p - 0.62) / 0.06));
+                ctx.globalAlpha = cf * 0.8;
+                ctx.fillStyle = '#ffaa44';
+                ctx.beginPath();
+                ctx.arc(defenderX - 10, gndY - 38, 14, 0, Math.PI * 2);
+                ctx.fill();
                 ctx.globalAlpha = 1;
             }
+            // Return ball — blocked back toward attacker
+            if (p > 0.62 && p < 0.92) {
+                const bp2 = Math.min((p - 0.62) / 0.30, 1);
+                const startX = defenderX - 10, startY = gndY - 38;
+                const endX = baseL, endY = gndY - 10;
+                const arcH = H * 0.08;
+                const bx = startX + (endX - startX) * bp2;
+                const by = startY - arcH * Math.sin(bp2 * Math.PI) + (endY - startY) * bp2;
+                const alpha = bp2 > 0.8 ? 1 - (bp2 - 0.8) / 0.2 : 1;
+                drawBall(ctx, bx, by, Math.max(0, alpha));
+            }
+            drawNet(ctx, W, H);
 
-            // Green flash
-            if (p > 0.73) {
-                const fa = Math.min((p - 0.73) / 0.1, 0.4);
-                ctx.fillStyle = `rgba(0,200,117,${fa})`;
+            drawSpeedChip(ctx, W, H, '⚡ MEDIUM', '#ffaa44', Math.min(p / 0.12, 1));
+
+            // Green flash + label
+            if (p > 0.68) {
+                const fa = Math.min((p - 0.68) / 0.1, 0.32);
+                ctx.fillStyle = `rgba(255,176,72,${fa})`;
                 ctx.fillRect(0, 0, W, H);
             }
-
-            if (p > 0.74) {
-                const ta = Math.min((p - 0.74) / 0.12, 1);
-                drawOverlayText(ctx, W, H, 'YOU READ IT.', 'Hands stay down. Brain wins.', '#00C875', ta);
+            if (p > 0.72) {
+                const ta = Math.min((p - 0.72) / 0.12, 1);
+                drawOverlayText(ctx, W, H, 'VOLLEY · BLOCK IT', 'Chest-high drive = backhand block', '#ffaa44', ta);
             }
         }
 
         function drawIntroScene3(ctx, W, H, t) {
-            // Scene 3: Dark — the lesson
+            // Scene 3 — SLOWEST → BOUNCE
+            // Attacker soft forehand. Ball arcs high, lands in kitchen. Defender stays put; groundstroke after bounce.
+            const { gndY, netX, baseL, baseR } = drawMiniCourt(ctx, W, H);
             const dur = INTRO_SCENE_DURATION / 1000;
             const p = Math.min(t / dur, 1);
-            const fadeIn = Math.min(t / 0.6, 1);
 
-            ctx.fillStyle = '#060E1A';
-            ctx.fillRect(0, 0, W, H);
+            const attackerX = W * 0.20, defenderX = W * 0.70;
+            const swingP = Math.min(p / 0.55, 1); // slower swing = smaller motion
+            const contact = drawAttacker(ctx, attackerX, gndY, swingP * 0.6); // softer partial swing
+            drawDefender(ctx, defenderX, gndY);
 
-            ctx.globalAlpha = fadeIn;
-            ctx.fillStyle = '#4DA6FF';
-            ctx.font = '700 11px Montserrat, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('THE LESSON', W / 2, H * 0.28);
+            // Ball: high soft arc, lands in kitchen at p=0.55, bounces up at p=0.55→0.75
+            if (p > 0.18 && p < 0.58) {
+                const bp = Math.min((p - 0.18) / 0.40, 1);
+                const startX = contact.contactX + 2, startY = contact.contactY;
+                const kitchenX = W * 0.52; // kitchen zone near net on defender side
+                const kitchenY = gndY;
+                const arcH = H * 0.34; // HIGH arc — soft ball
+                const bx = startX + (kitchenX - startX) * bp;
+                const by = startY - arcH * Math.sin(bp * Math.PI) + (kitchenY - startY) * bp;
+                drawBall(ctx, bx, by, 1);
+            }
+            // Bounce flash (kitchen landing)
+            if (p > 0.56 && p < 0.64) {
+                const bf = 1 - (p - 0.56) / 0.08;
+                ctx.globalAlpha = bf * 0.6;
+                ctx.strokeStyle = '#4DA6FF';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.ellipse(W * 0.52, gndY + 1, 14, 4, 0, 0, Math.PI*2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+            // Post-bounce arc up toward defender
+            if (p > 0.58 && p < 0.90) {
+                const bp2 = Math.min((p - 0.58) / 0.32, 1);
+                const startX = W * 0.52, startY = gndY;
+                const endX = defenderX - 12, endY = gndY - 22;
+                const arcH = H * 0.12;
+                const bx = startX + (endX - startX) * bp2;
+                const by = startY - arcH * Math.sin(bp2 * Math.PI) + (endY - startY) * bp2;
+                drawBall(ctx, bx, by, 1);
+            }
+            drawNet(ctx, W, H);
 
-            ctx.fillStyle = 'white';
-            ctx.font = '600 18px Montserrat, sans-serif';
-            ctx.fillText('Train the read.', W / 2, H * 0.50);
-            ctx.fillText('The habit follows.', W / 2, H * 0.66);
+            drawSpeedChip(ctx, W, H, '⚡ SLOWEST', '#4DA6FF', Math.min(p / 0.12, 1));
 
-            // Pulsing dots at bottom
-            const dotAlpha = (Math.sin(t * 2) + 1) / 2 * 0.5 + 0.3;
-            ctx.globalAlpha = fadeIn * dotAlpha;
-            ctx.fillStyle = '#4DA6FF';
-            ctx.font = '14px sans-serif';
-            ctx.fillText('● ● ●', W / 2, H * 0.88);
-            ctx.globalAlpha = 1;
+            if (p > 0.72) {
+                const fa = Math.min((p - 0.72) / 0.1, 0.3);
+                ctx.fillStyle = `rgba(77,166,255,${fa})`;
+                ctx.fillRect(0, 0, W, H);
+            }
+            if (p > 0.74) {
+                const ta = Math.min((p - 0.74) / 0.12, 1);
+                drawOverlayText(ctx, W, H, 'BOUNCE · GROUNDSTROKE', 'Soft ball = let it land, then swing', '#4DA6FF', ta);
+            }
         }
 
         // ── AUDIO ENGINE ──
@@ -1359,8 +1795,8 @@
             //   L5  KITCHEN   · medium   — closest position, speed backs off slightly
             //   L6  KITCHEN   · real-time — both at kitchen AND full speed (final boss)
             //
-            { name: 'SLOW MOTION',       dtFactor: 3.5, winMult: 1.6,  mix: [6, 4, 0],     pass: 3, num: 1, oppX: 21, posLabel: 'BASELINE',         rampType: 'INTRO'    },
-            { name: 'PICKING UP SPEED',  dtFactor: 2.6, winMult: 1.2,  mix: [4, 4, 2],     pass: 3, num: 2, oppX: 21, posLabel: 'BASELINE',         rampType: 'SPEED'    },
+            { name: 'SLOW MOTION',       dtFactor: 2.8, winMult: 1.3,  mix: [6, 4, 0],     pass: 3, num: 1, oppX: 21, posLabel: 'BASELINE',         rampType: 'INTRO'    },
+            { name: 'PICKING UP SPEED',  dtFactor: 2.2, winMult: 1.0,  mix: [4, 4, 2],     pass: 3, num: 2, oppX: 21, posLabel: 'BASELINE',         rampType: 'SPEED'    },
             { name: 'MID-COURT READ',    dtFactor: 3.0, winMult: 1.0,  mix: [3, 4, 3],     pass: 4, num: 3, oppX: 14, posLabel: 'MID-COURT',        rampType: 'DISTANCE' },
             { name: 'TRANSITION HEAT',   dtFactor: 2.4, winMult: 0.9,  mix: [2, 4, 4],     pass: 4, num: 4, oppX: 14, posLabel: 'MID-COURT',        rampType: 'SPEED'    },
             { name: 'KITCHEN CATCH',     dtFactor: 2.6, winMult: 0.85, mix: [1.5, 3.5, 5], pass: 4, num: 5, oppX: 8,  posLabel: 'KITCHEN LINE',     rampType: 'DISTANCE' },
@@ -1456,41 +1892,56 @@
         }
         function onVolley() {
             if (!canInput) {
-                // Mid wind-up: queue the VOLLEY commitment instead of dropping it silently.
                 if (!waitingForServe) pendingDecision = 'VOLLEY';
                 return;
             }
-            swingProgress = 1.0; // trigger swing animation
+            swingProgress = 1.0;
             holdingReady = false;
             document.getElementById('btn-ready').classList.remove('active');
             handleDecision('VOLLEY');
         }
         function onBounce() {
             if (!canInput) {
-                // Mid wind-up: queue the BOUNCE commitment instead of dropping it silently.
                 if (!waitingForServe) pendingDecision = 'BOUNCE';
                 return;
             }
-            swingProgress = 1.0; // trigger swing animation
+            swingProgress = 1.0;
             holdingReady = false;
             document.getElementById('btn-ready').classList.remove('active');
             handleDecision('BOUNCE');
         }
+        // Single SWING gate — the player's decision is binary (swing vs. let it go).
+        // The game auto-resolves whether the swing lands as a VOLLEY (ball in air)
+        // or a GROUNDSTROKE/BOUNCE (ball has bounced already). Matches real pickleball.
+        function onSwing() {
+            if (!canInput) {
+                if (!waitingForServe) pendingDecision = hasBounced ? 'BOUNCE' : 'VOLLEY';
+                return;
+            }
+            if (hasBounced) {
+                onBounce();
+            } else {
+                onVolley();
+            }
+        }
 
         window.addEventListener('keydown', (e) => {
             if (e.repeat) return;
-            // Spacebar OR [1] = ready position (spacebar is the primary — matches the on-screen prompt)
-            if (e.key === ' ' || e.code === 'Space' || e.key === '1') {
-                e.preventDefault();  // stop spacebar from scrolling the page
+            // SPACEBAR = ready position (hold to arm, release to commit LET IT GO)
+            if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
                 onReadyDown();
+                return;
             }
-            // [2] and [3] no longer require holdingReady — cognitively overloaded on keyboard
-            // (finger timing between release and [2]/[3] press was causing silent drops).
-            if (e.key === '2') onVolley();
-            if (e.key === '3') onBounce();
+            // ENTER = swing (auto-resolves volley vs groundstroke from ball state)
+            if (e.key === 'Enter' || e.code === 'Enter') {
+                e.preventDefault();
+                onSwing();
+                return;
+            }
         });
         window.addEventListener('keyup', (e) => {
-            if ((e.key === ' ' || e.code === 'Space' || e.key === '1') && holdingReady) {
+            if ((e.key === ' ' || e.code === 'Space') && holdingReady) {
                 e.preventDefault();
                 onReadyUp();
             }
@@ -3126,11 +3577,26 @@
             const grid = document.getElementById('levels-grid');
             if (!grid) return;
             grid.innerHTML = '';
+            // Ramp-type colors/icons
+            const rampSpec = {
+                'INTRO':    { color: '#8A9BB0', label: 'Intro' },
+                'SPEED':    { color: '#ff5566', label: 'Faster ball' },
+                'DISTANCE': { color: '#ffaa44', label: 'Closer opponent' },
+                'BOTH':     { color: '#FFD700', label: 'Both · final' }
+            };
             LEVELS.forEach((lv, i) => {
                 const tile = document.createElement('div');
                 tile.className = 'level-tile';
+                const spec = rampSpec[lv.rampType] || rampSpec['INTRO'];
                 tile.innerHTML = `
-                    <div class="lt-num">Level ${lv.num}</div>
+                    <svg class="lt-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <rect x="7" y="3" width="14" height="15" rx="2.5" fill="#1B4079" stroke="#0A1A2F" stroke-width="1"/>
+                        <rect x="13" y="18" width="4" height="8" fill="#0A1A2F"/>
+                        <rect x="12" y="20" width="6" height="3" fill="#C8102E"/>
+                        <circle cx="25" cy="7" r="3.5" fill="#DAFF00"/>
+                        <circle cx="25" cy="7" r="5.5" fill="rgba(218,255,0,0.25)"/>
+                    </svg>
+                    <div class="lt-num" style="color:${spec.color}">Level ${lv.num} · ${spec.label}</div>
                     <div class="lt-name">${lv.name}</div>
                     <div class="lt-pos">${lv.posLabel || 'BASELINE'}</div>
                 `;
@@ -3220,11 +3686,11 @@
             run('OUT L1: released 1000ms after launch (was HESITATED pre-fix)',
                 () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 1000; },
                 'OUT', 'CLEAN READ');
-            run('OUT L1: released 1800ms (ball approaching net)',
-                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 1800; },
+            run('OUT L1: released 1400ms (ball around net)',
+                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 1400; },
                 'OUT', 'GOOD');
-            run('OUT L1: released 2500ms (ball past net)',
-                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 2500; },
+            run('OUT L1: released 2000ms (ball past net)',
+                () => { currentShot = outShot; levelIdx = 0; ballLaunchTime = performance.now() - 2000; },
                 'OUT', 'HESITATED');
 
             // Pretty-print
