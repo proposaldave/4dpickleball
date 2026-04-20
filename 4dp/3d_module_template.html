@@ -105,17 +105,9 @@
     .shot-chip .name { font-size: 18px; }
   }
 
-  /* Side readout — coach + mantra for the active shot */
-  .side-card {
-    position: fixed; top: 50%; right: 28px; transform: translateY(-50%); z-index: 10;
-    max-width: 280px; padding: 22px;
-    background: rgba(10,22,40,.78); backdrop-filter: blur(14px);
-    border: 1px solid var(--dim, var(--4dp-hairline-s)); border-left-width: 3px;
-    border-radius: var(--4dp-r-md);
-    opacity: 0; transform: translateY(-50%) translateX(20px);
-    transition: opacity .5s var(--4dp-ease), transform .5s var(--4dp-ease);
-  }
-  .side-card.visible { opacity: 1; transform: translateY(-50%) translateX(0); }
+  /* Side readout — hidden when embedded in the landing page (parent renders its own panel
+     beside the iframe via postMessage sync). Kept in DOM so existing JS doesn't break. */
+  .side-card { display: none !important; }
   .side-card .label {
     font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
     color: var(--dim); margin-bottom: 10px;
@@ -864,12 +856,20 @@ function startShot(key, resetCamera = true) {
 function updateSideCard(key) {
   const s = SHOTS[key];
   const card = document.getElementById('side-card');
-  card.style.setProperty('--dim', '#' + s.color.toString(16).padStart(6, '0'));
+  const hex = '#' + s.color.toString(16).padStart(6, '0');
+  card.style.setProperty('--dim', hex);
   document.getElementById('side-label').textContent = s.label;
   document.getElementById('side-role').textContent  = s.role;
   document.getElementById('side-mantra').textContent= s.mantra;
   document.getElementById('side-traj').textContent  = s.traj;
   card.classList.add('visible');
+  // Notify the parent landing page so it can render the info beside the iframe instead of on top
+  try {
+    window.parent.postMessage({
+      type: '4dp:shot-changed',
+      key, label: s.label, role: s.role, mantra: s.mantra, traj: s.traj, color: hex
+    }, '*');
+  } catch (e) { /* not embedded in a parent — no-op */ }
 }
 function updateShotChips(key) {
   document.querySelectorAll('.shot-chip').forEach(c => {

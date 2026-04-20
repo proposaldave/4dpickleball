@@ -517,6 +517,27 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .prog-badge{margin-bottom:14px;font-size:10px;letter-spacing:1.5px}
 }
 
+/* ── Dimension info panel (side of iframe) ── */
+.dim-layout{display:flex;gap:22px;align-items:stretch}
+.dim-frame{flex:1 1 0;min-width:0}
+.dim-frame iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);display:block}
+.dim-info{
+  flex:0 0 290px;padding:26px 24px;border-radius:20px;
+  background:rgba(10,22,40,.72);border:1px solid rgba(245,243,238,.08);border-left:3px solid var(--di-c,#F472B6);
+  display:flex;flex-direction:column;justify-content:center;gap:12px;
+  transition:border-left-color .4s ease;
+}
+.di-label{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;transition:color .4s ease}
+.di-role{font-family:var(--font-display);font-style:italic;font-weight:400;font-size:30px;line-height:1.05;letter-spacing:-.5px;color:var(--warm)}
+.di-mantra{font-size:15px;font-style:italic;color:var(--warm);line-height:1.5;padding-top:14px;border-top:1px solid rgba(245,243,238,.08)}
+.di-traj{font-size:14px;color:var(--warm-dim);line-height:1.55}
+.di-hint{margin-top:auto;font-size:11px;color:var(--warm-mute);letter-spacing:.5px;line-height:1.5;padding-top:16px;border-top:1px solid rgba(245,243,238,.06)}
+@media(max-width:900px){
+  .dim-layout{flex-direction:column;gap:14px}
+  .dim-info{flex:1 1 auto;padding:20px}
+  .di-role{font-size:24px}
+}
+
 /* Tablet breakpoint (561-900px) */
 @media(min-width:561px) and (max-width:900px){
   .main{padding:88px 20px 64px}
@@ -548,15 +569,25 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
   </div>
 
-  <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21) -->
-  <section style="max-width:1200px;margin:40px auto 32px;padding:0 24px">
-    <iframe
-      src="4dp/3d_module_template.html"
-      title="4D Pickleball cinematic 3D module"
-      loading="lazy"
-      style="width:100%;aspect-ratio:16/9;border:0;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);display:block"
-    ></iframe>
-    <p style="text-align:center;font-size:13px;color:rgba(245,243,238,.45);margin-top:14px;letter-spacing:.3px">Click a dimension below. Drag to orbit. Scroll to zoom. Slow-mo + Replay top-right.</p>
+  <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
+       + side info panel (parent-rendered, synced via postMessage from the iframe) -->
+  <section style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
+    <div class="dim-layout">
+      <div class="dim-frame">
+        <iframe
+          src="4dp/3d_module_template.html"
+          title="4D Pickleball cinematic 3D module"
+          loading="lazy"
+        ></iframe>
+      </div>
+      <aside class="dim-info" id="dim-info" aria-live="polite">
+        <div class="di-label" id="di-label" style="color:#F472B6">1D · Drive</div>
+        <div class="di-role" id="di-role">Ball striking</div>
+        <div class="di-mantra" id="di-mantra">"Four friends on a court. Everyone at the baseline. Playing tennis."</div>
+        <div class="di-traj" id="di-traj">Short point. Lazy lobs, then someone misses. This is where most players start.</div>
+        <div class="di-hint">Click a dimension below the court · Drag to orbit · Scroll to zoom</div>
+      </aside>
+    </div>
   </section>
 
 </div><!-- /page-pyramid -->
@@ -631,6 +662,19 @@ function revealPyramid(){
 
 // Init
 setTimeout(revealPyramid,300);
+
+// ── Listen for shot changes from the embedded 3D cinematic iframe ──
+window.addEventListener('message', (e) => {
+  if (!e.data || e.data.type !== '4dp:shot-changed') return;
+  const { label, role, mantra, traj, color } = e.data;
+  const panel = document.getElementById('dim-info');
+  if (!panel) return;
+  panel.style.setProperty('--di-c', color);
+  const l = document.getElementById('di-label');   if (l) { l.textContent = label; l.style.color = color; }
+  const r = document.getElementById('di-role');    if (r) r.textContent = role;
+  const m = document.getElementById('di-mantra');  if (m) m.textContent = mantra;
+  const t = document.getElementById('di-traj');    if (t) t.textContent = traj;
+});
 
 // ── INTERACTIVE PROGRESSION STORY ──
 (function(){
