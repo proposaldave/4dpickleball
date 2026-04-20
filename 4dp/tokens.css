@@ -29,15 +29,16 @@
   --4dp-text-mute:  rgba(245,243,238,.40);
   --4dp-text-faint: rgba(245,243,238,.22);
 
-  /* ── DIMENSION COLORS (LOCKED — R7) ──
-     Coach-mapped. Never cross-paint. */
-  --4dp-drive:      #F472B6;   /* Ryann · Level 1 · Ball Striking */
-  --4dp-defend:     #FBBF24;   /* Caleb · Level 2 · Baby Block */
-  --4dp-drop:       #34D399;   /* Dave · Level 3 · Reset Drop */
-  --4dp-dink:       #2B8BFC;   /* Herricks+Casey · Level 4 · Kitchen Offense */
+  /* ── DIMENSION COLORS ──
+     Coach-mapped. Never cross-paint.
+     2026-04-20: Drive ↔ Defend swap (Drive now yellow, Defend now pink) per Dave. */
+  --4dp-drive:      #FBBF24;   /* Level 1 · Ball Striking (yellow — tennis ball feel) */
+  --4dp-defend:     #F472B6;   /* Level 2 · Baby Block */
+  --4dp-drop:       #34D399;   /* Level 3 · Reset Drop */
+  --4dp-dink:       #2B8BFC;   /* Level 4 · Kitchen Offense */
 
-  --4dp-drive-soft:  rgba(244,114,182,.12);
-  --4dp-defend-soft: rgba(251,191,36,.12);
+  --4dp-drive-soft:  rgba(251,191,36,.12);
+  --4dp-defend-soft: rgba(244,114,182,.12);
   --4dp-drop-soft:   rgba(52,211,153,.12);
   --4dp-dink-soft:   rgba(43,139,252,.12);
 

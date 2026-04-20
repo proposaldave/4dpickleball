@@ -28,10 +28,25 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 .brand-pill{display:inline-flex;align-items:center;gap:10px;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:var(--4dp-r-pill);padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--4dp-text-dim);}
 .brand-pill .d{width:8px;height:8px;border-radius:50%;background:var(--4dp-gold);box-shadow:0 0 10px rgba(251,191,36,.6);}
 .hud-right-group{display:flex;gap:10px;align-items:flex-start;}
-.hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:var(--4dp-r-md);padding:10px 16px;}
+.hud-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:var(--4dp-r-md);padding:10px 16px;min-width:110px;}
 .hud-right .lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--4dp-text-mute);}
-.hud-right .score{font-family:var(--4dp-font-display);font-style:italic;font-size:24px;letter-spacing:-.5px;color:var(--4dp-gold);line-height:1;}
+.hud-right .score{font-family:var(--4dp-font-display);font-style:italic;font-size:26px;letter-spacing:-.5px;color:var(--4dp-gold);line-height:1;transform-origin:right center;transition:transform .18s var(--4dp-ease);}
+.hud-right .score.pulse{animation:scorePulse .42s cubic-bezier(.2,1.2,.3,1);}
+@keyframes scorePulse{0%{transform:scale(1);}35%{transform:scale(1.22);color:#FDE68A;text-shadow:0 0 18px rgba(251,191,36,.9);}100%{transform:scale(1);}}
 .hud-right .round{font-size:11px;color:var(--4dp-text-dim);font-weight:600;letter-spacing:.5px;}
+.hud-right .streak{display:none;margin-top:4px;padding:3px 10px;border-radius:999px;background:rgba(251,191,36,.18);border:1px solid rgba(251,191,36,.45);font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#FDE68A;}
+.hud-right .streak.on{display:inline-block;animation:streakPop .3s var(--4dp-ease);}
+@keyframes streakPop{0%{transform:scale(.4);opacity:0;}100%{transform:scale(1);opacity:1;}}
+
+/* Brief green flash on correct hits — pure juice */
+#hit-flash{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(198,255,0,.16) 0%,rgba(198,255,0,0) 60%);transition:opacity .4s ease;}
+#hit-flash.flash{opacity:1;transition:opacity .12s ease;}
+
+/* Floating "+N" points on each correct hit — projected from ball world pos */
+#float-points{position:fixed;inset:0;z-index:14;pointer-events:none;overflow:hidden;}
+.fp{position:absolute;font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:clamp(34px,5vw,56px);line-height:1;color:var(--4dp-gold);letter-spacing:-.5px;text-shadow:0 2px 28px rgba(251,191,36,.8),0 0 6px rgba(0,0,0,.6);transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap;animation:fpRise 1.25s cubic-bezier(.2,1.1,.3,1) forwards;will-change:transform,opacity;}
+.fp.epic{color:#FDE68A;font-size:clamp(44px,6.5vw,76px);}
+@keyframes fpRise{0%{opacity:0;transform:translate(-50%,-50%) scale(.55);}18%{opacity:1;transform:translate(-50%,-80%) scale(1.12);}100%{opacity:0;transform:translate(-50%,-220%) scale(.9);}}
 
 /* Camera cycle button (top-right, to the left of the score card) */
 .cam-btn{background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:10px;padding:10px 16px;font-family:var(--4dp-font-body);font-weight:700;font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--4dp-text);cursor:pointer;transition:all .2s var(--4dp-ease);align-self:flex-start;}
@@ -125,6 +140,8 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 
 <div id="viewport"></div>
 <div id="vignette"></div>
+<div id="hit-flash"></div>
+<div id="float-points"></div>
 
 <div class="hud-top">
   <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
@@ -134,6 +151,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
       <div class="lbl">Score</div>
       <div class="score" id="score-val">0</div>
       <div class="round" id="round-val">Round 1 · 0/5</div>
+      <div class="streak" id="streak-val">🔥 2 streak</div>
     </div>
   </div>
 </div>
@@ -370,10 +388,13 @@ camera.position.set(...CAM_PRESETS[0].pos);
 camera.lookAt(...CAM_PRESETS[0].look);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// Pixel-ratio capped at 1.5 (was 2) — on retina displays this cuts fragment
+// shader work ~44% without a visible quality drop. Single biggest perf win.
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.setSize(vp.clientWidth, vp.clientHeight);
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+// PCFSoftShadowMap is expensive; basic PCF is smoother-than-hard and cheaper.
+renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -401,8 +422,20 @@ function tweenCameraTo(pos, look, dur = 0.9){
 }
 function cycleCamera(){
   camPresetIdx = (camPresetIdx + 1) % CAM_PRESETS.length;
-  const preset = CAM_PRESETS[camPresetIdx];
-  tweenCameraTo(preset.pos, preset.look, 0.9);
+  applyCameraPreset(camPresetIdx);
+}
+function applyCameraPreset(idx, instant = false){
+  const preset = CAM_PRESETS[idx];
+  if (instant) {
+    camera.position.set(...preset.pos);
+    controls.target.set(...preset.look);
+    camTween = null;
+  } else {
+    tweenCameraTo(preset.pos, preset.look, 0.9);
+  }
+  // Hide defender in first-person view so their own torso + paddle don't
+  // occlude the shot. Every other preset shows them.
+  if (typeof defender !== 'undefined') defender.visible = !preset.hidesDefender;
   const btn = document.getElementById('btn-camera');
   if (btn) btn.textContent = 'Cam · ' + preset.name;
 }
@@ -421,7 +454,8 @@ scene.add(new THREE.AmbientLight(0xB8D4E8, 0.35));
 const key = new THREE.DirectionalLight(0xFFF4E0, 1.1);
 key.position.set(18, 30, 14);
 key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048);
+// Shadow map halved (was 2048²) — 4× less shadow work per frame, still sharp.
+key.shadow.mapSize.set(1024, 1024);
 key.shadow.camera.left = -30; key.shadow.camera.right = 30;
 key.shadow.camera.top = 35; key.shadow.camera.bottom = -35;
 key.shadow.camera.near = 1; key.shadow.camera.far = 70;
@@ -472,7 +506,11 @@ netGroup.children[netGroup.children.length-1].position.set(0, 1.5, 0);
 courtGroup.add(netGroup);
 scene.add(courtGroup);
 
-// ── Players (ported simplified from template; both right-handed, paddle up ready) ──
+// ── Players (both right-handed — paddle on the player's actual right side).
+// Model places the paddle on -X so that after the 180° Y-rotation on the
+// defender it lands on world +X (viewer-right from the receiver / first-person
+// POV Dave uses). Prior version had the paddle on +X model which rendered
+// as left-handed from every behind-the-player camera.
 function makePlayer({ jersey, shorts, z, facing }) {
   const g = new THREE.Group();
   const skin = new THREE.MeshStandardMaterial({ color: 0xE7B48C, roughness: 0.7 });
@@ -497,21 +535,23 @@ function makePlayer({ jersey, shorts, z, facing }) {
   head.position.y = 3.75; head.castShadow = true; g.add(head);
   const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 12, 0, Math.PI*2, 0, Math.PI/2), jerseyMat);
   cap.position.y = 3.82; cap.scale.y = 0.6; g.add(cap);
-  // Off-hand
-  const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.9, 5, 8), jerseyMat);
-  leftArm.position.set(-0.62, 2.55, 0.1); leftArm.rotation.z = 0.18; g.add(leftArm);
-  // Paddle arm — raised in front at chest (backhand block for defender, forehand ready for attacker)
+  // Off-hand (non-paddle) — at +X model side
+  const offArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.9, 5, 8), jerseyMat);
+  offArm.position.set(0.62, 2.55, 0.1); offArm.rotation.z = -0.18; g.add(offArm);
+  // Paddle arm — at MODEL -X so it's on player's body-right after rotation
   const upperArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.15, 0.7, 5, 8), jerseyMat);
-  upperArm.position.set(0.58, 2.62, 0.25); upperArm.rotation.z = 0.22; upperArm.rotation.x = 0.4; g.add(upperArm);
+  upperArm.position.set(-0.58, 2.62, 0.25); upperArm.rotation.z = -0.22; upperArm.rotation.x = 0.4; g.add(upperArm);
   const forearm = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.7, 5, 8), skin);
-  forearm.position.set(0.68, 2.35, 0.95); forearm.rotation.x = Math.PI/2 - 0.25; g.add(forearm);
+  forearm.position.set(-0.68, 2.35, 0.95); forearm.rotation.x = Math.PI/2 - 0.25; g.add(forearm);
   // Paddle
   const paddle = new THREE.Group();
   const pGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.085, 0.5, 12), gripMat); pGrip.position.set(0, -0.7, 0); paddle.add(pGrip);
   const pFace = new THREE.Mesh(new THREE.BoxGeometry(0.62, 1.1, 0.06), paddleFaceMat); pFace.position.set(0, 0.22, 0); paddle.add(pFace);
   const pEdge = new THREE.Mesh(new THREE.BoxGeometry(0.66, 1.14, 0.04), paddleEdgeMat); pEdge.position.set(0, 0.22, -0.01); paddle.add(pEdge);
-  paddle.position.set(0.72, 2.9, 1.55);
-  paddle.rotation.x = -0.4; paddle.rotation.z = 0.15;
+  paddle.position.set(-0.72, 2.9, 1.55);
+  paddle.rotation.x = -0.4; paddle.rotation.z = -0.15;
+  // Stash resting rotation so hit animations can spring back to it
+  paddle.userData.baseRot = { x: paddle.rotation.x, y: paddle.rotation.y, z: paddle.rotation.z };
   g.add(paddle);
   g.position.set(0, 0, z);
   if (facing === -1) g.rotation.y = Math.PI;
@@ -538,11 +578,18 @@ const TRAIL_MAX = 48;
 let trailPoints = [];
 let trailMesh = null;
 const trailMat = new THREE.MeshStandardMaterial({ color:PICKLEBALL_GREEN, emissive:PICKLEBALL_GREEN, emissiveIntensity:2.0, transparent:true, opacity:.85, roughness:.2 });
+// Rebuilding a TubeGeometry every frame churns GPU memory — throttle to every
+// other frame. Visually indistinguishable at 60fps, roughly halves the tube
+// rebuild cost. Segment count tightened from 100 → 48 since the trail is
+// only 48 points max.
+let _trailFrame = 0;
 function rebuildTrail(){
+  _trailFrame++;
+  if ((_trailFrame & 1) === 0) return;  // skip every other frame
   if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); }
   if (trailPoints.length < 4) return;
   const curve = new THREE.CatmullRomCurve3(trailPoints);
-  const geo = new THREE.TubeGeometry(curve, Math.min(trailPoints.length*3, 100), 0.09, 8, false);
+  const geo = new THREE.TubeGeometry(curve, Math.min(trailPoints.length*2, 48), 0.09, 6, false);
   trailMesh = new THREE.Mesh(geo, trailMat); scene.add(trailMesh);
 }
 function clearTrail(){ trailPoints = []; if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); trailMesh = null; } }
@@ -598,22 +645,73 @@ function trajectoryAt(shot, t){
   return arcAt(shot.from, shot.to, shot.apex, t);
 }
 
-// ── Attacker swing animation ──
-function animateAttackerSwing(){
-  const p = attacker.userData.paddle;
+// ── Shared hit animation — a simple 2-beat swipe. Both the attacker
+// (when they send the ball) and defender (when they connect) use this.
+// Windup back → swing forward → spring back to ready.
+function playPaddleHit(player){
+  const p = player.userData.paddle;
   if (!p) return;
-  // Windup back
-  p.rotation.x = -1.4; p.rotation.z = 0.5;
-  setTimeout(() => { p.rotation.x = 0.3; p.rotation.z = -0.1; }, 250);
-  setTimeout(() => { p.rotation.x = -0.4; p.rotation.z = 0.15; }, 600);
+  const base = p.userData.baseRot || { x: p.rotation.x, y: p.rotation.y, z: p.rotation.z };
+  // Clear any in-flight animation
+  if (p.userData._hitTO) p.userData._hitTO.forEach(clearTimeout);
+  p.rotation.x = base.x - 0.9;                 // windup
+  p.rotation.z = base.z + 0.35;
+  const t1 = setTimeout(() => {                // strike
+    p.rotation.x = base.x + 0.55;
+    p.rotation.z = base.z - 0.25;
+  }, 130);
+  const t2 = setTimeout(() => {                // overshoot
+    p.rotation.x = base.x + 0.15;
+    p.rotation.z = base.z - 0.05;
+  }, 260);
+  const t3 = setTimeout(() => {                // settle
+    p.rotation.x = base.x; p.rotation.z = base.z;
+  }, 420);
+  p.userData._hitTO = [t1, t2, t3];
 }
+function animateAttackerSwing(){ playPaddleHit(attacker); }
+function animateDefenderHit(){ playPaddleHit(defender); }
 
 // ── Game flow ──
 function setLevelHUD(){
   const lv = LEVELS[STATE.levelIdx];
   document.getElementById('round-val').textContent = `Round ${lv.num} · ${STATE.trial}/${SHOTS_PER_LEVEL}`;
 }
-function setScore(){ document.getElementById('score-val').textContent = STATE.sessionPoints.toLocaleString(); }
+function setScore(pulse = false){
+  const el = document.getElementById('score-val');
+  el.textContent = STATE.sessionPoints.toLocaleString();
+  if (pulse) { el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }
+}
+function updateStreakDisplay(){
+  const el = document.getElementById('streak-val');
+  if (!el) return;
+  if (STATE.streak >= 2) {
+    el.textContent = '🔥 ' + STATE.streak + ' streak';
+    el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  } else {
+    el.classList.remove('on');
+  }
+}
+function flashHit(){
+  const el = document.getElementById('hit-flash'); if (!el) return;
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 380);
+}
+// Project a world-space point to screen and spawn a "+N" floating element.
+// Fires on every correct hit so scoring feels tangible + rewarding.
+function spawnFloatingPoints(worldPos, amount, isEpic = false){
+  const tmp = worldPos.clone();
+  tmp.project(camera);
+  const x = (tmp.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-tmp.y * 0.5 + 0.5) * window.innerHeight;
+  const el = document.createElement('div');
+  el.className = 'fp' + (isEpic ? ' epic' : '');
+  el.textContent = '+' + amount;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.getElementById('float-points').appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
 function buildDots(){
   const el = document.getElementById('progress-dots'); el.innerHTML = '';
   for (let i = 0; i < SHOTS_PER_LEVEL; i++){
@@ -626,6 +724,18 @@ function updateDot(i, ok){
   const next = document.getElementById('pd-' + (i + 1)); if (next) next.classList.add('current');
 }
 
+// Round-complete banner — shown BEFORE the next round's intro card so the
+// player gets a clear "you just finished round N" beat with their score.
+function showRoundComplete(correct, onDone){
+  const lv = LEVELS[STATE.levelIdx];
+  const card = document.getElementById('round-card');
+  const passed = correct >= lv.pass;
+  document.getElementById('rc-kicker').textContent = 'Round ' + lv.num + (passed ? ' · Passed' : ' complete');
+  document.getElementById('rc-name').textContent = correct + ' / ' + SHOTS_PER_LEVEL;
+  document.getElementById('rc-pos').textContent = passed ? 'On to the next round' : 'Keep training';
+  card.classList.add('on');
+  setTimeout(() => { card.classList.remove('on'); setTimeout(onDone, 280); }, 1500);
+}
 function showRoundCard(onDone){
   const lv = LEVELS[STATE.levelIdx];
   document.getElementById('rc-kicker').textContent = 'Round ' + lv.num;
@@ -650,13 +760,16 @@ function beginLevel(){
 
 function nextTrial(){
   if (STATE.trial >= SHOTS_PER_LEVEL) {
-    // End of level
+    // End of level — celebrate THIS round's score before stepping up.
+    const correctThisRound = STATE.results.slice(-SHOTS_PER_LEVEL).filter(r => r).length;
     if (STATE.levelIdx >= LEVELS.length - 1){
-      endSession();
+      showRoundComplete(correctThisRound, () => endSession());
       return;
     }
-    STATE.levelIdx++;
-    beginLevel();
+    showRoundComplete(correctThisRound, () => {
+      STATE.levelIdx++;
+      beginLevel();
+    });
     return;
   }
   // Prepare
@@ -665,6 +778,7 @@ function nextTrial(){
   STATE.swingResolved = null;
   STATE.pendingDecision = null;
   STATE.hasBounced = false;
+  STATE._outLandedBurst = false;
   STATE.canInput = false;
   STATE.holdingReady = false;
   ball.visible = false; clearTrail();
@@ -790,6 +904,8 @@ function handleDecision(kind){
     STATE.streak++;
     if (STATE.streak > STATE.bestStreak) STATE.bestStreak = STATE.streak;
     spawnBurst(ball.position.clone(), PICKLEBALL_GREEN);
+    flashHit();
+    spawnFloatingPoints(ball.position.clone(), earned, STATE.streak >= 3);
     // When the player successfully HITS (volley or groundstroke), reverse
     // the ball's direction so it visibly flies back toward the opponent —
     // simulates a clean return. Only runs on correct SWING; wrong decisions
@@ -801,7 +917,8 @@ function handleDecision(kind){
     STATE.streak = 0;
   }
   updateDot(STATE.trial, correct);
-  setScore();
+  setScore(correct);
+  updateStreakDisplay();
   showVerdict(correct, kind, shot);
   STATE.trial++;
   // Let flight + verdict finish
@@ -829,17 +946,6 @@ function launchReturnShot(){
   // phase stays 'FLIGHT' so the animate loop keeps advancing the ball
 }
 
-// Quick paddle-swipe on the defender when they connect — sell the hit.
-function animateDefenderHit(){
-  const p = defender.userData.paddle;
-  if (!p) return;
-  const baseX = p.rotation.x;
-  const baseZ = p.rotation.z;
-  p.rotation.x = baseX - 0.6; p.rotation.z = baseZ + 0.5;
-  setTimeout(() => { p.rotation.x = baseX + 0.15; p.rotation.z = baseZ - 0.1; }, 120);
-  setTimeout(() => { p.rotation.x = baseX; p.rotation.z = baseZ; }, 350);
-}
-
 function showVerdict(correct, kind, shot){
   const v = document.getElementById('verdict');
   const big = document.getElementById('verdict-big');
@@ -849,9 +955,15 @@ function showVerdict(correct, kind, shot){
     big.style.color = '#34D399';
     sub.textContent = shot.kind === 'OUT' ? 'Out ball · let it fly' : shot.kind === 'VOLLEY' ? 'Volley it — attack' : 'Groundstroke — patient';
   } else {
-    big.textContent = 'Missed.';
+    big.textContent = kind === 'NO_COMMIT' ? 'No commit.' : 'Missed.';
     big.style.color = '#FB7185';
-    sub.textContent = shot.kind === 'OUT' ? 'That was going out' : shot.kind === 'VOLLEY' ? 'That was a volley' : 'Let it bounce — groundstroke';
+    if (kind === 'NO_COMMIT') {
+      sub.textContent = 'Release SPACE to let it go · Hit ENTER to hit';
+    } else if (kind === 'TIMEOUT') {
+      sub.textContent = shot.kind === 'OUT' ? 'That was going out — release SPACE' : shot.kind === 'VOLLEY' ? 'That was a volley — hit ENTER' : 'Let it bounce — hit ENTER';
+    } else {
+      sub.textContent = shot.kind === 'OUT' ? 'That was going out' : shot.kind === 'VOLLEY' ? 'That was a volley' : 'Let it bounce — groundstroke';
+    }
   }
   v.classList.add('on');
   setTimeout(() => v.classList.remove('on'), 1400);
@@ -929,17 +1041,21 @@ function animate(){
     const p = trajectoryAt(s, STATE.shotT);
     ball.position.copy(p);
     ballLight.position.copy(p);
+    // Ball spin — rolls around X-axis as it flies. Small but sells motion.
+    ball.rotation.x += dt * 18;
+    ball.rotation.z += dt * 6;
     trailPoints.push(p.clone());
     if (trailPoints.length > TRAIL_MAX) trailPoints.shift();
     rebuildTrail();
-    // Detect bounce for GROUNDSTROKE timing — threshold tightened to y<=0.45
-    // so it only fires on the actual ground-touch segment of a BOUNCE shot.
+    // Detect bounce for GROUNDSTROKE timing
     if (!STATE.hasBounced && s.kind === 'BOUNCE' && p.y <= 0.45) STATE.hasBounced = true;
-    // End of flight: if no decision made, treat as TIMEOUT.
-    // For BOUNCE shots that haven't actually bounced yet we suppress timeout
-    // (belt-and-suspenders — segments design means bounce happens mid-flight,
-    // but a floating-point edge where t=1 arrives before hasBounced flips
-    // would otherwise auto-fail the shot the moment the ball touches down).
+    // Ground-impact burst for OUT shots once they land past the baseline —
+    // concrete visual proof that "yes, that ball would have been out."
+    if (s.kind === 'OUT' && !STATE._outLandedBurst && p.y <= 0.5 && STATE.shotT > 0.8) {
+      spawnBurst(new THREE.Vector3(p.x, 0.15, p.z), 0xFB7185);
+      STATE._outLandedBurst = true;
+    }
+    // End of flight: if no decision made, figure out why it was a miss.
     if (STATE.shotT >= 1 && STATE.canInput){
       const isBounceNotYet = (s.kind === 'BOUNCE' && !STATE.hasBounced);
       if (!isBounceNotYet) {
@@ -948,7 +1064,11 @@ function animate(){
         STATE.results.push(false);
         STATE.streak = 0;
         updateDot(STATE.trial, false);
-        showVerdict(false, 'TIMEOUT', shot);
+        // If the player was still holding SPACE when flight ended, they
+        // never committed — flag as NO_COMMIT so the verdict explains what
+        // they should have done instead of just generic "Missed."
+        const verdictKind = STATE.holdingReady ? 'NO_COMMIT' : 'TIMEOUT';
+        showVerdict(false, verdictKind, shot);
         STATE.trial++;
         setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
       }

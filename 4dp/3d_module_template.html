@@ -201,6 +201,77 @@
   }
   .audio-toast.on { opacity: 1; }
 
+  /* ── SCRUB-BAR TIMELINE — film-reel study tool ──
+     Segment ticks + dimension-colored moment markers + draggable playhead.
+     Toggle with B, hidden in embedded mode + when HUD is hidden. */
+  .timeline {
+    position: fixed; bottom: 94px; left: 28px; right: 28px; z-index: 9;
+    display: flex; flex-direction: column; gap: 6px;
+    pointer-events: none;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .4s ease, transform .4s ease;
+  }
+  .timeline.on { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .timeline-track {
+    position: relative;
+    height: 10px;
+    background: rgba(10,22,40,.78);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--4dp-hairline-s);
+    border-radius: 5px;
+    cursor: pointer;
+    overflow: visible;
+  }
+  .timeline-fill {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--dim, var(--4dp-drop)) 70%, transparent));
+    border-radius: 5px 0 0 5px;
+    width: 0%;
+    pointer-events: none;
+  }
+  .timeline-seg {
+    position: absolute; top: 2px; bottom: 2px; width: 1px;
+    background: rgba(245,243,238,.26);
+    pointer-events: none;
+  }
+  .timeline-mom {
+    position: absolute; top: 50%;
+    width: 11px; height: 11px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--4dp-ink);
+    border: 2px solid var(--dim, var(--4dp-drop));
+    box-shadow: 0 0 10px color-mix(in srgb, var(--dim, var(--4dp-drop)) 60%, transparent);
+    pointer-events: auto;
+    cursor: help;
+    transition: transform .15s ease;
+  }
+  .timeline-mom:hover { transform: translate(-50%, -50%) scale(1.4); }
+  .timeline-mom.fired { background: var(--dim, var(--4dp-drop)); }
+  .timeline-playhead {
+    position: absolute; top: -3px; bottom: -3px;
+    width: 2px;
+    background: var(--dim, var(--4dp-text));
+    box-shadow: 0 0 10px var(--dim, var(--4dp-text));
+    transform: translateX(-1px);
+    pointer-events: none;
+    transition: left .04s linear;
+  }
+  .timeline-label {
+    font-family: var(--4dp-font-data);
+    font-size: 10px; color: var(--4dp-text-dim);
+    text-align: center; letter-spacing: 1px;
+    display: flex; justify-content: center; gap: 16px;
+  }
+  .timeline-label .lbl { color: var(--4dp-text-faint); text-transform: uppercase; letter-spacing: 1.5px; font-size: 9px; }
+  .timeline-label .val { color: var(--4dp-text); font-weight: 700; }
+  html.embedded .timeline { display: none !important; }
+  body.hud-hidden .timeline { display: none !important; }
+  @media (max-width: 620px) {
+    .timeline { bottom: 148px; left: 12px; right: 12px; }
+    .timeline-track { height: 8px; }
+    .timeline-mom { width: 10px; height: 10px; }
+  }
+
   /* ── KEY-MOMENT LABEL — pinned screenspace annotation ── */
   .moment-label {
     position: fixed; z-index: 8; pointer-events: none;
@@ -371,7 +442,7 @@
   body.hud-hidden .pause-badge,
   body.hud-hidden .debug-panel { display: none !important; }
 
-  /* ── Embedded mode ── */
+  /* ── Embedded mode (iframe in landing page — parent renders its own UI) ── */
   html.embedded .shot-bar,
   html.embedded .cam-hint,
   html.embedded .hud-top,
@@ -383,6 +454,15 @@
     display: none !important;
     visibility: hidden !important;
     pointer-events: none !important;
+  }
+
+  /* ── Showcase mode (?showcase=1 — used by 3d_module_template_SHOWCASE.html) ──
+     Hides just the shot bar + cam hint so the narration overlay has room,
+     but keeps the top HUD, stats, moment labels, and timeline visible so
+     they can be demo'd live. */
+  html.showcase .shot-bar,
+  html.showcase .cam-hint {
+    display: none !important;
   }
 
   /* Loading */
@@ -403,14 +483,13 @@
 </head>
 <body>
 
-<!-- Embedded-mode detection runs BEFORE the module so the internal overlays hide with no flash. -->
+<!-- Embedded/showcase mode detection runs BEFORE the module so the internal overlays hide with no flash. -->
 <script>
 (function(){
   try {
     var p = new URLSearchParams(location.search);
-    if (p.get('embedded') === '1') {
-      document.documentElement.classList.add('embedded');
-    }
+    if (p.get('embedded') === '1') document.documentElement.classList.add('embedded');
+    if (p.get('showcase') === '1') document.documentElement.classList.add('showcase');
   } catch(e){}
 })();
 </script>
@@ -421,7 +500,7 @@
 <div id="vignette"></div>
 
 <div class="hud-top">
-  <span class="brand-pill"><span class="d" id="brand-dot"></span> <span id="brand-label" style="color:#F472B6;font-weight:800;letter-spacing:2px">1D</span></span>
+  <span class="brand-pill"><span class="d" id="brand-dot"></span> <span id="brand-label" style="color:#FBBF24;font-weight:800;letter-spacing:2px">1D</span></span>
   <div class="hud-controls">
     <button class="ctrl-btn" id="btn-camera">Camera<span class="kbd-hint">C</span></button>
     <button class="ctrl-btn" id="btn-slowmo">Slow-Mo<span class="kbd-hint">S</span></button>
@@ -454,6 +533,18 @@
   <div class="coach-role" id="side-role">Under the ball drop</div>
   <div class="mantra" id="side-mantra">"Let the ball come to you. The reset isn't a shot — it's a pause button."</div>
   <div class="trajectory" id="side-traj">Apex ≈ 8 ft · Lands soft inside the kitchen from the transition zone.</div>
+</div>
+
+<!-- Scrub-bar timeline — film-reel study tool. Toggle with B key. -->
+<div class="timeline" id="timeline">
+  <div class="timeline-track" id="timeline-track">
+    <div class="timeline-fill" id="timeline-fill"></div>
+  </div>
+  <div class="timeline-label">
+    <span><span class="lbl">Seg</span> <span class="val" id="timeline-seg-label">—/—</span></span>
+    <span><span class="lbl">Time</span> <span class="val" id="timeline-time-label">0.0s</span></span>
+    <span><span class="lbl">Moments</span> <span class="val" id="timeline-mom-label">0/0</span></span>
+  </div>
 </div>
 
 <div class="shot-bar">
@@ -516,7 +607,8 @@
       <div class="kb"><span class="key">K</span><span class="desc">Capture screenshot (.png)</span></div>
       <div class="kb"><span class="key">H</span><span class="desc">Hide HUD (clean frame)</span></div>
       <div class="kb"><span class="key">D</span><span class="desc">Debug readouts</span></div>
-      <div class="kb"><span class="key">←/→</span><span class="desc">Scrub rally ±5%</span></div>
+      <div class="kb"><span class="key">B</span><span class="desc">Show / hide scrub-bar timeline</span></div>
+      <div class="kb"><span class="key">←/→</span><span class="desc">Scrub rally ±5% (or drag the timeline)</span></div>
       <div class="kb"><span class="key">?</span><span class="desc">Toggle this help</span></div>
     </div>
     <div class="close-hint">Any key to close</div>
@@ -567,7 +659,7 @@ const SHOTS = {
   drive: {
     label: '1D · Drive',
     dim: 'drive',
-    color: 0xF472B6,
+    color: 0xFBBF24,
     role: 'Ball striking',
     mantra: '"Four friends on a court. Everyone at the baseline. Playing tennis."',
     traj: 'Short point. Someone misses. This is where most players start.',
@@ -613,20 +705,20 @@ const SHOTS = {
       // F0 — pre-serve. Receiver (nearLeft) 1ft behind baseline. Receiver's partner
       // (nearRight) in TRANSITION ZONE (~halfway baseline-to-kitchen = z=13) — the
       // classic 1D error: partner isn't at the kitchen line, they're in no-man's-land.
-      { nearLeft:[-5,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-5,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-5,21],    nearRight:[5,13],  farLeft:[-4.5,-22], farRight:[5,-22] },
-      { nearLeft:[-4.5,21],  nearRight:[5,13],  farLeft:[-4,-22],   farRight:[5,-22] },
-      { nearLeft:[-5,21],    nearRight:[5,13],  farLeft:[-4,-22],   farRight:[5,-22] },
-      { nearLeft:[-5,21],    nearRight:[5,13],  farLeft:[-4,-22],   farRight:[4.5,-22] },
-      { nearLeft:[-5,21],    nearRight:[5,13],  farLeft:[-4,-22],   farRight:[4,-22] },
-      { nearLeft:[-4.5,21],  nearRight:[5,13],  farLeft:[-5,-22],   farRight:[4,-22] },
-      { nearLeft:[-5,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[4,-22] },
-      { nearLeft:[-4,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[4.5,-22] },
-      { nearLeft:[-4,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[5,-22] },
-      { nearLeft:[-4,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[4.5,-22] },
-      { nearLeft:[-4,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[3.5,-22.5] },
-      { nearLeft:[-4,21],    nearRight:[5,13],  farLeft:[-5,-22],   farRight:[3,-22] }
+      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[5,-22] },
+      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[5,-22] },
+      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-4.5,-22], farRight:[5,-22] },
+      { nearLeft:[-4.5,22],  nearRight:[5,16],  farLeft:[-4,-22],   farRight:[5,-22] },
+      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-4,-22],   farRight:[5,-22] },
+      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-4,-22],   farRight:[4.5,-22] },
+      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-4,-22],   farRight:[4,-22] },
+      { nearLeft:[-4.5,22],  nearRight:[5,16],  farLeft:[-5,-22],   farRight:[4,-22] },
+      { nearLeft:[-5,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[4,-22] },
+      { nearLeft:[-4,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[4.5,-22] },
+      { nearLeft:[-4,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[5,-22] },
+      { nearLeft:[-4,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[4.5,-22] },
+      { nearLeft:[-4,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[3.5,-22.5] },
+      { nearLeft:[-4,22],    nearRight:[5,16],  farLeft:[-5,-22],   farRight:[3,-22] }
     ],
     // Moments — pedagogical callouts. Each fires at `at` fraction of total shotT;
     // label pins to `arrow` target (ball | player:<key> | court:[x,z]) for `hold` seconds.
@@ -642,7 +734,7 @@ const SHOTS = {
   defend: {
     label: '2D · Defend',
     dim: 'defend',
-    color: 0xFBBF24,
+    color: 0xF472B6,
     role: 'Baby block',
     mantra: '"One team wakes up. Someone advances. Someone learns the baby block."',
     traj: 'Point extends. The attack doesn\'t end it — the block neutralizes and the rally sustains.',
@@ -1616,6 +1708,7 @@ function startShot(key, resetCamera = true) {
   updateShotChips(key);
   updateBrandPill(key);
   updateStatsHUD(key);
+  buildTimeline();
   document.getElementById('center-hero').classList.add('dimmed');
   updateDeepLink();
 }
@@ -1726,6 +1819,109 @@ function updateMoments() {
       activeMoment = null;
     }
   }
+}
+
+// ═════ SCRUB-BAR TIMELINE — film-reel study tool ═════
+// Visible bar at the bottom of the viewport. Shows segment ticks,
+// dimension-colored moment markers, and a draggable playhead.
+// Toggle with B; hidden in embedded + hud-hidden modes.
+
+let timelineVisible = true;   // default on — it's one of the template's signature features
+
+function buildTimeline() {
+  const track = document.getElementById('timeline-track');
+  if (!track) return;
+  // Clear prior ticks + moment markers + playhead (preserve the fill)
+  track.querySelectorAll('.timeline-seg, .timeline-mom, .timeline-playhead').forEach(el => el.remove());
+  const s = SHOTS[activeShotKey].shot;
+  if (!s.segments) return;
+  const totalDur = s.segments.reduce((a, seg) => a + seg.dur, 0);
+  // Segment boundary ticks
+  let accum = 0;
+  for (let i = 1; i < s.segments.length; i++) {
+    accum += s.segments[i-1].dur;
+    const pct = (accum / totalDur) * 100;
+    const tick = document.createElement('div');
+    tick.className = 'timeline-seg';
+    tick.style.left = pct + '%';
+    track.appendChild(tick);
+  }
+  // Moment markers
+  const moments = SHOTS[activeShotKey].moments || [];
+  moments.forEach((mom, idx) => {
+    const marker = document.createElement('div');
+    marker.className = 'timeline-mom';
+    marker.style.left = (mom.at * 100) + '%';
+    marker.title = mom.label + ' — ' + mom.why;
+    marker.dataset.momIdx = idx;
+    marker.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Jump to just before the moment so it fires fresh
+      scrub(Math.max(0, mom.at - 0.005));
+    });
+    track.appendChild(marker);
+  });
+  // Playhead
+  const playhead = document.createElement('div');
+  playhead.className = 'timeline-playhead';
+  playhead.id = 'timeline-playhead';
+  playhead.style.left = '0%';
+  track.appendChild(playhead);
+  // Tag moments label text
+  document.getElementById('timeline-mom-label').textContent = `0/${moments.length}`;
+}
+
+function updateTimelineUI() {
+  if (!timelineVisible) return;
+  const fill = document.getElementById('timeline-fill');
+  const playhead = document.getElementById('timeline-playhead');
+  if (!fill || !playhead) return;
+  const pct = (shotT * 100).toFixed(2) + '%';
+  fill.style.width = pct;
+  playhead.style.left = pct;
+  const moments = SHOTS[activeShotKey].moments || [];
+  document.querySelectorAll('.timeline-mom').forEach((m, i) => {
+    if (moments[i] && firedMoments.has(moments[i])) m.classList.add('fired');
+    else m.classList.remove('fired');
+  });
+  const s = SHOTS[activeShotKey].shot;
+  if (s.segments) {
+    const info = getSegmentInfo(s, shotT);
+    const totalDur = s.segments.reduce((a, seg) => a + seg.dur, 0);
+    document.getElementById('timeline-seg-label').textContent =
+      `${(info?.idx ?? 0) + 1}/${s.segments.length}`;
+    document.getElementById('timeline-time-label').textContent =
+      (shotT * totalDur).toFixed(1) + 's';
+    document.getElementById('timeline-mom-label').textContent =
+      `${firedMoments.size}/${moments.length}`;
+  }
+}
+
+// Scrub to a specific shotT fraction. Used by timeline, arrow keys, postMessage API.
+function scrub(t) {
+  shotT = Math.max(0, Math.min(1, t));
+  lastSegFiredIdx = -1;            // re-enable segment FX for fresh re-fire
+  firedMoments.clear();
+  activeMoment = null;
+  hideMomentLabel();
+  // Pre-mark moments BEFORE this position as already fired (they shouldn't re-show)
+  const moments = SHOTS[activeShotKey].moments || [];
+  for (const mom of moments) {
+    if (mom.at < shotT - 0.002) firedMoments.add(mom);
+  }
+  // Also pre-mark segments before this position as already FX-fired to avoid burst spam
+  const s = SHOTS[activeShotKey].shot;
+  if (s.segments) {
+    const info = getSegmentInfo(s, shotT);
+    if (info) lastSegFiredIdx = info.idx - 1;  // re-fires current segment only
+  }
+  // Reset shot-completion state so we keep playing past the scrub
+  if (shotT < 1) { shotRunning = true; shotBurstFired = false; }
+}
+
+function setTimelineVisible(on) {
+  timelineVisible = on;
+  document.getElementById('timeline').classList.toggle('on', on);
 }
 
 // Debug hooks (R21 canonical template — expose for QA / downstream modules)
@@ -2060,6 +2256,7 @@ function animate() {
   updateBursts(dt);
   updateShockwaves(dt);
   updateBounceMarks(dt);
+  updateTimelineUI();
   updateDebugReadout();
   updatePerf(dt);
 
@@ -2074,17 +2271,45 @@ function animate() {
   if (params.get('embedded') === '1') document.body.classList.add('embedded');
 })();
 
-// Parent-page message bridge (preserved from v1)
+// Parent-page message bridge.
+// v1 API (preserved): 4dp:select-shot, 4dp:toggle-pause
+// v2 API (added for showcase + programmatic driving):
+//   4dp:set-slowmo { on }, 4dp:set-audio { on }, 4dp:cycle-camera,
+//   4dp:enter-story, 4dp:exit-story, 4dp:toggle-debug { on },
+//   4dp:scrub { t }, 4dp:capture, 4dp:reset-camera,
+//   4dp:set-timeline { on }
 window.addEventListener('message', (e) => {
-  if (!e.data) return;
-  if (e.data.type === '4dp:select-shot') {
-    const key = e.data.key;
-    if (key && SHOTS[key]) {
-      if (paused) setPaused(false);
-      startShot(key);
-    }
-  } else if (e.data.type === '4dp:toggle-pause') {
-    setPaused(!paused);
+  if (!e.data || !e.data.type) return;
+  const msg = e.data;
+  switch (msg.type) {
+    case '4dp:select-shot':
+      if (msg.key && SHOTS[msg.key]) {
+        if (paused) setPaused(false);
+        if (storyMode) exitStoryMode();
+        startShot(msg.key);
+      }
+      break;
+    case '4dp:toggle-pause':    setPaused(!paused); break;
+    case '4dp:set-slowmo':      setSlowMo(!!msg.on); break;
+    case '4dp:set-audio':       setAudio(!!msg.on); break;
+    case '4dp:cycle-camera':    document.getElementById('btn-camera').click(); break;
+    case '4dp:enter-story':     enterStoryMode(); break;
+    case '4dp:exit-story':      exitStoryMode(); break;
+    case '4dp:toggle-debug':
+      debugOn = (msg.on !== undefined) ? !!msg.on : !debugOn;
+      debugGroup.visible = debugOn;
+      document.getElementById('debug-panel').classList.toggle('on', debugOn);
+      break;
+    case '4dp:scrub':
+      if (typeof msg.t === 'number') scrub(msg.t);
+      break;
+    case '4dp:capture':         captureScreenshot(); break;
+    case '4dp:reset-camera':
+      userCameraOwned = false;
+      camPresetIdx = 0;
+      animateCameraTo(SHOTS[activeShotKey].cam.pos, SHOTS[activeShotKey].cam.look, 0.8);
+      break;
+    case '4dp:set-timeline':    setTimelineVisible(!!msg.on); break;
   }
 });
 
@@ -2158,6 +2383,34 @@ document.getElementById('btn-replay').addEventListener('click', () => {
   startShot(activeShotKey);
 });
 
+// ── Timeline click / drag to scrub ──
+(function() {
+  const track = document.getElementById('timeline-track');
+  if (!track) return;
+  let dragging = false;
+  function pctFromEvent(e) {
+    const rect = track.getBoundingClientRect();
+    const x = (e.clientX ?? (e.touches && e.touches[0] && e.touches[0].clientX) ?? 0) - rect.left;
+    return Math.max(0, Math.min(1, x / rect.width));
+  }
+  track.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    scrub(pctFromEvent(e));
+    if (track.setPointerCapture && e.pointerId !== undefined) {
+      try { track.setPointerCapture(e.pointerId); } catch(_) {}
+    }
+  });
+  track.addEventListener('pointermove', (e) => { if (dragging) scrub(pctFromEvent(e)); });
+  const stop = () => { dragging = false; };
+  track.addEventListener('pointerup', stop);
+  track.addEventListener('pointercancel', stop);
+})();
+
+// Default: show the timeline. Auto-hide in embedded mode (CSS already handles this).
+if (!document.documentElement.classList.contains('embedded')) {
+  setTimeout(() => setTimelineVisible(true), 300);
+}
+
 // Keyboard shortcuts — a 12-key deck for module builders and power users
 window.addEventListener('keydown', (e) => {
   if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
@@ -2199,12 +2452,14 @@ window.addEventListener('keydown', (e) => {
       return;
     case 'ArrowLeft':
       e.preventDefault();
-      shotT = Math.max(0, shotT - 0.05);
-      lastSegFiredIdx = -1;
+      scrub(shotT - 0.05);
       return;
     case 'ArrowRight':
       e.preventDefault();
-      shotT = Math.min(1, shotT + 0.05);
+      scrub(shotT + 0.05);
+      return;
+    case 'KeyB':
+      setTimelineVisible(!timelineVisible);
       return;
     case 'Escape':
       if (storyMode) exitStoryMode();

@@ -262,8 +262,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .level-tier[data-level="4"] .tier-bar{width:55%}
 
 /* Level colors */
-.level-tier[data-level="1"]{--tier-c1:#F472B6;--tier-c2:#DB2777;--tier-glow:rgba(244,114,182,.3);--tier-bg1:#F472B6;--tier-bg2:#BE185D}
-.level-tier[data-level="2"]{--tier-c1:#FBBF24;--tier-c2:#D97706;--tier-glow:rgba(251,191,36,.3);--tier-bg1:#FBBF24;--tier-bg2:#B45309}
+.level-tier[data-level="1"]{--tier-c1:#FBBF24;--tier-c2:#D97706;--tier-glow:rgba(251,191,36,.3);--tier-bg1:#FBBF24;--tier-bg2:#B45309}
+.level-tier[data-level="2"]{--tier-c1:#F472B6;--tier-c2:#DB2777;--tier-glow:rgba(244,114,182,.3);--tier-bg1:#F472B6;--tier-bg2:#BE185D}
 .level-tier[data-level="3"]{--tier-c1:#34D399;--tier-c2:#059669;--tier-glow:rgba(52,211,153,.3);--tier-bg1:#34D399;--tier-bg2:#047857}
 .level-tier[data-level="4"]{--tier-c1:#2B8BFC;--tier-c2:#1759B0;--tier-glow:rgba(43,139,252,.3);--tier-bg1:#2B8BFC;--tier-bg2:#1759B0}
 
@@ -532,14 +532,14 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   transition:transform .2s cubic-bezier(.16,1,.3,1), border-color .25s, background .25s, box-shadow .25s;
   font-family:var(--font-body);
 }
-.dim-chip:hover{transform:translateY(-2px);border-color:var(--dc,#F472B6)}
+.dim-chip:hover{transform:translateY(-2px);border-color:var(--dc,#FBBF24)}
 .dim-chip.active{
-  background:color-mix(in srgb,var(--dc,#F472B6) 14%, rgba(10,22,40,.88));
-  border-color:var(--dc,#F472B6);
-  box-shadow:0 0 28px color-mix(in srgb,var(--dc,#F472B6) 28%, transparent);
+  background:color-mix(in srgb,var(--dc,#FBBF24) 14%, rgba(10,22,40,.88));
+  border-color:var(--dc,#FBBF24);
+  box-shadow:0 0 28px color-mix(in srgb,var(--dc,#FBBF24) 28%, transparent);
 }
-.dim-chip[data-shot="drive"] {--dc:#F472B6}
-.dim-chip[data-shot="defend"]{--dc:#FBBF24}
+.dim-chip[data-shot="drive"] {--dc:#FBBF24}
+.dim-chip[data-shot="defend"]{--dc:#F472B6}
 .dim-chip[data-shot="drop"]  {--dc:#34D399}
 .dim-chip[data-shot="dink"]  {--dc:#2B8BFC}
 .dim-chip .dc-num{
@@ -563,7 +563,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .dim-info{
   flex:0 0 290px;padding:26px 24px;border-radius:20px;
-  background:rgba(10,22,40,.72);border:1px solid rgba(245,243,238,.08);border-left:3px solid var(--di-c,#F472B6);
+  background:rgba(10,22,40,.72);border:1px solid rgba(245,243,238,.08);border-left:3px solid var(--di-c,#FBBF24);
   display:flex;flex-direction:column;justify-content:center;gap:12px;
   transition:border-left-color .4s ease;
 }
@@ -601,8 +601,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
     <h1>Anyone can learn<br>4D Pickleball.</h1>
 
     <div style="display:inline-flex;align-items:center;justify-content:center;gap:16px;margin:36px 0 8px;flex-wrap:wrap">
-      <span class="fd-word" style="--fd-c:#F472B6">Drive.</span>
-      <span class="fd-word" style="--fd-c:#FBBF24">Defend.</span>
+      <span class="fd-word" style="--fd-c:#FBBF24">Drive.</span>
+      <span class="fd-word" style="--fd-c:#F472B6">Defend.</span>
       <span class="fd-word" style="--fd-c:#34D399">Drop.</span>
       <span class="fd-word" style="--fd-c:#2B8BFC">Dink.</span>
     </div>
@@ -642,7 +642,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         </div>
       </div>
       <aside class="dim-info" id="dim-info" aria-live="polite">
-        <div class="di-label" id="di-label" style="color:#F472B6">1D · Drive</div>
+        <div class="di-label" id="di-label" style="color:#FBBF24">1D · Drive</div>
         <div class="di-role" id="di-role">Ball striking</div>
         <div class="di-mantra" id="di-mantra">"Four friends on a court. Everyone at the baseline. Playing tennis."</div>
         <div class="di-traj" id="di-traj">Short point. Lazy lobs, then someone misses. This is where most players start.</div>
@@ -793,7 +793,7 @@ window.addEventListener('message', (e) => {
     },
     {
       badge: "◆ +D1 DRIVE",
-      badgeColor: "244,114,182",
+      badgeColor: "251,191,36",
       copy: "They learn to actually strike the ball. Faster, flatter drives across the net. The point sustains longer, but still from the baseline.",
       title: "Ball striking",
       sub: "Short, simple swing. Clean contact. No more lazy lobs — now the ball moves.",
@@ -803,11 +803,11 @@ window.addEventListener('message', (e) => {
       trails: ["M 120 410 L 280 30"],
       ballDur: 1.8,
       ballPath: "M 120 410 L 280 30 L 120 410",
-      ballColor: "#F472B6"
+      ballColor: "#FBBF24"
     },
     {
       badge: "◆ +D2 DEFEND",
-      badgeColor: "251,191,36",
+      badgeColor: "244,114,182",
       copy: "Classic setup: the serving team is stuck at the baseline. The return team advances to the kitchen line. Now the serving team drives hard — the return team has to absorb it with a baby block.",
       title: "Baby block",
       sub: "The return team's baby block neutralizes the drive. Ball drops soft in the kitchen at the banger's feet.",
@@ -817,7 +817,7 @@ window.addEventListener('message', (e) => {
       trails: ["M 280 30 L 120 265","M 120 265 Q 140 180 220 200"],
       ballDur: 3.6,
       ballPath: "M 280 30 L 120 265 Q 140 180 220 200 Q 280 120 280 30",
-      ballColor: "#FBBF24"
+      ballColor: "#F472B6"
     },
     {
       badge: "◆ +D3 DROP",
