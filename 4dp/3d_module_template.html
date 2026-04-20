@@ -691,8 +691,10 @@ const SHOTS = {
         { from: [-5, 3, 20], to: [ 3, 0.15, -13], apex: 6.8, dur: 0.75 },
         // BOUNCE → farRight paddle (ball dragging farRight sideways)
         { from: [ 3, 0.15, -13], to: [ 5, 3, -20], apex: 3.0, dur: 0.40 },
-        // 7TH HIT — SHANK: farRight off-balance mishit → dies just past the net (the 1D error)
-        { from: [ 5, 3, -20], to: [ 0, 0.3, 3], apex: 4.5, dur: 0.95, cinematic: true }
+        // 7TH HIT — SHANK: farRight off-balance mishit. Weak forward pop that
+        // doesn't have enough energy to clear the net — ball dies on their OWN side
+        // ~6ft short of the net (physics-correct: apex 3.2 means y≈1.5 at z=0, net height=3).
+        { from: [ 5, 3, -20], to: [ 2, 0.15, -6], apex: 3.2, dur: 0.95, cinematic: true }
       ]
     },
     // ── 1D player movement — "four tennis players who don't know pickleball yet"
@@ -904,6 +906,8 @@ const SHOTS = {
 let activeShotKey = 'drive';
 let slowMo = false;
 let paused = false;
+let wasInCinematic = false;  // tracks transition into/out of cinematic segments
+let cinematicCamPushed = false;  // whether we've pushed camera in for dramatic effect
 let audioOn = false;
 let storyMode = false;
 let storyIdx = 0;
@@ -2261,6 +2265,23 @@ function animate() {
   // Badge reflects auto slow-mo too
   const _sloBadge = document.getElementById('slowmo-badge');
   if (_sloBadge) _sloBadge.classList.toggle('on', slowMo || autoSlowMo);
+
+  // Cinematic camera push-in — when entering a cinematic segment, tween camera
+  // ~14% closer to look target for broadcast-style drama. Tween back when exiting.
+  // Only engages if user hasn't manually dragged (autoRotate still true).
+  if (autoSlowMo && !wasInCinematic && !cinematicCamPushed && controls.autoRotate) {
+    const curPos = camera.position.clone();
+    const tgt = controls.target.clone();
+    const toward = tgt.clone().sub(curPos).multiplyScalar(0.14);
+    const newPos = curPos.clone().add(toward);
+    animateCameraTo([newPos.x, newPos.y, newPos.z], [tgt.x, tgt.y, tgt.z], 0.7);
+    cinematicCamPushed = true;
+  } else if (!autoSlowMo && wasInCinematic && cinematicCamPushed) {
+    const s = SHOTS[activeShotKey];
+    animateCameraTo(s.cam.pos, s.cam.look, 0.9);
+    cinematicCamPushed = false;
+  }
+  wasInCinematic = autoSlowMo;
 
   controls.update();
   updateCameraTween(now);
