@@ -235,6 +235,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div class="hud-top">
   <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
   <div class="hud-right-group">
+    <button class="cam-btn" id="btn-cam-lock" title="Unlock camera (drag with mouse)">🔒</button>
     <button class="cam-btn" id="btn-camera" title="Cycle camera view">Camera</button>
     <div class="hud-right">
       <div class="lbl">Score</div>
@@ -594,6 +595,10 @@ controls.target.set(...CAM_PRESETS[0].look);
 controls.minDistance = 20;
 controls.maxDistance = 70;
 controls.maxPolarAngle = Math.PI * 0.49;
+// Camera LOCKED by default — mouse drags shouldn't accidentally orbit the
+// view while the player is using mouse for game input. The lock-toggle
+// button (top-right) flips this. Arrow keys always orbit regardless.
+controls.enabled = false;
 
 // Camera button — cycle through CAM_PRESETS with a smooth cubic ease.
 let camTween = null;
@@ -635,6 +640,36 @@ function applyCameraPreset(idx, instant = false){
   if (btn) btn.textContent = 'Cam · ' + preset.name;
 }
 document.getElementById('btn-camera').addEventListener('click', cycleCamera);
+
+// Lock/unlock camera toggle. When unlocked, OrbitControls handles mouse
+// drag/scroll and the game-input mouse handler skips so dragging doesn't
+// double-fire HOLD/HIT. Arrow keys orbit the camera regardless of lock.
+const lockBtn = document.getElementById('btn-cam-lock');
+function setCameraLocked(locked){
+  controls.enabled = !locked;
+  if (lockBtn) {
+    lockBtn.textContent = locked ? '🔒' : '🔓';
+    lockBtn.title = locked ? 'Unlock camera (drag with mouse)' : 'Lock camera';
+  }
+}
+if (lockBtn) lockBtn.addEventListener('click', () => setCameraLocked(controls.enabled));
+
+// Arrow keys ALWAYS orbit the camera around the current look-target.
+// Independent of the lock state — keyboard nudge is always available.
+function nudgeCamera(deltaTheta, deltaPhi){
+  const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+  const r = offset.length();
+  let theta = Math.atan2(offset.x, offset.z);
+  let phi = Math.acos(Math.max(-1, Math.min(1, offset.y / r)));
+  theta += deltaTheta;
+  phi = Math.max(0.05, Math.min(Math.PI * 0.49, phi + deltaPhi));
+  offset.x = r * Math.sin(phi) * Math.sin(theta);
+  offset.y = r * Math.cos(phi);
+  offset.z = r * Math.sin(phi) * Math.cos(theta);
+  camera.position.copy(controls.target).add(offset);
+  camera.lookAt(controls.target);
+  STATE.cameraManuallyChanged = true;
+}
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
