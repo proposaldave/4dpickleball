@@ -895,10 +895,14 @@
             margin-top: 16px;
         }
 
-        /* ── "3 reads" teaching diagram section ── */
+        /* ── "3 reads" teaching diagram section ──
+           Padding-top set to 38vh so the section header ("Run this every
+           ball.") lives BELOW the initial viewport. With hero (78vh) + read
+           cards (~12vh) eating the top, this margin-top guarantees the
+           brain-sequence is not visible on page load. */
         .reads-section{
             background: linear-gradient(180deg, rgba(8,16,30,0) 0%, rgba(15,30,55,0.3) 100%);
-            padding-top: 70px;
+            padding-top: 38vh;
         }
         .reads-intro{
             color: #cbd5e1; font-size: 0.98rem; line-height: 1.55;
