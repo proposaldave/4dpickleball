@@ -252,8 +252,8 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div id="help-popup">
   <h4>Controls</h4>
   <div class="help-row">
-    <div class="keys"><span>L-CLICK</span><span>SPACE</span></div>
-    <div class="desc">Hold to ready · release to let the ball go out</div>
+    <div class="keys"><span>HOLD L-CLICK</span></div>
+    <div class="desc">Press &amp; hold the WHOLE stroke · release only to let the ball go out</div>
   </div>
   <div class="help-row">
     <div class="keys"><span>R-CLICK</span><span>ENTER</span></div>
@@ -280,9 +280,9 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div class="progress-dots" id="progress-dots"></div>
 
 <div class="center-prompt" id="center-prompt">
-  <div class="cp-eyebrow" id="cp-eyebrow">Hold left click to get ready</div>
+  <div class="cp-eyebrow" id="cp-eyebrow">Press &amp; hold left mouse to ready up</div>
   <p class="cp-headline" id="cp-headline">Read the speed.</p>
-  <p class="cp-sub" id="cp-sub">Release to let it go out · Right click to hit</p>
+  <p class="cp-sub" id="cp-sub">KEEP HOLDING through the stroke · Release for OUT · Right click to HIT</p>
 </div>
 
 <div class="verdict" id="verdict">
@@ -309,10 +309,10 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
     <div class="pg-eyebrow">Before you start</div>
     <h2 class="pg-h">Two keys. One decision.</h2>
     <div class="pg-key">
-      <kbd>LEFT CLICK</kbd>
+      <kbd>HOLD LEFT</kbd>
       <div>
-        <div class="pg-key-name">Hold</div>
-        <div class="pg-key-desc">Get into ready position. <strong>Release</strong> if the ball is going out.</div>
+        <div class="pg-key-name">Hold the entire stroke</div>
+        <div class="pg-key-desc">Press &amp; hold left mouse the whole time. <strong>Release</strong> only when the ball is going OUT.</div>
       </div>
     </div>
     <div class="pg-key">
@@ -462,15 +462,18 @@ const BASELINE_Z = 22;   // court half-length, used as "ball flew out past basel
 //   Real-time base (speed 1.0) = shot durations calibrated to R22 ball speeds:
 //   OUT 1.05s/52ft ≈ 34 mph banger · VOLLEY 0.85s/30ft ≈ 24 mph drive.
 const LEVELS = [
-  { num:1, name:'Warmup Speed', pos:'Opponent at baseline',  oppZ:-22, speed:0.55, pass:3 },
-  { num:2, name:'Game Speed',   pos:'Opponent at baseline',  oppZ:-22, speed:0.92, pass:3 },
-  { num:3, name:'Tour Speed',  pos:'Opponent at baseline',  oppZ:-22, speed:1.30, pass:3 },
-  { num:4, name:'Warmup Speed', pos:'Opponent mid-court',    oppZ:-14, speed:0.70, pass:4 },
-  { num:5, name:'Game Speed',   pos:'Opponent mid-court',    oppZ:-14, speed:1.10, pass:4 },
-  { num:6, name:'Tour Speed',  pos:'Opponent mid-court',    oppZ:-14, speed:1.55, pass:4 },
-  { num:7, name:'Warmup Speed', pos:'Opponent at kitchen',   oppZ:-8,  speed:0.82, pass:4 },
-  { num:8, name:'Game Speed',   pos:'Opponent at kitchen',   oppZ:-7,  speed:1.25, pass:4 },
-  { num:9, name:'Tour Speed',  pos:'Opponent at kitchen',   oppZ:-7,  speed:1.75, pass:4 }
+  // Speeds rebalanced 2026-04-20 — overall reduction (~20%) AND extra
+  // softening on kitchen rounds. Goal: first few rounds doable for new
+  // players, kitchen rounds challenging-but-fair.
+  { num:1, name:'Warmup Speed', pos:'Opponent at baseline',  oppZ:-22, speed:0.45, pass:3 },
+  { num:2, name:'Game Speed',   pos:'Opponent at baseline',  oppZ:-22, speed:0.72, pass:3 },
+  { num:3, name:'Tour Speed',  pos:'Opponent at baseline',  oppZ:-22, speed:1.00, pass:3 },
+  { num:4, name:'Warmup Speed', pos:'Opponent mid-court',    oppZ:-14, speed:0.55, pass:4 },
+  { num:5, name:'Game Speed',   pos:'Opponent mid-court',    oppZ:-14, speed:0.85, pass:4 },
+  { num:6, name:'Tour Speed',  pos:'Opponent mid-court',    oppZ:-14, speed:1.20, pass:4 },
+  { num:7, name:'Warmup Speed', pos:'Opponent at kitchen',   oppZ:-8,  speed:0.65, pass:4 },
+  { num:8, name:'Game Speed',   pos:'Opponent at kitchen',   oppZ:-7,  speed:0.95, pass:4 },
+  { num:9, name:'Tour Speed',  pos:'Opponent at kitchen',   oppZ:-7,  speed:1.30, pass:4 }
 ];
 const SHOTS_PER_LEVEL = 5;
 
@@ -1191,9 +1194,9 @@ function nextTrial(){
   document.getElementById('btn-ready').classList.remove('active');
   document.getElementById('btn-swing').classList.remove('active');
   document.getElementById('verdict').classList.remove('on');
-  document.getElementById('cp-eyebrow').textContent = 'Hold left click to get ready';
+  document.getElementById('cp-eyebrow').textContent = 'Press & hold left mouse to ready up';
   document.getElementById('cp-headline').textContent = 'Read the speed.';
-  document.getElementById('cp-sub').textContent = 'Release to let it go out · Right click to hit';
+  document.getElementById('cp-sub').textContent = 'KEEP HOLDING through the stroke · Release for OUT · Right click to HIT';
   document.getElementById('center-prompt').style.opacity = '1';
   setLevelHUD();
 }
