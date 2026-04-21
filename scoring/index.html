@@ -171,15 +171,15 @@
     .hd-serve  { background: var(--team-serve);  color: var(--team-serve); }
     .hd-return { background: var(--team-return); color: var(--team-return); }
 
-    /* Static start-of-point formation — all four visible, no collapse on reduced-motion */
-    #hero-server           { left: 98%; top: 25%; }
-    #hero-server-partner   { left: 98%; top: 75%; }
-    #hero-returner         { left: 2%;  top: 75%; }
-    #hero-returner-partner { left: 31%; top: 25%; }
+    /* Static start-of-point formation — servers behind LEFT baseline, returners on RIGHT (matches scoreboard) */
+    #hero-server           { left: -4%; top: 25%; }
+    #hero-server-partner   { left: -4%; top: 75%; }
+    #hero-returner         { left: 104%; top: 75%; }
+    #hero-returner-partner { left: 69%; top: 25%; }
 
     .hero-ball {
         position: absolute; width: 10px; height: 10px;
-        left: 96%; top: 25%;
+        left: -2%; top: 25%;
         background: var(--nepc-green); border-radius: 50%;
         box-shadow: 0 0 16px var(--nepc-green);
         z-index: 4; transform: translate(-50%, -50%);
@@ -1152,7 +1152,6 @@
                 </div>
 
                 <div id="simulator-ui" style="display:none;">
-                    <p class="sim-prompt">What happens next?</p>
                     <div id="answer-options"></div>
                     <div id="sim-feedback" class="slim-instruction sim-feedback">
                         <div id="sim-feedback-text" class="instruction-text">Correct!</div>
@@ -1578,18 +1577,18 @@ function setServingPlayer(n) {
 // =========================================================
 const steps = [
     {
-        header: "The Start", step: "Who stands where",
+        header: "The Start", step: "Starting position",
         text: "",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: false,
         server: 1,
         tooltips: { p1: "Server", p2: "Server's Partner", p3: "Returner", p4: "Returner's Partner" },
-        animSequence: async (id) => { setBall('96%', '25%', true); }
+        animSequence: async (id) => { setBall('-2%', '25%', true); }
     },
     {
         header: "The Kitchen", step: "Non-Volley Zone",
         text: "",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: false,
         static: true,
         tooltips: {},
@@ -1600,91 +1599,91 @@ const steps = [
     {
         header: "The Serve", step: "Diagonal, past the kitchen",
         text: "",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: false,
         server: 1,
         tooltips: { p1: "Serves" },
-        onEnter: () => { setKitchenPulse(true); setServeTarget({left:'0%', top:'50%', width:'34.1%', height:'50%'}); },
+        onEnter: () => { setKitchenPulse(true); setServeTarget({left:'65.9%', top:'50%', width:'34.1%', height:'50%'}); },
         onExit:  () => { setKitchenPulse(false); setServeTarget(null); },
         animSequence: async (id) => {
-            setBall('96%','25%',true);
+            setBall('-2%','25%',true);
             if (!await sleep(500, id)) return;
-            if (!await moveBall('34.1%','75%', id)) return;
-            spawnScorePopup('34.1%','75%','FAULT','var(--nepc-red)', true);
+            if (!await moveBall('65.9%','75%', id)) return;
+            spawnScorePopup('65.9%','75%','FAULT','var(--nepc-red)', true);
             if (!await sleep(1200, id)) return;
-            if (!await moveBall('96%','25%', id, 500)) return;
+            if (!await moveBall('-2%','25%', id, 500)) return;
             if (!await sleep(400, id)) return;
-            if (!await moveBall('15%','75%', id)) return;
-            spawnBounceRing('15%','75%');
-            spawnScorePopup('15%','75%','IN','var(--nepc-green)');
+            if (!await moveBall('85%','75%', id)) return;
+            spawnBounceRing('85%','75%');
+            spawnScorePopup('85%','75%','IN','var(--nepc-green)');
         }
     },
     {
         header: "Two-Bounce Rule", step: "One bounce each side first",
         text: "",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: false,
         tooltips: {},
         animSequence: async (id) => {
-            setBall('96%','25%',true);
+            setBall('-2%','25%',true);
             if (!await sleep(500, id)) return;
-            if (!await moveBall('15%','75%', id)) return;
-            spawnBounceRing('15%','75%');
+            if (!await moveBall('85%','75%', id)) return;
+            spawnBounceRing('85%','75%');
             if (!await sleep(300, id)) return;
-            if (!await moveBall('85%','25%', id)) return;
-            spawnBounceRing('85%','25%');
+            if (!await moveBall('15%','25%', id)) return;
+            spawnBounceRing('15%','25%');
             if (!await sleep(300, id)) return;
-            await moveBall('96%','25%', id);
+            await moveBall('-2%','25%', id);
         }
     },
     {
-        header: "Return & Run", step: "Return, then sprint up",
+        header: "Return & Run", step: "Return & Run",
         text: "",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: false,
         tooltips: { p3: "Return & Run!" },
         animSequence: async (id) => {
-            setBall('96%','25%',true);
+            setBall('-2%','25%',true);
             if (!await sleep(300, id)) return;
-            if (!await moveBall('2%','75%', id)) return;
+            if (!await moveBall('104%','75%', id)) return;
             if (!await sleep(200, id)) return;
-            moveBall('85%','25%', id);
-            document.getElementById('p3').style.left = '31%';
+            moveBall('15%','25%', id);
+            document.getElementById('p3').style.left = '69%';
             if (!await sleep(1000, id)) return;
-            document.getElementById('p3').style.left = '2%';
+            document.getElementById('p3').style.left = '104%';
         }
     },
     {
         header: "Foot Fault", step: "Foot Fault",
         text: "You cannot hit the ball out of the air while touching the non-volley-zone.",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: false,
         tooltips: {},
         onEnter: () => setKitchenPulse(true),
         onExit:  () => setKitchenPulse(false),
         animSequence: async (id) => {
-            setBall('85%','75%',true);
+            setBall('15%','75%',true);
             if (!await sleep(500, id)) return;
-            document.getElementById('p4').style.left = '45%';
-            if (!await moveBall('45%','25%', id)) return;
-            spawnScorePopup('45%','25%','FOOT FAULT','var(--nepc-red)', true);
+            document.getElementById('p4').style.left = '55%';
+            if (!await moveBall('55%','25%', id)) return;
+            spawnScorePopup('55%','25%','FOOT FAULT','var(--nepc-red)', true);
             if (!await sleep(1500, id)) return;
-            document.getElementById('p4').style.left = '31%';
+            document.getElementById('p4').style.left = '69%';
         }
     },
     {
         header: "Who Scores", step: "Only the serving team",
         text: "",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         tooltips: { p1: "Serving Team", p3: "Receiving Team" },
         animSequence: async (id) => {
-            setBall('96%','25%',true);
+            setBall('-2%','25%',true);
             if (!await sleep(500, id)) return;
-            if (!await moveBall('31%','75%', id)) return;
-            if (!await moveBall('96%','25%', id)) return;
-            spawnScorePopup('80%','50%',"+1 POINT","var(--team-serve)");
+            if (!await moveBall('69%','75%', id)) return;
+            if (!await moveBall('-2%','25%', id)) return;
+            spawnScorePopup('20%','50%',"+1 POINT","var(--team-serve)");
             document.getElementById('s-val-1').classList.add('highlight');
             if (!await sleep(1000, id)) return;
             document.getElementById('s-val-1').classList.remove('highlight');
@@ -1693,13 +1692,13 @@ const steps = [
     {
         header: "Switching Sides", step: "Winners swap",
         text: "",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'2%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'104%',top:'25%'} },
         showScore: true, score: [1,0,2],
         tooltips: { p1: "Moves down", p2: "Moves up" },
         animSequence: async (id) => {
-            setBall('96%','25%', false);
+            setBall('-2%','25%', false);
             if (!await sleep(600, id)) return;
-            spawnScorePopup('80%','50%',"+1 POINT","var(--team-serve)");
+            spawnScorePopup('20%','50%',"+1 POINT","var(--team-serve)");
             if (!await sleep(700, id)) return;
             document.getElementById('p1').style.top = '75%';
             document.getElementById('p2').style.top = '25%';
@@ -1709,33 +1708,33 @@ const steps = [
     {
         header: "Sideout", step: "Serve flips teams",
         text: "When the serving team loses a rally on the second server, the other team takes over the serve. That's a <strong>\"sideout\"</strong>.",
-        positions: { p1:{left:'98%',top:'75%'}, p2:{left:'98%',top:'25%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [0,1,1],
         server: 3,
         tooltips: { p1: "Lost rally", p3: "New Server" },
         animSequence: async (id) => {
-            setBall('96%','75%',true);
+            setBall('-2%','75%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('31%','75%', id)) return;
-            spawnScorePopup('20%','50%',"SIDEOUT","var(--team-return)");
+            if (!await moveBall('69%','75%', id)) return;
+            spawnScorePopup('80%','50%',"SIDEOUT","var(--team-return)");
             if (!await sleep(700, id)) return;
-            if (!await moveBall('2%','75%', id, 450)) return;
+            if (!await moveBall('104%','75%', id, 450)) return;
         }
     },
     {
         header: "Server 2", step: "Partner gets a turn",
         text: "",
-        positions: { p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'}, p1:{left:'98%',top:'75%'}, p2:{left:'98%',top:'25%'} },
+        positions: { p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'}, p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'} },
         showScore: true, score: [0,1,2],
         server: 1,
         tooltips: { p2: "Lost rally", p1: "Server 2 up" },
         animSequence: async (id) => {
-            setBall('96%','25%',true);
+            setBall('-2%','25%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('2%','75%', id)) return;
+            if (!await moveBall('104%','75%', id)) return;
             spawnScorePopup('50%','50%',"SECOND SERVE","var(--nepc-blue)");
             if (!await sleep(700, id)) return;
-            if (!await moveBall('96%','75%', id, 550)) return;
+            if (!await moveBall('-2%','75%', id, 550)) return;
         }
     }
 ];
@@ -1750,7 +1749,7 @@ const scenarios = [
         correct: "0-0-2",
         options: ["0-0-2","0-0-1","0-0-0"],
         explain: "Every pickleball game starts at <strong>0-0-2</strong>. The third number is the server number &mdash; but the first server of the game is treated as <em>Server 2</em> so only one player gets to serve before the first sideout. It's a one-time quirk.",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         ballHolder: 1
@@ -1758,10 +1757,10 @@ const scenarios = [
     {
         step: "Scenario 2 of 6",
         text: "Red wins the rally. What happens next?",
-        correct: "Red switches sides, 1-0-2",
-        options: ["Red switches sides, 1-0-2","Red stays put, 1-0-2","Green switches sides, 0-1-1"],
+        correct: "Red players swap positions, 1-0-2",
+        options: ["Red players swap positions, 1-0-2","Red stays put, 1-0-2","Green switches sides, 0-1-1"],
         explain: "Only the <strong>serving team</strong> switches sides when they score. The returning team stays put. This keeps the server on the right side for even scores and left for odd &mdash; a fast cue for correctness during a long match.",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         ballHolder: 1
@@ -1772,7 +1771,7 @@ const scenarios = [
         correct: "Fault",
         options: ["Fault","Play On","Let &mdash; Re-serve"],
         explain: "The serve must <strong>land past the kitchen line</strong>. Every other boundary line is in, but the kitchen line is a fault. If it was a first serve, it's now second serve. If it was second, it's a sideout.",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [1,0,2],
         server: 1,
         ballHolder: 1
@@ -1783,7 +1782,7 @@ const scenarios = [
         correct: "Kitchen violation &mdash; fault",
         options: ["Kitchen violation &mdash; fault","Point for Green","Play On"],
         explain: "You cannot <strong>volley</strong> (hit before the ball bounces) while any part of you touches the kitchen. Even your momentum carrying you into the zone <em>after</em> the shot is a fault. That's why it's called the Non-Volley Zone.",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'45%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'55%',top:'25%'} },
         showScore: true, score: [2,1,1],
         ballHolder: 4
     },
@@ -1793,7 +1792,7 @@ const scenarios = [
         correct: "Server 2's turn &mdash; 5-3-2",
         options: ["Server 2's turn &mdash; 5-3-2","Sideout to Green, 3-5-1","Green gets +1 point"],
         explain: "When Server 1 loses, their <strong>partner</strong>  takes over as Server 2. The score doesn't change &mdash; only the third digit flips from 1 to 2. The team keeps serving until both partners lose.",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [5,3,1],
         server: 1,
         ballHolder: 0
@@ -1804,7 +1803,7 @@ const scenarios = [
         correct: "Sideout &mdash; Green serves, 3-5-1",
         options: ["Sideout &mdash; Green serves, 3-5-1","Server 2 tries again","Score becomes 5-3-0"],
         explain: "Both Red servers have lost. Serve goes to Green &mdash; <strong>that's a sideout</strong>. Notice the score flips: Green's 3 is now first because they're serving. Green starts as Server 1.",
-        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [5,3,2],
         server: 2,
         ballHolder: 0
@@ -1973,8 +1972,10 @@ async function renderStep(s) {
             const holder = document.getElementById(`p${s.ballHolder}`);
             const pLeft = parseFloat(holder.style.left);
             const pTop  = parseFloat(holder.style.top);
-            const xOffset = pLeft > 50 ? '-18px' : '18px';
-            setBall(`calc(${pLeft}% + ${xOffset})`, `${pTop}%`, true);
+            // Use pure percentage so moveBall's parseFloat can read it. Nudge 2% inside the court
+            // so the ball is visually next to the player without relying on calc().
+            const ballLeft = pLeft > 50 ? (pLeft - 2) : (pLeft + 2);
+            setBall(`${ballLeft}%`, `${pTop}%`, true);
         } else setBall('0','0',false);
     }
 
