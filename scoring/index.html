@@ -60,9 +60,11 @@
         color: #fff;
         font-family: 'Inter', system-ui, sans-serif;
         min-height: 100vh;
+        min-height: 100dvh; /* Handles mobile browser chrome collapse */
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
         text-rendering: optimizeLegibility;
+        overscroll-behavior-y: none;
     }
 
     body {
@@ -101,6 +103,11 @@
         position: relative; z-index: 1;
         width: 100%; max-width: 680px;
         padding: clamp(14px, 3vw, 24px);
+        /* Respect iPhone notch / Android nav bar */
+        padding-left:  max(clamp(14px, 3vw, 24px), env(safe-area-inset-left));
+        padding-right: max(clamp(14px, 3vw, 24px), env(safe-area-inset-right));
+        padding-top:    max(clamp(14px, 3vw, 24px), env(safe-area-inset-top));
+        padding-bottom: max(clamp(14px, 3vw, 24px), env(safe-area-inset-bottom));
         display: flex; flex-direction: column;
         gap: clamp(12px, 2.2vw, 16px);
     }
@@ -164,46 +171,23 @@
     .hd-serve  { background: var(--team-serve);  color: var(--team-serve); }
     .hd-return { background: var(--team-return); color: var(--team-return); }
 
-    #hero-server          { animation: heroServer 7s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-    #hero-server-partner  { animation: heroServerPartner 7s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-    #hero-returner        { animation: heroReturner 7s infinite cubic-bezier(0.4, 0, 0.2, 1); }
-    #hero-returner-partner { left: 34%; top: 25%; }
-
-    /* All four start visible at start-of-point formation, then rally, then reset */
-    @keyframes heroServer {
-        0%, 18%   { left: 96%; top: 25%; }            /* ready behind baseline */
-        40%       { left: 96%; top: 25%; }            /* holds during serve + two-bounce */
-        65%, 82%  { left: 69%; top: 25%; }            /* advances to NVZ after return */
-        95%, 100% { left: 96%; top: 25%; }            /* reset to ready */
-    }
-    @keyframes heroServerPartner {
-        0%, 18%   { left: 96%; top: 75%; }
-        40%       { left: 96%; top: 75%; }
-        65%, 82%  { left: 69%; top: 75%; }
-        95%, 100% { left: 96%; top: 75%; }
-    }
-    @keyframes heroReturner {
-        0%, 18%   { left: 4%; top: 75%; }             /* ready to receive */
-        32%       { left: 4%; top: 75%; }             /* hits return */
-        55%, 82%  { left: 34%; top: 75%; }            /* runs to NVZ */
-        95%, 100% { left: 4%; top: 75%; }             /* reset */
-    }
+    /* Static start-of-point formation — all four visible, no collapse on reduced-motion */
+    #hero-server           { left: 98%; top: 25%; }
+    #hero-server-partner   { left: 98%; top: 75%; }
+    #hero-returner         { left: 2%;  top: 75%; }
+    #hero-returner-partner { left: 31%; top: 25%; }
 
     .hero-ball {
         position: absolute; width: 10px; height: 10px;
+        left: 96%; top: 25%;
         background: var(--nepc-green); border-radius: 50%;
         box-shadow: 0 0 16px var(--nepc-green);
         z-index: 4; transform: translate(-50%, -50%);
-        animation: heroBall 7s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        animation: heroBallPulse 2.6s infinite ease-in-out;
     }
-    @keyframes heroBall {
-        0%, 14%  { left: 94%; top: 25%; opacity: 1; } /* in server's hand */
-        28%      { left: 15%; top: 75%; opacity: 1; } /* served deep cross-court */
-        42%      { left: 85%; top: 25%; opacity: 1; } /* returned deep */
-        58%      { left: 34%; top: 75%; opacity: 1; } /* 3rd shot drop */
-        72%      { left: 66%; top: 25%; opacity: 1; } /* dink back */
-        86%      { left: 34%; top: 75%; opacity: 0; } /* rally fades */
-        100%     { left: 94%; top: 25%; opacity: 1; } /* reset for next loop */
+    @keyframes heroBallPulse {
+        0%, 100% { box-shadow: 0 0 10px var(--nepc-green); transform: translate(-50%, -50%) scale(1); }
+        50%      { box-shadow: 0 0 22px var(--nepc-green); transform: translate(-50%, -50%) scale(1.15); }
     }
 
     /* Intro heading */
@@ -360,6 +344,8 @@
             radial-gradient(ellipse at center, var(--court-blue-bright) 0%, var(--court-blue) 70%);
         overflow: visible;
         box-shadow: inset 0 0 60px rgba(0,0,0,0.25);
+        contain: layout paint;
+        transform: translateZ(0); /* GPU layer promotion */
     }
 
     .kitchen-area {
@@ -420,6 +406,8 @@
         font-size: clamp(12px, 2.8vw, 14px);
         color: #fff; transform: translate(-50%, -50%);
         border: 2px solid rgba(255,255,255,0.55);
+        will-change: transform, left, top;
+        backface-visibility: hidden;
     }
     #p1, #p2 {
         background: radial-gradient(circle at 30% 30%, #FCA5A5, var(--team-serve-deep));
@@ -440,6 +428,8 @@
         transition: all 0.6s linear;
         transform: translate(-50%, -50%);
         display: none;
+        will-change: transform, left, top;
+        backface-visibility: hidden;
     }
     .ball.idle { animation: ballIdle 2.5s infinite alternate ease-in-out; }
     @keyframes ballIdle {
@@ -518,43 +508,110 @@
     }
 
     /* =========================================================
-       SCOREBOARD
+       SCOREBOARD — fused below the court like a stadium display
        ========================================================= */
     .scoreboard {
-        display: none; grid-template-columns: 1fr 1fr 1fr;
-        gap: 10px; margin-top: 4px;
-        padding: 12px; border-radius: 14px;
-        background: linear-gradient(135deg, rgba(10, 26, 47, 0.85), rgba(5, 13, 26, 0.9));
-        border: 1px solid var(--glass-border);
-        box-shadow: inset 0 2px 6px rgba(0,0,0,0.4), var(--shadow-1);
+        display: none; grid-template-columns: 1fr 1fr 0.8fr;
+        gap: clamp(6px, 1.4vw, 10px);
+        margin-top: clamp(12px, 2.4vw, 18px);
+        padding: clamp(8px, 1.6vw, 12px);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(5, 13, 26, 0.88), rgba(5, 13, 26, 0.95));
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow:
+            inset 0 2px 6px rgba(0,0,0,0.5),
+            0 6px 18px rgba(0,0,0,0.4);
+        /* Scoreboard "spine" connecting to court */
+        position: relative;
     }
-    .scoreboard.show { display: grid; }
-    .score-box {
-        background: rgba(0,0,0,0.35); padding: 10px 6px;
-        border-radius: 10px; text-align: center;
-        border: 1px solid rgba(255,255,255,0.04);
-        position: relative; overflow: hidden;
-    }
-    .score-box::before {
-        content: ''; position: absolute; inset: 0;
-        background: linear-gradient(180deg, rgba(77, 166, 255, 0.08), transparent 50%);
+    .scoreboard::before {
+        content: ''; position: absolute;
+        top: -6px; left: 50%; transform: translateX(-50%);
+        width: 42%; height: 6px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent);
         pointer-events: none;
     }
+    .scoreboard.show { display: grid; }
+
+    .score-box {
+        background: rgba(255,255,255,0.03);
+        padding: clamp(8px, 1.8vw, 12px) clamp(4px, 1vw, 8px);
+        border-radius: 10px; text-align: center;
+        border: 1px solid rgba(255,255,255,0.05);
+        position: relative; overflow: hidden;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        min-height: 64px;
+    }
+    .score-box.score-serve {
+        background: linear-gradient(180deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.04));
+        border-color: rgba(239, 68, 68, 0.30);
+    }
+    .score-box.score-serve .score-num { color: #FCA5A5; text-shadow: 0 0 14px rgba(239, 68, 68, 0.6); }
+    .score-box.score-receive {
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(16, 185, 129, 0.04));
+        border-color: rgba(16, 185, 129, 0.30);
+    }
+    .score-box.score-receive .score-num { color: #6EE7B7; text-shadow: 0 0 14px rgba(16, 185, 129, 0.55); }
+    .score-box.score-server-num .score-num { color: var(--nepc-blue); }
+
+    .score-box::after {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+        pointer-events: none;
+    }
+
     .score-num {
-        font-family: 'Montserrat'; font-weight: 800;
-        font-size: clamp(22px, 6vw, 30px); color: var(--nepc-blue);
-        text-shadow: 0 0 12px rgba(77, 166, 255, 0.6);
+        font-family: 'Montserrat'; font-weight: 900;
+        font-size: clamp(26px, 7vw, 36px); color: var(--nepc-blue);
+        text-shadow: 0 0 12px rgba(77, 166, 255, 0.55);
         line-height: 1; font-variant-numeric: tabular-nums;
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .score-num.highlight {
         color: var(--nepc-green); transform: scale(1.18);
         text-shadow: 0 0 16px var(--nepc-green);
     }
+    .score-num.pop { animation: scorePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes scorePop {
+        0%   { transform: scale(1); }
+        40%  { transform: scale(1.32); filter: brightness(1.35); }
+        100% { transform: scale(1); }
+    }
     .score-label {
-        font-size: 9.5px; text-transform: uppercase;
-        letter-spacing: 1.2px; opacity: 0.65;
+        font-size: clamp(9px, 1.6vw, 10.5px);
+        text-transform: uppercase;
+        letter-spacing: 1.2px; opacity: 0.7;
         margin-top: 6px; line-height: 1.2; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        gap: 5px;
+    }
+
+    /* =========================================================
+       SERVING PLAYER INDICATOR (pulses around active server)
+       ========================================================= */
+    .player.serving-indicator::before {
+        content: ''; position: absolute; inset: -6px;
+        border-radius: 50%; border: 2px solid var(--nepc-green);
+        box-shadow: 0 0 16px var(--nepc-green);
+        animation: servePulse 1.4s infinite ease-in-out;
+        pointer-events: none;
+    }
+    @keyframes servePulse {
+        0%, 100% { transform: scale(1);   opacity: 0.9; }
+        50%      { transform: scale(1.15); opacity: 0.4; }
+    }
+
+    /* =========================================================
+       SIM PROMPT (What happens next?)
+       ========================================================= */
+    .sim-prompt {
+        font-family: 'Montserrat'; font-weight: 800;
+        text-transform: uppercase;
+        margin: 4px 0 10px;
+        font-size: clamp(11px, 2.4vw, 13px);
+        letter-spacing: 2px; color: var(--nepc-blue);
+        text-align: center;
     }
 
     /* =========================================================
@@ -850,17 +907,31 @@
     /* =========================================================
        RESPONSIVE
        ========================================================= */
-    @media (min-width: 768px) {
-        .app { max-width: 780px; padding: 28px; gap: 18px; }
+
+    /* Tablet portrait — 600-1023px */
+    @media (min-width: 600px) {
+        .app { max-width: 720px; padding: clamp(18px, 3vw, 28px); gap: 16px; }
         .hero-container { aspect-ratio: 21 / 8; }
         .slim-instruction { padding: 16px 22px; }
-        .btn-answer { font-size: 17px; min-height: 58px; }
+        .btn-answer { font-size: 16px; min-height: 56px; }
+        .scoreboard { grid-template-columns: 1fr 1fr 0.7fr; }
+        .score-num { font-size: clamp(28px, 4.5vw, 34px); }
     }
 
+    /* Landscape phone: keep UI visible above the keyboard / chrome */
+    @media (max-height: 540px) and (orientation: landscape) {
+        .hero-container { aspect-ratio: 21 / 6; }
+        .app { gap: 10px; padding: 12px; }
+        .court-wrapper { padding: 18px 24px; }
+        .scoreboard { margin-top: 8px; padding: 8px; }
+        .score-num { font-size: 22px; }
+        .btn { min-height: 46px; }
+    }
+
+    /* Desktop — two-column 1024+ */
     @media (min-width: 1024px) {
         .app { max-width: 1180px; padding: 36px; }
 
-        /* Desktop two-column layout for main screen */
         #main-screen.active { display: grid !important; }
         #main-screen {
             grid-template-columns: 1fr;
@@ -883,6 +954,8 @@
         .hero-container { aspect-ratio: 21 / 7; }
         .intro-heading { font-size: 38px; }
         .court-wrapper { padding: 52px 60px; }
+        .scoreboard { grid-template-columns: 1fr 1fr 0.65fr; }
+        .score-num { font-size: 34px; }
 
         /* Two-column answer grid on desktop */
         #answer-options.multi {
@@ -891,6 +964,7 @@
         #answer-options.multi .btn-answer { margin-bottom: 0; }
     }
 
+    /* Ultra-wide — 1440+ */
     @media (min-width: 1440px) {
         .app { max-width: 1320px; }
     }
@@ -900,6 +974,13 @@
         .app { padding: 12px; gap: 10px; }
         .court-wrapper { padding: 20px 24px; }
         .btn { min-height: 50px; }
+        .score-label { font-size: 8.5px; letter-spacing: 0.8px; }
+    }
+
+    /* Respect touch targets: all tappable elements min 44px (Apple HIG) */
+    @media (pointer: coarse) {
+        .btn, .btn-answer, .control-btn, .replay-btn, .mute-toggle { min-height: 48px; }
+        .pdot { height: 8px; } /* Easier to tap */
     }
     </style>
 </head>
@@ -1026,6 +1107,21 @@
                         <div id="p4" class="player">4</div>
                         <div id="ball" class="ball"></div>
                     </div>
+
+                    <div id="score-display-area" class="scoreboard" role="status" aria-live="polite" aria-label="Game score">
+                        <div class="score-box score-serve">
+                            <div id="s-val-1" class="score-num">0</div>
+                            <div class="score-label"><span class="team-pip pip-red"></span>Serving</div>
+                        </div>
+                        <div class="score-box score-receive">
+                            <div id="s-val-2" class="score-num">0</div>
+                            <div class="score-label"><span class="team-pip pip-green"></span>Receiving</div>
+                        </div>
+                        <div class="score-box score-server-num">
+                            <div id="s-val-3" class="score-num">2</div>
+                            <div class="score-label">Server #</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1033,21 +1129,6 @@
                 <div class="slim-instruction" id="text-box">
                     <div id="step-id" class="step-label">Step 1</div>
                     <div id="step-text" class="instruction-text">Loading&hellip;</div>
-                </div>
-
-                <div id="score-display-area" class="scoreboard">
-                    <div class="score-box">
-                        <div id="s-val-1" class="score-num">0</div>
-                        <div class="score-label"><span class="team-pip pip-red"></span>Serving<br>Team</div>
-                    </div>
-                    <div class="score-box">
-                        <div id="s-val-2" class="score-num">0</div>
-                        <div class="score-label"><span class="team-pip pip-green"></span>Receiving<br>Team</div>
-                    </div>
-                    <div class="score-box">
-                        <div id="s-val-3" class="score-num">2</div>
-                        <div class="score-label">Server<br>Number</div>
-                    </div>
                 </div>
 
                 <div id="lesson-ui">
@@ -1071,14 +1152,15 @@
                 </div>
 
                 <div id="simulator-ui" style="display:none;">
-                    <p style="font-family: 'Montserrat'; font-weight: 800; text-transform: uppercase; margin: 4px 0 8px; font-size: 12px; letter-spacing: 2px; color: var(--nepc-blue); text-align: center;">
-                        What happens next?
-                    </p>
+                    <p class="sim-prompt">What happens next?</p>
                     <div id="answer-options"></div>
                     <div id="sim-feedback" class="slim-instruction sim-feedback">
                         <div id="sim-feedback-text" class="instruction-text">Correct!</div>
                         <div id="sim-feedback-explain" class="sim-feedback-explain"></div>
                         <button id="sim-next-btn" class="btn btn-primary" style="margin-top: 14px; min-height: 48px;" onclick="nextScenario()">Next Scenario &rarr;</button>
+                    </div>
+                    <div class="button-group" style="margin-top: 10px;">
+                        <button id="sim-back-btn" class="btn btn-outline" onclick="prevScenario()">&larr; Back</button>
                     </div>
                 </div>
             </div>
@@ -1128,7 +1210,7 @@
         </div>
 
         <div class="button-group">
-            <a href="https://nepclub.com" target="_blank" rel="noopener" class="btn btn-primary" style="text-decoration: none;">Play at NEPC</a>
+            <a href="https://www.newenglandpickleball.com/" target="_blank" rel="noopener" class="btn btn-primary" style="text-decoration: none;">Play at NEPC</a>
             <button id="share-btn" class="btn btn-outline" onclick="shareResult()">Share Score</button>
         </div>
         <div class="button-group">
@@ -1434,21 +1516,80 @@ document.addEventListener('keydown', (e) => {
 });
 
 // =========================================================
+// HAPTICS (mobile) — tiny, non-intrusive pulses
+// =========================================================
+function hapticTap()     { if (navigator.vibrate) try { navigator.vibrate(8);  } catch(e){} }
+function hapticSuccess() { if (navigator.vibrate) try { navigator.vibrate([12, 40, 18]); } catch(e){} }
+function hapticFail()    { if (navigator.vibrate) try { navigator.vibrate([40, 30, 40]); } catch(e){} }
+
+// =========================================================
+// SERVING PLAYER INDICATOR
+// =========================================================
+function setServingPlayer(n) {
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`p${i}`).classList.toggle('serving-indicator', i === n);
+    }
+}
+
+// =========================================================
+// SWIPE GESTURES — mobile navigation
+// =========================================================
+(function setupSwipe() {
+    let startX = 0, startY = 0, startT = 0, tracking = false;
+    const SWIPE_MIN = 60;     // px
+    const SWIPE_MAX_OFF = 80; // px perpendicular tolerance
+    const SWIPE_MAX_TIME = 700;
+
+    function onStart(e) {
+        // Only honor swipes that begin on the main-screen body (not on a button)
+        const t = e.target;
+        if (t.closest('button, a, input, textarea, .btn, .btn-answer, .pdot, .mute-toggle')) return;
+        if (!document.getElementById('main-screen').classList.contains('active')) return;
+        const p = e.touches ? e.touches[0] : e;
+        startX = p.clientX; startY = p.clientY; startT = Date.now();
+        tracking = true;
+    }
+    function onEnd(e) {
+        if (!tracking) return;
+        tracking = false;
+        const p = e.changedTouches ? e.changedTouches[0] : e;
+        const dx = p.clientX - startX;
+        const dy = p.clientY - startY;
+        const dt = Date.now() - startT;
+        if (dt > SWIPE_MAX_TIME) return;
+        if (Math.abs(dy) > SWIPE_MAX_OFF) return;
+        if (Math.abs(dx) < SWIPE_MIN) return;
+        if (dx < 0) {
+            // Swipe left = next
+            if (mode === 'lesson' && !document.getElementById('next-btn').disabled) { hapticTap(); nextStep(); }
+            else if (mode === 'simulator' && document.getElementById('sim-feedback').style.display === 'block') { hapticTap(); nextScenario(); }
+        } else {
+            // Swipe right = back
+            if (mode === 'lesson' && !document.getElementById('lesson-back-btn').disabled) { hapticTap(); prevStep(); }
+            else if (mode === 'simulator') { hapticTap(); prevScenario(); }
+        }
+    }
+    document.addEventListener('touchstart', onStart, { passive: true });
+    document.addEventListener('touchend',   onEnd,   { passive: true });
+})();
+
+// =========================================================
 // LESSON DATA
 // =========================================================
 const steps = [
     {
         header: "The Start", step: "Who stands where",
-        text: "<strong>Red</strong> serves. <strong>Green</strong> returns. Everyone has a job &mdash; let's meet them.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        text: "",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: false,
+        server: 1,
         tooltips: { p1: "Server", p2: "Server's Partner", p3: "Returner", p4: "Returner's Partner" },
-        animSequence: async (id) => { setBall(`calc(96% - 18px)`, '25%', true); }
+        animSequence: async (id) => { setBall('96%', '25%', true); }
     },
     {
-        header: "Meet the Kitchen", step: "Non-Volley Zone",
-        text: "The red strips either side of the net are <strong>The Kitchen</strong> &mdash; officially the <strong>Non-Volley Zone (NVZ)</strong>. You'll hear this word a lot; it has its own rule coming up.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        header: "The Kitchen", step: "Non-Volley Zone",
+        text: "",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: false,
         static: true,
         tooltips: {},
@@ -1457,32 +1598,33 @@ const steps = [
         animSequence: async (id) => { setBall('0','0', false); }
     },
     {
-        header: "The Serve Target", step: "Clearing the line",
-        text: "The serve must land <strong>diagonally</strong>, completely past the Kitchen line. Landing ON the kitchen line is a fault. Any other line is IN.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        header: "The Serve", step: "Diagonal, past the kitchen",
+        text: "",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: false,
-        tooltips: { p1: "Serves Diagonal" },
+        server: 1,
+        tooltips: { p1: "Serves" },
         onEnter: () => { setKitchenPulse(true); setServeTarget({left:'0%', top:'50%', width:'34.1%', height:'50%'}); },
         onExit:  () => { setKitchenPulse(false); setServeTarget(null); },
         animSequence: async (id) => {
             setBall('96%','25%',true);
             if (!await sleep(500, id)) return;
             if (!await moveBall('34.1%','75%', id)) return;
-            spawnScorePopup('34.1%','75%','FAULT: ON LINE!','var(--nepc-red)', true);
+            spawnScorePopup('34.1%','75%','FAULT','var(--nepc-red)', true);
             if (!await sleep(1200, id)) return;
             if (!await moveBall('96%','25%', id, 500)) return;
             if (!await sleep(400, id)) return;
             if (!await moveBall('15%','75%', id)) return;
             spawnBounceRing('15%','75%');
-            spawnScorePopup('15%','75%','GOOD SERVE','var(--nepc-green)');
+            spawnScorePopup('15%','75%','IN','var(--nepc-green)');
         }
     },
     {
-        header: "The Two-Bounce Rule", step: "Watch the ball",
-        text: "The ball must bounce <strong>once on each side</strong> before anyone can hit it in the air. Both serving-team players <strong>stay back</strong> so the ball has room to bounce on their side.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        header: "Two-Bounce Rule", step: "One bounce each side first",
+        text: "",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: false,
-        tooltips: { p1: "Stays back", p2: "Stays back" },
+        tooltips: {},
         animSequence: async (id) => {
             setBall('96%','25%',true);
             if (!await sleep(500, id)) return;
@@ -1496,28 +1638,28 @@ const steps = [
         }
     },
     {
-        header: "Return & Run", step: "Closing the gap",
-        text: "After returning the serve, Player 3 <strong>immediately runs</strong> to the kitchen line.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        header: "Return & Run", step: "Return, then sprint up",
+        text: "",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: false,
         tooltips: { p3: "Return & Run!" },
         animSequence: async (id) => {
             setBall('96%','25%',true);
             if (!await sleep(300, id)) return;
-            if (!await moveBall('4%','75%', id)) return;
+            if (!await moveBall('2%','75%', id)) return;
             if (!await sleep(200, id)) return;
             moveBall('85%','25%', id);
-            document.getElementById('p3').style.left = '34%';
+            document.getElementById('p3').style.left = '31%';
             if (!await sleep(1000, id)) return;
-            document.getElementById('p3').style.left = '4%';
+            document.getElementById('p3').style.left = '2%';
         }
     },
     {
-        header: "The Kitchen Rule", step: "No Volley Zone",
-        text: "You cannot hit the ball <strong>out of the air</strong> while touching the Kitchen zone.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        header: "Foot Fault", step: "Foot Fault",
+        text: "You cannot hit the ball out of the air while touching the non-volley-zone.",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: false,
-        tooltips: { p4: "Volleying from Kitchen" },
+        tooltips: {},
         onEnter: () => setKitchenPulse(true),
         onExit:  () => setKitchenPulse(false),
         animSequence: async (id) => {
@@ -1525,21 +1667,22 @@ const steps = [
             if (!await sleep(500, id)) return;
             document.getElementById('p4').style.left = '45%';
             if (!await moveBall('45%','25%', id)) return;
-            spawnScorePopup('45%','25%','KITCHEN VIOLATION!','var(--nepc-red)', true);
+            spawnScorePopup('45%','25%','FOOT FAULT','var(--nepc-red)', true);
             if (!await sleep(1500, id)) return;
-            document.getElementById('p4').style.left = '34%';
+            document.getElementById('p4').style.left = '31%';
         }
     },
     {
-        header: "Who Scores", step: "Scoring Logic",
-        text: "<strong>Only the serving team</strong> can score points. Return a rally? You get the serve &mdash; not a point.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        header: "Who Scores", step: "Only the serving team",
+        text: "",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: true, score: [0,0,2],
+        server: 1,
         tooltips: { p1: "Serving Team", p3: "Receiving Team" },
         animSequence: async (id) => {
             setBall('96%','25%',true);
             if (!await sleep(500, id)) return;
-            if (!await moveBall('34%','75%', id)) return;
+            if (!await moveBall('31%','75%', id)) return;
             if (!await moveBall('96%','25%', id)) return;
             spawnScorePopup('80%','50%',"+1 POINT","var(--team-serve)");
             document.getElementById('s-val-1').classList.add('highlight');
@@ -1548,11 +1691,11 @@ const steps = [
         }
     },
     {
-        header: "Switching Sides", step: "Winning a point",
-        text: "When the serving team scores, <strong>they switch sides</strong>. The returning team stays put.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'4%',top:'25%'} },
+        header: "Switching Sides", step: "Winners swap",
+        text: "",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'2%',top:'25%'} },
         showScore: true, score: [1,0,2],
-        tooltips: { p1: "Moves down", p2: "Moves up", p4: "Stays put" },
+        tooltips: { p1: "Moves down", p2: "Moves up" },
         animSequence: async (id) => {
             setBall('96%','25%', false);
             if (!await sleep(600, id)) return;
@@ -1564,30 +1707,32 @@ const steps = [
         }
     },
     {
-        header: "Sideout", step: "Losing the Serve",
-        text: "When the serving team <strong>loses a rally</strong> (and Server 2 has also lost), the other team takes over the serve. That's a <strong>sideout</strong>.",
-        positions: { p1:{left:'96%',top:'75%'}, p2:{left:'96%',top:'25%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        header: "Sideout", step: "Serve flips teams",
+        text: "When the serving team loses a rally on the second server, the other team takes over the serve. That's a <strong>\"sideout\"</strong>.",
+        positions: { p1:{left:'98%',top:'75%'}, p2:{left:'98%',top:'25%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
         showScore: true, score: [0,1,1],
-        tooltips: { p1: "Lost rally", p3: "New Server 1" },
+        server: 3,
+        tooltips: { p1: "Lost rally", p3: "New Server" },
         animSequence: async (id) => {
             setBall('96%','75%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('34%','75%', id)) return;
+            if (!await moveBall('31%','75%', id)) return;
             spawnScorePopup('20%','50%',"SIDEOUT","var(--team-return)");
             if (!await sleep(700, id)) return;
-            if (!await moveBall('4%','75%', id, 450)) return;
+            if (!await moveBall('2%','75%', id, 450)) return;
         }
     },
     {
-        header: "Server 2", step: "Continuing the Turn",
-        text: "If Server 1 loses a rally, <strong>Server 2 gets a turn</strong> before the serve leaves the team.",
-        positions: { p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'}, p1:{left:'96%',top:'75%'}, p2:{left:'96%',top:'25%'} },
+        header: "Server 2", step: "Partner gets a turn",
+        text: "",
+        positions: { p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'}, p1:{left:'98%',top:'75%'}, p2:{left:'98%',top:'25%'} },
         showScore: true, score: [0,1,2],
-        tooltips: { p2: "Lost rally", p1: "Server 2 now up" },
+        server: 1,
+        tooltips: { p2: "Lost rally", p1: "Server 2 up" },
         animSequence: async (id) => {
             setBall('96%','25%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('4%','75%', id)) return;
+            if (!await moveBall('2%','75%', id)) return;
             spawnScorePopup('50%','50%',"SECOND SERVE","var(--nepc-blue)");
             if (!await sleep(700, id)) return;
             if (!await moveBall('96%','75%', id, 550)) return;
@@ -1605,7 +1750,9 @@ const scenarios = [
         correct: "0-0-2",
         options: ["0-0-2","0-0-1","0-0-0"],
         explain: "Every pickleball game starts at <strong>0-0-2</strong>. The third number is the server number &mdash; but the first server of the game is treated as <em>Server 2</em> so only one player gets to serve before the first sideout. It's a one-time quirk.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: true, score: [0,0,2],
+        server: 1,
         ballHolder: 1
     },
     {
@@ -1614,7 +1761,9 @@ const scenarios = [
         correct: "Red switches sides, 1-0-2",
         options: ["Red switches sides, 1-0-2","Red stays put, 1-0-2","Green switches sides, 0-1-1"],
         explain: "Only the <strong>serving team</strong> switches sides when they score. The returning team stays put. This keeps the server on the right side for even scores and left for odd &mdash; a fast cue for correctness during a long match.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: true, score: [0,0,2],
+        server: 1,
         ballHolder: 1
     },
     {
@@ -1623,7 +1772,9 @@ const scenarios = [
         correct: "Fault",
         options: ["Fault","Play On","Let &mdash; Re-serve"],
         explain: "The serve must <strong>land past the kitchen line</strong>. Every other boundary line is in, but the kitchen line is a fault. If it was a first serve, it's now second serve. If it was second, it's a sideout.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'} },
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'2%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: true, score: [1,0,2],
+        server: 1,
         ballHolder: 1
     },
     {
@@ -1632,7 +1783,8 @@ const scenarios = [
         correct: "Kitchen violation &mdash; fault",
         options: ["Kitchen violation &mdash; fault","Point for Green","Play On"],
         explain: "You cannot <strong>volley</strong> (hit before the ball bounces) while any part of you touches the kitchen. Even your momentum carrying you into the zone <em>after</em> the shot is a fault. That's why it's called the Non-Volley Zone.",
-        positions: { p1:{left:'96%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'45%',top:'25%'} },
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'45%',top:'25%'} },
+        showScore: true, score: [2,1,1],
         ballHolder: 4
     },
     {
@@ -1640,9 +1792,11 @@ const scenarios = [
         text: "Mid-game. Score 5-3-1. Red's Server 1 loses the rally. What happens?",
         correct: "Server 2's turn &mdash; 5-3-2",
         options: ["Server 2's turn &mdash; 5-3-2","Sideout to Green, 3-5-1","Green gets +1 point"],
-        explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. The score doesn't change &mdash; only the third digit flips from 1 to 2. The team keeps serving until both partners lose.",
-        positions: { p1:{left:'4%',top:'25%'}, p2:{left:'96%',top:'75%'}, p3:{left:'34%',top:'75%'}, p4:{left:'34%',top:'25%'} },
-        ballHolder: 1
+        explain: "When Server 1 loses, their <strong>partner</strong>  takes over as Server 2. The score doesn't change &mdash; only the third digit flips from 1 to 2. The team keeps serving until both partners lose.",
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: true, score: [5,3,1],
+        server: 1,
+        ballHolder: 0
     },
     {
         step: "Scenario 6 of 6",
@@ -1650,8 +1804,10 @@ const scenarios = [
         correct: "Sideout &mdash; Green serves, 3-5-1",
         options: ["Sideout &mdash; Green serves, 3-5-1","Server 2 tries again","Score becomes 5-3-0"],
         explain: "Both Red servers have lost. Serve goes to Green &mdash; <strong>that's a sideout</strong>. Notice the score flips: Green's 3 is now first because they're serving. Green starts as Server 1.",
-        positions: { p3:{left:'4%',top:'75%'}, p4:{left:'34%',top:'25%'}, p1:{left:'96%',top:'75%'}, p2:{left:'96%',top:'25%'} },
-        ballHolder: 3
+        positions: { p1:{left:'98%',top:'25%'}, p2:{left:'98%',top:'75%'}, p3:{left:'31%',top:'75%'}, p4:{left:'31%',top:'25%'} },
+        showScore: true, score: [5,3,2],
+        server: 2,
+        ballHolder: 0
     }
 ];
 
@@ -1718,6 +1874,7 @@ async function replayStep() {
 }
 
 async function nextStep() {
+    hapticTap();
     const curr = steps[currentStep];
     if (curr && curr.onExit) curr.onExit();
     currentStep++;
@@ -1737,6 +1894,7 @@ async function nextStep() {
 }
 
 async function prevStep() {
+    hapticTap();
     if (document.getElementById('completion-screen').classList.contains('active')) {
         currentStep = steps.length - 1;
         mode = 'lesson';
@@ -1792,16 +1950,18 @@ async function renderStep(s) {
         p.style.top  = s.positions[`p${i}`].top;
     }
 
+    // Score display — shared across lesson + simulator when scenario has showScore
+    const scoreArea = document.getElementById('score-display-area');
+    if (s.showScore) {
+        scoreArea.classList.add('show');
+        setScore(s.score[0], s.score[1], s.score[2]);
+    } else scoreArea.classList.remove('show');
+
+    // Active-server ring — highlight who's about to serve (if any)
+    setServingPlayer(typeof s.server === 'number' ? s.server : 0);
+
     if (mode === 'lesson') {
         setTooltips(s.tooltips || {});
-        const scoreArea = document.getElementById('score-display-area');
-        if (s.showScore) {
-            scoreArea.classList.add('show');
-            document.getElementById('s-val-1').innerText = s.score[0];
-            document.getElementById('s-val-2').innerText = s.score[1];
-            document.getElementById('s-val-3').innerText = s.score[2];
-        } else scoreArea.classList.remove('show');
-
         if (s.onEnter) s.onEnter();
         if (s.animSequence) {
             await s.animSequence(myAnimId);
@@ -1809,7 +1969,6 @@ async function renderStep(s) {
         }
     } else {
         setTooltips({});
-        document.getElementById('score-display-area').classList.remove('show');
         if (s.ballHolder) {
             const holder = document.getElementById(`p${s.ballHolder}`);
             const pLeft = parseFloat(holder.style.left);
@@ -1857,7 +2016,7 @@ function renderScenario() {
     [...s.options].sort(() => Math.random() - 0.5).forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'btn btn-answer';
-        btn.innerText = opt;
+        btn.innerHTML = opt;
         btn.onclick = () => handleAnswer(btn, opt);
         container.appendChild(btn);
     });
@@ -1873,6 +2032,7 @@ function handleAnswer(btn, choice) {
         btn.style.borderColor = 'var(--success)';
         btn.style.color = '#fff';
         sfxCorrect();
+        hapticSuccess();
         const firstTry = attempts === 0;
         totalScore += firstTry ? POINTS_FIRST : POINTS_RETRY;
         if (firstTry) {
@@ -1906,6 +2066,7 @@ function handleAnswer(btn, choice) {
         btn.style.color = '#fff';
         btn.disabled = true;
         sfxWrong();
+        hapticFail();
         attempts++;
         streak = 0;
         document.getElementById('streak-pill').classList.remove('show');
@@ -1957,6 +2118,46 @@ function nextScenario() {
         document.getElementById('progress-fill').style.width = '100%';
         setTimeout(showCompletion, 250);
     }
+}
+
+function prevScenario() {
+    sfxClick();
+    hapticTap();
+    // If we're on the first scenario, back out of simulator to the transition screen
+    if (simIndex === 0) {
+        mode = 'lesson';
+        document.getElementById('lesson-ui').style.display = 'block';
+        document.getElementById('simulator-ui').style.display = 'none';
+        document.getElementById('sim-progress').style.display = 'none';
+        document.getElementById('streak-pill').classList.remove('show');
+        showScreen('transition-screen');
+        return;
+    }
+    // Otherwise back up one scenario — don't erase their earned points, but reset the streak for this retry
+    simIndex--;
+    streak = 0;
+    document.getElementById('streak-pill').classList.remove('show');
+    renderScenario();
+}
+
+// setScore — updates the scoreboard with a pop animation on any digit that changed.
+function setScore(s1, s2, s3) {
+    const map = [
+        ['s-val-1', String(s1)],
+        ['s-val-2', String(s2)],
+        ['s-val-3', String(s3)],
+    ];
+    map.forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const prev = el.innerText;
+        el.innerText = val;
+        if (prev !== val && prev !== '') {
+            el.classList.remove('pop');
+            void el.offsetWidth;
+            el.classList.add('pop');
+        }
+    });
 }
 
 // =========================================================
