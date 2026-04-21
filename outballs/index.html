@@ -497,6 +497,27 @@
            ============================================================ */
         body{ background: var(--ink) !important; }
         /* Letterbox bars on landing (fixed) */
+        /* Small "← 4D Pickleball" link top-left for upward navigation */
+        .lp-back-home {
+            position: fixed; top: 50px; left: 22px; z-index: 110;
+            display: inline-flex; align-items: center;
+            font-family: var(--font-body, 'DM Sans', sans-serif);
+            font-size: 11px; font-weight: 700; letter-spacing: 1.6px;
+            text-transform: uppercase; text-decoration: none;
+            color: rgba(245,243,238,0.78);
+            background: rgba(10,22,40,0.72); backdrop-filter: blur(12px);
+            border: 1px solid rgba(245,243,238,0.16); border-radius: 999px;
+            padding: 7px 14px;
+            transition: all .2s ease;
+        }
+        .lp-back-home:hover {
+            color: #fff; border-color: rgba(245,243,238,0.36);
+            background: rgba(10,22,40,0.92); transform: translateX(-2px);
+        }
+        @media (max-width: 768px){
+            .lp-back-home { top: 36px; left: 14px; font-size: 10px; padding: 6px 12px; letter-spacing: 1.2px; }
+        }
+
         .lp-lb-top, .lp-lb-bot {
             position: fixed; left: 0; width: 100%; height: 36px;
             background: #000; z-index: 100; pointer-events: none;
@@ -971,6 +992,9 @@
         <!-- Fixed cinematic letterbox bars (landing-only) -->
         <div class="lp-lb-top"></div>
         <div class="lp-lb-bot"></div>
+
+        <!-- Back-to-parent-site link — small fixed pill top-left -->
+        <a class="lp-back-home" href="/" title="Back to 4D Pickleball home">← 4D Pickleball</a>
 
         <!-- HERO -->
         <section class="hero-section">
