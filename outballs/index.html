@@ -529,10 +529,12 @@
             border-top: 1px solid rgba(255,215,0,0.18);
             height: 28px;
         }
-        /* Landing hero */
+        /* Landing hero — reduced from 100vh so the 3 read cards peek into
+           view above the fold (Dave: "move cards up so they're visible at
+           bottom of screen on page load"). */
         .hero-section{
-            position: relative; min-height: 100vh;
-            padding: 95px 24px 60px;
+            position: relative; min-height: 78vh;
+            padding: 80px 24px 36px;
             display: flex; flex-direction: column; justify-content: center;
             overflow: hidden;
         }
@@ -1074,6 +1076,32 @@
             </div>
         </section>
 
+        <!-- 3 READ CARDS — moved up so they're visible above the fold -->
+        <section style="padding:18px 18px 8px;">
+            <div class="lp-inner" style="max-width:1100px;margin:0 auto;">
+                <div class="reads-cards">
+                    <div class="read-card read-card-fast">
+                        <div class="rc-num">1</div>
+                        <div class="rc-speed">MAX SPEED</div>
+                        <div class="rc-outcome">OUT</div>
+                        <div class="rc-action">Let it go</div>
+                    </div>
+                    <div class="read-card read-card-mid">
+                        <div class="rc-num">2</div>
+                        <div class="rc-speed">FAST SPEED</div>
+                        <div class="rc-outcome">VOLLEY</div>
+                        <div class="rc-action">Out of the air</div>
+                    </div>
+                    <div class="read-card read-card-slow">
+                        <div class="rc-num">3</div>
+                        <div class="rc-speed">SLOW SPEED</div>
+                        <div class="rc-outcome">BOUNCE</div>
+                        <div class="rc-action">Groundstroke</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- CREDIBILITY BAND -->
         <section class="cred-band">
             <div class="cred-inner">
@@ -1191,27 +1219,7 @@
                     </svg>
                 </div>
 
-                <!-- 3 read cards — headline only, no descriptive paragraph (academy less-text rule) -->
-                <div class="reads-cards">
-                    <div class="read-card read-card-fast">
-                        <div class="rc-num">1</div>
-                        <div class="rc-speed">MAX SPEED</div>
-                        <div class="rc-outcome">OUT</div>
-                        <div class="rc-action">Let it go</div>
-                    </div>
-                    <div class="read-card read-card-mid">
-                        <div class="rc-num">2</div>
-                        <div class="rc-speed">FAST SPEED</div>
-                        <div class="rc-outcome">VOLLEY</div>
-                        <div class="rc-action">Out of the air</div>
-                    </div>
-                    <div class="read-card read-card-slow">
-                        <div class="rc-num">3</div>
-                        <div class="rc-speed">SLOW SPEED</div>
-                        <div class="rc-outcome">BOUNCE</div>
-                        <div class="rc-action">Groundstroke</div>
-                    </div>
-                </div>
+                <!-- 3 read cards moved above to be visible above-the-fold -->
             </div>
         </section>
 
