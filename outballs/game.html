@@ -152,6 +152,18 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 /* Practice HUD tag - shows above viewport during practice shots */
 #practice-hud{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:95;padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;background:rgba(10,22,40,.85);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.35);color:#FBBF24;display:none;}
 #practice-hud.on{display:block;}
+/* Coaching banner for VOLLEY + BOUNCE drills — impossible to miss the hold rule */
+#drill-rule-banner{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:96;padding:12px 24px;border-radius:14px;font-family:var(--4dp-font-body);font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(90deg,rgba(251,113,133,.12),rgba(251,191,36,.18),rgba(251,113,133,.12));backdrop-filter:blur(10px);border:2px solid rgba(251,191,36,.7);color:#FBBF24;text-align:center;display:none;box-shadow:0 8px 28px rgba(251,191,36,.35);animation:drillRulePulse 1.6s ease-in-out infinite;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#drill-rule-banner.on{display:block;}
+#drill-rule-banner .rule-big{display:inline-block;font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:16px;letter-spacing:0;text-transform:none;color:#FDE68A;margin-right:8px;}
+@keyframes drillRulePulse{
+  0%,100%{box-shadow:0 8px 28px rgba(251,191,36,.35);border-color:rgba(251,191,36,.7);}
+  50%{box-shadow:0 12px 40px rgba(251,191,36,.6);border-color:rgba(251,191,36,1);}
+}
+@media (max-width:640px){
+  #drill-rule-banner{font-size:10px;letter-spacing:1px;padding:9px 14px;top:48px;white-space:normal;line-height:1.35;}
+  #drill-rule-banner .rule-big{font-size:13px;}
+}
 @media (max-width: 640px){
   .pc-card{padding:24px 22px;}
   .pc-h{font-size:clamp(26px,8vw,40px);}
@@ -413,7 +425,7 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   <button class="gate-btn swing" id="btn-swing" onclick="onSwing()">
     <div class="gate-kbd">RIGHT MOUSE</div>
     <div class="gate-name">Hit</div>
-    <div class="gate-hint">overrides release — hit anytime</div>
+    <div class="gate-hint">while continuing to hold left mouse</div>
   </button>
 </div>
 
@@ -423,17 +435,17 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
     <div class="pg-eyebrow">Before you start</div>
     <h2 class="pg-h">Two keys. One decision.</h2>
     <div class="pg-key">
-      <kbd>LEFT MOUSE</kbd>
+      <kbd>HOLD LEFT</kbd>
       <div>
-        <div class="pg-key-name">Ready / Read fast</div>
-        <div class="pg-key-desc">Hold left mouse to get ready. <strong>Release</strong> the moment you read the ball as going OUT — that's your anticipation read.</div>
+        <div class="pg-key-name">Hold the entire stroke</div>
+        <div class="pg-key-desc">Press &amp; <strong>HOLD</strong> left mouse the whole time. <strong>Release</strong> only when the ball is going OUT — a release is a commitment.</div>
       </div>
     </div>
     <div class="pg-key">
       <kbd>RIGHT MOUSE</kbd>
       <div>
-        <div class="pg-key-name">Hit</div>
-        <div class="pg-key-desc">Press right mouse to hit — volley or groundstroke. <strong>Overrides any release</strong>, so if you read "out" but it's actually coming in, you can still hit it. Real pickleball.</div>
+        <div class="pg-key-name">Right mouse WHILE HOLDING left</div>
+        <div class="pg-key-desc">To hit a volley or groundstroke, <strong>keep holding left mouse</strong> AND press right mouse. If you release left before the hit, it counts as "let it go" — you miss.</div>
       </div>
     </div>
     <button class="pg-go" onclick="startPracticeMode()">Start Pre-Training →</button>
@@ -469,6 +481,11 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <!-- Practice-mode HUD tag (always visible during drills) -->
 <div id="practice-hud">Pre-Training · <span id="practice-hud-drill">Drill 1 · Let it go</span></div>
+
+<!-- Coaching rule banner — only for VOLLEY + BOUNCE drills (emphasizeHold) -->
+<div id="drill-rule-banner">
+  <span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO HIT · DO NOT RELEASE
+</div>
 
 <!-- Round title card -->
 <div id="round-card">
@@ -662,14 +679,15 @@ const PRACTICE_DRILLS = [
     speeds: [0.22, 0.30, 0.38],
     shots: 3,
     oppZ: -22,
+    emphasizeHold: true,  // shows the pulsing "KEEP HOLDING" banner during this drill
     steps: [
-      { n: 'STEP 1', t: 'Press &amp; <strong>HOLD left mouse</strong> to ready up.' },
-      { n: 'STEP 2', t: 'Read the ball fast. If it\'s <strong>coming in</strong>, stay engaged.' },
-      { n: 'STEP 3', t: 'Press <strong>RIGHT MOUSE</strong> to volley.' }
+      { n: 'STEP 1', t: 'Press &amp; <strong>HOLD left mouse</strong>.' },
+      { n: 'STEP 2', t: '<strong>KEEP HOLDING</strong> as the ball flies toward you.' },
+      { n: 'STEP 3', t: 'Still holding left, press <strong>RIGHT MOUSE</strong> to volley.' }
     ],
-    hint: 'Release left = "let it go." Right mouse = hit (overrides release). Read fast.',
+    hint: '<strong>Do not release</strong> left mouse when you press right mouse. You must hold BOTH at the moment of contact.',
     resultPass: 'Clean volleys. Good hands.',
-    resultFail: 'Press right mouse when the ball reaches you — even if your left hand already released.'
+    resultFail: 'You released left mouse too early. KEEP HOLDING while you press right mouse to hit.'
   },
   {
     kind: 'BOUNCE',
@@ -679,14 +697,15 @@ const PRACTICE_DRILLS = [
     speeds: [0.20, 0.28, 0.36],
     shots: 3,
     oppZ: -22,
+    emphasizeHold: true,
     steps: [
-      { n: 'STEP 1', t: 'Press &amp; <strong>HOLD left mouse</strong> to ready up.' },
-      { n: 'STEP 2', t: 'Let the ball <strong>BOUNCE</strong>.' },
-      { n: 'STEP 3', t: 'Press <strong>RIGHT MOUSE</strong> after the bounce.' }
+      { n: 'STEP 1', t: 'Press &amp; <strong>HOLD left mouse</strong>.' },
+      { n: 'STEP 2', t: '<strong>KEEP HOLDING</strong>. Let the ball <strong>BOUNCE</strong>.' },
+      { n: 'STEP 3', t: 'Still holding left, press <strong>RIGHT MOUSE</strong> after the bounce.' }
     ],
-    hint: 'Release left = "let it go." Right mouse = hit (overrides release). Wait for the bounce.',
+    hint: '<strong>Do not release</strong> left mouse when you press right mouse. You must hold BOTH at the moment of contact.',
     resultPass: 'Good groundstrokes. You waited.',
-    resultFail: 'Wait for the bounce, THEN press right mouse — even if you already released left.'
+    resultFail: 'You released left mouse too early. KEEP HOLDING while you press right mouse to hit off the bounce.'
   }
 ];
 
@@ -1494,7 +1513,7 @@ function nextTrial(){
   document.getElementById('verdict').classList.remove('on');
   document.getElementById('cp-eyebrow').textContent = 'Press & HOLD left mouse to ready up';
   document.getElementById('cp-headline').textContent = 'Read the speed.';
-  document.getElementById('cp-sub').textContent = 'HOLD left to ready · RELEASE when you read it going out · RIGHT MOUSE to hit (anytime)';
+  document.getElementById('cp-sub').textContent = 'KEEP HOLDING left mouse through the entire stroke · RELEASE for OUT · RIGHT MOUSE while holding to HIT';
   document.getElementById('center-prompt').style.opacity = '1';
   setLevelHUD();
 }
@@ -1548,7 +1567,6 @@ function chooseShotKind(){
 }
 
 function launchBall(){
-  cancelReleaseIntent();  // fresh ball, fresh release state
   const lv = LEVELS[STATE.levelIdx];
   const kind = chooseShotKind();
   // Practice mode uses drill-specific opponent Z + per-ball speed from the
@@ -1599,51 +1617,30 @@ window.onReadyDown = function(){
   STATE.holdingReady = true;
   document.getElementById('btn-ready').classList.add('active');
 };
-// ── RELEASE = FAST BALL-SPEED READ (deferred-commit model, Dave 2026-04-22 v4) ──
-// Dave's insight: "The release IS the read." The core skill being trained is
-// the fast anticipation decision within the first moments of the ball being
-// struck — "going out" or "coming in." Releasing the left mouse IS that read.
+// ── STRICT COMMIT MODEL (Dave 2026-04-22 v5) ──
+// Release = immediate OUT commit. Right mouse only works if you never
+// released. Rationale: the deferred-commit experiment made the game
+// "10x easier" — no cost to releasing means no real anticipation test.
+// The cost of a misread IS losing the ability to hit. That's training.
 //
-// Logic:
-//   • Release left mouse → set a release-intent FLAG + snapshot timing.
-//     DOES NOT commit OUT yet. (You're saying "I think it's out.")
-//   • Right mouse at ANY time → cancels the release intent, fires SWING.
-//     (You're saying "wait, I'm hitting it after all." Real pickleball —
-//     you can pull off a ball and re-engage.)
-//   • End of flight with no right mouse → OUT commits with the snapshot
-//     from release time (so early reads still earn the early-read bonus).
-//
-// Why this isn't "cheating": you still have to execute the hit with right
-// mouse in the correct volley/bounce timing window to win non-OUT shots.
-// There's no free lunch. The release is just your first-order read.
-let _releaseIntent = false;
-let _releaseSnap   = null;
-function cancelReleaseIntent(){ _releaseIntent = false; _releaseSnap = null; }
-
+// Mom's instinct to release-before-right-click is the muscle memory that
+// needs to be broken — practice drills teach it with explicit messaging,
+// slower balls, and a pulsing KEEP HOLDING banner.
 window.onReadyUp = function(){
   if (!STATE.holdingReady) return;
   STATE.holdingReady = false;
   document.getElementById('btn-ready').classList.remove('active');
-  if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'OUT'; return; }
-  if (STATE.phase !== 'FLIGHT') return;
-  // Flag release + snapshot. NO immediate commit — right mouse can override.
-  _releaseIntent = true;
-  _releaseSnap = {
-    shotT: STATE.shotT,
-    ballZ: ball.position.z,
-    hasBounced: STATE.hasBounced
-  };
-  // Visually drop the player out of ready pose — paddle back to rest at side.
-  // Signals that the player has "let it go" and is no longer coiled to hit.
-  // If they follow up with right mouse, animateDefenderHit restores the
-  // attacking pose via its own animation chain.
+  // Paddle drops back to rest pose — visual confirmation the defender
+  // has disengaged. If the shot was OUT, this feels like "let it go."
+  // If it was IN, this shows the consequence of an early misread.
   if (defender && defender.userData && defender.userData.paddle) {
     setPaddlePose(defender.userData.paddle, 'restPose', 260);
   }
+  if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'OUT'; return; }
+  if (STATE.phase !== 'FLIGHT') return;
+  handleDecision('OUT');
 };
 window.onSwing = function(){
-  // Right mouse ALWAYS cancels any release — you're committing to hit.
-  cancelReleaseIntent();
   document.getElementById('btn-swing').classList.add('active');
   setTimeout(() => document.getElementById('btn-swing').classList.remove('active'), 150);
   if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'SWING'; return; }
@@ -1710,7 +1707,7 @@ const IS_MAC = /Mac|iPhone|iPod|iPad/.test(navigator.platform) ||
                /Mac OS X/.test(navigator.userAgent);
 
 function isUIChrome(el){
-  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score'));
+  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score, #drill-rule-banner'));
 }
 
 window.addEventListener('contextmenu', (e) => {
@@ -1788,28 +1785,21 @@ if (viewportEl) {
 });
 
 // ── Decision handler ──
-// `snap` — optional timing snapshot. When a deferred release commits OUT
-// at end of flight, we pass the snapshot taken at release time so scoring
-// (tooLate gate, early-read bonus) reflects WHEN the player released, not
-// this (end-of-flight) frame.
-function handleDecision(kind, snap){
+function handleDecision(kind){
   if (STATE.phase !== 'FLIGHT' || !STATE.canInput) return;
   STATE.canInput = false;
   STATE.decision = kind;
   const shot = STATE.currentShot;
-  const decisionT = snap ? snap.shotT : STATE.shotT;
-  const decisionZ = snap ? snap.ballZ : ball.position.z;
-  const decisionBounced = snap ? snap.hasBounced : STATE.hasBounced;
   let correct = false;
   let tooLate = false;
   let tooEarlySwing = false;
   if (kind === 'OUT') {
-    const ballPastPlayer = decisionZ > PLAYER_Z + 1.0;
-    tooLate = decisionT > 0.72 || ballPastPlayer;
+    const ballPastPlayer = ball.position.z > PLAYER_Z + 1.0;
+    tooLate = STATE.shotT > 0.72 || ballPastPlayer;
     correct = (shot.kind === 'OUT') && !tooLate;
   } else if (kind === 'SWING') {
-    STATE.swingResolved = decisionBounced ? 'BOUNCE' : 'VOLLEY';
-    if (decisionZ < 0) {
+    STATE.swingResolved = STATE.hasBounced ? 'BOUNCE' : 'VOLLEY';
+    if (ball.position.z < 0) {
       tooEarlySwing = true;
       correct = false;
     } else {
@@ -1827,7 +1817,7 @@ function handleDecision(kind, snap){
     STATE.sessionCorrect++;
     // Points = (base 100 + earlyBonus + timingBonus) × streak multiplier.
     // Streak multiplier uses the streak you're ABOUT to reach (pre+1).
-    const earlyBonus = decisionT < 0.35 ? 100 : decisionT < 0.6 ? 60 : 30;
+    const earlyBonus = STATE.shotT < 0.35 ? 100 : STATE.shotT < 0.6 ? 60 : 30;
     // ── TIMING BONUS — elite-tier reads earn +200 flat, before multiplier. ──
     // Three triggers (any one counts):
     //   (a) OUT called while ball is STILL on opponent's side of the kitchen
@@ -1839,11 +1829,11 @@ function handleDecision(kind, snap){
     let timingBonus = 0;
     let perfectReason = null;
     const OPP_KITCHEN_Z = -7;
-    if (kind === 'OUT' && decisionZ < OPP_KITCHEN_Z) {
+    if (kind === 'OUT' && ball.position.z < OPP_KITCHEN_Z) {
       timingBonus = 200; perfectReason = 'EARLY READ';
-    } else if (kind === 'SWING' && shot.kind === 'VOLLEY' && decisionT >= 0.20 && decisionT <= 0.40) {
+    } else if (kind === 'SWING' && shot.kind === 'VOLLEY' && STATE.shotT >= 0.20 && STATE.shotT <= 0.40) {
       timingBonus = 200; perfectReason = 'PERFECT BLOCK';
-    } else if (kind === 'SWING' && shot.kind === 'BOUNCE' && decisionBounced && decisionT >= 0.55 && decisionT <= 0.70) {
+    } else if (kind === 'SWING' && shot.kind === 'BOUNCE' && STATE.hasBounced && STATE.shotT >= 0.55 && STATE.shotT <= 0.70) {
       timingBonus = 200; perfectReason = 'PERFECT STROKE';
     }
     const preStreak = STATE.streak;
@@ -1972,12 +1962,11 @@ function showVerdict(correct, kind, shot){
     } else if (kind === 'TIMEOUT') {
       sub.textContent = shot.kind === 'OUT' ? 'That was going out — release to let it go' : shot.kind === 'VOLLEY' ? 'That was a volley — right mouse to hit' : 'Let it bounce — right mouse to hit';
     } else if (kind === 'OUT' && shot.kind !== 'OUT') {
-      // Player released AND never followed up with right mouse — the deferred
-      // OUT committed at end of flight. Coach them: the release was the read,
-      // they just needed to hit right mouse when they realized it was in.
+      // #1 beginner mistake: released left mouse early, which committed OUT,
+      // on a volley/bounce shot. Coach them explicitly.
       sub.innerHTML = shot.kind === 'VOLLEY'
-        ? 'Misread — that was a volley. Press <strong>RIGHT MOUSE</strong> to hit (even after releasing).'
-        : 'Misread — that was a groundstroke. Wait for bounce, then press <strong>RIGHT MOUSE</strong>.';
+        ? 'That was a volley — <strong>KEEP HOLDING</strong> left while you press right mouse'
+        : 'Let it bounce, then press <strong>RIGHT MOUSE WHILE HOLDING</strong> left';
     } else {
       sub.textContent = shot.kind === 'OUT' ? 'That was going out' : shot.kind === 'VOLLEY' ? 'That was a volley' : 'Let it bounce — groundstroke';
     }
@@ -2355,6 +2344,7 @@ window.skipPracticeAndStart = function(){
   document.getElementById('practice-card').classList.remove('on');
   document.getElementById('practice-result').classList.remove('on');
   document.getElementById('practice-hud').classList.remove('on');
+  document.getElementById('drill-rule-banner').classList.remove('on');
   try { sessionStorage.setItem('practice_done', '1'); } catch(e){}
   beginLevel();
 };
@@ -2373,6 +2363,7 @@ function showPracticeIntro(){
   document.getElementById('pc-hint').textContent = drill.hint;
   document.getElementById('practice-card').classList.add('on');
   document.getElementById('practice-hud').classList.remove('on');
+  document.getElementById('drill-rule-banner').classList.remove('on');
 }
 
 window.beginPracticeDrill = function(){
@@ -2388,6 +2379,16 @@ window.beginPracticeDrill = function(){
   document.getElementById('practice-hud-drill').textContent =
     'Drill ' + (STATE.practiceIdx + 1) + ' · ' + drill.name;
   document.getElementById('practice-hud').classList.add('on');
+  // Coaching banner — shown only on emphasizeHold drills (VOLLEY + BOUNCE)
+  const ruleBanner = document.getElementById('drill-rule-banner');
+  if (drill.emphasizeHold) {
+    ruleBanner.innerHTML = drill.kind === 'VOLLEY'
+      ? '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO VOLLEY · DO NOT RELEASE'
+      : '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · WAIT FOR BOUNCE · PRESS RIGHT MOUSE · DO NOT RELEASE';
+    ruleBanner.classList.add('on');
+  } else {
+    ruleBanner.classList.remove('on');
+  }
   practiceNextTrial();
 };
 
@@ -2423,8 +2424,8 @@ function practiceNextTrial(){
   if (cpH) cpH.textContent = drill.name + '.';
   if (cpS) {
     if (drill.kind === 'OUT') cpS.textContent = 'HOLD left mouse · RELEASE when you read the ball as going out';
-    else if (drill.kind === 'VOLLEY') cpS.textContent = 'Ready · RIGHT MOUSE when the ball reaches you (even if you released)';
-    else cpS.textContent = 'Ready · Wait for bounce · RIGHT MOUSE to hit (even if you released)';
+    else if (drill.kind === 'VOLLEY') cpS.textContent = 'KEEP HOLDING left · RIGHT MOUSE to volley (do NOT release)';
+    else cpS.textContent = 'KEEP HOLDING left · Wait for bounce · RIGHT MOUSE (do NOT release)';
   }
   document.getElementById('center-prompt').style.opacity = '1';
 }
@@ -2438,6 +2439,7 @@ function showPracticeResult(){
   scoreEl.className = 'pr-score ' + (pass ? 'pass' : 'fail');
   document.getElementById('pr-sub').textContent = pass ? drill.resultPass : drill.resultFail;
   document.getElementById('practice-hud').classList.remove('on');
+  document.getElementById('drill-rule-banner').classList.remove('on');
   // Label next button based on whether this was the last drill
   const isLast = STATE.practiceIdx >= PRACTICE_DRILLS.length - 1;
   document.getElementById('pr-next').textContent = isLast ? 'Start the real game →' : 'Next drill →';
@@ -2457,6 +2459,7 @@ window.nextPracticeDrill = function(){
     STATE.forceShotKind = null;
     STATE.practiceSpeedMult = null;
     document.getElementById('practice-hud').classList.remove('on');
+    document.getElementById('drill-rule-banner').classList.remove('on');
     try { sessionStorage.setItem('practice_done', '1'); } catch(e){}
     beginLevel();
     return;
@@ -2570,16 +2573,6 @@ function animate(){
         STATE.trial++;
         setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
       }
-    }
-    // End of flight with deferred release: the player released early and
-    // never followed up with right mouse — commit the OUT decision now,
-    // using the snapshot taken at release time so scoring reflects WHEN
-    // they read it, not this end-of-flight frame.
-    if (STATE.shotT >= 1 && STATE.canInput && _releaseIntent) {
-      const snap = _releaseSnap;
-      cancelReleaseIntent();
-      handleDecision('OUT', snap);
-      return requestAnimationFrame(animate);
     }
     // End of flight: if no decision made, figure out why it was a miss.
     if (STATE.shotT >= 1 && STATE.canInput){
