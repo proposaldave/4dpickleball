@@ -357,7 +357,7 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <div class="hud-top">
   <div class="hud-left-group">
-    <button id="back-btn" onclick="window.location.href='./'">← Back</button>
+    <button id="back-btn" onclick="window.location.href='./'" style="display:none;">← Back</button>
     <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
   </div>
   <div class="hud-right-group">
@@ -2632,6 +2632,17 @@ window.addEventListener('resize', () => {
 function startGame(){
   const loading = document.getElementById('loading');
   if (loading) { loading.classList.add('gone'); loading.style.opacity = '0'; loading.style.visibility = 'hidden'; }
+  // Show the game's own Back button ONLY when NOT running inside an iframe.
+  // When the landing page hosts us via #template-overlay, the outer overlay
+  // already has its own Back button (close3D). Showing ours too creates two
+  // stacked Back buttons in the top-left. (Dave 2026-04-22)
+  try {
+    const inIframe = (window.self !== window.top);
+    const bb = document.getElementById('back-btn');
+    if (bb && !inIframe) bb.style.display = '';
+  } catch(e) {
+    // cross-origin access threw — we're inside an iframe, leave hidden
+  }
   // Touch-device adaptation — swap mouse-language for tap-language so
   // smartphone/tablet players see relevant instructions. Uses both UA hint
   // and pointer media query (most reliable across iOS + Android).
