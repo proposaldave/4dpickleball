@@ -152,6 +152,18 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 /* Practice HUD tag - shows above viewport during practice shots */
 #practice-hud{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:95;padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;background:rgba(10,22,40,.85);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.35);color:#FBBF24;display:none;}
 #practice-hud.on{display:block;}
+/* Coaching banner for VOLLEY + BOUNCE drills — IMPOSSIBLE to miss the hold rule */
+#drill-rule-banner{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:96;padding:12px 24px;border-radius:14px;font-family:var(--4dp-font-body);font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(90deg,rgba(251,113,133,.12),rgba(251,191,36,.18),rgba(251,113,133,.12));backdrop-filter:blur(10px);border:2px solid rgba(251,191,36,.7);color:#FBBF24;text-align:center;display:none;box-shadow:0 8px 28px rgba(251,191,36,.35);animation:drillRulePulse 1.6s ease-in-out infinite;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#drill-rule-banner.on{display:block;}
+#drill-rule-banner .rule-big{display:inline-block;font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:16px;letter-spacing:0;text-transform:none;color:#FDE68A;margin-right:8px;}
+@keyframes drillRulePulse{
+  0%,100%{box-shadow:0 8px 28px rgba(251,191,36,.35);border-color:rgba(251,191,36,.7);}
+  50%{box-shadow:0 12px 40px rgba(251,191,36,.6);border-color:rgba(251,191,36,1);}
+}
+@media (max-width:640px){
+  #drill-rule-banner{font-size:10px;letter-spacing:1px;padding:9px 14px;top:48px;white-space:normal;line-height:1.35;}
+  #drill-rule-banner .rule-big{font-size:13px;}
+}
 @media (max-width: 640px){
   .pc-card{padding:24px 22px;}
   .pc-h{font-size:clamp(26px,8vw,40px);}
@@ -467,6 +479,11 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <!-- Practice-mode HUD tag (always visible during drills) -->
 <div id="practice-hud">Pre-Training · <span id="practice-hud-drill">Drill 1 · Let it go</span></div>
+
+<!-- Coaching rule banner — only for VOLLEY + BOUNCE drills (emphasizeHold) -->
+<div id="drill-rule-banner">
+  <span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · RIGHT-CLICK TO HIT · DO NOT RELEASE
+</div>
 
 <!-- Round title card -->
 <div id="round-card">
@@ -1684,7 +1701,7 @@ const IS_MAC = /Mac|iPhone|iPod|iPad/.test(navigator.platform) ||
                /Mac OS X/.test(navigator.userAgent);
 
 function isUIChrome(el){
-  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score'));
+  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score, #drill-rule-banner'));
 }
 
 window.addEventListener('contextmenu', (e) => {
@@ -2322,6 +2339,7 @@ window.skipPracticeAndStart = function(){
   document.getElementById('practice-card').classList.remove('on');
   document.getElementById('practice-result').classList.remove('on');
   document.getElementById('practice-hud').classList.remove('on');
+  document.getElementById('drill-rule-banner').classList.remove('on');
   try { sessionStorage.setItem('practice_done', '1'); } catch(e){}
   beginLevel();
 };
@@ -2340,6 +2358,7 @@ function showPracticeIntro(){
   document.getElementById('pc-hint').textContent = drill.hint;
   document.getElementById('practice-card').classList.add('on');
   document.getElementById('practice-hud').classList.remove('on');
+  document.getElementById('drill-rule-banner').classList.remove('on');
 }
 
 window.beginPracticeDrill = function(){
@@ -2355,6 +2374,18 @@ window.beginPracticeDrill = function(){
   document.getElementById('practice-hud-drill').textContent =
     'Drill ' + (STATE.practiceIdx + 1) + ' · ' + drill.name;
   document.getElementById('practice-hud').classList.add('on');
+  // Coaching banner — shown only on drills flagged emphasizeHold (VOLLEY + BOUNCE)
+  const ruleBanner = document.getElementById('drill-rule-banner');
+  if (drill.emphasizeHold) {
+    // Drill-specific rule text — both emphasize the hold but reference the right action
+    const ruleText = drill.kind === 'VOLLEY'
+      ? '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · RIGHT-CLICK TO VOLLEY · DO NOT RELEASE'
+      : '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · WAIT FOR BOUNCE · RIGHT-CLICK · DO NOT RELEASE';
+    ruleBanner.innerHTML = ruleText;
+    ruleBanner.classList.add('on');
+  } else {
+    ruleBanner.classList.remove('on');
+  }
   practiceNextTrial();
 };
 
@@ -2404,8 +2435,9 @@ function showPracticeResult(){
   scoreEl.textContent = STATE.practiceCorrect + ' / ' + drill.shots;
   scoreEl.className = 'pr-score ' + (pass ? 'pass' : 'fail');
   document.getElementById('pr-sub').textContent = pass ? drill.resultPass : drill.resultFail;
-  // Hide practice HUD during result card
+  // Hide practice HUD + coaching banner during result card
   document.getElementById('practice-hud').classList.remove('on');
+  document.getElementById('drill-rule-banner').classList.remove('on');
   // Label next button based on whether this was the last drill
   const isLast = STATE.practiceIdx >= PRACTICE_DRILLS.length - 1;
   document.getElementById('pr-next').textContent = isLast ? 'Start the real game →' : 'Next drill →';
@@ -2425,6 +2457,7 @@ window.nextPracticeDrill = function(){
     STATE.forceShotKind = null;
     STATE.practiceSpeedMult = null;
     document.getElementById('practice-hud').classList.remove('on');
+    document.getElementById('drill-rule-banner').classList.remove('on');
     try { sessionStorage.setItem('practice_done', '1'); } catch(e){}
     beginLevel();
     return;
