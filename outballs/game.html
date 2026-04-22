@@ -376,11 +376,11 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 <div id="help-popup">
   <h4>Controls</h4>
   <div class="help-row">
-    <div class="keys"><span>HOLD L-CLICK</span></div>
+    <div class="keys"><span>HOLD LEFT MOUSE</span></div>
     <div class="desc">Press &amp; hold the WHOLE stroke · release only to let the ball go out</div>
   </div>
   <div class="help-row">
-    <div class="keys"><span>R-CLICK</span><span>ENTER</span></div>
+    <div class="keys"><span>RIGHT MOUSE</span><span>ENTER</span></div>
     <div class="desc">Hit (volley or groundstroke)</div>
   </div>
   <div class="help-row">
@@ -406,7 +406,7 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 <div class="center-prompt" id="center-prompt">
   <div class="cp-eyebrow" id="cp-eyebrow">Press &amp; hold left mouse to ready up</div>
   <p class="cp-headline" id="cp-headline">Read the speed.</p>
-  <p class="cp-sub" id="cp-sub">KEEP HOLDING through the stroke · Release for OUT · Right click to HIT</p>
+  <p class="cp-sub" id="cp-sub">KEEP HOLDING through the stroke · Release for OUT · Right mouse to HIT</p>
 </div>
 
 <div class="verdict" id="verdict">
@@ -418,12 +418,14 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   <button class="gate-btn ready" id="btn-ready"
     onmousedown="onReadyDown()" onmouseup="onReadyUp()" onmouseleave="onReadyUp()"
     ontouchstart="onReadyDown()" ontouchend="onReadyUp()">
-    <div class="gate-kbd">HOLD LEFT CLICK</div>
+    <div class="gate-kbd">HOLD LEFT MOUSE</div>
     <div class="gate-name">Let it go</div>
+    <div class="gate-hint">release when ball is going out</div>
   </button>
   <button class="gate-btn swing" id="btn-swing" onclick="onSwing()">
-    <div class="gate-kbd">RIGHT CLICK</div>
+    <div class="gate-kbd">RIGHT MOUSE</div>
     <div class="gate-name">Hit</div>
+    <div class="gate-hint">while continuing to hold left mouse</div>
   </button>
 </div>
 
@@ -440,10 +442,10 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
       </div>
     </div>
     <div class="pg-key">
-      <kbd>RIGHT CLICK</kbd>
+      <kbd>RIGHT MOUSE</kbd>
       <div>
-        <div class="pg-key-name">Right-click WHILE HOLDING left</div>
-        <div class="pg-key-desc">To hit a volley or groundstroke, <strong>keep holding left mouse</strong> AND right-click. If you release left before the hit, it counts as "let it go" — you miss.</div>
+        <div class="pg-key-name">Right mouse WHILE HOLDING left</div>
+        <div class="pg-key-desc">To hit a volley or groundstroke, <strong>keep holding left mouse</strong> AND press right mouse. If you release left before the hit, it counts as "let it go" — you miss.</div>
       </div>
     </div>
     <button class="pg-go" onclick="startPracticeMode()">Start Pre-Training →</button>
@@ -482,7 +484,7 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <!-- Coaching rule banner — only for VOLLEY + BOUNCE drills (emphasizeHold) -->
 <div id="drill-rule-banner">
-  <span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · RIGHT-CLICK TO HIT · DO NOT RELEASE
+  <span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO HIT · DO NOT RELEASE
 </div>
 
 <!-- Round title card -->
@@ -682,11 +684,11 @@ const PRACTICE_DRILLS = [
     steps: [
       { n: 'STEP 1', t: 'Press &amp; <strong>HOLD left mouse</strong>.' },
       { n: 'STEP 2', t: '<strong>KEEP HOLDING</strong> as the ball flies toward you.' },
-      { n: 'STEP 3', t: 'Still holding left, <strong>RIGHT-CLICK</strong> to volley.' }
+      { n: 'STEP 3', t: 'Still holding left, press <strong>RIGHT MOUSE</strong> to volley.' }
     ],
-    hint: '<strong>Do not release</strong> left mouse when you right-click. You must hold BOTH at the moment of contact.',
+    hint: '<strong>Do not release</strong> left mouse when you press right mouse. You must hold BOTH at the moment of contact.',
     resultPass: 'Clean volleys. Good hands.',
-    resultFail: 'You released left mouse too early. KEEP HOLDING while you right-click to hit.'
+    resultFail: 'You released left mouse too early. KEEP HOLDING while you press right mouse to hit.'
   },
   {
     kind: 'BOUNCE',
@@ -700,11 +702,11 @@ const PRACTICE_DRILLS = [
     steps: [
       { n: 'STEP 1', t: 'Press &amp; <strong>HOLD left mouse</strong>.' },
       { n: 'STEP 2', t: '<strong>KEEP HOLDING</strong>. Let the ball <strong>BOUNCE</strong>.' },
-      { n: 'STEP 3', t: 'Still holding left, <strong>RIGHT-CLICK</strong> after the bounce.' }
+      { n: 'STEP 3', t: 'Still holding left, press <strong>RIGHT MOUSE</strong> after the bounce.' }
     ],
-    hint: '<strong>Do not release</strong> left mouse when you right-click. You must hold BOTH at the moment of contact.',
+    hint: '<strong>Do not release</strong> left mouse when you press right mouse. You must hold BOTH at the moment of contact.',
     resultPass: 'Good groundstrokes. You waited.',
-    resultFail: 'You released left mouse too early. KEEP HOLDING while you right-click to hit off the bounce.'
+    resultFail: 'You released left mouse too early. KEEP HOLDING while you press right mouse to hit off the bounce.'
   }
 ];
 
@@ -1512,7 +1514,7 @@ function nextTrial(){
   document.getElementById('verdict').classList.remove('on');
   document.getElementById('cp-eyebrow').textContent = 'Press & HOLD left mouse to ready up';
   document.getElementById('cp-headline').textContent = 'Read the speed.';
-  document.getElementById('cp-sub').textContent = 'KEEP HOLDING left through the entire stroke · RELEASE for OUT · RIGHT-CLICK while holding to HIT';
+  document.getElementById('cp-sub').textContent = 'KEEP HOLDING left mouse through the entire stroke · RELEASE for OUT · RIGHT MOUSE while holding to HIT';
   document.getElementById('center-prompt').style.opacity = '1';
   setLevelHUD();
 }
@@ -1948,20 +1950,20 @@ function showVerdict(correct, kind, shot){
                     : 'Missed.';
     big.style.color = '#FB7185';
     if (kind === 'NO_COMMIT') {
-      sub.textContent = 'Release to let it go · Right click to hit';
+      sub.textContent = 'Release to let it go · Right mouse to hit';
     } else if (kind === 'TOO_LATE') {
       sub.textContent = 'You had the right read.';
     } else if (kind === 'TOO_EARLY') {
       sub.textContent = 'You swung before the ball crossed the net — wait for it.';
     } else if (kind === 'TIMEOUT') {
-      sub.textContent = shot.kind === 'OUT' ? 'That was going out — release to let it go' : shot.kind === 'VOLLEY' ? 'That was a volley — right click to hit' : 'Let it bounce — right click to hit';
+      sub.textContent = shot.kind === 'OUT' ? 'That was going out — release to let it go' : shot.kind === 'VOLLEY' ? 'That was a volley — right mouse to hit' : 'Let it bounce — right mouse to hit';
     } else if (kind === 'OUT' && shot.kind !== 'OUT') {
       // Player released left — game recorded OUT — but the shot was IN.
       // This is the #1 beginner mistake (release before right-click).
       // Give them an explicit coaching line, not a vague "missed."
       sub.innerHTML = shot.kind === 'VOLLEY'
-        ? 'That was a volley — <strong>KEEP HOLDING</strong> left while you right-click'
-        : 'Let it bounce, then <strong>RIGHT-CLICK WHILE HOLDING</strong> left';
+        ? 'That was a volley — <strong>KEEP HOLDING</strong> left while you press right mouse'
+        : 'Let it bounce, then press <strong>RIGHT MOUSE WHILE HOLDING</strong> left';
     } else {
       sub.textContent = shot.kind === 'OUT' ? 'That was going out' : shot.kind === 'VOLLEY' ? 'That was a volley' : 'Let it bounce — groundstroke';
     }
@@ -2379,8 +2381,8 @@ window.beginPracticeDrill = function(){
   if (drill.emphasizeHold) {
     // Drill-specific rule text — both emphasize the hold but reference the right action
     const ruleText = drill.kind === 'VOLLEY'
-      ? '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · RIGHT-CLICK TO VOLLEY · DO NOT RELEASE'
-      : '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · WAIT FOR BOUNCE · RIGHT-CLICK · DO NOT RELEASE';
+      ? '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO VOLLEY · DO NOT RELEASE'
+      : '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · WAIT FOR BOUNCE · PRESS RIGHT MOUSE · DO NOT RELEASE';
     ruleBanner.innerHTML = ruleText;
     ruleBanner.classList.add('on');
   } else {
@@ -2421,8 +2423,8 @@ function practiceNextTrial(){
   if (cpH) cpH.textContent = drill.name + '.';
   if (cpS) {
     if (drill.kind === 'OUT') cpS.textContent = 'HOLD left mouse · RELEASE when you see the ball going out';
-    else if (drill.kind === 'VOLLEY') cpS.textContent = 'KEEP HOLDING left · RIGHT-CLICK to volley (do NOT release)';
-    else cpS.textContent = 'KEEP HOLDING left · Wait for bounce · RIGHT-CLICK (do NOT release)';
+    else if (drill.kind === 'VOLLEY') cpS.textContent = 'KEEP HOLDING left · RIGHT MOUSE to volley (do NOT release)';
+    else cpS.textContent = 'KEEP HOLDING left · Wait for bounce · RIGHT MOUSE (do NOT release)';
   }
   document.getElementById('center-prompt').style.opacity = '1';
 }
@@ -2648,24 +2650,25 @@ function startGame(){
       hpRows[0].innerHTML = '<span>HOLD</span> green';
       hpRows[1].innerHTML = '<span>TAP</span> red';
     }
-    // Practice drill STEP cards — rewrite "LEFT MOUSE" / "RIGHT-CLICK" for touch
+    // Practice drill STEP cards — rewrite "LEFT MOUSE" / "RIGHT MOUSE" for touch
     PRACTICE_DRILLS.forEach(drill => {
       drill.steps = drill.steps.map(s => ({
         n: s.n,
         t: s.t
           .replace(/LEFT MOUSE/g, 'GREEN BUTTON')
-          .replace(/RIGHT-CLICK/g, 'TAP RED')
+          .replace(/RIGHT MOUSE/g, 'TAP RED')
+          .replace(/press <strong>TAP RED<\/strong>/g, '<strong>TAP RED</strong>')
           .replace(/Hold <strong>GREEN BUTTON<\/strong> to ready up\./, 'Hold <strong>GREEN</strong> button to ready up.')
           .replace(/<strong>RELEASE<\/strong> before it reaches you\./, '<strong>RELEASE GREEN</strong> before it reaches you.')
       }));
     });
   } else if (IS_MAC) {
-    // Mac — tell users about Ctrl+click as an alternative to right-click
+    // Mac — tell users about Ctrl+click as an alternative to right mouse
     const swing = document.querySelector('#btn-swing .gate-kbd');
-    if (swing) swing.textContent = 'RIGHT / CTRL+CLICK';
-    set('cp-sub', 'KEEP HOLDING through the stroke · Release for OUT · Right-click or Ctrl+click to HIT');
-    setHTML('.pg-key:nth-of-type(2) kbd', 'RIGHT / CTRL+CLICK');
-    setHTML('.pg-key:nth-of-type(2) .pg-key-desc', 'Right-click (or Ctrl+click on trackpad) to hit the ball. Volley or groundstroke.');
+    if (swing) swing.textContent = 'RIGHT MOUSE / CTRL+CLICK';
+    set('cp-sub', 'KEEP HOLDING through the stroke · Release for OUT · Right mouse or Ctrl+click to HIT');
+    setHTML('.pg-key:nth-of-type(2) kbd', 'RIGHT MOUSE / CTRL+CLICK');
+    setHTML('.pg-key:nth-of-type(2) .pg-key-desc', 'Press right mouse (or Ctrl+click on trackpad) to hit the ball. Keep holding left mouse at the same time.');
   }
   // Arcade leaderboard: wire name-entry controls + show HI-SCORE if any
   try { wireNameEntryControls(); } catch(e){}
