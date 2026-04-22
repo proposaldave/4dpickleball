@@ -363,8 +363,8 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
         <div class="pg-key-desc">Hit the ball. Volley or groundstroke.</div>
       </div>
     </div>
-    <button class="pg-go" onclick="startPracticeMode()">Start with practice drills →</button>
-    <button class="pg-skip" onclick="skipPracticeAndStart()">Skip practice — go straight to game</button>
+    <button class="pg-go" onclick="startPracticeMode()">Start Pre-Training →</button>
+    <button class="pg-skip" onclick="skipPracticeAndStart()">Skip Pre-Training — go straight to game</button>
   </div>
 </div>
 
@@ -372,20 +372,19 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div id="practice-card">
   <div class="pc-card">
     <div class="pc-tag" id="pc-tag">OUT BALL</div>
-    <div class="pc-eyebrow" id="pc-eyebrow">Drill 1 of 3</div>
+    <div class="pc-eyebrow" id="pc-eyebrow">Pre-Training · Drill 1 of 3</div>
     <h2 class="pc-h" id="pc-h">Let it go</h2>
-    <p class="pc-instr" id="pc-instr"></p>
     <div class="pc-steps" id="pc-steps"></div>
     <div class="pc-hint" id="pc-hint"></div>
     <button class="pc-go" id="pc-go-btn" onclick="beginPracticeDrill()">Start drill →</button>
-    <button class="pc-skip" onclick="skipPracticeAndStart()">Skip practice — go straight to game</button>
+    <button class="pc-skip" onclick="skipPracticeAndStart()">Skip Pre-Training — go straight to game</button>
   </div>
 </div>
 
 <!-- Practice drill result card -->
 <div id="practice-result">
   <div class="pc-card" style="text-align:center;">
-    <div class="pc-eyebrow" id="pr-eyebrow">Drill 1 complete</div>
+    <div class="pc-eyebrow" id="pr-eyebrow">Pre-Training · Drill 1 complete</div>
     <div class="pr-score" id="pr-score">0 / 3</div>
     <div class="pr-sub" id="pr-sub"></div>
     <div class="pr-btns">
@@ -396,7 +395,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 </div>
 
 <!-- Practice-mode HUD tag (always visible during drills) -->
-<div id="practice-hud">Practice · <span id="practice-hud-drill">Drill 1 · Let it go</span></div>
+<div id="practice-hud">Pre-Training · <span id="practice-hud-drill">Drill 1 · Let it go</span></div>
 
 <!-- Round title card -->
 <div id="round-card">
@@ -544,54 +543,52 @@ const PRACTICE_DRILLS = [
     tag: 'OUT BALL',
     tagClass: 'out',
     name: 'Let it go',
-    speed: 0.35,
+    // Per-ball speed ramp (Dave 2026-04-22): 3 balls, each faster than last.
+    speeds: [0.28, 0.40, 0.52],
     shots: 3,
-    oppZ: -22,
-    instr: 'The attacker is going to hit the ball <strong>HARD</strong>. It will fly <strong>past the baseline</strong> and land out. Your job: <strong>let it go</strong>.',
+    oppZ: -22, // Opponent always in backcourt for pre-training (Dave 2026-04-22)
     steps: [
-      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to get into ready position.' },
-      { n: 'STEP 2', t: 'Watch the ball. See it flying long.' },
-      { n: 'STEP 3', t: '<strong>RELEASE</strong> left mouse before it reaches you.' }
+      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to ready up.' },
+      { n: 'STEP 2', t: 'Watch the ball fly long.' },
+      { n: 'STEP 3', t: '<strong>RELEASE</strong> before it reaches you.' }
     ],
-    hint: 'Every ball in this drill is going out. All 3 of them. Just release the mouse.',
+    hint: 'All 3 balls going out. Each one a little faster.',
     resultPass: 'You read the out-balls.',
-    resultFail: 'Hold left mouse the whole time. Release ONLY when you see the ball flying long.'
+    resultFail: 'Release left mouse ONLY when you see the ball flying long.'
   },
   {
     kind: 'VOLLEY',
     tag: 'VOLLEY',
     tagClass: 'volley',
     name: 'Volley it',
-    speed: 0.35,
+    speeds: [0.28, 0.40, 0.52],
     shots: 3,
-    oppZ: -14,
-    instr: 'The ball is coming in on a <strong>drive</strong> — it will reach you in the air. Your job: <strong>volley it before it bounces</strong>.',
+    oppZ: -22,
     steps: [
-      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to get into ready position.' },
-      { n: 'STEP 2', t: 'Keep holding. Wait until the ball crosses the net.' },
-      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> to volley it in the air.' }
+      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to ready up.' },
+      { n: 'STEP 2', t: 'Keep holding. Wait for the ball.' },
+      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> to volley in the air.' }
     ],
-    hint: 'Keep your left mouse held down the WHOLE time. Only release if you think it\'s going out. Right-click to hit.',
+    hint: 'Each ball a little faster. Keep left held. Right-click to hit.',
     resultPass: 'Clean volleys. Good hands.',
-    resultFail: 'Keep left mouse held the whole time. Right-click when the ball reaches you.'
+    resultFail: 'Keep left held. Right-click when the ball reaches you.'
   },
   {
     kind: 'BOUNCE',
     tag: 'GROUNDSTROKE',
     tagClass: 'bounce',
     name: 'Let it bounce, then hit',
-    speed: 0.30,
+    speeds: [0.24, 0.34, 0.44],
     shots: 3,
-    oppZ: -14,
-    instr: 'The ball is slow — a <strong>drop or dink</strong>. It will land short, then bounce. Your job: <strong>wait for the bounce</strong>, then hit.',
+    oppZ: -22,
     steps: [
-      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to get into ready position.' },
-      { n: 'STEP 2', t: 'Let the ball <strong>BOUNCE</strong> on your side.' },
-      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> after the bounce to hit.' }
+      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to ready up.' },
+      { n: 'STEP 2', t: 'Let the ball <strong>BOUNCE</strong>.' },
+      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> after the bounce.' }
     ],
-    hint: 'Patience. Wait for the ball to hit the ground. THEN right-click. If you hit before the bounce, it counts wrong.',
+    hint: 'Wait for the bounce. Each ball a little faster.',
     resultPass: 'Good groundstrokes. You waited.',
-    resultFail: 'Wait for the bounce before you right-click. If you hit too early, the ball is a volley, not a groundstroke.'
+    resultFail: 'Wait for the bounce. THEN right-click.'
   }
 ];
 
@@ -727,13 +724,23 @@ let camPresetIdx = 0;
 camera.position.set(...CAM_PRESETS[0].pos);
 camera.lookAt(...CAM_PRESETS[0].look);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-// Pixel-ratio capped at 1.5 (was 2) — on retina displays this cuts fragment
-// shader work ~44% without a visible quality drop. Single biggest perf win.
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+// Quality tier detection (Dave 2026-04-22 perf pass). Heuristic from
+// deviceMemory + hardwareConcurrency — under-resourced machines run a
+// stripped renderer (no bloom, no shadows, 1x pixel ratio). The in-flight
+// FPS monitor below can downgrade further if measured FPS < 45.
+const _devMem = navigator.deviceMemory || 4;     // GB, ~4 is modern default
+const _cores  = navigator.hardwareConcurrency || 4;
+// LOW tier: old laptop / phone. MID: typical laptop. HIGH: gaming/desktop.
+let QUALITY = (_devMem <= 4 && _cores <= 4) ? 'LOW' : (_devMem >= 8 || _cores >= 8) ? 'HIGH' : 'MID';
+
+const renderer = new THREE.WebGLRenderer({ antialias: QUALITY !== 'LOW', powerPreference: 'high-performance' });
+// Pixel-ratio cap by tier. Retina at 1x is sharp enough for this scene,
+// 1.25 gives a subtle boost on midrange, 1.5 reserved for high-end.
+const _pxRatioCap = QUALITY === 'LOW' ? 1.0 : QUALITY === 'MID' ? 1.25 : 1.5;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, _pxRatioCap));
 renderer.setSize(vp.clientWidth, vp.clientHeight);
-renderer.shadowMap.enabled = true;
-// PCFSoftShadowMap is expensive; basic PCF is smoother-than-hard and cheaper.
+// Shadows — disabled entirely on LOW tier (single biggest win for weak GPUs).
+renderer.shadowMap.enabled = QUALITY !== 'LOW';
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -825,19 +832,49 @@ function nudgeCamera(deltaTheta, deltaPhi){
 
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-// Bloom tuned to template values (was 0.85 / 0.7 = too hot — saturated the frame buffer
-// on integrated GPUs and stalled rAF, producing a blank screen on Dave's machine).
-const bloom = new UnrealBloomPass(new THREE.Vector2(vp.clientWidth, vp.clientHeight), 0.55, 0.55, 0.82);
+// Bloom — biggest GPU cost besides shadows. On LOW tier, skip bloom entirely
+// and render straight through (composer still used so animate() code path is
+// unchanged). On MID/HIGH, bloom at 70%/100% viewport resolution respectively.
+const _bloomRes = QUALITY === 'HIGH' ? 1.0 : 0.7;
+const bloom = new UnrealBloomPass(
+  new THREE.Vector2(vp.clientWidth * _bloomRes, vp.clientHeight * _bloomRes),
+  QUALITY === 'LOW' ? 0 : 0.55,  // strength 0 = bloom off (pass still exists)
+  0.55, 0.82
+);
+bloom.enabled = QUALITY !== 'LOW';
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
+
+// Live FPS monitor — if we fall below 45fps sustained for 2s, kill bloom
+// and shadows. This gives weak machines a second chance without needing
+// a refresh.
+let _fpsFrames = 0, _fpsStart = performance.now(), _degraded = false;
+function fpsTick(){
+  _fpsFrames++;
+  const now = performance.now();
+  const elapsed = now - _fpsStart;
+  if (elapsed >= 2000) {
+    const fps = (_fpsFrames * 1000) / elapsed;
+    if (!_degraded && fps < 45) {
+      _degraded = true;
+      bloom.enabled = false;
+      renderer.shadowMap.enabled = false;
+      // Force shadow re-render
+      scene.traverse(o => { if (o.isLight && o.shadow) o.castShadow = false; });
+      console.log('[perf] FPS ' + fps.toFixed(1) + ' — degraded quality');
+    }
+    _fpsFrames = 0; _fpsStart = now;
+  }
+}
 
 // ── Lighting ──
 scene.add(new THREE.AmbientLight(0xB8D4E8, 0.35));
 const key = new THREE.DirectionalLight(0xFFF4E0, 1.1);
 key.position.set(18, 30, 14);
-key.castShadow = true;
-// Shadow map halved (was 2048²) — 4× less shadow work per frame, still sharp.
-key.shadow.mapSize.set(1024, 1024);
+key.castShadow = QUALITY !== 'LOW';
+// Shadow map sized by tier — HIGH 1024², MID 512², LOW disabled above.
+const _shadowRes = QUALITY === 'HIGH' ? 1024 : 512;
+key.shadow.mapSize.set(_shadowRes, _shadowRes);
 key.shadow.camera.left = -30; key.shadow.camera.right = 30;
 key.shadow.camera.top = 35; key.shadow.camera.bottom = -35;
 key.shadow.camera.near = 1; key.shadow.camera.far = 70;
@@ -975,11 +1012,18 @@ const trailMat = new THREE.MeshStandardMaterial({ color:PICKLEBALL_GREEN, emissi
 let _trailFrame = 0;
 function rebuildTrail(){
   _trailFrame++;
-  if ((_trailFrame & 1) === 0) return;  // skip every other frame
+  // Throttle by quality tier. LOW rebuilds every 4th frame, MID every 3rd,
+  // HIGH every 2nd. Tube geometry rebuild is GPU-memory-heavy → this is a
+  // real win on slow machines without visibly breaking the trail.
+  const skipEvery = QUALITY === 'LOW' ? 4 : QUALITY === 'MID' ? 3 : 2;
+  if (_trailFrame % skipEvery !== 0) return;
   if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); }
   if (trailPoints.length < 4) return;
   const curve = new THREE.CatmullRomCurve3(trailPoints);
-  const geo = new THREE.TubeGeometry(curve, Math.min(trailPoints.length*2, 48), 0.09, 6, false);
+  // Segment count + radial segments scale with tier too.
+  const tubeSegs  = QUALITY === 'LOW' ? 28 : QUALITY === 'MID' ? 40 : 48;
+  const radialSegs = QUALITY === 'LOW' ? 4 : 6;
+  const geo = new THREE.TubeGeometry(curve, Math.min(trailPoints.length*2, tubeSegs), 0.09, radialSegs, false);
   trailMesh = new THREE.Mesh(geo, trailMat); scene.add(trailMesh);
 }
 function clearTrail(){ trailPoints = []; if (trailMesh) { scene.remove(trailMesh); trailMesh.geometry.dispose(); trailMesh = null; } }
@@ -1393,9 +1437,16 @@ function chooseShotKind(){
 function launchBall(){
   const lv = LEVELS[STATE.levelIdx];
   const kind = chooseShotKind();
-  // Practice mode uses drill-specific opponent Z + speed, bypassing level config
-  const oppZ = (STATE.mode === 'PRACTICE') ? PRACTICE_DRILLS[STATE.practiceIdx].oppZ : lv.oppZ;
-  const speedMult = STATE.practiceSpeedMult || lv.speed;
+  // Practice mode uses drill-specific opponent Z + per-ball speed from the
+  // speeds[] ramp (ball 1 slower, ball 3 faster). Game mode uses level speed.
+  let oppZ = lv.oppZ;
+  let speedMult = lv.speed;
+  if (STATE.mode === 'PRACTICE') {
+    const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+    oppZ = drill.oppZ;
+    const ramp = drill.speeds || [drill.speed, drill.speed, drill.speed];
+    speedMult = ramp[Math.min(STATE.practiceTrial, ramp.length - 1)];
+  }
   const s = shotFor(kind, oppZ);
   s.duration = s.duration / speedMult;  // level/practice speed multiplier
   STATE.currentShot = s;
@@ -1825,9 +1876,8 @@ function showPracticeIntro(){
   const tag = document.getElementById('pc-tag');
   tag.textContent = drill.tag;
   tag.className = 'pc-tag ' + drill.tagClass;
-  document.getElementById('pc-eyebrow').textContent = 'Drill ' + (STATE.practiceIdx + 1) + ' of ' + PRACTICE_DRILLS.length;
+  document.getElementById('pc-eyebrow').textContent = 'Pre-Training · Drill ' + (STATE.practiceIdx + 1) + ' of ' + PRACTICE_DRILLS.length;
   document.getElementById('pc-h').textContent = drill.name;
-  document.getElementById('pc-instr').innerHTML = drill.instr;
   const stepsEl = document.getElementById('pc-steps');
   stepsEl.innerHTML = drill.steps.map(s =>
     '<div class="pc-step"><div class="pc-step-num">' + s.n + '</div><div class="pc-step-txt">' + s.t + '</div></div>'
@@ -1894,7 +1944,7 @@ function practiceNextTrial(){
 function showPracticeResult(){
   const drill = PRACTICE_DRILLS[STATE.practiceIdx];
   const pass = STATE.practiceCorrect >= Math.ceil(drill.shots * 0.67); // 2/3 or better
-  document.getElementById('pr-eyebrow').textContent = 'Drill ' + (STATE.practiceIdx + 1) + ' · ' + drill.name;
+  document.getElementById('pr-eyebrow').textContent = 'Pre-Training · Drill ' + (STATE.practiceIdx + 1) + ' · ' + drill.name;
   const scoreEl = document.getElementById('pr-score');
   scoreEl.textContent = STATE.practiceCorrect + ' / ' + drill.shots;
   scoreEl.className = 'pr-score ' + (pass ? 'pass' : 'fail');
@@ -2061,6 +2111,7 @@ function animate(){
 
   updateBursts(dt);
   composer.render();
+  fpsTick();
   } catch(e) {
     _frameErrCount++;
     if (_frameErrCount < 3) console.error('[animate]', e);
