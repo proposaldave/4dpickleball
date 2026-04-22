@@ -1576,6 +1576,8 @@ function chooseShotKind(){
 }
 
 function launchBall(){
+  // Clear any release intent from the previous trial — fresh ball, fresh state.
+  cancelReleaseIntent();
   const lv = LEVELS[STATE.levelIdx];
   const kind = chooseShotKind();
   // Practice mode uses drill-specific opponent Z + per-ball speed from the
@@ -1626,42 +1628,54 @@ window.onReadyDown = function(){
   STATE.holdingReady = true;
   document.getElementById('btn-ready').classList.add('active');
 };
-// Deferred-OUT grace window. Dave's mom + wife both had the same problem:
-// when they decide to HIT a ball, they instinctively RELEASE the left mouse
-// button before/as they right-click. Under the old logic, that release fired
-// an immediate OUT decision and the subsequent right-click was blocked —
-// every intended hit registered as a miss. Fix: when left-mouse releases
-// during FLIGHT, DEFER the OUT decision by 250ms. If a right-click (SWING)
-// lands in that window, cancel the OUT — they meant to hit. Only if no
-// right-click follows does the release count as "let it go."
-let _pendingOutTimeout = null;
-function cancelPendingOut(){
-  if (_pendingOutTimeout) { clearTimeout(_pendingOutTimeout); _pendingOutTimeout = null; }
+// ── Release-intent model (Dave 2026-04-22 v2) ──
+// The v1 250ms grace window still wasn't enough — Dave (and moms + wives)
+// were releasing the left mouse EARLY as a preparatory gesture, then right-
+// clicking much later. The v1 logic fired OUT after 250ms, which still
+// blocked the later SWING.
+//
+// NEW RULE: releasing left mouse NEVER commits an OUT decision by itself.
+// The release sets a flag + a snapshot of timing, but the actual commit is
+// deferred UNTIL EITHER:
+//   (a) a right-click arrives → SWING wins, release is discarded
+//   (b) the ball's flight ends with no right-click → OUT commits, using
+//       the snapshotted timing (so "early read" scoring still works).
+//
+// The snapshot matters for scoring: the tooLate check, early-read bonus,
+// and streak all look at shotT / ball.position.z. We save those at release
+// time and pass them to handleDecision as `snap` so the player gets credit
+// for an early read even though the commit happens at end of flight.
+let _releaseIntent = false;
+let _releaseSnap   = null;
+
+function cancelReleaseIntent(){
+  _releaseIntent = false;
+  _releaseSnap   = null;
 }
 
 window.onReadyUp = function(){
   if (!STATE.holdingReady) return;
   STATE.holdingReady = false;
   document.getElementById('btn-ready').classList.remove('active');
-  // Practice releaseIsHarmless drills (VOLLEY/BOUNCE) — release is ignored
-  // at any phase so stray releases can't turn the drill into an "OUT" call.
-  // Must run BEFORE WINDUP/FLIGHT dispatch.
+  // Practice releaseIsHarmless drills — release at ANY phase is ignored.
   if (STATE.mode === 'PRACTICE') {
     const drill = PRACTICE_DRILLS[STATE.practiceIdx];
     if (drill && drill.releaseIsHarmless) return;
   }
   if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'OUT'; return; }
   if (STATE.phase !== 'FLIGHT') return;
-  // Defer OUT. 250ms later, if no SWING has happened, it commits as OUT.
-  cancelPendingOut();
-  _pendingOutTimeout = setTimeout(() => {
-    _pendingOutTimeout = null;
-    if (STATE.phase === 'FLIGHT' && STATE.canInput) handleDecision('OUT');
-  }, 250);
+  // Flag release intent + snapshot timing. DOES NOT commit OUT yet.
+  _releaseIntent = true;
+  _releaseSnap = {
+    shotT: STATE.shotT,
+    ballZ: ball.position.z,
+    hasBounced: STATE.hasBounced
+  };
 };
 window.onSwing = function(){
-  // A swing ALWAYS cancels any pending OUT — the release was instinctive.
-  cancelPendingOut();
+  // A swing ALWAYS cancels any pending release — the release was
+  // instinctive hand-repositioning, not a "let it go" decision.
+  cancelReleaseIntent();
   document.getElementById('btn-swing').classList.add('active');
   setTimeout(() => document.getElementById('btn-swing').classList.remove('active'), 150);
   if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'SWING'; return; }
@@ -1806,7 +1820,11 @@ if (viewportEl) {
 });
 
 // ── Decision handler ──
-function handleDecision(kind){
+// `snap` — optional override of the "when the decision was made" values.
+// When a deferred release commits OUT at end of flight, we pass the snapshot
+// taken at release time so the player gets credit for an early read (and
+// isn't penalized for being "too late" just because the flight completed).
+function handleDecision(kind, snap){
   // The `!STATE.canInput` guard closes a double-verdict race: if the flight
   // timed out first (logged "Missed") and the player's keypress arrived a
   // frame later, the old code would run this again and ALSO call showVerdict
@@ -1815,6 +1833,10 @@ function handleDecision(kind){
   STATE.canInput = false;
   STATE.decision = kind;
   const shot = STATE.currentShot;
+  // Use snapshot timing if provided (deferred release commit), otherwise live.
+  const decisionT = snap ? snap.shotT : STATE.shotT;
+  const decisionZ = snap ? snap.ballZ : ball.position.z;
+  const decisionBounced = snap ? snap.hasBounced : STATE.hasBounced;
   let correct = false;
   let tooLate = false;
   let tooEarlySwing = false;
@@ -1825,15 +1847,15 @@ function handleDecision(kind){
     //       quarters of the flight to make the call.
     //   (b) ball-past-player — if the ball's already a foot behind you
     //       (z > PLAYER_Z+1), you physically can't have "let it go."
-    const ballPastPlayer = ball.position.z > PLAYER_Z + 1.0;
-    tooLate = STATE.shotT > 0.72 || ballPastPlayer;
+    const ballPastPlayer = decisionZ > PLAYER_Z + 1.0;
+    tooLate = decisionT > 0.72 || ballPastPlayer;
     correct = (shot.kind === 'OUT') && !tooLate;
   } else if (kind === 'SWING') {
-    STATE.swingResolved = STATE.hasBounced ? 'BOUNCE' : 'VOLLEY';
+    STATE.swingResolved = decisionBounced ? 'BOUNCE' : 'VOLLEY';
     // TOO EARLY — swung before the ball crossed the net (still on the
     // opponent's side, z < 0). The "contact" is a mis-hit that sails wide
     // right past the sideline. Always counted wrong, even on OUT shots.
-    if (ball.position.z < 0) {
+    if (decisionZ < 0) {
       tooEarlySwing = true;
       correct = false;
     } else {
@@ -1851,7 +1873,7 @@ function handleDecision(kind){
     STATE.sessionCorrect++;
     // Points = (base 100 + earlyBonus + timingBonus) × streak multiplier.
     // Streak multiplier uses the streak you're ABOUT to reach (pre+1).
-    const earlyBonus = STATE.shotT < 0.35 ? 100 : STATE.shotT < 0.6 ? 60 : 30;
+    const earlyBonus = decisionT < 0.35 ? 100 : decisionT < 0.6 ? 60 : 30;
     // ── TIMING BONUS — elite-tier reads earn +200 flat, before multiplier. ──
     // Three triggers (any one counts):
     //   (a) OUT called while ball is STILL on opponent's side of the kitchen
@@ -1863,11 +1885,11 @@ function handleDecision(kind){
     let timingBonus = 0;
     let perfectReason = null;
     const OPP_KITCHEN_Z = -7;
-    if (kind === 'OUT' && ball.position.z < OPP_KITCHEN_Z) {
+    if (kind === 'OUT' && decisionZ < OPP_KITCHEN_Z) {
       timingBonus = 200; perfectReason = 'EARLY READ';
-    } else if (kind === 'SWING' && shot.kind === 'VOLLEY' && STATE.shotT >= 0.20 && STATE.shotT <= 0.40) {
+    } else if (kind === 'SWING' && shot.kind === 'VOLLEY' && decisionT >= 0.20 && decisionT <= 0.40) {
       timingBonus = 200; perfectReason = 'PERFECT BLOCK';
-    } else if (kind === 'SWING' && shot.kind === 'BOUNCE' && STATE.hasBounced && STATE.shotT >= 0.55 && STATE.shotT <= 0.70) {
+    } else if (kind === 'SWING' && shot.kind === 'BOUNCE' && decisionBounced && decisionT >= 0.55 && decisionT <= 0.70) {
       timingBonus = 200; perfectReason = 'PERFECT STROKE';
     }
     const preStreak = STATE.streak;
@@ -2600,6 +2622,16 @@ function animate(){
         STATE.trial++;
         setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
       }
+    }
+    // End of flight with deferred release: player released early and never
+    // right-clicked — commit the OUT decision now, using the snapshot from
+    // the release moment so scoring/tooLate reflect WHEN they released, not
+    // this (end-of-flight) frame.
+    if (STATE.shotT >= 1 && STATE.canInput && _releaseIntent) {
+      const snap = _releaseSnap;
+      cancelReleaseIntent();
+      handleDecision('OUT', snap);
+      return requestAnimationFrame(animate);  // skip the rest of this frame's logic
     }
     // End of flight: if no decision made, figure out why it was a miss.
     if (STATE.shotT >= 1 && STATE.canInput){
