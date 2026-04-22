@@ -1069,7 +1069,7 @@ function makePlayer({ jersey, shorts, z, facing, x = 0 }) {
   const jerseyMat = new THREE.MeshStandardMaterial({ color: jersey, roughness: 0.55 });
   const paddleFaceMat = new THREE.MeshStandardMaterial({ color: 0x8B1A2B, roughness: 0.35 });
   const paddleEdgeMat = new THREE.MeshStandardMaterial({ color: 0x0A1628, roughness: 0.3, metalness: 0.55 });
-  const gripMat = new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: 0.85 });
+  const gripMat = new THREE.MeshStandardMaterial({ color: 0x0A0F18, roughness: 0.92 });  // darkened to pure near-black so it can never read as skin tone
   for (const sign of [-1, 1]) {
     const leg = new THREE.Mesh(new THREE.CapsuleGeometry(0.22, 1.1, 6, 10), shortMat);
     leg.position.set(sign*0.28, 0.9, 0); leg.castShadow = true; g.add(leg);
@@ -1103,7 +1103,12 @@ function makePlayer({ jersey, shorts, z, facing, x = 0 }) {
   // Stash rest pose (paddle down at side) + ready pose (paddle up forward).
   // Used by the "SPACE held → defender rises into ready" animation.
   paddle.userData.readyPose = { px: -0.72, py: 2.9,  pz: 1.55, rx: -0.4, ry: 0, rz: -0.15 };
-  paddle.userData.restPose  = { px: -0.70, py: 1.35, pz: 0.25, rx:  0.2, ry: 0, rz: -0.05 };
+  // Rest pose pulled tight against the body — paddle hangs straight down at
+  // the right hip, NO forward tilt and NO forward offset. Previously rx=0.2
+  // + pz=0.25 pushed the paddle face forward, which could read as horizontal
+  // protrusion from the side-on camera angle. Dave 2026-04-22: "the thing
+  // that looks like a penis."
+  paddle.userData.restPose  = { px: -0.55, py: 1.35, pz: -0.10, rx:  0.0, ry: 0, rz: -0.05 };
   // Start in rest pose — defender rises into ready when SPACE is held.
   const r = paddle.userData.restPose;
   paddle.position.set(r.px, r.py, r.pz);
