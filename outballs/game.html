@@ -484,7 +484,7 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <!-- Coaching rule banner — only for VOLLEY + BOUNCE drills (emphasizeHold) -->
 <div id="drill-rule-banner">
-  <span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO HIT · DO NOT RELEASE
+  <span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO HIT · DO NOT RELEASE LEFT MOUSE
 </div>
 
 <!-- Round title card -->
@@ -2394,8 +2394,8 @@ window.beginPracticeDrill = function(){
   const ruleBanner = document.getElementById('drill-rule-banner');
   if (drill.emphasizeHold) {
     ruleBanner.innerHTML = drill.kind === 'VOLLEY'
-      ? '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO VOLLEY · DO NOT RELEASE'
-      : '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · WAIT FOR BOUNCE · PRESS RIGHT MOUSE · DO NOT RELEASE';
+      ? '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · PRESS RIGHT MOUSE TO VOLLEY · DO NOT RELEASE LEFT MOUSE'
+      : '<span class="rule-big">⚠️ Keep holding</span>LEFT MOUSE · WAIT FOR BOUNCE · PRESS RIGHT MOUSE · DO NOT RELEASE LEFT MOUSE';
     ruleBanner.classList.add('on');
   } else {
     ruleBanner.classList.remove('on');
