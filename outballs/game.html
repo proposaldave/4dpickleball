@@ -414,17 +414,17 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
     <div class="pg-eyebrow">Before you start</div>
     <h2 class="pg-h">Two keys. One decision.</h2>
     <div class="pg-key">
-      <kbd>HOLD LEFT</kbd>
+      <kbd>LEFT MOUSE</kbd>
       <div>
-        <div class="pg-key-name">Hold the entire stroke</div>
-        <div class="pg-key-desc">Press &amp; hold left mouse the whole time. <strong>Release</strong> only when the ball is going OUT.</div>
+        <div class="pg-key-name">Hold to ready up</div>
+        <div class="pg-key-desc">Press &amp; hold left mouse when you're about to receive. <strong>Release</strong> if you decide to let the ball go out.</div>
       </div>
     </div>
     <div class="pg-key">
       <kbd>RIGHT CLICK</kbd>
       <div>
-        <div class="pg-key-name">Hit</div>
-        <div class="pg-key-desc">Hit the ball. Volley or groundstroke.</div>
+        <div class="pg-key-name">Hit the ball</div>
+        <div class="pg-key-desc">Right-click to hit. It's fine if left mouse releases at the same time — just make sure you right-click.</div>
       </div>
     </div>
     <button class="pg-go" onclick="startPracticeMode()">Start Pre-Training →</button>
@@ -636,6 +636,7 @@ const PRACTICE_DRILLS = [
     speeds: [0.28, 0.40, 0.52],
     shots: 3,
     oppZ: -22, // Opponent always in backcourt for pre-training (Dave 2026-04-22)
+    autoReady: false, // OUT drill REQUIRES the hold-and-release gesture (that's what's being taught)
     steps: [
       { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to ready up.' },
       { n: 'STEP 2', t: 'Watch the ball fly long.' },
@@ -650,32 +651,43 @@ const PRACTICE_DRILLS = [
     tag: 'VOLLEY',
     tagClass: 'volley',
     name: 'Volley it',
-    speeds: [0.28, 0.40, 0.52],
+    // Slower volley drill — the ball path is ~30ft at player chest height.
+    // Dave's mom 2026-04-22: "clicked right, missed every time". Problem
+    // was the hold-left + right-click coordination, not speed. Fixed via
+    // autoReady + releaseIsHarmless below; slightly slower speeds too.
+    speeds: [0.22, 0.30, 0.38],
     shots: 3,
     oppZ: -22,
+    // Auto-ready: the drill AUTO-STARTS the rally. Player doesn't have to
+    // hold the left mouse — they just need to RIGHT-CLICK when the ball
+    // arrives. Release is ignored (won't count as "let it go out").
+    autoReady: true,
+    releaseIsHarmless: true,
     steps: [
-      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to ready up.' },
-      { n: 'STEP 2', t: 'Keep holding. Wait for the ball.' },
-      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> to volley in the air.' }
+      { n: 'STEP 1', t: 'Ball will come automatically.' },
+      { n: 'STEP 2', t: 'Watch it fly toward you.' },
+      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> when it reaches you.' }
     ],
-    hint: 'Each ball a little faster. Keep left held. Right-click to hit.',
+    hint: 'Just right-click when the ball arrives. No left mouse needed.',
     resultPass: 'Clean volleys. Good hands.',
-    resultFail: 'Keep left held. Right-click when the ball reaches you.'
+    resultFail: 'Right-click when the ball reaches you.'
   },
   {
     kind: 'BOUNCE',
     tag: 'GROUNDSTROKE',
     tagClass: 'bounce',
     name: 'Let it bounce, then hit',
-    speeds: [0.24, 0.34, 0.44],
+    speeds: [0.20, 0.28, 0.36],
     shots: 3,
     oppZ: -22,
+    autoReady: true,
+    releaseIsHarmless: true,
     steps: [
-      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to ready up.' },
-      { n: 'STEP 2', t: 'Let the ball <strong>BOUNCE</strong>.' },
+      { n: 'STEP 1', t: 'Ball will come automatically.' },
+      { n: 'STEP 2', t: 'Let it <strong>BOUNCE</strong>.' },
       { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> after the bounce.' }
     ],
-    hint: 'Wait for the bounce. Each ball a little faster.',
+    hint: 'Just right-click AFTER the bounce. No left mouse needed.',
     resultPass: 'Good groundstrokes. You waited.',
     resultFail: 'Wait for the bounce. THEN right-click.'
   }
@@ -1606,15 +1618,42 @@ window.onReadyDown = function(){
   STATE.holdingReady = true;
   document.getElementById('btn-ready').classList.add('active');
 };
+// Deferred-OUT grace window. Dave's mom + wife both had the same problem:
+// when they decide to HIT a ball, they instinctively RELEASE the left mouse
+// button before/as they right-click. Under the old logic, that release fired
+// an immediate OUT decision and the subsequent right-click was blocked —
+// every intended hit registered as a miss. Fix: when left-mouse releases
+// during FLIGHT, DEFER the OUT decision by 250ms. If a right-click (SWING)
+// lands in that window, cancel the OUT — they meant to hit. Only if no
+// right-click follows does the release count as "let it go."
+let _pendingOutTimeout = null;
+function cancelPendingOut(){
+  if (_pendingOutTimeout) { clearTimeout(_pendingOutTimeout); _pendingOutTimeout = null; }
+}
+
 window.onReadyUp = function(){
   if (!STATE.holdingReady) return;
   STATE.holdingReady = false;
   document.getElementById('btn-ready').classList.remove('active');
+  // Practice releaseIsHarmless drills (VOLLEY/BOUNCE) — release is ignored
+  // at any phase so stray releases can't turn the drill into an "OUT" call.
+  // Must run BEFORE WINDUP/FLIGHT dispatch.
+  if (STATE.mode === 'PRACTICE') {
+    const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+    if (drill && drill.releaseIsHarmless) return;
+  }
   if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'OUT'; return; }
   if (STATE.phase !== 'FLIGHT') return;
-  handleDecision('OUT');
+  // Defer OUT. 250ms later, if no SWING has happened, it commits as OUT.
+  cancelPendingOut();
+  _pendingOutTimeout = setTimeout(() => {
+    _pendingOutTimeout = null;
+    if (STATE.phase === 'FLIGHT' && STATE.canInput) handleDecision('OUT');
+  }, 250);
 };
 window.onSwing = function(){
+  // A swing ALWAYS cancels any pending OUT — the release was instinctive.
+  cancelPendingOut();
   document.getElementById('btn-swing').classList.add('active');
   setTimeout(() => document.getElementById('btn-swing').classList.remove('active'), 150);
   if (STATE.phase === 'WINDUP') { STATE.pendingDecision = 'SWING'; return; }
@@ -2393,10 +2432,22 @@ function practiceNextTrial(){
   if (cpH) cpH.textContent = drill.name + '.';
   if (cpS) {
     if (drill.kind === 'OUT') cpS.textContent = 'Hold left mouse · Release when you see it going OUT';
-    else if (drill.kind === 'VOLLEY') cpS.textContent = 'Hold left mouse · Right-click to volley (no bounce)';
-    else cpS.textContent = 'Hold left mouse · Wait for bounce · Then right-click';
+    else if (drill.kind === 'VOLLEY') cpS.textContent = 'Ball launching… right-click when it reaches you';
+    else cpS.textContent = 'Ball launching… wait for the bounce, then right-click';
   }
   document.getElementById('center-prompt').style.opacity = '1';
+
+  // Auto-ready for VOLLEY/BOUNCE drills — the whole coordination tax of
+  // "hold left + right-click" is the reason beginners fail these drills.
+  // We auto-fire the ready so the player only has to right-click at the
+  // right moment. releaseIsHarmless above handles any stray left-release.
+  if (drill.autoReady) {
+    setTimeout(() => {
+      if (STATE.mode === 'PRACTICE' && STATE.phase === 'IDLE') {
+        onReadyDown();
+      }
+    }, 1400);
+  }
 }
 
 function showPracticeResult(){
