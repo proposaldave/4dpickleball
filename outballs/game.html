@@ -1086,14 +1086,15 @@ function makePlayer({ jersey, shorts, z, facing, x = 0 }) {
   head.position.y = 3.75; head.castShadow = true; g.add(head);
   const cap = new THREE.Mesh(new THREE.SphereGeometry(0.44, 24, 12, 0, Math.PI*2, 0, Math.PI/2), jerseyMat);
   cap.position.y = 3.82; cap.scale.y = 0.6; g.add(cap);
-  // Off-hand (non-paddle) — at +X model side
-  const offArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 0.9, 5, 8), jerseyMat);
-  offArm.position.set(0.62, 2.55, 0.1); offArm.rotation.z = -0.18; g.add(offArm);
-  // Paddle arm — at MODEL -X so it's on player's body-right after rotation
-  const upperArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.15, 0.7, 5, 8), jerseyMat);
-  upperArm.position.set(-0.58, 2.62, 0.25); upperArm.rotation.z = -0.22; upperArm.rotation.x = 0.4; g.add(upperArm);
-  const forearm = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.7, 5, 8), skin);
-  forearm.position.set(-0.68, 2.35, 0.95); forearm.rotation.x = Math.PI/2 - 0.25; g.add(forearm);
+  // Off-hand (non-paddle arm) — at +X model side, hanging down along the body
+  const offArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.14, 1.0, 5, 8), jerseyMat);
+  offArm.position.set(0.62, 2.45, 0.05); offArm.rotation.z = -0.18; g.add(offArm);
+  // Paddle-side arm — at MODEL -X so it's body-right after 180° rotation.
+  // Single capsule (shoulder → hand) hanging at the side. The separate
+  // skin-toned forearm was removed 2026-04-22 — it rendered as a horizontal
+  // tan stick when the paddle was in rest pose and looked disconnected.
+  const upperArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.15, 1.0, 5, 8), jerseyMat);
+  upperArm.position.set(-0.62, 2.45, 0.05); upperArm.rotation.z = 0.18; g.add(upperArm);
   // Paddle
   const paddle = new THREE.Group();
   const pGrip = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.085, 0.5, 12), gripMat); pGrip.position.set(0, -0.7, 0); paddle.add(pGrip);
