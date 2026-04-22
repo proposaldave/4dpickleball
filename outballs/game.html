@@ -1125,9 +1125,11 @@ const attacker = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z: -22.5, faci
 scene.add(defender, attacker);
 
 // ── Ball + trail ──
-// Pickleball neon — the ball and its trail are always this color. No per-shot
-// tinting (Dave's 2026-04-20 call — ball is ALWAYS neon-green pickleball).
-const PICKLEBALL_GREEN = 0xC6FF00;
+// Neon tennis-ball green — ball + trail. Dave 2026-04-22: "same as a
+// tennis ball." Previous 0xC6FF00 read as chartreuse/lime; shifted to
+// 0xADFF2F (web "greenyellow", rgb 173/255/47) — has real green
+// dominance, reads unambiguously neon GREEN rather than neon yellow.
+const PICKLEBALL_GREEN = 0xADFF2F;
 const ballMat = new THREE.MeshStandardMaterial({ color:PICKLEBALL_GREEN, emissive:PICKLEBALL_GREEN, emissiveIntensity:1.6, roughness:.5, metalness:.1 });
 const ball = new THREE.Mesh(new THREE.SphereGeometry(0.28, 20, 14), ballMat);
 ball.castShadow = true; ball.position.set(0, 3, -22.5); ball.visible = false;
