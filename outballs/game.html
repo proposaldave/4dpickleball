@@ -268,6 +268,52 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   .bottom-bar{padding:14px 16px max(20px, env(safe-area-inset-bottom));}
 }
 
+/* ── Arcade leaderboard ── */
+#hi-score{position:fixed;top:18px;right:24px;z-index:12;padding:6px 14px;border-radius:999px;background:rgba(10,22,40,.8);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.3);font-family:var(--4dp-font-data);font-weight:800;font-size:11px;letter-spacing:1.5px;color:#FBBF24;display:none;}
+#hi-score.on{display:block;}
+#hi-score .lbl{color:var(--4dp-text-mute);margin-right:6px;}
+/* Name entry overlay — arcade-style HIGH SCORE letter picker */
+#name-entry{position:fixed;inset:0;z-index:230;background:rgba(10,22,40,.96);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:24px;}
+#name-entry.on{display:flex;}
+.ne-card{max-width:520px;width:100%;background:linear-gradient(180deg,rgba(251,191,36,.12),rgba(10,20,40,.85));border:1px solid rgba(251,191,36,.6);border-radius:22px;padding:32px 36px;text-align:center;box-shadow:0 24px 72px rgba(251,191,36,.25), inset 0 0 60px rgba(251,191,36,.08);animation:hiscoreGlow 2s ease-in-out infinite alternate;}
+@keyframes hiscoreGlow{from{box-shadow:0 24px 72px rgba(251,191,36,.2), inset 0 0 60px rgba(251,191,36,.08);} to{box-shadow:0 24px 90px rgba(251,191,36,.5), inset 0 0 70px rgba(251,191,36,.18);}}
+.ne-kicker{font-family:var(--4dp-font-data);font-size:11px;font-weight:900;letter-spacing:4px;text-transform:uppercase;color:#FBBF24;margin-bottom:4px;}
+.ne-h{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:clamp(44px,8vw,68px);letter-spacing:-2px;line-height:1;color:var(--4dp-text);margin:0 0 6px;background:linear-gradient(180deg,#FBBF24,#F59E0B);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.ne-score{font-family:var(--4dp-font-data);font-weight:900;font-size:clamp(48px,9vw,72px);letter-spacing:2px;color:#FBBF24;margin:8px 0 4px;text-shadow:0 0 30px rgba(251,191,36,.5);}
+.ne-rank{font-size:13px;color:var(--4dp-text-dim);margin-bottom:20px;}
+.ne-rank strong{color:#FBBF24;}
+.ne-input-wrap{display:flex;justify-content:center;gap:10px;margin:16px 0 18px;}
+.ne-letter{width:62px;height:78px;background:rgba(10,22,40,.8);border:2px solid rgba(251,191,36,.35);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--4dp-font-data);font-weight:900;font-size:48px;letter-spacing:0;color:var(--4dp-text);cursor:pointer;transition:all .15s;user-select:none;-webkit-user-select:none;}
+.ne-letter.active{border-color:#FBBF24;background:rgba(251,191,36,.15);box-shadow:0 0 24px rgba(251,191,36,.4);color:#FBBF24;}
+.ne-letter:hover{border-color:rgba(251,191,36,.6);}
+.ne-letter-ctrls{display:flex;justify-content:center;gap:10px;margin-bottom:18px;}
+.ne-ctrl{width:40px;height:40px;border-radius:50%;background:rgba(245,243,238,.06);border:1px solid rgba(245,243,238,.14);color:var(--4dp-text);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;}
+.ne-ctrl:hover{background:rgba(245,243,238,.12);}
+.ne-submit{width:100%;background:linear-gradient(90deg,#F59E0B,#FBBF24);color:#0A1628;border:0;border-radius:14px;padding:16px;font-family:var(--4dp-font-body);font-weight:800;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:6px;box-shadow:0 8px 28px rgba(251,191,36,.4);transition:all .2s;}
+.ne-submit:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(251,191,36,.55);}
+.ne-skip{display:block;width:100%;margin-top:10px;background:transparent;border:0;color:var(--4dp-text-dim);font-family:var(--4dp-font-body);font-size:12px;cursor:pointer;padding:6px;text-decoration:underline;}
+.ne-skip:hover{color:var(--4dp-text);}
+/* Leaderboard inside end-card */
+.lb-wrap{margin:14px 0 6px;padding:14px 12px;background:rgba(245,243,238,.03);border:1px solid rgba(245,243,238,.08);border-radius:14px;max-height:240px;overflow-y:auto;}
+.lb-head{font-family:var(--4dp-font-data);font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:#FBBF24;margin-bottom:8px;text-align:center;}
+.lb-row{display:grid;grid-template-columns:34px 1fr 90px;gap:8px;align-items:center;padding:7px 4px;font-family:var(--4dp-font-data);font-weight:700;font-size:13px;border-bottom:1px solid rgba(245,243,238,.04);}
+.lb-row:last-child{border-bottom:0;}
+.lb-row.me{background:rgba(251,191,36,.08);border-radius:8px;padding:7px 10px;border-bottom:0;}
+.lb-row.me .lb-rank{color:#FBBF24;}
+.lb-rank{text-align:center;color:var(--4dp-text-mute);font-size:12px;}
+.lb-name{text-align:left;color:var(--4dp-text);letter-spacing:1px;}
+.lb-score{text-align:right;color:#FBBF24;font-weight:900;}
+.lb-empty{text-align:center;padding:14px;font-size:12px;color:var(--4dp-text-dim);font-style:italic;}
+.ec-view-lb{width:100%;margin-top:8px;background:transparent;border:1px solid rgba(245,243,238,.12);border-radius:10px;padding:10px;color:var(--4dp-text);font-family:var(--4dp-font-body);font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.ec-view-lb:hover{background:rgba(245,243,238,.04);}
+
+/* Mobile tweaks for name-entry */
+@media (max-width:640px){
+  .ne-card{padding:24px 22px;}
+  .ne-letter{width:52px;height:68px;font-size:40px;}
+  .ne-input-wrap{gap:8px;}
+}
+
 /* Loading */
 #loading{position:fixed;inset:0;z-index:300;background:var(--4dp-ink);display:flex;align-items:center;justify-content:center;color:var(--4dp-text);font-family:var(--4dp-font-display);font-style:italic;font-size:30px;transition:opacity .5s ease;}
 #loading.gone{opacity:0;pointer-events:none;visibility:hidden;}
@@ -279,6 +325,9 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <div id="viewport"></div>
 <div id="vignette"></div>
+
+<!-- HI-SCORE HUD pill — shows current session best vs all-time personal best -->
+<div id="hi-score"><span class="lbl">HI</span><span id="hi-score-val">0</span></div>
 <div id="hit-flash"></div>
 <div id="float-points"></div>
 <div id="streak-banner">
@@ -471,10 +520,35 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
     <div class="ec-stat-row"><span class="l">Best streak</span><span class="v" id="ec-streak">0</span></div>
     <div class="ec-stat-row"><span class="l">Points</span><span class="v" id="ec-points">0</span></div>
     <div class="ec-stat-row" style="border:0;margin-bottom:6px;"><span class="l">Coach's note</span><span class="v" id="ec-coach" style="font-family:var(--4dp-font-display);font-style:italic;font-weight:400;text-align:right;max-width:62%;font-size:14px;">—</span></div>
+    <!-- Leaderboard (always rendered after end session — shows top scores + where you land) -->
+    <div class="lb-wrap" id="ec-leaderboard">
+      <div class="lb-head">🏆 Leaderboard · Top 10</div>
+      <div id="lb-rows"></div>
+    </div>
     <div class="ec-buttons">
       <button class="ec-again" onclick="restartSession()">Play again</button>
       <button class="ec-share" onclick="shareResult()">📋 Share report</button>
     </div>
+  </div>
+</div>
+
+<!-- Arcade-style high-score name entry overlay -->
+<div id="name-entry">
+  <div class="ne-card">
+    <div class="ne-kicker">★ New High Score ★</div>
+    <h2 class="ne-h">You made the board</h2>
+    <div class="ne-score" id="ne-score">0</div>
+    <div class="ne-rank" id="ne-rank">Rank: <strong>—</strong></div>
+    <!-- 3-letter arcade picker. Tap a letter to activate, then use + / - to cycle. -->
+    <div class="ne-input-wrap" id="ne-letters"></div>
+    <div class="ne-letter-ctrls">
+      <button class="ne-ctrl" id="ne-prev-letter" title="Previous letter">◀</button>
+      <button class="ne-ctrl" id="ne-down" title="Letter down">−</button>
+      <button class="ne-ctrl" id="ne-up" title="Letter up">+</button>
+      <button class="ne-ctrl" id="ne-next-letter" title="Next letter">▶</button>
+    </div>
+    <button class="ne-submit" onclick="submitHighScore()">Save Score →</button>
+    <button class="ne-skip" onclick="cancelHighScore()">Skip — don't save</button>
   </div>
 </div>
 
@@ -1550,6 +1624,14 @@ window.onSwing = function(){
 
 // Keyboard
 window.addEventListener('keydown', (e) => {
+  // If any modal overlay is open (name-entry, end-card, practice cards),
+  // suspend all game-keyboard shortcuts — let the overlay's own handlers own it.
+  const overlayOpen = ['name-entry', 'end-card', 'practice-card', 'practice-result', 'retry-card']
+    .some(id => {
+      const el = document.getElementById(id);
+      return el && (el.classList.contains('on') || el.style.display === 'flex');
+    });
+  if (overlayOpen) return;
   // Arrow keys always orbit the camera (auto-repeat allowed for smooth pan)
   const STEP = 0.06;
   if (e.key === 'ArrowLeft')  { e.preventDefault(); nudgeCamera(-STEP, 0); return; }
@@ -1599,7 +1681,7 @@ const IS_MAC = /Mac|iPhone|iPod|iPad/.test(navigator.platform) ||
                /Mac OS X/.test(navigator.userAgent);
 
 function isUIChrome(el){
-  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #btn-lite, #help-btn, #help-popup, #practice-card, #practice-result'));
+  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #btn-lite, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score'));
 }
 
 window.addEventListener('contextmenu', (e) => {
@@ -1874,6 +1956,223 @@ function showVerdict(correct, kind, shot){
   setTimeout(() => v.classList.remove('on'), 1400);
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// ARCADE LEADERBOARD — v1 ships with localStorage; remote sync pluggable
+// ═══════════════════════════════════════════════════════════════════
+// Architecture:
+//   • localLeaderboard — always works, top 10 per device via localStorage.
+//     Saves immediately, no backend dependency.
+//   • remoteLeaderboard — wraps a fetch-based backend (Firebase/JSONBin/
+//     Cloudflare KV — drop-in). Falls through to local if no backend.
+//   • Combined view: union of local + remote, deduped by (name+score),
+//     sorted by score desc, top 10 displayed.
+//
+// TO ENABLE GLOBAL LEADERBOARD:
+//   1. Create a free Firebase project at firebase.google.com
+//   2. Enable Firestore, add a collection "outballs_scores"
+//   3. Set REMOTE_API below to your Firestore REST endpoint (no auth needed
+//      for a public write-allowed collection — set Firestore rules to allow
+//      anonymous read+write to that collection only).
+//   4. Uncomment the fetch() call in remoteLeaderboard.fetch/submit.
+// ═══════════════════════════════════════════════════════════════════
+const LB_STORAGE_KEY    = 'outballs_leaderboard_v1';
+const LB_LAST_NAME_KEY  = 'outballs_last_name';
+const LB_HISCORE_KEY    = 'outballs_personal_best';
+const LB_MAX_ROWS       = 10;
+const REMOTE_API        = null; // e.g. 'https://your-project.firebaseio.com/outballs_scores.json'
+
+const leaderboard = {
+  loadLocal(){
+    try {
+      const raw = localStorage.getItem(LB_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  },
+  saveLocal(rows){
+    try { localStorage.setItem(LB_STORAGE_KEY, JSON.stringify(rows)); } catch(e){}
+  },
+  addLocal(entry){
+    const rows = this.loadLocal();
+    rows.push(entry);
+    rows.sort((a, b) => b.score - a.score);
+    const trimmed = rows.slice(0, LB_MAX_ROWS);
+    this.saveLocal(trimmed);
+    return trimmed;
+  },
+  getPersonalBest(){
+    try { return parseInt(localStorage.getItem(LB_HISCORE_KEY) || '0', 10); } catch(e){ return 0; }
+  },
+  setPersonalBest(score){
+    try { localStorage.setItem(LB_HISCORE_KEY, String(score)); } catch(e){}
+  },
+  getLastName(){
+    try { return localStorage.getItem(LB_LAST_NAME_KEY) || 'AAA'; } catch(e){ return 'AAA'; }
+  },
+  setLastName(name){
+    try { localStorage.setItem(LB_LAST_NAME_KEY, name); } catch(e){}
+  },
+  // Returns rank (1-indexed) the score would earn, or null if below top N.
+  rankFor(score){
+    const rows = this.getCombined();
+    let rank = 1;
+    for (const r of rows) {
+      if (score > r.score) return rank;
+      rank++;
+    }
+    return rank <= LB_MAX_ROWS ? rank : null;
+  },
+  // Combined view: for now just local. Future: merge remote.
+  getCombined(){
+    return this.loadLocal();
+  },
+  async submit(entry){
+    const rows = this.addLocal(entry);
+    // Remote sync — fires if REMOTE_API is configured. Never blocks; any
+    // failure is silently swallowed (local always wins for UX).
+    if (REMOTE_API) {
+      try {
+        await fetch(REMOTE_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entry)
+        });
+      } catch(e) { /* offline / backend down — local entry already saved */ }
+    }
+    if (entry.score > this.getPersonalBest()) this.setPersonalBest(entry.score);
+    this.setLastName(entry.name);
+    return rows;
+  }
+};
+
+// Render top-N leaderboard rows into a container. Highlights `myEntry` row.
+function renderLeaderboard(container, rows, myEntry){
+  if (!container) return;
+  container.innerHTML = '';
+  if (!rows || rows.length === 0) {
+    container.innerHTML = '<div class="lb-empty">No scores yet. Be the first!</div>';
+    return;
+  }
+  rows.slice(0, LB_MAX_ROWS).forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'lb-row' + (myEntry && r._isMe ? ' me' : '');
+    row.innerHTML = `
+      <div class="lb-rank">${i + 1}</div>
+      <div class="lb-name">${(r.name || '?').slice(0, 8).toUpperCase()}</div>
+      <div class="lb-score">${(r.score || 0).toLocaleString()}</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// HI-SCORE HUD — displayed top-right during gameplay. Hydrated on startGame.
+function updateHiScoreHUD(){
+  const hud = document.getElementById('hi-score');
+  const val = document.getElementById('hi-score-val');
+  if (!hud || !val) return;
+  const best = leaderboard.getPersonalBest();
+  if (best > 0) {
+    val.textContent = best.toLocaleString();
+    hud.classList.add('on');
+  } else {
+    hud.classList.remove('on');
+  }
+}
+
+// ── Arcade name-entry UI ──
+let _neLetters = ['A', 'A', 'A'];
+let _neActiveIdx = 0;
+let _nePendingEntry = null;   // the score entry being named
+let _neOnComplete = null;     // callback after save/skip
+
+function showNameEntry(entry, onComplete){
+  _nePendingEntry = entry;
+  _neOnComplete = onComplete;
+  const last = leaderboard.getLastName().toUpperCase();
+  _neLetters = [last[0] || 'A', last[1] || 'A', last[2] || 'A'];
+  _neActiveIdx = 0;
+  document.getElementById('ne-score').textContent = entry.score.toLocaleString();
+  const rank = leaderboard.rankFor(entry.score);
+  document.getElementById('ne-rank').innerHTML = rank
+    ? `Rank: <strong>#${rank}</strong> of ${LB_MAX_ROWS}`
+    : `Personal best!`;
+  renderNameLetters();
+  document.getElementById('name-entry').classList.add('on');
+}
+
+function renderNameLetters(){
+  const wrap = document.getElementById('ne-letters');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  _neLetters.forEach((ltr, i) => {
+    const box = document.createElement('div');
+    box.className = 'ne-letter' + (i === _neActiveIdx ? ' active' : '');
+    box.textContent = ltr;
+    box.onclick = () => { _neActiveIdx = i; renderNameLetters(); };
+    wrap.appendChild(box);
+  });
+}
+
+function cycleLetter(dir){
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const cur = _neLetters[_neActiveIdx];
+  let idx = chars.indexOf(cur);
+  if (idx < 0) idx = 0;
+  idx = (idx + dir + chars.length) % chars.length;
+  _neLetters[_neActiveIdx] = chars[idx];
+  renderNameLetters();
+}
+
+function moveActiveLetter(dir){
+  _neActiveIdx = (_neActiveIdx + dir + _neLetters.length) % _neLetters.length;
+  renderNameLetters();
+}
+
+window.submitHighScore = async function(){
+  if (!_nePendingEntry) return;
+  const name = _neLetters.join('').toUpperCase();
+  _nePendingEntry.name = name;
+  document.getElementById('name-entry').classList.remove('on');
+  await leaderboard.submit(_nePendingEntry);
+  _nePendingEntry._isMe = true;
+  const cb = _neOnComplete; _nePendingEntry = null; _neOnComplete = null;
+  if (cb) cb(name);
+};
+
+window.cancelHighScore = function(){
+  document.getElementById('name-entry').classList.remove('on');
+  const cb = _neOnComplete;
+  _nePendingEntry = null; _neOnComplete = null;
+  if (cb) cb(null);
+};
+
+// Wire name-entry controls (idempotent — startGame invokes once)
+function wireNameEntryControls(){
+  document.getElementById('ne-up').onclick         = () => cycleLetter(+1);
+  document.getElementById('ne-down').onclick       = () => cycleLetter(-1);
+  document.getElementById('ne-prev-letter').onclick = () => moveActiveLetter(-1);
+  document.getElementById('ne-next-letter').onclick = () => moveActiveLetter(+1);
+  // Keyboard shortcuts while name-entry is open
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('name-entry').classList.contains('on')) return;
+    if (/^[A-Za-z0-9]$/.test(e.key)) {
+      _neLetters[_neActiveIdx] = e.key.toUpperCase();
+      if (_neActiveIdx < _neLetters.length - 1) _neActiveIdx++;
+      renderNameLetters();
+      e.preventDefault();
+    } else if (e.key === 'Backspace') {
+      _neLetters[_neActiveIdx] = 'A';
+      if (_neActiveIdx > 0) _neActiveIdx--;
+      renderNameLetters();
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp')    { cycleLetter(+1); e.preventDefault(); }
+    else if (e.key === 'ArrowDown')  { cycleLetter(-1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft')  { moveActiveLetter(-1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { moveActiveLetter(+1); e.preventDefault(); }
+    else if (e.key === 'Enter')      { submitHighScore(); e.preventDefault(); }
+    else if (e.key === 'Escape')     { cancelHighScore(); e.preventDefault(); }
+  });
+}
+
 // ── End session — REPORT CARD ──
 function endSession(){
   const total = LEVELS.length * SHOTS_PER_LEVEL;
@@ -1930,7 +2229,51 @@ function endSession(){
   const coachEl = document.getElementById('ec-coach');
   if (coachEl) coachEl.textContent = coachNote;
 
-  document.getElementById('end-card').classList.add('on');
+  // ── Leaderboard integration (Dave 2026-04-22 — arcade-style scoring) ──
+  // Build the candidate entry. Rank it against current leaderboard.
+  // If it makes the top 10 (or is the player's personal best), prompt
+  // for 3-letter initials. Then render the leaderboard with the new row
+  // highlighted. If skipped, show leaderboard anyway.
+  const candidate = {
+    name: leaderboard.getLastName(),
+    score: STATE.sessionPoints,
+    grade: grade,
+    date: Date.now(),
+    correct: STATE.sessionCorrect,
+    total: total,
+    streak: STATE.bestStreak,
+    level: STATE.levelIdx + 1
+  };
+  const rank = leaderboard.rankFor(candidate.score);
+  const isPersonalBest = candidate.score > leaderboard.getPersonalBest();
+  const finalize = () => {
+    // Render leaderboard (always — even if skip, they see the standings)
+    const rows = leaderboard.getCombined();
+    if (candidate._isMe) {
+      // Mark ALL rows whose (name,score) match this candidate (most recent top).
+      // rankFor-based approach: find first row with matching score+name and mark it.
+      const marked = rows.slice();
+      for (const r of marked) {
+        if (r.score === candidate.score && r.name === candidate.name && !r._marked) {
+          r._isMe = true; r._marked = true; break;
+        }
+      }
+      renderLeaderboard(document.getElementById('lb-rows'), marked, candidate);
+    } else {
+      renderLeaderboard(document.getElementById('lb-rows'), rows, null);
+    }
+    updateHiScoreHUD();
+    document.getElementById('end-card').classList.add('on');
+  };
+  // Only show name entry if the score earns a rank (or would set a new PB > 0).
+  // Skip if score is 0 (nothing worth saving).
+  if (candidate.score > 0 && (rank !== null || isPersonalBest)) {
+    // Hide end-card until name is entered, so the high-score moment is pure.
+    document.getElementById('end-card').classList.remove('on');
+    showNameEntry(candidate, () => finalize());
+  } else {
+    finalize();
+  }
 }
 window.restartSession = function(){
   STATE.levelIdx = 0; STATE.trial = 0; STATE.sessionCorrect = 0; STATE.sessionPoints = 0;
@@ -1942,6 +2285,7 @@ window.restartSession = function(){
 window.shareResult = function(){
   const total = LEVELS.length * SHOTS_PER_LEVEL;
   const pct = Math.round(STATE.sessionCorrect / total * 100);
+  const lastName = leaderboard.getLastName();
   const gradeEl = document.getElementById('ec-grade');
   const grade = gradeEl ? gradeEl.textContent : '';
   const st = STATE.statsByKind;
@@ -2293,6 +2637,9 @@ function startGame(){
     setHTML('.pg-key:nth-of-type(2) kbd', 'RIGHT / CTRL+CLICK');
     setHTML('.pg-key:nth-of-type(2) .pg-key-desc', 'Right-click (or Ctrl+click on trackpad) to hit the ball. Volley or groundstroke.');
   }
+  // Arcade leaderboard: wire name-entry controls + show HI-SCORE if any
+  try { wireNameEntryControls(); } catch(e){}
+  updateHiScoreHUD();
   animate();
   // Flow rules:
   //   - requestedRound (landing page 1-9 keypress) → skip practice, jump to level
