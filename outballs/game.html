@@ -276,6 +276,7 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 <div class="hud-top">
   <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
   <div class="hud-right-group">
+    <button class="cam-btn" id="btn-lite" title="Reduce graphics quality for smoother gameplay" onclick="forceLiteMode()">⚡ Lite</button>
     <button class="cam-btn" id="btn-cam-lock" title="Unlock camera (drag with mouse)">🔒</button>
     <button class="cam-btn" id="btn-camera" title="Cycle camera view">Camera</button>
     <div class="hud-right">
@@ -724,23 +725,31 @@ let camPresetIdx = 0;
 camera.position.set(...CAM_PRESETS[0].pos);
 camera.lookAt(...CAM_PRESETS[0].look);
 
-// Quality tier detection (Dave 2026-04-22 perf pass). Heuristic from
-// deviceMemory + hardwareConcurrency — under-resourced machines run a
-// stripped renderer (no bloom, no shadows, 1x pixel ratio). The in-flight
-// FPS monitor below can downgrade further if measured FPS < 45.
-const _devMem = navigator.deviceMemory || 4;     // GB, ~4 is modern default
+// Quality tier detection (Dave 2026-04-22 perf pass v2 — friends reported
+// choppy gameplay; v1's MID tier still had bloom + shadows which is the
+// single biggest GPU cost).
+// Can be force-set via ?perf=low|mid|high or sessionStorage.perfMode.
+const _devMem = navigator.deviceMemory || 4;
 const _cores  = navigator.hardwareConcurrency || 4;
-// LOW tier: old laptop / phone. MID: typical laptop. HIGH: gaming/desktop.
-let QUALITY = (_devMem <= 4 && _cores <= 4) ? 'LOW' : (_devMem >= 8 || _cores >= 8) ? 'HIGH' : 'MID';
+const _urlPerf = new URLSearchParams(location.search).get('perf');
+const _ssPerf = (() => { try { return sessionStorage.getItem('perfMode'); } catch(e){ return null; } })();
+// HIGH tier now requires BOTH 8+ cores AND 8+GB. Most laptops drop to MID.
+// LOW = weak machine (≤4 cores OR ≤4GB) or explicit opt-in.
+let QUALITY = (_urlPerf || _ssPerf || '').toUpperCase();
+if (QUALITY !== 'LOW' && QUALITY !== 'MID' && QUALITY !== 'HIGH') {
+  QUALITY = (_devMem <= 4 || _cores <= 4) ? 'LOW'
+          : (_devMem >= 8 && _cores >= 8) ? 'HIGH'
+          : 'MID';
+}
 
-const renderer = new THREE.WebGLRenderer({ antialias: QUALITY !== 'LOW', powerPreference: 'high-performance' });
-// Pixel-ratio cap by tier. Retina at 1x is sharp enough for this scene,
-// 1.25 gives a subtle boost on midrange, 1.5 reserved for high-end.
-const _pxRatioCap = QUALITY === 'LOW' ? 1.0 : QUALITY === 'MID' ? 1.25 : 1.5;
+const renderer = new THREE.WebGLRenderer({ antialias: QUALITY === 'HIGH', powerPreference: 'high-performance' });
+// Pixel-ratio cap — aggressive. 1.0 on LOW/MID, 1.25 on HIGH. Retina at 1.0
+// is plenty sharp for 3D gameplay and saves ~40% fragment shader work.
+const _pxRatioCap = QUALITY === 'HIGH' ? 1.25 : 1.0;
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, _pxRatioCap));
 renderer.setSize(vp.clientWidth, vp.clientHeight);
-// Shadows — disabled entirely on LOW tier (single biggest win for weak GPUs).
-renderer.shadowMap.enabled = QUALITY !== 'LOW';
+// Shadows ONLY on HIGH tier now. Directional shadow casting is expensive.
+renderer.shadowMap.enabled = QUALITY === 'HIGH';
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
@@ -830,51 +839,75 @@ function nudgeCamera(deltaTheta, deltaPhi){
   STATE.cameraManuallyChanged = true;
 }
 
+// Bloom is the single biggest GPU cost for this scene. ONLY HIGH tier gets
+// it by default now. MID/LOW render direct through the composer with bloom
+// strength 0 (still costs the pass setup but not the expensive convolutions).
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
-// Bloom — biggest GPU cost besides shadows. On LOW tier, skip bloom entirely
-// and render straight through (composer still used so animate() code path is
-// unchanged). On MID/HIGH, bloom at 70%/100% viewport resolution respectively.
-const _bloomRes = QUALITY === 'HIGH' ? 1.0 : 0.7;
 const bloom = new UnrealBloomPass(
-  new THREE.Vector2(vp.clientWidth * _bloomRes, vp.clientHeight * _bloomRes),
-  QUALITY === 'LOW' ? 0 : 0.55,  // strength 0 = bloom off (pass still exists)
+  new THREE.Vector2(vp.clientWidth, vp.clientHeight),
+  QUALITY === 'HIGH' ? 0.55 : 0,
   0.55, 0.82
 );
-bloom.enabled = QUALITY !== 'LOW';
+bloom.enabled = QUALITY === 'HIGH';
 composer.addPass(bloom);
 composer.addPass(new OutputPass());
 
-// Live FPS monitor — if we fall below 45fps sustained for 2s, kill bloom
-// and shadows. This gives weak machines a second chance without needing
-// a refresh.
-let _fpsFrames = 0, _fpsStart = performance.now(), _degraded = false;
+// Fog costs per-pixel — kill on LOW tier.
+if (QUALITY === 'LOW') scene.fog = null;
+
+// Ball point light = dynamic light, expensive with many meshes. Skip on LOW.
+const _ballLightEnabled = QUALITY !== 'LOW';
+
+// Live FPS monitor — multi-stage degrade. 1-sec windows. On each window
+// that reports <50fps, strip one more quality layer until the game is smooth.
+// Stages: (1) bloom off → (2) shadows off → (3) pixel ratio 1x + ball light off.
+let _fpsFrames = 0, _fpsStart = performance.now(), _perfStage = 0;
 function fpsTick(){
   _fpsFrames++;
   const now = performance.now();
   const elapsed = now - _fpsStart;
-  if (elapsed >= 2000) {
+  if (elapsed >= 1000) {
     const fps = (_fpsFrames * 1000) / elapsed;
-    if (!_degraded && fps < 45) {
-      _degraded = true;
-      bloom.enabled = false;
-      renderer.shadowMap.enabled = false;
-      // Force shadow re-render
-      scene.traverse(o => { if (o.isLight && o.shadow) o.castShadow = false; });
-      console.log('[perf] FPS ' + fps.toFixed(1) + ' — degraded quality');
+    if (fps < 50 && _perfStage < 3) {
+      _perfStage++;
+      if (_perfStage === 1 && bloom.enabled) {
+        bloom.enabled = false;
+        console.log('[perf] stage 1 — bloom off (fps=' + fps.toFixed(1) + ')');
+      } else if (_perfStage === 2 && renderer.shadowMap.enabled) {
+        renderer.shadowMap.enabled = false;
+        scene.traverse(o => { if (o.isLight && o.shadow) o.castShadow = false; });
+        console.log('[perf] stage 2 — shadows off (fps=' + fps.toFixed(1) + ')');
+      } else if (_perfStage === 3) {
+        renderer.setPixelRatio(1.0);
+        if (typeof ballLight !== 'undefined') ballLight.intensity = 0;
+        console.log('[perf] stage 3 — 1x pixel ratio + ball light off (fps=' + fps.toFixed(1) + ')');
+      }
     }
     _fpsFrames = 0; _fpsStart = now;
   }
 }
 
+// Manual "Lite mode" — user clicks and we force all perf stages off.
+window.forceLiteMode = function(){
+  try { sessionStorage.setItem('perfMode', 'LOW'); } catch(e){}
+  bloom.enabled = false;
+  renderer.shadowMap.enabled = false;
+  renderer.setPixelRatio(1.0);
+  if (typeof ballLight !== 'undefined') ballLight.intensity = 0;
+  scene.traverse(o => { if (o.isLight && o.shadow) o.castShadow = false; });
+  scene.fog = null;
+  _perfStage = 3;
+  const b = document.getElementById('btn-lite');
+  if (b) { b.textContent = '⚡ Lite'; b.style.opacity = '0.6'; b.disabled = true; }
+};
+
 // ── Lighting ──
 scene.add(new THREE.AmbientLight(0xB8D4E8, 0.35));
 const key = new THREE.DirectionalLight(0xFFF4E0, 1.1);
 key.position.set(18, 30, 14);
-key.castShadow = QUALITY !== 'LOW';
-// Shadow map sized by tier — HIGH 1024², MID 512², LOW disabled above.
-const _shadowRes = QUALITY === 'HIGH' ? 1024 : 512;
-key.shadow.mapSize.set(_shadowRes, _shadowRes);
+key.castShadow = QUALITY === 'HIGH';
+key.shadow.mapSize.set(1024, 1024);
 key.shadow.camera.left = -30; key.shadow.camera.right = 30;
 key.shadow.camera.top = 35; key.shadow.camera.bottom = -35;
 key.shadow.camera.near = 1; key.shadow.camera.far = 70;
@@ -1549,7 +1582,7 @@ window.addEventListener('contextmenu', (e) => {
 });
 window.addEventListener('mousedown', (e) => {
   // Skip game-input routing if the click hits any UI control surface.
-  if (e.target.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup')) return;
+  if (e.target.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #btn-lite, #help-btn, #help-popup')) return;
   // If camera is UNLOCKED, let OrbitControls handle the drag — don't fire HIT/HOLD
   if (controls && controls.enabled) return;
   // Click anywhere ELSE while help popup is open → close it (and skip game input that frame)
