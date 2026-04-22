@@ -25,8 +25,9 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 #vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(10,22,40,.6) 100%);}
 
 /* Top HUD */
-.hud-top{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:18px 24px;pointer-events:none;}
+.hud-top{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 24px;pointer-events:none;}
 .hud-top > *{pointer-events:auto;}
+.hud-left-group{display:flex;align-items:center;gap:10px;}
 .brand-pill{display:inline-flex;align-items:center;gap:10px;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:var(--4dp-r-pill);padding:8px 16px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--4dp-text-dim);}
 .brand-pill .d{width:8px;height:8px;border-radius:50%;background:var(--4dp-gold);box-shadow:0 0 10px rgba(251,191,36,.6);}
 .hud-right-group{display:flex;gap:10px;align-items:flex-start;}
@@ -195,7 +196,8 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 .pdot.current{background:rgba(245,243,238,.45);box-shadow:0 0 14px rgba(245,243,238,.6);}
 
 /* Back button */
-#back-btn{position:fixed;top:18px;left:24px;z-index:11;background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:10px;padding:9px 16px;font-family:var(--4dp-font-body);font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text);cursor:pointer;}
+#back-btn{background:rgba(10,22,40,.72);backdrop-filter:blur(14px);border:1px solid var(--4dp-hairline-s);border-radius:10px;padding:9px 16px;font-family:var(--4dp-font-body);font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text);cursor:pointer;white-space:nowrap;}
+#back-btn:hover{background:rgba(10,22,40,.9);}
 
 /* Controls help button + popup — click "?" bottom-right to see all input bindings */
 #help-btn{position:fixed;bottom:104px;right:18px;z-index:13;width:38px;height:38px;border-radius:50%;background:rgba(10,22,40,.78);backdrop-filter:blur(12px);border:1px solid var(--4dp-hairline-s);font-family:var(--4dp-font-body);font-weight:800;font-size:18px;color:var(--4dp-text);cursor:pointer;transition:all .2s var(--4dp-ease);}
@@ -212,8 +214,10 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 /* ── Responsive: tablet ≤768 + phone ≤480 ── */
 @media (max-width:768px){
-  .hud-top{padding:12px 14px;}
-  .brand-pill{font-size:10px;letter-spacing:1.4px;padding:6px 12px;}
+  .hud-top{padding:12px 14px;gap:8px;}
+  .hud-left-group{gap:8px;min-width:0;}
+  .brand-pill{font-size:10px;letter-spacing:1.4px;padding:6px 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+  #back-btn{padding:7px 12px;font-size:10px;}
   .hud-right{padding:8px 13px;min-width:96px;}
   .hud-right .score{font-size:22px;}
   .hud-right .tier{font-size:13px;}
@@ -255,6 +259,9 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   #help-popup{bottom:174px;}
   /* Hide secondary tier line on tiny screens */
   .hud-right .tier{display:none;}
+  /* Brand pill becomes just the gold dot on phones — no room for the text */
+  .brand-pill{padding:7px 9px;font-size:0;}
+  .brand-pill .d{margin:0;}
 }
 /* Touch devices — bigger tap targets, no hover. Game canvas fills the
    whole screen with no text-selection / no long-press menu. */
@@ -337,7 +344,10 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 </div>
 
 <div class="hud-top">
-  <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
+  <div class="hud-left-group">
+    <button id="back-btn" onclick="window.location.href='./'">← Back</button>
+    <span class="brand-pill"><span class="d"></span> 4D Pickleball · Anticipate Out Balls</span>
+  </div>
   <div class="hud-right-group">
     <button class="cam-btn" id="btn-lite" title="Reduce graphics quality for smoother gameplay" onclick="forceLiteMode()">⚡ Lite</button>
     <button class="cam-btn" id="btn-cam-lock" title="Unlock camera (drag with mouse)">🔒</button>
@@ -351,8 +361,6 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
     </div>
   </div>
 </div>
-
-<button id="back-btn" onclick="window.location.href='./'">← Back</button>
 <button id="help-btn" title="Show controls" onclick="document.getElementById('help-popup').classList.toggle('on')">?</button>
 <div id="help-popup">
   <h4>Controls</h4>
