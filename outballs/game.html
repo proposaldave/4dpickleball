@@ -1633,6 +1633,13 @@ window.onReadyUp = function(){
     ballZ: ball.position.z,
     hasBounced: STATE.hasBounced
   };
+  // Visually drop the player out of ready pose — paddle back to rest at side.
+  // Signals that the player has "let it go" and is no longer coiled to hit.
+  // If they follow up with right mouse, animateDefenderHit restores the
+  // attacking pose via its own animation chain.
+  if (defender && defender.userData && defender.userData.paddle) {
+    setPaddlePose(defender.userData.paddle, 'restPose', 260);
+  }
 };
 window.onSwing = function(){
   // Right mouse ALWAYS cancels any release — you're committing to hit.
