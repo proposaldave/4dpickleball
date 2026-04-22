@@ -3041,10 +3041,11 @@
         const COURT_BLUE = 0x0D47A1;  // dark stadium blue (Material Blue 900)
         const COURT_BURG = 0x6B1F2A;
         const COURT_OOB  = 0x707070;  // neutral gray
-        // Neon tennis-ball green (Dave 2026-04-22 — "same as a tennis ball").
-        // Shifted from yellow-green 0xDAFF00 to 0xADFF2F (web "greenyellow",
-        // rgb 173/255/47) for real green dominance. Matches game.html ball.
-        const BALL_GREEN = 0xADFF2F;
+        // True neon green — R channel must be low so that R*emissiveIntensity
+        // doesn't saturate to 255 alongside G, otherwise pixels bloom to yellow.
+        // 0x39FF14 (classic electric-green / neon sign) keeps G as the only
+        // clamping channel, so the ball CORE + bloom halo both read green.
+        const BALL_GREEN = 0x39FF14;
 
         function makePickleball() {
             const group = new THREE.Group();
@@ -3872,7 +3873,7 @@
             scene.add(opp);
 
             // Ball + trail
-            const PICK = 0xADFF2F;  // neon tennis-ball green — matches game.html + landing hero
+            const PICK = 0x39FF14;  // true neon green — matches game.html + brain-sequence
             const ballMat = new THREE.MeshStandardMaterial({ color: PICK, emissive: PICK, emissiveIntensity: 1.9, roughness: 0.4 });
             const ball = new THREE.Mesh(new THREE.SphereGeometry(0.28, 22, 16), ballMat);
             scene.add(ball);

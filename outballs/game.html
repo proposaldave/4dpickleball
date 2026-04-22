@@ -1125,11 +1125,14 @@ const attacker = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, z: -22.5, faci
 scene.add(defender, attacker);
 
 // ── Ball + trail ──
-// Neon tennis-ball green — ball + trail. Dave 2026-04-22: "same as a
-// tennis ball." Previous 0xC6FF00 read as chartreuse/lime; shifted to
-// 0xADFF2F (web "greenyellow", rgb 173/255/47) — has real green
-// dominance, reads unambiguously neon GREEN rather than neon yellow.
-const PICKLEBALL_GREEN = 0xADFF2F;
+// True neon green (Dave 2026-04-22). Prior attempts (0xC6FF00, 0xADFF2F)
+// had R channels high enough that when multiplied by emissive intensity
+// 1.6, the red saturated alongside the green → pixel renders as yellow,
+// not green. Fix: drop R to 0x39 (57) so R*1.6=91 stays well below
+// clamp while G saturates. Result: CORE stays green, bloom halo stays
+// green. 0x39FF14 is classic electric/neon-green, tennis-ball-ish when
+// paired with bloom.
+const PICKLEBALL_GREEN = 0x39FF14;
 const ballMat = new THREE.MeshStandardMaterial({ color:PICKLEBALL_GREEN, emissive:PICKLEBALL_GREEN, emissiveIntensity:1.6, roughness:.5, metalness:.1 });
 const ball = new THREE.Mesh(new THREE.SphereGeometry(0.28, 20, 14), ballMat);
 ball.castShadow = true; ball.position.set(0, 3, -22.5); ball.visible = false;
