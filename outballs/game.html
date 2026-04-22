@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Out Balls · 4D Pickleball</title>
 <!-- tokens.css is outside the served root at /outballs/, so the variables below mirror it inline -->
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -85,7 +87,13 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 .verdict .sub{margin-top:6px;font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-text-dim);}
 
 /* Bottom control bar */
-.bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:10;padding:16px 24px 26px;background:linear-gradient(0deg,rgba(10,22,40,.88) 40%,rgba(10,22,40,0));display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:900px;margin:0 auto;}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;z-index:10;padding:16px 24px max(26px, env(safe-area-inset-bottom));background:linear-gradient(0deg,rgba(10,22,40,.88) 40%,rgba(10,22,40,0));display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:900px;margin:0 auto;}
+/* Touch + input hygiene — prevents iOS text-selection on long-press,
+   disables long-press context menu, kills iOS tap highlight + callout,
+   blocks pinch-zoom on game elements, and eliminates the 300ms tap delay. */
+html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;touch-action:manipulation;}
+#viewport,#viewport canvas{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-next{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 .gate-btn{background:rgba(10,22,40,.6);backdrop-filter:blur(10px);border:1.5px solid var(--4dp-hairline-s);border-radius:14px;padding:16px 18px;color:var(--4dp-text);cursor:pointer;transition:all .15s var(--4dp-ease);-webkit-tap-highlight-color:transparent;text-align:left;}
 .gate-btn.ready{border-color:color-mix(in srgb,var(--4dp-drop) 50%,transparent);background:color-mix(in srgb,var(--4dp-drop) 14%,rgba(10,22,40,.6));}
 .gate-btn.ready:active,.gate-btn.ready.active{background:color-mix(in srgb,var(--4dp-drop) 45%,rgba(10,22,40,.6));border-color:var(--4dp-drop);}
@@ -248,10 +256,16 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
   /* Hide secondary tier line on tiny screens */
   .hud-right .tier{display:none;}
 }
-/* Touch devices — bigger tap targets, no hover */
+/* Touch devices — bigger tap targets, no hover. Game canvas fills the
+   whole screen with no text-selection / no long-press menu. */
 @media (hover:none) and (pointer:coarse){
-  .gate-btn{min-height:68px;}
-  #help-btn{width:42px;height:42px;font-size:18px;}
+  .gate-btn{min-height:84px;padding:14px 16px;}
+  .gate-name{font-size:20px;}
+  .gate-kbd{font-size:10px;}
+  #help-btn{width:46px;height:46px;font-size:18px;}
+  #btn-cam-lock,#btn-camera,#btn-lite{min-height:44px;padding:10px 14px;}
+  /* Bottom bar gets a bit more breathing room + safe-area respect on iOS */
+  .bottom-bar{padding:14px 16px max(20px, env(safe-area-inset-bottom));}
 }
 
 /* Loading */
@@ -1573,26 +1587,93 @@ window.addEventListener('keyup', (e) => {
   if ((e.key === ' ' || e.code === 'Space') && STATE.holdingReady) { e.preventDefault(); onReadyUp(); }
 });
 
-// MOUSE — left click = SPACEBAR (hold/release), right click = ENTER (hit).
-// Skipped when the click hits a UI button (so back, camera, retry buttons
-// keep working) or the pregame splash. Right-click context menu suppressed
-// globally so right-click is usable as a game input.
+// ── Cross-platform input ──
+// WINDOWS PC: left-click hold/release, right-click hit.
+// MAC: left-click hold/release, right-click hit, AND Ctrl+click = hit (the
+//      trackpad's built-in right-click gesture fires button===0 with
+//      ctrlKey===true — without this branch Mac trackpad users can't hit).
+// TABLET/PHONE: on-screen green/red buttons wired to touchstart/touchend.
+// Long-press context menus are suppressed globally so right-click/long-press
+// are usable as game inputs (not browser menu triggers).
+const IS_MAC = /Mac|iPhone|iPod|iPad/.test(navigator.platform) ||
+               /Mac OS X/.test(navigator.userAgent);
+
+function isUIChrome(el){
+  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #btn-lite, #help-btn, #help-popup, #practice-card, #practice-result'));
+}
+
 window.addEventListener('contextmenu', (e) => {
-  if (!e.target.closest('button, #pregame, #end-card, #retry-card')) e.preventDefault();
+  // Never show the browser context menu anywhere in the game — right-click
+  // and long-press are game inputs. UI buttons still work normally (they
+  // don't have custom contextmenu behavior).
+  if (!isUIChrome(e.target)) e.preventDefault();
 });
+
 window.addEventListener('mousedown', (e) => {
-  // Skip game-input routing if the click hits any UI control surface.
-  if (e.target.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #btn-lite, #help-btn, #help-popup')) return;
+  if (isUIChrome(e.target)) return;
   // If camera is UNLOCKED, let OrbitControls handle the drag — don't fire HIT/HOLD
   if (controls && controls.enabled) return;
-  // Click anywhere ELSE while help popup is open → close it (and skip game input that frame)
+  // Close help popup on any outside click
   const help = document.getElementById('help-popup');
   if (help && help.classList.contains('on')) { help.classList.remove('on'); return; }
+  // Mac trackpad Ctrl+click fires as button===0 with ctrlKey===true. Route
+  // it to HIT (right-click equivalent) so Mac users aren't stuck holding
+  // without a way to swing. Windows/Linux use button===2 for right-click.
+  if (e.button === 0 && e.ctrlKey) { e.preventDefault(); onSwing(); return; }
   if (e.button === 0)      { e.preventDefault(); onReadyDown(); }
   else if (e.button === 2) { e.preventDefault(); onSwing(); }
 });
 window.addEventListener('mouseup', (e) => {
   if (e.button === 0 && STATE.holdingReady) { e.preventDefault(); onReadyUp(); }
+});
+
+// Global touch on canvas area — alternative to the on-screen buttons so
+// players can HOLD anywhere on the viewport (like a real game). Two-finger
+// tap on touch surface = HIT (mirrors two-finger-tap-to-right-click on Mac).
+// Primary finger hold = READY, release = LET IT GO.
+let _touchPrimaryId = null;
+const viewportEl = document.getElementById('viewport');
+if (viewportEl) {
+  viewportEl.addEventListener('touchstart', (e) => {
+    if (isUIChrome(e.target)) return;
+    if (controls && controls.enabled) return;
+    // Two-or-more fingers = HIT (right-click equivalent on touch devices)
+    if (e.touches.length >= 2) {
+      e.preventDefault();
+      onSwing();
+      return;
+    }
+    if (_touchPrimaryId === null) {
+      _touchPrimaryId = e.changedTouches[0].identifier;
+      e.preventDefault();
+      onReadyDown();
+    }
+  }, { passive: false });
+  viewportEl.addEventListener('touchend', (e) => {
+    // Find if the primary finger lifted
+    for (const t of e.changedTouches) {
+      if (t.identifier === _touchPrimaryId) {
+        _touchPrimaryId = null;
+        if (STATE.holdingReady) { e.preventDefault(); onReadyUp(); }
+        return;
+      }
+    }
+  }, { passive: false });
+  viewportEl.addEventListener('touchcancel', () => {
+    _touchPrimaryId = null;
+    if (STATE.holdingReady) onReadyUp();
+  });
+}
+
+// Gate-button touch handlers — suppress the synthetic mouseup/mousedown that
+// iOS fires AFTER touchend (the "ghost click" problem) by preventDefault on
+// touchstart. The inline ontouchstart/ontouchend stays as fallback for very
+// old browsers, but modern iOS needs preventDefault to not double-fire.
+['btn-ready', 'btn-swing'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
+  el.addEventListener('touchend',   (e) => { e.preventDefault(); }, { passive: false });
 });
 
 // ── Decision handler ──
@@ -2169,20 +2250,48 @@ function startGame(){
   // and pointer media query (most reliable across iOS + Android).
   const isTouch = (window.matchMedia && matchMedia('(hover:none) and (pointer:coarse)').matches) ||
                   ('ontouchstart' in window && navigator.maxTouchPoints > 0);
+  const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const setHTML = (sel, html) => { const el = document.querySelector(sel); if (el) el.innerHTML = html; };
   if (isTouch) {
-    const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
     set('cp-eyebrow', 'Hold the green button to get ready');
     set('cp-sub', 'Release for OUT · Tap red button to HIT');
     const ready = document.querySelector('#btn-ready .gate-kbd');
     const swing = document.querySelector('#btn-swing .gate-kbd');
     if (ready) ready.textContent = 'HOLD GREEN';
     if (swing) swing.textContent = 'TAP RED';
+    // Pregame card — swap mouse language for tap language
+    setHTML('.pg-key:nth-of-type(1) kbd', 'HOLD GREEN');
+    setHTML('.pg-key:nth-of-type(1) .pg-key-desc', 'Tap & hold the green button. <strong>Release</strong> only when the ball is going OUT.');
+    setHTML('.pg-key:nth-of-type(2) kbd', 'TAP RED');
+    setHTML('.pg-key:nth-of-type(2) .pg-key-desc', 'Tap the red button to hit the ball. Volley or groundstroke.');
+    // Pregame headline
+    set('.pg-h', 'Two taps. One decision.');
+    const pgH = document.querySelector('.pg-h');
+    if (pgH) pgH.textContent = 'Two taps. One decision.';
     // Help popup labels too
     const hpRows = document.querySelectorAll('#help-popup .help-row .keys');
     if (hpRows.length >= 2) {
       hpRows[0].innerHTML = '<span>HOLD</span> green';
       hpRows[1].innerHTML = '<span>TAP</span> red';
     }
+    // Practice drill STEP cards — rewrite "LEFT MOUSE" / "RIGHT-CLICK" for touch
+    PRACTICE_DRILLS.forEach(drill => {
+      drill.steps = drill.steps.map(s => ({
+        n: s.n,
+        t: s.t
+          .replace(/LEFT MOUSE/g, 'GREEN BUTTON')
+          .replace(/RIGHT-CLICK/g, 'TAP RED')
+          .replace(/Hold <strong>GREEN BUTTON<\/strong> to ready up\./, 'Hold <strong>GREEN</strong> button to ready up.')
+          .replace(/<strong>RELEASE<\/strong> before it reaches you\./, '<strong>RELEASE GREEN</strong> before it reaches you.')
+      }));
+    });
+  } else if (IS_MAC) {
+    // Mac — tell users about Ctrl+click as an alternative to right-click
+    const swing = document.querySelector('#btn-swing .gate-kbd');
+    if (swing) swing.textContent = 'RIGHT / CTRL+CLICK';
+    set('cp-sub', 'KEEP HOLDING through the stroke · Release for OUT · Right-click or Ctrl+click to HIT');
+    setHTML('.pg-key:nth-of-type(2) kbd', 'RIGHT / CTRL+CLICK');
+    setHTML('.pg-key:nth-of-type(2) .pg-key-desc', 'Right-click (or Ctrl+click on trackpad) to hit the ball. Volley or groundstroke.');
   }
   animate();
   // Flow rules:
