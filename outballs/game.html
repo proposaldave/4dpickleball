@@ -107,6 +107,47 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
 .pg-key-desc{font-size:13px;color:var(--4dp-text-dim);line-height:1.5;}
 .pg-go{width:100%;margin-top:14px;background:var(--4dp-dink);color:var(--4dp-text);border:0;border-radius:14px;padding:15px;font-family:var(--4dp-font-body);font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;box-shadow:0 6px 24px rgba(43,139,252,.35);}
 .pg-go:hover{background:#1E6FD9;transform:translateY(-2px);}
+.pg-skip{display:block;width:100%;margin-top:10px;background:transparent;color:var(--4dp-text-dim);border:0;font-family:var(--4dp-font-body);font-size:12px;letter-spacing:.5px;cursor:pointer;padding:8px;text-decoration:underline;}
+.pg-skip:hover{color:var(--4dp-text);}
+
+/* ── Practice mode overlays ── */
+#practice-card,#practice-result{position:fixed;inset:0;z-index:201;background:rgba(10,22,40,.96);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:24px;}
+#practice-card.on,#practice-result.on{display:flex;}
+.pc-card{max-width:560px;width:100%;background:linear-gradient(180deg,rgba(27,64,121,.3),rgba(10,20,40,.7));border:1px solid rgba(251,191,36,.3);border-radius:22px;padding:34px 38px;box-shadow:0 24px 64px rgba(0,0,0,.7);}
+.pc-tag{display:inline-block;padding:5px 12px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.pc-tag.out{background:rgba(251,191,36,.2);color:#FBBF24;border:1px solid rgba(251,191,36,.4);}
+.pc-tag.volley{background:rgba(74,222,128,.18);color:#4ADE80;border:1px solid rgba(74,222,128,.4);}
+.pc-tag.bounce{background:rgba(96,165,250,.18);color:#60A5FA;border:1px solid rgba(96,165,250,.4);}
+.pc-eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-text-dim);margin-bottom:10px;}
+.pc-h{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(36px,6vw,52px);letter-spacing:-1px;line-height:1;color:var(--4dp-text);margin:0 0 18px;}
+.pc-instr{font-size:15px;color:var(--4dp-text);line-height:1.55;margin:0 0 16px;}
+.pc-instr strong{color:var(--4dp-gold);}
+.pc-hint{font-size:13px;color:var(--4dp-text-dim);font-style:italic;padding:12px 14px;border-left:3px solid rgba(251,191,36,.4);background:rgba(251,191,36,.05);border-radius:4px;margin-bottom:18px;}
+.pc-steps{display:flex;gap:12px;margin-bottom:18px;}
+.pc-step{flex:1;padding:12px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(255,255,255,.03);}
+.pc-step-num{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--4dp-gold);margin-bottom:6px;}
+.pc-step-txt{font-size:12px;color:var(--4dp-text);line-height:1.4;}
+.pc-go{width:100%;background:var(--4dp-dink);color:var(--4dp-text);border:0;border-radius:14px;padding:16px;font-family:var(--4dp-font-body);font-weight:700;font-size:15px;cursor:pointer;transition:all .2s;box-shadow:0 6px 24px rgba(43,139,252,.35);}
+.pc-go:hover{background:#1E6FD9;transform:translateY(-2px);}
+.pc-skip{display:block;width:100%;margin-top:10px;background:transparent;color:var(--4dp-text-dim);border:0;font-family:var(--4dp-font-body);font-size:12px;cursor:pointer;padding:6px;text-decoration:underline;}
+.pc-skip:hover{color:var(--4dp-text);}
+.pr-score{font-family:var(--4dp-font-display);font-style:italic;font-size:clamp(60px,11vw,92px);line-height:.95;letter-spacing:-2px;margin:8px 0 6px;}
+.pr-score.pass{color:#4ADE80;}
+.pr-score.fail{color:#FBBF24;}
+.pr-sub{font-size:14px;color:var(--4dp-text-dim);margin-bottom:18px;line-height:1.5;}
+.pr-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pr-btn-retry{padding:14px;border:1px solid rgba(255,255,255,.2);border-radius:12px;font-family:var(--4dp-font-body);font-weight:700;font-size:13px;cursor:pointer;background:rgba(255,255,255,.05);color:var(--4dp-text);}
+.pr-btn-retry:hover{background:rgba(255,255,255,.1);}
+.pr-btn-next{padding:14px;border:0;border-radius:12px;font-family:var(--4dp-font-body);font-weight:700;font-size:13px;cursor:pointer;background:var(--4dp-dink);color:var(--4dp-text);}
+.pr-btn-next:hover{background:#1E6FD9;}
+/* Practice HUD tag - shows above viewport during practice shots */
+#practice-hud{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:95;padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;background:rgba(10,22,40,.85);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.35);color:#FBBF24;display:none;}
+#practice-hud.on{display:block;}
+@media (max-width: 640px){
+  .pc-card{padding:24px 22px;}
+  .pc-h{font-size:clamp(26px,8vw,40px);}
+  .pc-steps{flex-direction:column;}
+}
 
 /* Round title card */
 #round-card{position:fixed;inset:0;z-index:180;background:radial-gradient(ellipse at center,rgba(0,0,0,.85),rgba(0,0,0,.98));display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
@@ -322,9 +363,40 @@ body{font-family:var(--4dp-font-body);color:var(--4dp-text);-webkit-font-smoothi
         <div class="pg-key-desc">Hit the ball. Volley or groundstroke.</div>
       </div>
     </div>
-    <button class="pg-go" onclick="dismissPregame()">Got it — start training →</button>
+    <button class="pg-go" onclick="startPracticeMode()">Start with practice drills →</button>
+    <button class="pg-skip" onclick="skipPracticeAndStart()">Skip practice — go straight to game</button>
   </div>
 </div>
+
+<!-- Practice drill intro card -->
+<div id="practice-card">
+  <div class="pc-card">
+    <div class="pc-tag" id="pc-tag">OUT BALL</div>
+    <div class="pc-eyebrow" id="pc-eyebrow">Drill 1 of 3</div>
+    <h2 class="pc-h" id="pc-h">Let it go</h2>
+    <p class="pc-instr" id="pc-instr"></p>
+    <div class="pc-steps" id="pc-steps"></div>
+    <div class="pc-hint" id="pc-hint"></div>
+    <button class="pc-go" id="pc-go-btn" onclick="beginPracticeDrill()">Start drill →</button>
+    <button class="pc-skip" onclick="skipPracticeAndStart()">Skip practice — go straight to game</button>
+  </div>
+</div>
+
+<!-- Practice drill result card -->
+<div id="practice-result">
+  <div class="pc-card" style="text-align:center;">
+    <div class="pc-eyebrow" id="pr-eyebrow">Drill 1 complete</div>
+    <div class="pr-score" id="pr-score">0 / 3</div>
+    <div class="pr-sub" id="pr-sub"></div>
+    <div class="pr-btns">
+      <button class="pr-btn-retry" id="pr-retry" onclick="retryPracticeDrill()">Repeat drill</button>
+      <button class="pr-btn-next" id="pr-next" onclick="nextPracticeDrill()">Next drill →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Practice-mode HUD tag (always visible during drills) -->
+<div id="practice-hud">Practice · <span id="practice-hud-drill">Drill 1 · Let it go</span></div>
 
 <!-- Round title card -->
 <div id="round-card">
@@ -461,6 +533,68 @@ const BASELINE_Z = 22;   // court half-length, used as "ball flew out past basel
 //
 //   Real-time base (speed 1.0) = shot durations calibrated to R22 ball speeds:
 //   OUT 1.05s/52ft ≈ 34 mph banger · VOLLEY 0.85s/30ft ≈ 24 mph drive.
+// ── PRACTICE DRILLS ── (added 2026-04-22)
+// Mom-proof onboarding: before the real game, walk the player through each
+// of the 3 shot types ONE AT A TIME with explicit step-by-step instructions.
+// Each drill forces a single shot kind, uses a very slow speed, and lets the
+// player repeat until they've got it. "Like games that have a training level."
+const PRACTICE_DRILLS = [
+  {
+    kind: 'OUT',
+    tag: 'OUT BALL',
+    tagClass: 'out',
+    name: 'Let it go',
+    speed: 0.35,
+    shots: 3,
+    oppZ: -22,
+    instr: 'The attacker is going to hit the ball <strong>HARD</strong>. It will fly <strong>past the baseline</strong> and land out. Your job: <strong>let it go</strong>.',
+    steps: [
+      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to get into ready position.' },
+      { n: 'STEP 2', t: 'Watch the ball. See it flying long.' },
+      { n: 'STEP 3', t: '<strong>RELEASE</strong> left mouse before it reaches you.' }
+    ],
+    hint: 'Every ball in this drill is going out. All 3 of them. Just release the mouse.',
+    resultPass: 'You read the out-balls.',
+    resultFail: 'Hold left mouse the whole time. Release ONLY when you see the ball flying long.'
+  },
+  {
+    kind: 'VOLLEY',
+    tag: 'VOLLEY',
+    tagClass: 'volley',
+    name: 'Volley it',
+    speed: 0.35,
+    shots: 3,
+    oppZ: -14,
+    instr: 'The ball is coming in on a <strong>drive</strong> — it will reach you in the air. Your job: <strong>volley it before it bounces</strong>.',
+    steps: [
+      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to get into ready position.' },
+      { n: 'STEP 2', t: 'Keep holding. Wait until the ball crosses the net.' },
+      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> to volley it in the air.' }
+    ],
+    hint: 'Keep your left mouse held down the WHOLE time. Only release if you think it\'s going out. Right-click to hit.',
+    resultPass: 'Clean volleys. Good hands.',
+    resultFail: 'Keep left mouse held the whole time. Right-click when the ball reaches you.'
+  },
+  {
+    kind: 'BOUNCE',
+    tag: 'GROUNDSTROKE',
+    tagClass: 'bounce',
+    name: 'Let it bounce, then hit',
+    speed: 0.30,
+    shots: 3,
+    oppZ: -14,
+    instr: 'The ball is slow — a <strong>drop or dink</strong>. It will land short, then bounce. Your job: <strong>wait for the bounce</strong>, then hit.',
+    steps: [
+      { n: 'STEP 1', t: 'Hold <strong>LEFT MOUSE</strong> to get into ready position.' },
+      { n: 'STEP 2', t: 'Let the ball <strong>BOUNCE</strong> on your side.' },
+      { n: 'STEP 3', t: '<strong>RIGHT-CLICK</strong> after the bounce to hit.' }
+    ],
+    hint: 'Patience. Wait for the ball to hit the ground. THEN right-click. If you hit before the bounce, it counts wrong.',
+    resultPass: 'Good groundstrokes. You waited.',
+    resultFail: 'Wait for the bounce before you right-click. If you hit too early, the ball is a volley, not a groundstroke.'
+  }
+];
+
 const LEVELS = [
   // Speeds rebalanced 2026-04-20 — overall reduction (~20%) AND extra
   // softening on kitchen rounds. Goal: first few rounds doable for new
@@ -551,6 +685,13 @@ const STATE = {
   canInput: false,
   pendingDecision: null,
   hasBounced: false,
+  // Practice mode — 'PRACTICE' until drills complete, then 'GAME'
+  mode: 'GAME',
+  practiceIdx: 0,         // 0..2 which drill
+  practiceTrial: 0,       // 0..drill.shots-1
+  practiceCorrect: 0,     // tally within current drill
+  forceShotKind: null,    // when set, chooseShotKind returns this instead of rolling
+  practiceSpeedMult: null // when set, overrides level speed (for practice mode)
 };
 
 // ── Three.js setup ──
@@ -1202,6 +1343,8 @@ function nextTrial(){
 }
 
 function chooseShotKind(){
+  // Practice mode forces one shot kind per drill — skip all the rotation logic.
+  if (STATE.forceShotKind) return STATE.forceShotKind;
   const lv = LEVELS[STATE.levelIdx].num;
   const last = STATE.lastTwoShotKinds;
   // MIN 2 OUT per round — if remaining slots can't cover the deficit,
@@ -1250,8 +1393,11 @@ function chooseShotKind(){
 function launchBall(){
   const lv = LEVELS[STATE.levelIdx];
   const kind = chooseShotKind();
-  const s = shotFor(kind, lv.oppZ);
-  s.duration = s.duration / lv.speed;  // level speed multiplier
+  // Practice mode uses drill-specific opponent Z + speed, bypassing level config
+  const oppZ = (STATE.mode === 'PRACTICE') ? PRACTICE_DRILLS[STATE.practiceIdx].oppZ : lv.oppZ;
+  const speedMult = STATE.practiceSpeedMult || lv.speed;
+  const s = shotFor(kind, oppZ);
+  s.duration = s.duration / speedMult;  // level/practice speed multiplier
   STATE.currentShot = s;
   STATE.shotDur = s.duration;
   STATE.shotT = 0;
@@ -1456,6 +1602,14 @@ function handleDecision(kind){
       launchSprayOut();
     }
   }
+  // Practice mode — tally separately, don't touch session stats/dots/streak
+  if (STATE.mode === 'PRACTICE') {
+    if (correct) STATE.practiceCorrect++;
+    STATE.practiceTrial++;
+    showVerdict(correct, tooLate ? 'TOO_LATE' : tooEarlySwing ? 'TOO_EARLY' : kind, shot);
+    setTimeout(() => { ball.visible = false; clearTrail(); practiceNextTrial(); }, 1600);
+    return;
+  }
   updateDot(STATE.trial, correct);
   setScore(correct);
   updateStreakDisplay();
@@ -1640,16 +1794,152 @@ window.dismissPregame = function(){
   document.getElementById('pregame').classList.add('gone');
   beginLevel();
 };
-// Keyboard dismiss pregame
+
+// ── Practice mode flow ──
+// Triggered by pregame "Start practice" button. Walks player through 3 drills
+// (OUT, VOLLEY, BOUNCE) one at a time with explicit step-by-step instructions,
+// then flips STATE.mode to 'GAME' and starts Level 1 of the real game.
+window.startPracticeMode = function(){
+  STATE.mode = 'PRACTICE';
+  STATE.practiceIdx = 0;
+  STATE.practiceTrial = 0;
+  STATE.practiceCorrect = 0;
+  document.getElementById('pregame').classList.add('gone');
+  showPracticeIntro();
+};
+
+window.skipPracticeAndStart = function(){
+  STATE.mode = 'GAME';
+  STATE.forceShotKind = null;
+  STATE.practiceSpeedMult = null;
+  document.getElementById('pregame').classList.add('gone');
+  document.getElementById('practice-card').classList.remove('on');
+  document.getElementById('practice-result').classList.remove('on');
+  document.getElementById('practice-hud').classList.remove('on');
+  try { sessionStorage.setItem('practice_done', '1'); } catch(e){}
+  beginLevel();
+};
+
+function showPracticeIntro(){
+  const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+  const tag = document.getElementById('pc-tag');
+  tag.textContent = drill.tag;
+  tag.className = 'pc-tag ' + drill.tagClass;
+  document.getElementById('pc-eyebrow').textContent = 'Drill ' + (STATE.practiceIdx + 1) + ' of ' + PRACTICE_DRILLS.length;
+  document.getElementById('pc-h').textContent = drill.name;
+  document.getElementById('pc-instr').innerHTML = drill.instr;
+  const stepsEl = document.getElementById('pc-steps');
+  stepsEl.innerHTML = drill.steps.map(s =>
+    '<div class="pc-step"><div class="pc-step-num">' + s.n + '</div><div class="pc-step-txt">' + s.t + '</div></div>'
+  ).join('');
+  document.getElementById('pc-hint').textContent = drill.hint;
+  document.getElementById('practice-card').classList.add('on');
+  document.getElementById('practice-hud').classList.remove('on');
+}
+
+window.beginPracticeDrill = function(){
+  document.getElementById('practice-card').classList.remove('on');
+  const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+  STATE.forceShotKind = drill.kind;
+  STATE.practiceSpeedMult = drill.speed;
+  STATE.practiceTrial = 0;
+  STATE.practiceCorrect = 0;
+  // Move attacker to drill position
+  if (attacker) attacker.position.z = drill.oppZ;
+  // Show practice HUD tag
+  document.getElementById('practice-hud-drill').textContent =
+    'Drill ' + (STATE.practiceIdx + 1) + ' · ' + drill.name;
+  document.getElementById('practice-hud').classList.add('on');
+  practiceNextTrial();
+};
+
+function practiceNextTrial(){
+  const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+  if (STATE.practiceTrial >= drill.shots) {
+    showPracticeResult();
+    return;
+  }
+  // Reset trial state — same pattern as nextTrial() but for practice
+  STATE.phase = 'IDLE';
+  STATE.decision = null;
+  STATE.swingResolved = null;
+  STATE.pendingDecision = null;
+  STATE.hasBounced = false;
+  STATE._outLandedBurst = false;
+  STATE._outHitPlayer = false;
+  STATE.canInput = false;
+  STATE.holdingReady = false;
+  if (defender && defender.userData && defender.userData.paddle) {
+    setPaddlePose(defender.userData.paddle, 'restPose', 320);
+  }
+  ball.visible = false; clearTrail();
+  document.getElementById('btn-ready').classList.remove('active');
+  document.getElementById('btn-swing').classList.remove('active');
+  document.getElementById('verdict').classList.remove('on');
+  // Drill-specific center prompt text
+  const cpE = document.getElementById('cp-eyebrow');
+  const cpH = document.getElementById('cp-headline');
+  const cpS = document.getElementById('cp-sub');
+  const remaining = drill.shots - STATE.practiceTrial;
+  if (cpE) cpE.textContent = 'Ball ' + (STATE.practiceTrial + 1) + ' of ' + drill.shots;
+  if (cpH) cpH.textContent = drill.name + '.';
+  if (cpS) {
+    if (drill.kind === 'OUT') cpS.textContent = 'Hold left mouse · Release when you see it going OUT';
+    else if (drill.kind === 'VOLLEY') cpS.textContent = 'Hold left mouse · Right-click to volley (no bounce)';
+    else cpS.textContent = 'Hold left mouse · Wait for bounce · Then right-click';
+  }
+  document.getElementById('center-prompt').style.opacity = '1';
+}
+
+function showPracticeResult(){
+  const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+  const pass = STATE.practiceCorrect >= Math.ceil(drill.shots * 0.67); // 2/3 or better
+  document.getElementById('pr-eyebrow').textContent = 'Drill ' + (STATE.practiceIdx + 1) + ' · ' + drill.name;
+  const scoreEl = document.getElementById('pr-score');
+  scoreEl.textContent = STATE.practiceCorrect + ' / ' + drill.shots;
+  scoreEl.className = 'pr-score ' + (pass ? 'pass' : 'fail');
+  document.getElementById('pr-sub').textContent = pass ? drill.resultPass : drill.resultFail;
+  // Hide practice HUD during result card
+  document.getElementById('practice-hud').classList.remove('on');
+  // Label next button based on whether this was the last drill
+  const isLast = STATE.practiceIdx >= PRACTICE_DRILLS.length - 1;
+  document.getElementById('pr-next').textContent = isLast ? 'Start the real game →' : 'Next drill →';
+  document.getElementById('practice-result').classList.add('on');
+}
+
+window.retryPracticeDrill = function(){
+  document.getElementById('practice-result').classList.remove('on');
+  beginPracticeDrill();
+};
+
+window.nextPracticeDrill = function(){
+  document.getElementById('practice-result').classList.remove('on');
+  if (STATE.practiceIdx >= PRACTICE_DRILLS.length - 1) {
+    // All drills complete — flip to game mode
+    STATE.mode = 'GAME';
+    STATE.forceShotKind = null;
+    STATE.practiceSpeedMult = null;
+    document.getElementById('practice-hud').classList.remove('on');
+    try { sessionStorage.setItem('practice_done', '1'); } catch(e){}
+    beginLevel();
+    return;
+  }
+  STATE.practiceIdx++;
+  showPracticeIntro();
+};
+// Keyboard dismiss pregame — Enter/Space starts practice (the default path),
+// any other key still dismisses. This keeps the "press any key to continue"
+// mental model but makes the primary CTA (practice) the default.
 document.addEventListener('keydown', function keyDismiss(e){
-  if (!document.getElementById('pregame').classList.contains('gone')) {
+  const pg = document.getElementById('pregame');
+  if (pg && !pg.classList.contains('gone')) {
     e.preventDefault();
-    dismissPregame();
+    startPracticeMode();
   }
 }, { once: true });
-// Click-dismiss
+// Click on the backdrop (outside the card) = start practice mode (default CTA)
 document.getElementById('pregame').addEventListener('click', (e) => {
-  if (e.target.id === 'pregame') dismissPregame();
+  if (e.target.id === 'pregame') startPracticeMode();
 });
 
 // ── Main animation loop ──
@@ -1720,12 +2010,6 @@ function animate(){
         !STATE._outHitPlayer && p.z >= PLAYER_Z - 0.6 && s.kind !== 'RETURN') {
       STATE._outHitPlayer = true;
       STATE.canInput = false;
-      STATE.results.push(false);
-      if (s.kind === 'OUT' || s.kind === 'VOLLEY' || s.kind === 'BOUNCE') {
-        STATE.statsByKind[s.kind].total++;
-      }
-      STATE.streak = 0;
-      updateDot(STATE.trial, false);
       const stopY =
         s.kind === 'OUT'    ? 5.0 :
         s.kind === 'VOLLEY' ? PLAYER_CHEST_Y :
@@ -1736,8 +2020,19 @@ function animate(){
       spawnBurst(impact.clone(), 0xFB7185);
       animateDefenderHit();
       showVerdict(false, 'NO_COMMIT', s);
-      STATE.trial++;
-      setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+      if (STATE.mode === 'PRACTICE') {
+        STATE.practiceTrial++;
+        setTimeout(() => { ball.visible = false; clearTrail(); practiceNextTrial(); }, 1600);
+      } else {
+        STATE.results.push(false);
+        if (s.kind === 'OUT' || s.kind === 'VOLLEY' || s.kind === 'BOUNCE') {
+          STATE.statsByKind[s.kind].total++;
+        }
+        STATE.streak = 0;
+        updateDot(STATE.trial, false);
+        STATE.trial++;
+        setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+      }
     }
     // End of flight: if no decision made, figure out why it was a miss.
     if (STATE.shotT >= 1 && STATE.canInput){
@@ -1745,19 +2040,21 @@ function animate(){
       if (!isBounceNotYet) {
         STATE.canInput = false;
         const shot = s;
-        STATE.results.push(false);
-        if (shot.kind === 'OUT' || shot.kind === 'VOLLEY' || shot.kind === 'BOUNCE') {
-          STATE.statsByKind[shot.kind].total++;
-        }
-        STATE.streak = 0;
-        updateDot(STATE.trial, false);
         const verdictKind = STATE.holdingReady ? 'NO_COMMIT' : 'TIMEOUT';
-        // (NO_COMMIT on OUT balls is already handled mid-flight above with
-        // a ball-to-chest impact — this end-of-flight branch only fires
-        // for non-OUT shots or releases the player made late.)
         showVerdict(false, verdictKind, shot);
-        STATE.trial++;
-        setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+        if (STATE.mode === 'PRACTICE') {
+          STATE.practiceTrial++;
+          setTimeout(() => { ball.visible = false; clearTrail(); practiceNextTrial(); }, 1600);
+        } else {
+          STATE.results.push(false);
+          if (shot.kind === 'OUT' || shot.kind === 'VOLLEY' || shot.kind === 'BOUNCE') {
+            STATE.statsByKind[shot.kind].total++;
+          }
+          STATE.streak = 0;
+          updateDot(STATE.trial, false);
+          STATE.trial++;
+          setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+        }
       }
     }
   }
@@ -1804,19 +2101,23 @@ function startGame(){
     }
   }
   animate();
-  // If the parent landing page already showed its own "Two clicks. One decision."
-  // splash and set sessionStorage.pregame_seen=1, skip ours so the player
-  // isn't walked through the same explainer twice.
+  // Flow rules:
+  //   - requestedRound (landing page 1-9 keypress) → skip practice, jump to level
+  //   - practice_done sessionStorage → skip practice, go to Level 1
+  //   - pregame_seen (landing page splash shown) → skip splash but OFFER practice
+  //   - default (fresh load directly to game.html) → show our pregame → practice
   try {
-    // Honor a round-jump request set by the landing page (1-9 keypress).
     const r = sessionStorage.getItem('requestedRound');
     if (r) {
       sessionStorage.removeItem('requestedRound');
       const idx = Math.max(0, Math.min(LEVELS.length - 1, parseInt(r, 10) - 1));
       STATE.levelIdx = idx;
-    }
-    if (sessionStorage.getItem('pregame_seen') === '1') {
-      if (typeof window.dismissPregame === 'function') window.dismissPregame();
+      if (typeof window.skipPracticeAndStart === 'function') window.skipPracticeAndStart();
+    } else if (sessionStorage.getItem('practice_done') === '1') {
+      if (typeof window.skipPracticeAndStart === 'function') window.skipPracticeAndStart();
+    } else if (sessionStorage.getItem('pregame_seen') === '1') {
+      // Landing page already showed its splash — jump straight to practice
+      if (typeof window.startPracticeMode === 'function') window.startPracticeMode();
     }
   } catch(e) { /* sessionStorage blocked — fall through to normal flow */ }
 }
