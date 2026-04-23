@@ -193,9 +193,11 @@ body {
 .mini-center.right { right: 0; }
 
 .mini-player {
-    position: absolute; width: clamp(18px, 3.6vw, 24px); height: clamp(18px, 3.6vw, 24px);
+    position: absolute; width: clamp(20px, 3.8vw, 26px); height: clamp(20px, 3.8vw, 26px);
     border-radius: 50%; z-index: 10;
-    transition: left 0.7s var(--4dp-ease), top 0.7s var(--4dp-ease);
+    /* Players move FASTER than the ball (0.45s vs 0.7s) so they arrive at
+       the strike point before the ball does — reads as "running to hit it". */
+    transition: left 0.45s cubic-bezier(.3,1.2,.3,1), top 0.45s cubic-bezier(.3,1.2,.3,1);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--4dp-font-body); font-weight: 700;
     font-size: clamp(9px, 1.8vw, 11px);
@@ -203,6 +205,13 @@ body {
     border: 1.5px solid rgba(255,255,255,.65);
     box-shadow: 0 2px 8px rgba(0,0,0,.45);
 }
+/* Brief pulse when a player hits the ball */
+@keyframes miniHit {
+    0%   { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+    30%  { transform: translate(-50%, -50%) scale(1.30); filter: brightness(1.35); }
+    100% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+}
+.mini-player.hit { animation: miniHit 0.45s ease-out; }
 .mini-player.serve  { background: radial-gradient(circle at 30% 30%, #FCA5A5, #B91C1C); box-shadow: 0 0 10px var(--team-serve-glow), 0 2px 8px rgba(0,0,0,.45); }
 .mini-player.return { background: radial-gradient(circle at 30% 30%, #6EE7B7, #047857); box-shadow: 0 0 10px var(--team-return-glow), 0 2px 8px rgba(0,0,0,.45); }
 
@@ -1319,49 +1328,66 @@ async function runMiniRally() {
     };
     reset();
 
+    // Helper: flash a player to signal a paddle hit
+    const pulse = (p) => {
+        p.classList.remove('hit');
+        void p.offsetWidth;
+        p.classList.add('hit');
+    };
+
     while (true) {
         if (!introVisible()) { await wait(500); reset(); continue; }
 
         // Pause with ball at server before the rally starts
         await wait(900);
 
-        // ── SERVE ── mp1 is already at (-4%, 25%); ball flies diagonal to green's service box.
-        //           mp3 steps forward from the baseline to meet it.
+        // ── SERVE ── mp1 hits from baseline. mp3 immediately sprints forward
+        //            to meet the incoming serve. Player arrives before the ball.
+        pulse(mp1);
+        mp3.style.left = '88%'; mp3.style.top = '75%';
+        await wait(180);
         mb.style.left = '85%';  mb.style.top = '75%';
-        mp3.style.left = '92%'; mp3.style.top = '75%';
         await wait(850);
         if (!introVisible()) { reset(); continue; }
 
-        // ── RETURN ── mp3 hits the ball deep back to red's side.
-        //            mp1 steps in from the baseline to hit the return. mp3 retreats.
-        mb.style.left = '15%';  mb.style.top = '25%';
-        mp1.style.left = '12%'; mp1.style.top = '25%';
+        // ── RETURN ── mp3 hits return. mp1 steps well into the court to meet it.
+        //            mp3 retreats back to baseline.
+        pulse(mp3);
+        mp1.style.left = '22%'; mp1.style.top = '25%';
         mp3.style.left = '104%';mp3.style.top = '75%';
+        await wait(180);
+        mb.style.left = '18%';  mb.style.top = '25%';
         await wait(800);
 
-        // ── THIRD SHOT ── mp1 sends it cross-court to green's middle.
-        //                mp3 sprints to meet it. mp1 retreats.
-        mb.style.left = '80%';  mb.style.top = '55%';
-        mp3.style.left = '85%'; mp3.style.top = '55%';
+        // ── THIRD SHOT ── mp1 hits cross-court. mp3 sprints deep-mid to meet.
+        //                mp1 retreats.
+        pulse(mp1);
+        mp3.style.left = '78%'; mp3.style.top = '55%';
         mp1.style.left = '-4%'; mp1.style.top = '25%';
-        await wait(700);
+        await wait(180);
+        mb.style.left = '80%';  mb.style.top = '55%';
+        await wait(750);
 
-        // ── RALLY CONTINUES ── mp3's soft block floats short into red's front-bottom.
-        //                     mp2 steps up to put it away. mp3 retreats.
-        mb.style.left = '10%';  mb.style.top = '65%';
-        mp2.style.left = '8%';  mp2.style.top = '65%';
+        // ── RALLY BLOCK ── mp3's soft block floats short into red's front-bottom.
+        //                 mp2 steps forward aggressively to attack it. mp3 retreats.
+        pulse(mp3);
+        mp2.style.left = '18%'; mp2.style.top = '62%';
         mp3.style.left = '104%';mp3.style.top = '75%';
-        await wait(700);
+        await wait(180);
+        mb.style.left = '14%';  mb.style.top = '62%';
+        await wait(720);
 
-        // ── WINNER ── mp2 punches it into green's empty corner — unreachable.
-        //            No green player moves (mp3 can't get there in time; mp4 stays at kitchen).
-        mb.style.left = '95%';  mb.style.top = '40%';
+        // ── WINNER ── mp2 punches a winner into green's empty top corner.
+        //            No green player moves in time — mp4 stays anchored at kitchen.
+        pulse(mp2);
         mp2.style.left = '-4%'; mp2.style.top = '75%';
-        await wait(700);
+        await wait(180);
+        mb.style.left = '96%';  mb.style.top = '38%';
+        await wait(750);
 
         // ── POINT WON ── score ticks up.
         document.getElementById('ms1').textContent = '1';
-        await wait(600);
+        await wait(650);
 
         // ── WINNERS SWAP SIDES ── red team swaps halves (serving rule).
         mp1.style.top = '75%';
@@ -1369,7 +1395,7 @@ async function runMiniRally() {
         await wait(1200);
 
         reset();
-        await wait(600);
+        await wait(650);
     }
 }
 
