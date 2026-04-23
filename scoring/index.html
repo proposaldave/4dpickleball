@@ -1293,49 +1293,81 @@ document.addEventListener('keydown', () => { initAudio(); if (audioCtx && audioC
 
 // =========================================================
 // HERO MINI-RALLY — autoplaying loop
+// Players MOVE to the ball when they hit. mp4 (green partner at kitchen)
+// is the one player that never moves — canonical pickleball one-up/one-back.
 // =========================================================
 async function runMiniRally() {
-    const mb = document.getElementById('mball');
-    if (!mb) return;
+    const mb  = document.getElementById('mball');
+    const mp1 = document.getElementById('mp1'); // red server
+    const mp2 = document.getElementById('mp2'); // red server's partner
+    const mp3 = document.getElementById('mp3'); // green returner
+    const mp4 = document.getElementById('mp4'); // green kitchen partner — NEVER MOVES
+    if (!mb || !mp1) return;
+
     const introVisible = () => document.getElementById('intro-screen').classList.contains('active');
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
     const reset = () => {
-        document.getElementById('mp1').style.left = '-4%';  document.getElementById('mp1').style.top = '25%';
-        document.getElementById('mp2').style.left = '-4%';  document.getElementById('mp2').style.top = '75%';
-        document.getElementById('mp3').style.left = '104%'; document.getElementById('mp3').style.top = '75%';
-        document.getElementById('mp4').style.left = '69%';  document.getElementById('mp4').style.top = '25%';
-        mb.style.left = '-2%'; mb.style.top = '25%';
+        mp1.style.left = '-4%';  mp1.style.top = '25%';
+        mp2.style.left = '-4%';  mp2.style.top = '75%';
+        mp3.style.left = '104%'; mp3.style.top = '75%';
+        mp4.style.left = '69%';  mp4.style.top = '25%'; // stays here all loop long
+        mb.style.left = '-2%';   mb.style.top = '25%';
         document.getElementById('ms1').textContent = '0';
         document.getElementById('ms2').textContent = '0';
         document.getElementById('ms3').textContent = '2';
     };
     reset();
 
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
-
     while (true) {
         if (!introVisible()) { await wait(500); reset(); continue; }
 
-        // Serve
+        // Pause with ball at server before the rally starts
         await wait(900);
-        mb.style.left = '85%'; mb.style.top = '75%';
+
+        // ── SERVE ── mp1 is already at (-4%, 25%); ball flies diagonal to green's service box.
+        //           mp3 steps forward from the baseline to meet it.
+        mb.style.left = '85%';  mb.style.top = '75%';
+        mp3.style.left = '92%'; mp3.style.top = '75%';
         await wait(850);
         if (!introVisible()) { reset(); continue; }
-        // Return
-        mb.style.left = '15%'; mb.style.top = '25%';
+
+        // ── RETURN ── mp3 hits the ball deep back to red's side.
+        //            mp1 steps in from the baseline to hit the return. mp3 retreats.
+        mb.style.left = '15%';  mb.style.top = '25%';
+        mp1.style.left = '12%'; mp1.style.top = '25%';
+        mp3.style.left = '104%';mp3.style.top = '75%';
         await wait(800);
-        // Rally 1
-        mb.style.left = '80%'; mb.style.top = '55%';
+
+        // ── THIRD SHOT ── mp1 sends it cross-court to green's middle.
+        //                mp3 sprints to meet it. mp1 retreats.
+        mb.style.left = '80%';  mb.style.top = '55%';
+        mp3.style.left = '85%'; mp3.style.top = '55%';
+        mp1.style.left = '-4%'; mp1.style.top = '25%';
         await wait(700);
-        // Rally 2 (winner)
-        mb.style.left = '10%'; mb.style.top = '65%';
+
+        // ── RALLY CONTINUES ── mp3's soft block floats short into red's front-bottom.
+        //                     mp2 steps up to put it away. mp3 retreats.
+        mb.style.left = '10%';  mb.style.top = '65%';
+        mp2.style.left = '8%';  mp2.style.top = '65%';
+        mp3.style.left = '104%';mp3.style.top = '75%';
         await wait(700);
-        // Point won — tick score
+
+        // ── WINNER ── mp2 punches it into green's empty corner — unreachable.
+        //            No green player moves (mp3 can't get there in time; mp4 stays at kitchen).
+        mb.style.left = '95%';  mb.style.top = '40%';
+        mp2.style.left = '-4%'; mp2.style.top = '75%';
+        await wait(700);
+
+        // ── POINT WON ── score ticks up.
         document.getElementById('ms1').textContent = '1';
-        // Winners swap sides (server team)
-        await wait(450);
-        document.getElementById('mp1').style.top = '75%';
-        document.getElementById('mp2').style.top = '25%';
+        await wait(600);
+
+        // ── WINNERS SWAP SIDES ── red team swaps halves (serving rule).
+        mp1.style.top = '75%';
+        mp2.style.top = '25%';
         await wait(1200);
+
         reset();
         await wait(600);
     }
