@@ -97,6 +97,12 @@ html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-
 button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-next{touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 .gate-btn{background:rgba(10,22,40,.6);backdrop-filter:blur(10px);border:1.5px solid var(--4dp-hairline-s);border-radius:14px;padding:16px 18px;color:var(--4dp-text);cursor:pointer;transition:all .15s var(--4dp-ease);-webkit-tap-highlight-color:transparent;text-align:left;}
 .gate-btn.ready{border-color:color-mix(in srgb,var(--4dp-drop) 50%,transparent);background:color-mix(in srgb,var(--4dp-drop) 14%,rgba(10,22,40,.6));}
+/* Pulse the Ready button during practice IDLE so first-timers know where to click first */
+.gate-btn.pulse-me{animation:gatePulse 1.3s ease-in-out infinite;}
+@keyframes gatePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,.0);border-color:color-mix(in srgb,var(--4dp-drop) 50%,transparent);}
+  50%{box-shadow:0 0 0 10px rgba(52,211,153,.18);border-color:var(--4dp-drop);}
+}
 .gate-btn.ready:active,.gate-btn.ready.active{background:color-mix(in srgb,var(--4dp-drop) 45%,rgba(10,22,40,.6));border-color:var(--4dp-drop);}
 .gate-btn.swing{border-color:color-mix(in srgb,#FB7185 50%,transparent);background:color-mix(in srgb,#FB7185 14%,rgba(10,22,40,.6));}
 .gate-btn.swing:active,.gate-btn.swing.active{background:color-mix(in srgb,#FB7185 55%,rgba(10,22,40,.6));border-color:#FB7185;}
@@ -1600,6 +1606,8 @@ function launchBall(){
   STATE.shotStart = performance.now();
   STATE.phase = 'FLIGHT';
   STATE.canInput = true;
+  // Practice: swap prompt to the drill-specific rule now that ball is live
+  if (STATE.mode === 'PRACTICE') updateCenterPromptForPhase();
   // Segment-aware starting position — BOUNCE is multi-segment
   const startFrom = s.segments ? s.segments[0].from : s.from;
   ball.position.set(...startFrom);
@@ -1617,8 +1625,14 @@ window.onReadyDown = function(){
   if (STATE.phase === 'IDLE') {
     STATE.holdingReady = true;
     document.getElementById('btn-ready').classList.add('active');
-    document.getElementById('center-prompt').style.opacity = '0';
     STATE.phase = 'WINDUP';
+    // In practice mode, keep the prompt visible but update text to the
+    // WINDUP "watch it" guidance. In game mode, hide the prompt entirely.
+    if (STATE.mode === 'PRACTICE') {
+      updateCenterPromptForPhase();
+    } else {
+      document.getElementById('center-prompt').style.opacity = '0';
+    }
     // Defender rises from rest (paddle down) into blocking-ready (paddle up at chest)
     setPaddlePose(defender.userData.paddle, 'readyPose', 220);
     animateAttackerSwing();
@@ -1974,7 +1988,19 @@ function showVerdict(correct, kind, shot){
                     : 'Missed.';
     big.style.color = '#FB7185';
     if (kind === 'NO_COMMIT') {
-      sub.textContent = 'Release = let it go · Right mouse = hit';
+      // Drill-aware coaching: tell her exactly what she should have done.
+      if (STATE.mode === 'PRACTICE') {
+        const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+        if (drill.kind === 'VOLLEY') {
+          sub.innerHTML = 'You held but didn\'t swing — press <strong>RIGHT MOUSE</strong> when the ball reaches you (keep left held)';
+        } else if (drill.kind === 'BOUNCE') {
+          sub.innerHTML = 'You held but didn\'t swing — wait for the bounce, then press <strong>RIGHT MOUSE</strong> (keep left held)';
+        } else {
+          sub.textContent = 'Release left mouse to let the ball go out';
+        }
+      } else {
+        sub.textContent = 'Release = let it go · Right mouse = hit';
+      }
     } else if (kind === 'TOO_LATE') {
       sub.textContent = 'You had the right read.';
     } else if (kind === 'TOO_EARLY') {
@@ -2442,12 +2468,37 @@ function practiceNextTrial(){
   const remaining = drill.shots - STATE.practiceTrial;
   if (cpE) cpE.textContent = 'Ball ' + (STATE.practiceTrial + 1) + ' of ' + drill.shots;
   if (cpH) cpH.textContent = drill.name + '.';
-  if (cpS) {
-    if (drill.kind === 'OUT') cpS.textContent = 'HOLD left mouse · RELEASE when you read the ball as going out';
-    else if (drill.kind === 'VOLLEY') cpS.textContent = 'KEEP HOLDING left · RIGHT MOUSE to volley (do NOT release)';
-    else cpS.textContent = 'KEEP HOLDING left · Wait for bounce · RIGHT MOUSE (do NOT release)';
-  }
+  // Phase-aware prompt: in IDLE, we're telling the user HOW TO START. In
+  // WINDUP/FLIGHT, we show the drill-specific rule. updateCenterPromptForPhase
+  // handles this and is also called from onReadyDown when the phase flips.
+  updateCenterPromptForPhase();
   document.getElementById('center-prompt').style.opacity = '1';
+}
+
+// Updates the center-prompt subtitle + pulses the Ready button based on
+// current STATE.phase. In practice mode only — game mode uses its own
+// static prompt. Addresses the "she doesn't know to press LEFT first"
+// problem: IDLE shows "press & hold to start"; WINDUP shows "ball coming
+// — watch it"; FLIGHT shows the drill-specific rule.
+function updateCenterPromptForPhase(){
+  if (STATE.mode !== 'PRACTICE') return;
+  const drill = PRACTICE_DRILLS[STATE.practiceIdx];
+  const cpS = document.getElementById('cp-sub');
+  const readyBtn = document.getElementById('btn-ready');
+  if (!cpS || !drill) return;
+  if (STATE.phase === 'IDLE') {
+    cpS.innerHTML = '👇 Press &amp; <strong>HOLD left mouse</strong> to start the ball';
+    if (readyBtn) readyBtn.classList.add('pulse-me');
+  } else if (STATE.phase === 'WINDUP') {
+    cpS.innerHTML = '⏱ Ball coming… keep holding and <strong>watch it</strong>';
+    if (readyBtn) readyBtn.classList.remove('pulse-me');
+  } else {
+    // FLIGHT — drill-specific rule
+    if (readyBtn) readyBtn.classList.remove('pulse-me');
+    if (drill.kind === 'OUT') cpS.textContent = 'Watch the ball — RELEASE when you see it going OUT';
+    else if (drill.kind === 'VOLLEY') cpS.textContent = 'KEEP HOLDING · press RIGHT MOUSE to volley (do NOT release)';
+    else cpS.textContent = 'KEEP HOLDING · let it bounce · press RIGHT MOUSE (do NOT release)';
+  }
 }
 
 function showPracticeResult(){
