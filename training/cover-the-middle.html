@@ -476,7 +476,67 @@ a:hover{text-decoration:underline;}
 .call-chip .quote { color: var(--4dp-dink); font-weight: 400; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   START OF POINT — PLANNED POACH SECTION
+   PHYSICS (collapsed one-line)
+   ═══════════════════════════════════════════════════════════════════ */
+.physics-line {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px; flex-wrap: wrap;
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(24px, 3.4vw, 38px); letter-spacing: -.5px;
+  color: var(--4dp-text);
+}
+.physics-line .pl-stat { color: var(--4dp-dink); }
+.physics-line .pl-dot { color: var(--4dp-text-faint); font-weight: 400; }
+.physics-sub {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px; color: var(--4dp-text-dim);
+  max-width: 560px; margin-left: auto; margin-right: auto;
+  line-height: 1.55;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RULES RUNDOWN (compact 4-row list — no tabs, no bodies)
+   ═══════════════════════════════════════════════════════════════════ */
+.rules-rundown {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column;
+  border-top: 1px solid var(--4dp-hairline);
+}
+.rules-rundown li {
+  display: flex; gap: 24px; align-items: flex-start;
+  padding: 22px 4px;
+  border-bottom: 1px solid var(--4dp-hairline);
+  transition: background .2s var(--4dp-ease);
+}
+.rules-rundown li:hover { background: rgba(43,139,252,.04); }
+.rr-num {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 13px; letter-spacing: 2px;
+  color: var(--4dp-dink);
+  padding-top: 4px;
+  flex-shrink: 0; min-width: 32px;
+}
+.rr-body { flex: 1; min-width: 0; }
+.rr-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--4dp-text-dim); letter-spacing: .2px;
+  margin-bottom: 6px;
+}
+.rr-rule {
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(22px, 2.8vw, 30px);
+  line-height: 1.15; letter-spacing: -.4px;
+  color: var(--4dp-text);
+}
+@media (max-width: 640px) {
+  .rules-rundown li { gap: 14px; padding: 18px 2px; }
+  .rr-num { min-width: 24px; font-size: 11px; }
+  .rr-rule { font-size: 19px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   START OF POINT — PLANNED POACH SECTION (kept; legacy hidden)
    ═══════════════════════════════════════════════════════════════════ */
 .planned-row {
   display: grid;
@@ -1034,6 +1094,9 @@ a:hover{text-decoration:underline;}
       <!-- Kitchen lines -->
       <line x1="230" y1="30" x2="230" y2="230" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
       <line x1="370" y1="30" x2="370" y2="230" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
+      <!-- Centerlines — each half's service boxes. Far side baseline→kitchen, near side kitchen→baseline. -->
+      <line x1="30"  y1="130" x2="230" y2="130" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
+      <line x1="370" y1="130" x2="570" y2="130" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
       <!-- Net -->
       <line x1="300" y1="20" x2="300" y2="240" stroke="#F5F3EE" stroke-width="3" stroke-linecap="round"/>
       <!-- Vignette -->
@@ -1076,16 +1139,61 @@ a:hover{text-decoration:underline;}
   <p class="sub">Your team loses points through the middle. <em>These are the four places yours breaks</em> — and how to own every one.</p>
 </section>
 
-<!-- ═══════════════════ SECTION 1 — WHY (geometry) ═══════════════════ -->
-<section class="section" id="why">
-  <div class="section-label">The physics</div>
-  <h2 class="section-title">The ball they have to hit.</h2>
-  <p class="section-lede">Opponents don't aim for the middle because they love it. They aim there because <em>everywhere else has a flaw</em>. Three flaws, pushing every high-percentage shot through you.</p>
+<!-- ═══════════════════ PHYSICS (collapsed to one line) ═══════════════════ -->
+<section class="section" id="why" style="margin-top:60px;margin-bottom:56px;">
+  <div class="physics-line">
+    <span class="pl-stat">Lowest net</span>
+    <span class="pl-dot">·</span>
+    <span class="pl-stat">No sideline</span>
+    <span class="pl-dot">·</span>
+    <span class="pl-stat">Longest court</span>
+  </div>
+  <p class="physics-sub">Three flaws push every high-percentage shot through the middle.</p>
+</section>
 
-  <div class="geom">
-    <p class="geom-pull"><em>Lowest net. No sideline. Longest court.</em> The middle is where geometry bends the match against them — and you're the one standing there.</p>
+<!-- ═══════════════════ RULES RUNDOWN ═══════════════════ -->
+<section class="section" id="rules" style="margin-top:48px;">
+  <div class="section-label">The rules</div>
+  <h2 class="section-title">Your middle breaks four ways.</h2>
+  <p class="section-lede"><em>Forehand takes the middle</em> is a lie. Here are the four moments — and the one-line rule for each. The trainer drills them live.</p>
 
-    <div class="geom-row">
+  <ol class="rules-rundown">
+    <li>
+      <div class="rr-num">01</div>
+      <div class="rr-body">
+        <div class="rr-name">Third shot drives through · partner still running</div>
+        <div class="rr-rule">NVZ-player takes it. Block or reset.</div>
+      </div>
+    </li>
+    <li>
+      <div class="rr-num">02</div>
+      <div class="rr-body">
+        <div class="rr-name">Both teams at the kitchen</div>
+        <div class="rr-rule">Diagonal from hitter takes middle. Partner covers line.</div>
+      </div>
+    </li>
+    <li>
+      <div class="rr-num">03</div>
+      <div class="rr-body">
+        <div class="rr-name">Cross-court dink rally</div>
+        <div class="rr-rule">Rally partner sits on forehand. Home partner stays home.</div>
+      </div>
+    </li>
+    <li>
+      <div class="rr-num">04</div>
+      <div class="rr-body">
+        <div class="rr-name">Partner pulled wide</div>
+        <div class="rr-rule">Shift hard to middle. Own the seam.</div>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- All prose teaching (green/red poach matrix, planned-poach signals, must-hit-winner, hand-signal icons)
+     lives inside the trainer per feedback_module_story_click_through_not_wall.md —
+     the landing is the trailer, the trainer is the movie. -->
+<section style="display:none" aria-hidden="true" hidden><div>
+      <div class="geom-row" hidden>
       <div class="geom-card">
         <div class="num">01 · LOW NET</div>
         <!-- Net height SVG -->
@@ -1156,8 +1264,8 @@ a:hover{text-decoration:underline;}
   </div>
 </section>
 
-<!-- ═══════════════════ SECTION 2 — FOUR MOMENTS ═══════════════════ -->
-<section class="section" id="rules">
+<!-- ═══════════════════ LEGACY SECTION 2 — kept in source, hidden from render per click-through rule ═══════════════════ -->
+<section class="section" id="rules-legacy" style="display:none" aria-hidden="true" hidden>
   <div class="section-label">The decision</div>
   <h2 class="section-title">Your middle breaks four ways.</h2>
   <p class="section-lede"><em>Forehand takes the middle</em> is a lie. It collapses the instant you pair a lefty and righty, get pulled wide, or face a third shot with your partner still running. Here's what actually works — for every situation you'll see today.</p>
@@ -1232,8 +1340,8 @@ a:hover{text-decoration:underline;}
   </div>
 </section>
 
-<!-- ═══════════════════ SECTION 3 — GREEN LIGHTS / RED LIGHTS ═══════════════════ -->
-<section class="section" id="poach">
+<!-- ═══════════════════ LEGACY SECTION 3 — hidden ═══════════════════ -->
+<section class="section" id="poach-legacy" style="display:none" aria-hidden="true" hidden>
   <div class="section-label">The poach</div>
   <h2 class="section-title">Crossing over is a weapon. Don't waste it.</h2>
   <p class="section-lede">Poaching isn't aggression — it's a <em>read</em>. Paddle face, contact height, partner's position. Get it right, you close the point. Get it wrong, you gift an open court.</p>
@@ -1277,8 +1385,8 @@ a:hover{text-decoration:underline;}
   </div>
 </section>
 
-<!-- ═══════════════════ SECTION 3.5 — START OF POINT · PLANNED POACH ═══════════════════ -->
-<section class="section" id="planned">
+<!-- ═══════════════════ LEGACY SECTION 3.5 — hidden ═══════════════════ -->
+<section class="section" id="planned-legacy" style="display:none" aria-hidden="true" hidden>
   <div class="section-label">Before the serve</div>
   <h2 class="section-title">Plan the poach in advance.</h2>
   <p class="section-lede">Opportunistic poaching is improvisation. Planned poaching is <em>choreography</em> — you and your partner have already agreed, silently, before the point begins. Three tools.</p>
