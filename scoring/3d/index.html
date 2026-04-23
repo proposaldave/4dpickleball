@@ -386,12 +386,27 @@ html, body {
     </div>
 </div>
 
-<script type="importmap">
-{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
-</script>
-
 <script type="module">
-import * as THREE from 'three';
+// Global error visibility — if anything fails, Dave sees it instead of a black screen.
+window.addEventListener('error', (e) => {
+    const el = document.getElementById('loading');
+    if (!el) return;
+    el.style.fontSize = '13px';
+    el.style.textAlign = 'center';
+    el.style.padding = '32px';
+    el.style.color = '#F87171';
+    el.style.fontFamily = 'var(--4dp-font-body)';
+    el.style.fontStyle = 'normal';
+    el.style.letterSpacing = '0';
+    el.innerHTML = '<div style="font-family:var(--4dp-font-display);font-style:italic;font-size:22px;color:#F87171;margin-bottom:14px">Something broke.</div>' +
+        '<div style="color:#F5F3EE;max-width:520px;margin:0 auto;line-height:1.5">' + (e.message || 'Unknown error') + '</div>' +
+        '<div style="color:rgba(245,243,238,.4);font-size:11px;margin-top:10px;font-family:ui-monospace,monospace">' + (e.filename || '') + ':' + (e.lineno || '?') + '</div>';
+});
+window.addEventListener('unhandledrejection', (e) => {
+    window.dispatchEvent(new ErrorEvent('error', { message: 'Promise rejected: ' + (e.reason && e.reason.message || e.reason || '?') }));
+});
+
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 
 // =========================================================
 // CONSTANTS — court in feet, 1 unit = 1 ft

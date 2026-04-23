@@ -348,7 +348,7 @@ h1#screen-header {
     background: radial-gradient(ellipse at center, var(--court-surface-hi) 0%, var(--court-surface) 70%);
     overflow: visible;
     box-shadow: inset 0 0 60px rgba(0,0,0,0.25);
-    contain: layout paint;
+    /* No `contain: paint` here — it would clip tooltips and off-court players. */
     transform: translateZ(0);
 }
 
