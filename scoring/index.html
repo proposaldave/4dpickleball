@@ -1,995 +1,1030 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Positioning & Scoring — 4D Pickleball</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Positioning & Scoring · 4D Pickleball</title>
+<meta name="description" content="Pickleball scoring is famously weird. Watch one point unfold — then lock it in with six quick scenarios. Level 1 · 4D Pickleball Academy.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FBBF24'/%3E%3Ctext x='50' y='70' font-family='Georgia,serif' font-style='italic' font-size='56' font-weight='400' fill='%230E1F38' text-anchor='middle'%3E1%3C/text%3E%3C/svg%3E">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+<!-- Canonical design tokens (R17) -->
+<link rel="stylesheet" href="../4dp/tokens.css">
 
-    <style>
-    /* =========================================================
-       TOKENS
-       ========================================================= */
-    :root {
-        --nepc-navy: #0A1A2F;
-        --nepc-navy-deep: #050D1A;
-        --nepc-navy-light: #1B4079;
-        --nepc-blue: #4DA6FF;
-        --nepc-blue-soft: #7FBFFF;
-        --nepc-red: #FF3D5A;
-        --nepc-green: #9EF01A;
-        --court-blue: #234e8c;
-        --court-blue-bright: #2d5fa8;
-        --court-gray: #5e6878;
-        --court-burgundy: #6b0f1a;
-        --team-serve: #EF4444;        /* Red team */
-        --team-serve-deep: #B91C1C;
-        --team-return: #10B981;       /* Green team (emerald — distinct from lime ball) */
-        --team-return-deep: #047857;
-        --glass: rgba(27, 64, 121, 0.32);
-        --glass-strong: rgba(27, 64, 121, 0.55);
-        --glass-border: rgba(255, 255, 255, 0.10);
-        --glass-border-bright: rgba(255, 255, 255, 0.22);
-        --success: #2ed573;
-        --gold: #FFD700;
-        --silver: #C0C9D4;
-        --bronze: #CD7F32;
-        --shadow-1: 0 8px 24px rgba(0,0,0,0.35);
-        --shadow-2: 0 20px 60px rgba(0,0,0,0.55);
+<style>
+/* =========================================================
+   LOCAL OVERRIDES — gameplay semantics only
+   All design tokens inherit from tokens.css.
+   ========================================================= */
+:root {
+    /* Gameplay colors — not brand, these represent sides of play */
+    --team-serve:       #EF4444;
+    --team-serve-soft:  rgba(239, 68, 68, 0.18);
+    --team-serve-glow:  rgba(239, 68, 68, 0.55);
+    --team-return:      #10B981;
+    --team-return-soft: rgba(16, 185, 129, 0.16);
+    --team-return-glow: rgba(16, 185, 129, 0.55);
+
+    /* Court — LOCKED R19 palette via tokens */
+    --court-surface:      var(--nepc-court-blue);
+    --court-surface-hi:   var(--nepc-court-blue-bright);
+    --court-deck:         var(--nepc-court-gray);
+    --court-deck-dark:    var(--nepc-court-gray-dark);
+    --court-kitchen:      var(--nepc-kitchen-burgundy);
+    --court-kitchen-deep: var(--nepc-kitchen-deep);
+    --court-line:         var(--nepc-line-white);
+
+    /* Ball — bright lime for scorability contrast on any surface */
+    --ball: #C6F51D;
+    --ball-glow: rgba(198, 245, 29, 0.55);
+}
+
+/* =========================================================
+   RESET + GLOBAL
+   ========================================================= */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
     }
+}
 
-    /* =========================================================
-       RESET + GLOBAL
-       ========================================================= */
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+    margin: 0; padding: 0;
+    background: var(--4dp-ink);
+    color: var(--4dp-text);
+    font-family: var(--4dp-font-body);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+    line-height: 1.5;
+}
 
-    @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
-            animation-duration: 0.001ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.001ms !important;
-        }
-    }
+body {
+    background-color: var(--4dp-ink);
+    background-image:
+        radial-gradient(ellipse 80% 60% at 15% -10%, rgba(251,191,36,.08) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 85% 110%, rgba(43,139,252,.06) 0%, transparent 60%);
+    background-attachment: fixed;
+    display: flex; flex-direction: column; align-items: center;
+    position: relative;
+}
 
-    html, body {
-        margin: 0; padding: 0;
-        background: var(--nepc-navy-deep);
-        color: #fff;
-        font-family: 'Inter', system-ui, sans-serif;
-        min-height: 100vh;
-        min-height: 100dvh; /* Handles mobile browser chrome collapse */
-        overflow-x: hidden;
-        -webkit-font-smoothing: antialiased;
-        text-rendering: optimizeLegibility;
-        overscroll-behavior-y: none;
-    }
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+.app {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 680px;
+    padding: clamp(14px, 3vw, 24px);
+    padding-left:  max(clamp(14px, 3vw, 24px), env(safe-area-inset-left));
+    padding-right: max(clamp(14px, 3vw, 24px), env(safe-area-inset-right));
+    padding-top:    max(clamp(14px, 3vw, 24px), env(safe-area-inset-top));
+    padding-bottom: max(clamp(14px, 3vw, 24px), env(safe-area-inset-bottom));
+    display: flex; flex-direction: column;
+    gap: clamp(14px, 2.4vw, 20px);
+}
 
-    body {
-        background:
-            radial-gradient(ellipse 80% 60% at 15% -10%, rgba(77, 166, 255, 0.14) 0%, transparent 55%),
-            radial-gradient(ellipse 60% 50% at 85% 110%, rgba(155, 93, 229, 0.10) 0%, transparent 60%),
-            radial-gradient(ellipse 40% 30% at 50% 50%, rgba(77, 166, 255, 0.03) 0%, transparent 70%),
-            var(--nepc-navy-deep);
-        display: flex; flex-direction: column; align-items: center;
-        position: relative;
-    }
+.screen { display: none; animation: screenIn 0.45s var(--4dp-ease); }
+.screen.active { display: flex; flex-direction: column; gap: inherit; }
+@keyframes screenIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
-    /* Ambient floating glows */
-    .ambient-glow {
-        position: fixed; pointer-events: none;
-        width: 600px; height: 600px;
-        background: radial-gradient(circle, rgba(77, 166, 255, 0.10), transparent 60%);
-        border-radius: 50%; filter: blur(60px);
-        top: -220px; left: -220px; z-index: 0;
-        animation: ambientFloat 22s infinite ease-in-out alternate;
-    }
-    .ambient-glow.two {
-        top: auto; bottom: -220px; left: auto; right: -220px;
-        background: radial-gradient(circle, rgba(155, 93, 229, 0.10), transparent 60%);
-        animation-duration: 28s; animation-direction: alternate-reverse;
-    }
-    @keyframes ambientFloat {
-        0%   { transform: translate(0, 0); }
-        100% { transform: translate(80px, 80px); }
-    }
+/* =========================================================
+   INTRO / HERO — Instrument Serif signature
+   ========================================================= */
+.intro {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 24px 0 8px;
+    gap: 20px;
+}
 
-    /* =========================================================
-       APP SHELL
-       ========================================================= */
-    .app {
-        position: relative; z-index: 1;
-        width: 100%; max-width: 680px;
-        padding: clamp(14px, 3vw, 24px);
-        /* Respect iPhone notch / Android nav bar */
-        padding-left:  max(clamp(14px, 3vw, 24px), env(safe-area-inset-left));
-        padding-right: max(clamp(14px, 3vw, 24px), env(safe-area-inset-right));
-        padding-top:    max(clamp(14px, 3vw, 24px), env(safe-area-inset-top));
-        padding-bottom: max(clamp(14px, 3vw, 24px), env(safe-area-inset-bottom));
+.eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: var(--4dp-r-pill);
+    background: var(--4dp-drive-soft);
+    border: 1px solid color-mix(in srgb, var(--4dp-drive) 35%, transparent);
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--4dp-drive);
+}
+.eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--4dp-drive); box-shadow: 0 0 8px var(--4dp-drive); }
+
+.hero-head h1 {
+    font-family: var(--4dp-font-display); font-style: italic;
+    font-weight: 400; letter-spacing: -1.5px;
+    font-size: clamp(36px, 7vw, 64px); line-height: 1.0;
+    margin: 0; color: var(--4dp-text);
+}
+.hero-head h1 em { font-style: italic; color: var(--4dp-drive); text-shadow: 0 0 32px rgba(251,191,36,.35); }
+
+.word-row {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 14px; flex-wrap: wrap; margin-top: 4px;
+}
+.word-beat {
+    font-family: var(--4dp-font-body); font-weight: 800;
+    font-size: clamp(15px, 3.2vw, 20px); letter-spacing: 0.5px;
+    color: var(--4dp-drive);
+    text-shadow: 0 0 16px rgba(251,191,36,.35);
+    opacity: 0; transform: translateY(10px) scale(.94);
+    animation: beatPop .5s var(--4dp-ease) both;
+}
+@keyframes beatPop {
+    from { opacity: 0; transform: translateY(10px) scale(.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.word-beat.b1 { animation-delay: .10s; }
+.word-beat.b2 { animation-delay: .25s; }
+.word-beat.b3 { animation-delay: .40s; }
+.word-beat.b4 { animation-delay: .55s; }
+.word-sep { color: var(--4dp-text-faint); font-weight: 400; font-size: 18px; }
+
+/* Mini rally card — the live hero visual */
+.mini-rally-wrap {
+    width: 100%;
+    border-radius: var(--4dp-r-lg);
+    background: linear-gradient(180deg, var(--court-deck) 0%, var(--court-deck-dark) 100%);
+    padding: clamp(14px, 3vw, 22px);
+    border: 1px solid var(--4dp-hairline-s);
+    box-shadow: var(--4dp-shadow);
+    position: relative; overflow: hidden;
+}
+.mini-rally-wrap::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(251,191,36,.08), transparent 60%);
+    pointer-events: none;
+}
+
+.mini-court {
+    position: relative; width: 100%; aspect-ratio: 44 / 20;
+    background: radial-gradient(ellipse at center, var(--court-surface-hi) 0%, var(--court-surface) 70%);
+    border: 2px solid var(--court-line);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.25);
+    z-index: 1;
+}
+.mini-kitchen {
+    position: absolute; top: 0; bottom: 0; width: 15.9%;
+    background: linear-gradient(180deg, var(--court-kitchen), var(--court-kitchen-deep));
+}
+.mini-kitchen.left  { left: 34.1%; }
+.mini-kitchen.right { right: 34.1%; }
+.mini-kline { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--court-line); z-index: 3; }
+.mini-kline.left { left: 34.1%; }
+.mini-kline.right { right: 34.1%; }
+.mini-net {
+    position: absolute; left: 50%; top: -4px; bottom: -4px;
+    width: 3px; background: var(--court-line); z-index: 4; transform: translateX(-50%);
+    box-shadow: 0 0 10px rgba(255,255,255,.4);
+}
+.mini-center {
+    position: absolute; height: 2px; background: var(--court-line); top: 50%; width: 34.1%; transform: translateY(-50%); z-index: 3;
+}
+.mini-center.left { left: 0; }
+.mini-center.right { right: 0; }
+
+.mini-player {
+    position: absolute; width: clamp(18px, 3.6vw, 24px); height: clamp(18px, 3.6vw, 24px);
+    border-radius: 50%; z-index: 10;
+    transition: left 0.7s var(--4dp-ease), top 0.7s var(--4dp-ease);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: clamp(9px, 1.8vw, 11px);
+    color: #fff; transform: translate(-50%, -50%);
+    border: 1.5px solid rgba(255,255,255,.65);
+    box-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+.mini-player.serve  { background: radial-gradient(circle at 30% 30%, #FCA5A5, #B91C1C); box-shadow: 0 0 10px var(--team-serve-glow), 0 2px 8px rgba(0,0,0,.45); }
+.mini-player.return { background: radial-gradient(circle at 30% 30%, #6EE7B7, #047857); box-shadow: 0 0 10px var(--team-return-glow), 0 2px 8px rgba(0,0,0,.45); }
+
+.mini-ball {
+    position: absolute; width: clamp(8px, 1.6vw, 11px); height: clamp(8px, 1.6vw, 11px);
+    background: radial-gradient(circle at 30% 30%, #E8FF9A, var(--ball));
+    border-radius: 50%; z-index: 11;
+    box-shadow: 0 0 10px var(--ball-glow), 0 0 20px rgba(198,245,29,.3);
+    transform: translate(-50%, -50%);
+    transition: left 0.7s linear, top 0.7s linear;
+}
+
+.mini-scoreboard {
+    display: grid; grid-template-columns: 1fr 1fr 0.7fr;
+    gap: 8px; margin-top: 14px;
+    padding: 10px;
+    border-radius: var(--4dp-r-md);
+    background: linear-gradient(180deg, rgba(8, 18, 37, 0.85), rgba(8, 18, 37, 0.95));
+    border: 1px solid var(--4dp-hairline-s);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+}
+.mini-sb {
+    padding: 8px 4px; border-radius: 8px;
+    background: rgba(255,255,255,.025);
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.mini-sb.ms { background: linear-gradient(180deg, var(--team-serve-soft), rgba(239,68,68,.04)); border: 1px solid color-mix(in srgb, var(--team-serve) 25%, transparent); }
+.mini-sb.mr { background: linear-gradient(180deg, var(--team-return-soft), rgba(16,185,129,.04)); border: 1px solid color-mix(in srgb, var(--team-return) 25%, transparent); }
+.mini-sb .mv {
+    font-family: var(--4dp-font-data); font-weight: 700;
+    font-size: clamp(20px, 4.5vw, 28px);
+    line-height: 1; color: var(--4dp-text);
+    font-variant-numeric: tabular-nums;
+}
+.mini-sb.ms .mv { color: #FCA5A5; text-shadow: 0 0 10px rgba(239,68,68,.5); }
+.mini-sb.mr .mv { color: #6EE7B7; text-shadow: 0 0 10px rgba(16,185,129,.5); }
+.mini-sb .ml {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1.2px; opacity: 0.7;
+    margin-top: 4px; font-weight: 700;
+    color: var(--4dp-text-dim);
+}
+
+.hero-sub {
+    font-family: var(--4dp-font-body);
+    font-size: clamp(14px, 2.8vw, 16px);
+    line-height: 1.55; color: var(--4dp-text-dim);
+    max-width: 520px; margin: 0 auto;
+}
+.hero-sub em { font-family: var(--4dp-font-display); font-style: italic; color: var(--4dp-text); }
+
+/* =========================================================
+   LESSON HEADER (reused by main-screen)
+   ========================================================= */
+.main-head {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 0 0 4px;
+}
+.main-kicker {
+    display: flex; align-items: center; gap: 10px;
+}
+.main-kicker .dim-line {
+    width: 4px; height: 28px; border-radius: 2px;
+    background: var(--4dp-drive);
+    box-shadow: 0 0 10px rgba(251,191,36,.6);
+    flex-shrink: 0;
+}
+.main-kicker .kicker-text {
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--4dp-drive);
+    opacity: 0.9;
+}
+
+h1#screen-header {
+    font-family: var(--4dp-font-display); font-style: italic;
+    font-weight: 400; letter-spacing: -0.8px;
+    font-size: clamp(24px, 5vw, 34px);
+    margin: 0; color: var(--4dp-text);
+    line-height: 1.05;
+}
+
+.progress-dots {
+    display: flex; gap: 6px; padding: 4px 0;
+    align-items: center;
+}
+.pdot {
+    flex: 1; max-width: 36px; height: 5px; border-radius: 3px;
+    border: none; padding: 0; background: var(--4dp-hairline-s);
+    transition: all 0.4s var(--4dp-ease);
+    cursor: pointer; position: relative; overflow: hidden;
+}
+.pdot.done   { background: color-mix(in srgb, var(--4dp-drive) 55%, transparent); }
+.pdot.active { background: var(--4dp-drive); box-shadow: 0 0 10px rgba(251,191,36,.6); }
+.pdot:disabled { cursor: default; }
+.pdot:focus-visible { outline: 2px solid var(--4dp-drive); outline-offset: 3px; }
+
+/* =========================================================
+   INSTRUCTION CARD
+   ========================================================= */
+.instruction {
+    background: var(--4dp-surface);
+    border-radius: var(--4dp-r-md); padding: 16px 20px;
+    border: 1px solid var(--4dp-hairline-s);
+    display: flex; flex-direction: column;
+    box-shadow: var(--4dp-shadow);
+    animation: cardIn 0.45s var(--4dp-ease);
+}
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.step-label {
+    color: var(--4dp-drive);
+    font-family: var(--4dp-font-body); font-weight: 800; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+}
+.step-text {
+    font-family: var(--4dp-font-body);
+    font-size: clamp(14px, 2.8vw, 16px);
+    line-height: 1.55; color: var(--4dp-text);
+}
+.step-text strong { color: var(--4dp-text); font-weight: 700; }
+.step-text em { font-family: var(--4dp-font-display); font-style: italic; color: var(--4dp-drive); font-size: 1.02em; }
+
+/* =========================================================
+   COURT
+   ========================================================= */
+.court-wrapper {
+    width: 100%;
+    padding: clamp(22px, 4.8vw, 42px) clamp(26px, 5.6vw, 48px);
+    background: linear-gradient(180deg, var(--court-deck) 0%, var(--court-deck-dark) 100%);
+    border-radius: var(--4dp-r-lg); position: relative;
+    box-shadow:
+        inset 0 0 50px rgba(0,0,0,0.30),
+        var(--4dp-shadow);
+}
+.court-container {
+    width: 100%; aspect-ratio: 44 / 20;
+    border: 2px solid var(--court-line);
+    position: relative;
+    background: radial-gradient(ellipse at center, var(--court-surface-hi) 0%, var(--court-surface) 70%);
+    overflow: visible;
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.25);
+    contain: layout paint;
+    transform: translateZ(0);
+}
+
+.kitchen-area {
+    position: absolute; top: 0; bottom: 0; width: 15.9%;
+    background: linear-gradient(180deg, var(--court-kitchen), var(--court-kitchen-deep));
+    transition: box-shadow 0.4s, filter 0.4s;
+}
+.kitchen-area.pulse {
+    box-shadow: inset 0 0 22px rgba(251,191,36,.45);
+    filter: saturate(1.25) brightness(1.12);
+    animation: kitchenPulse 1.6s infinite alternate ease-in-out;
+}
+@keyframes kitchenPulse {
+    0%   { box-shadow: inset 0 0 15px rgba(251,191,36,.30); }
+    100% { box-shadow: inset 0 0 30px rgba(251,191,36,.60); }
+}
+.kitchen-left-side  { left: 34.1%; }
+.kitchen-right-side { right: 34.1%; }
+
+.kitchen-badge {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--4dp-font-body); font-weight: 800;
+    font-size: clamp(9px, 1.7vw, 12px);
+    letter-spacing: 1.5px; white-space: nowrap;
+    color: rgba(255, 220, 220, 0.92);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    pointer-events: none; z-index: 11;
+    opacity: 0; transition: opacity 0.5s;
+    text-align: center; line-height: 1.2;
+}
+.kitchen-badge small {
+    display: block; font-weight: 700; font-size: 0.7em;
+    letter-spacing: 2px; opacity: 0.8; margin-top: 2px;
+}
+.kitchen-area.labeled .kitchen-badge { opacity: 1; }
+
+.kitchen-line { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--court-line); z-index: 5; }
+.kl-left  { left:  34.1%; transform: translateX(-50%); }
+.kl-right { right: 34.1%; transform: translateX(50%); }
+
+.net-line {
+    position: absolute; left: 50%; top: -8px; bottom: -8px;
+    width: 4px; background: var(--court-line); z-index: 6; transform: translateX(-50%);
+    box-shadow: 0 0 12px rgba(255,255,255,0.3);
+}
+.center-line { position: absolute; height: 2px; background: var(--court-line); top: 50%; width: 34.1%; transform: translateY(-50%); }
+.center-left  { left: 0; }
+.center-right { right: 0; }
+
+/* Players — circles with paddle indicator */
+.player {
+    position: absolute;
+    width: clamp(26px, 5.4vw, 34px); height: clamp(26px, 5.4vw, 34px);
+    border-radius: 50%;
+    z-index: 20; transition: all 0.65s cubic-bezier(0.34, 1.4, 0.64, 1);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--4dp-font-body); font-weight: 800;
+    font-size: clamp(12px, 2.6vw, 14px);
+    color: #fff; transform: translate(-50%, -50%);
+    border: 2px solid rgba(255,255,255,0.55);
+    will-change: transform, left, top;
+    backface-visibility: hidden;
+}
+.player::after {
+    /* Paddle indicator */
+    content: ''; position: absolute;
+    right: -8px; top: 45%;
+    width: 10px; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,.55);
+    box-shadow: 0 0 4px rgba(255,255,255,.3);
+}
+#p1, #p2 {
+    background: radial-gradient(circle at 30% 30%, #FCA5A5, #B91C1C);
+    box-shadow: 0 0 14px var(--team-serve-glow), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+#p3, #p4 {
+    background: radial-gradient(circle at 30% 30%, #6EE7B7, #047857);
+    box-shadow: 0 0 14px var(--team-return-glow), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* Ball */
+.ball {
+    position: absolute;
+    width: clamp(12px, 2.6vw, 16px); height: clamp(12px, 2.6vw, 16px);
+    background: radial-gradient(circle at 30% 30%, #E8FF9A, var(--ball));
+    border-radius: 50%; z-index: 25;
+    box-shadow: 0 0 14px var(--ball-glow), 0 0 28px rgba(198,245,29,.4);
+    transition: all 0.6s linear;
+    transform: translate(-50%, -50%);
+    display: none;
+    will-change: transform, left, top;
+    backface-visibility: hidden;
+}
+.ball.idle { animation: ballIdle 2.5s infinite alternate ease-in-out; }
+@keyframes ballIdle {
+    0%   { box-shadow: 0 0 10px var(--ball-glow), 0 0 20px rgba(198,245,29,.3); }
+    100% { box-shadow: 0 0 18px var(--ball-glow), 0 0 36px rgba(198,245,29,.55); }
+}
+
+.ball-trail {
+    position: absolute;
+    width: clamp(10px, 2.2vw, 14px); height: clamp(10px, 2.2vw, 14px);
+    background: var(--ball); border-radius: 50%;
+    transform: translate(-50%, -50%); z-index: 24;
+    pointer-events: none; opacity: 0.7;
+    box-shadow: 0 0 8px var(--ball-glow);
+    animation: trailFade 0.7s forwards;
+}
+@keyframes trailFade {
+    0%   { opacity: 0.7; transform: translate(-50%, -50%) scale(0.95); }
+    100% { opacity: 0;   transform: translate(-50%, -50%) scale(0.35); }
+}
+
+.visual-layer { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
+
+.tooltip {
+    position: absolute; background: rgba(8, 18, 37, 0.94);
+    border: 1px solid var(--4dp-drive);
+    color: var(--4dp-text);
+    padding: 5px 10px; border-radius: 6px;
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: clamp(9px, 1.9vw, 11px); white-space: nowrap;
+    transform: translate(-50%, -36px); opacity: 0;
+    transition: opacity 0.3s, transform 0.3s ease;
+    z-index: 30; box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+}
+.tooltip.show { opacity: 1; }
+.tooltip::after {
+    content: ''; position: absolute; top: 100%;
+    left: var(--arrow-left, 50%); margin-left: -4px;
+    border-width: 4px; border-style: solid;
+    border-color: var(--4dp-drive) transparent transparent transparent;
+}
+
+.bounce-ring {
+    position: absolute; width: 44px; height: 44px;
+    border: 3px dashed var(--ball); border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0); opacity: 0; z-index: 10;
+}
+@keyframes ping {
+    0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+
+.score-popup {
+    position: absolute;
+    font-family: var(--4dp-font-body); font-weight: 800;
+    font-size: clamp(18px, 4.6vw, 28px);
+    text-shadow: 0 2px 14px rgba(0,0,0,0.85), 0 0 16px currentColor;
+    z-index: 40; transform: translate(-50%, -50%);
+    animation: floatUp 1.6s forwards ease-out; opacity: 0; white-space: nowrap;
+    letter-spacing: 1px;
+}
+@keyframes floatUp {
+    0%   { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+    20%  { opacity: 1; transform: translate(-50%, -22px) scale(1.2); }
+    80%  { opacity: 1; transform: translate(-50%, -44px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -54px) scale(1); }
+}
+.fault-popup { color: var(--4dp-error); animation: aggressivePop 1.5s forwards ease-out; }
+@keyframes aggressivePop {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
+    15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.4) rotate(-5deg); }
+    30%  { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
+    45%  { transform: translate(-50%, -50%) scale(1.1) rotate(0deg); }
+    80%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+
+/* =========================================================
+   SCOREBOARD
+   ========================================================= */
+.scoreboard {
+    display: none; grid-template-columns: 1fr 1fr 0.8fr;
+    gap: clamp(6px, 1.4vw, 10px);
+    margin-top: clamp(12px, 2.4vw, 18px);
+    padding: clamp(10px, 1.8vw, 14px);
+    border-radius: var(--4dp-r-md);
+    background: linear-gradient(180deg, rgba(8, 18, 37, 0.88), rgba(8, 18, 37, 0.95));
+    border: 1px solid var(--4dp-hairline-s);
+    box-shadow:
+        inset 0 2px 6px rgba(0,0,0,0.5),
+        0 6px 18px rgba(0,0,0,0.4);
+    position: relative;
+}
+.scoreboard.show { display: grid; }
+
+.score-box {
+    background: rgba(255,255,255,0.03);
+    padding: clamp(8px, 1.8vw, 12px) clamp(4px, 1vw, 8px);
+    border-radius: 10px; text-align: center;
+    border: 1px solid var(--4dp-hairline);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    min-height: 64px;
+}
+.score-box.score-serve {
+    background: linear-gradient(180deg, var(--team-serve-soft), rgba(239, 68, 68, 0.04));
+    border-color: color-mix(in srgb, var(--team-serve) 30%, transparent);
+}
+.score-box.score-serve .score-num { color: #FCA5A5; text-shadow: 0 0 14px var(--team-serve-glow); }
+.score-box.score-receive {
+    background: linear-gradient(180deg, var(--team-return-soft), rgba(16, 185, 129, 0.04));
+    border-color: color-mix(in srgb, var(--team-return) 30%, transparent);
+}
+.score-box.score-receive .score-num { color: #6EE7B7; text-shadow: 0 0 14px var(--team-return-glow); }
+.score-box.score-server-num .score-num { color: var(--4dp-drive); text-shadow: 0 0 14px rgba(251,191,36,.5); }
+
+.score-num {
+    font-family: var(--4dp-font-data); font-weight: 700;
+    font-size: clamp(26px, 7vw, 36px);
+    line-height: 1; font-variant-numeric: tabular-nums;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.score-num.highlight {
+    color: var(--ball) !important; transform: scale(1.18);
+    text-shadow: 0 0 16px var(--ball-glow);
+}
+.score-num.pop { animation: scorePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes scorePop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.32); filter: brightness(1.35); }
+    100% { transform: scale(1); }
+}
+.score-label {
+    font-family: var(--4dp-font-body);
+    font-size: clamp(9px, 1.5vw, 10.5px);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--4dp-text-dim);
+    margin-top: 6px; line-height: 1.2; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    gap: 5px;
+}
+.team-pip {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    margin-right: 2px; vertical-align: middle;
+    box-shadow: 0 0 6px currentColor;
+}
+.pip-red   { background: var(--team-serve); color: var(--team-serve); }
+.pip-green { background: var(--team-return); color: var(--team-return); }
+
+/* Serving indicator */
+.player.serving-indicator::before {
+    content: ''; position: absolute; inset: -6px;
+    border-radius: 50%; border: 2px solid var(--4dp-drive);
+    box-shadow: 0 0 16px var(--4dp-drive);
+    animation: servePulse 1.4s infinite ease-in-out;
+    pointer-events: none;
+}
+@keyframes servePulse {
+    0%, 100% { transform: scale(1);   opacity: 0.9; }
+    50%      { transform: scale(1.15); opacity: 0.4; }
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.button-group { display: flex; gap: 12px; margin-top: 6px; }
+.btn {
+    flex: 1; min-height: 56px; border-radius: var(--4dp-r-md); border: none;
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: clamp(13px, 3vw, 15px);
+    text-transform: uppercase; cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    letter-spacing: 0.8px;
+}
+.btn-primary {
+    background: var(--4dp-drive);
+    color: var(--4dp-ink);
+    box-shadow: 0 6px 18px rgba(251,191,36,.35);
+}
+.btn-primary:hover:not(:disabled) {
+    box-shadow: 0 8px 24px rgba(251,191,36,.45);
+    transform: translateY(-1px);
+}
+.btn-primary:disabled {
+    background: color-mix(in srgb, var(--4dp-drive) 30%, var(--4dp-surface-2));
+    color: var(--4dp-text-mute); cursor: not-allowed; box-shadow: none;
+}
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid color-mix(in srgb, var(--4dp-drive) 55%, transparent);
+    color: var(--4dp-drive);
+}
+.btn-outline:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--4dp-drive) 10%, transparent);
+    box-shadow: 0 4px 12px rgba(251,191,36,.2);
+}
+.btn-answer {
+    width: 100%; background: var(--4dp-surface);
+    border: 1px solid var(--4dp-hairline-s);
+    color: var(--4dp-text);
+    margin-bottom: 8px;
+    text-transform: none;
+    font-family: var(--4dp-font-body);
+    font-weight: 600; font-size: clamp(15px, 3.4vw, 17px);
+    line-height: 1.35; min-height: 54px;
+    padding: 8px 12px;
+}
+.btn-answer:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--4dp-drive) 8%, var(--4dp-surface));
+    border-color: color-mix(in srgb, var(--4dp-drive) 35%, transparent);
+    transform: translateY(-1px);
+}
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:focus-visible { outline: 2px solid var(--4dp-drive); outline-offset: 3px; }
+
+.control-btn {
+    width: 100%; margin-top: 8px;
+    background: var(--4dp-surface);
+    border: 1px solid var(--4dp-hairline);
+    color: var(--4dp-text-dim); padding: 10px;
+    border-radius: 10px;
+    font-family: var(--4dp-font-body);
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; display: none;
+    text-align: center; letter-spacing: 1.8px;
+    text-transform: uppercase;
+}
+.control-btn:hover { background: var(--4dp-surface-2); color: var(--4dp-text); }
+
+.pulse-btn { animation: pulseBtn 2.4s infinite; }
+@keyframes pulseBtn {
+    0%   { box-shadow: 0 6px 18px rgba(251,191,36,.35), 0 0 0 0 rgba(251,191,36,.5); }
+    70%  { box-shadow: 0 6px 18px rgba(251,191,36,.35), 0 0 0 16px rgba(251,191,36,0); }
+    100% { box-shadow: 0 6px 18px rgba(251,191,36,.35), 0 0 0 0 rgba(251,191,36,0); }
+}
+
+/* Progress bar (simulator) */
+.progress-bar-wrap {
+    width: 100%; height: 6px;
+    background: var(--4dp-hairline-s);
+    border-radius: 3px; overflow: hidden;
+    display: none;
+}
+#progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--4dp-drive), #FDE68A);
+    width: 0%; transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(251,191,36,.6);
+}
+
+.streak-pill {
+    display: none; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: var(--4dp-r-pill);
+    background: var(--gnr-gold-soft);
+    border: 1px solid color-mix(in srgb, var(--gnr-gold) 40%, transparent);
+    font-family: var(--4dp-font-body); font-weight: 800; font-size: 11px;
+    letter-spacing: 1.5px; color: var(--gnr-gold); text-transform: uppercase;
+    align-self: center; margin: 6px auto 0;
+    box-shadow: var(--4dp-glow-gold);
+    animation: streakPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.streak-pill.show { display: inline-flex; }
+@keyframes streakPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* Confetti */
+.confetti {
+    position: fixed; width: 9px; height: 14px;
+    pointer-events: none; z-index: 9999;
+    animation: confettiFly 1.4s ease-out forwards;
+    border-radius: 2px;
+}
+@keyframes confettiFly {
+    0%   { transform: translate(0,0) rotate(0); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+}
+
+.shake { animation: shake 0.35s ease-in-out; }
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-8px); }
+    75%      { transform: translateX(8px); }
+}
+
+/* =========================================================
+   AUDIO / MUTE TOGGLE
+   ========================================================= */
+.mute-toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(8, 18, 37, 0.75);
+    border: 1px solid var(--4dp-hairline-s);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    color: var(--4dp-text-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; box-shadow: var(--4dp-shadow);
+}
+.mute-toggle:hover { background: var(--4dp-surface-2); color: var(--4dp-text); transform: scale(1.06); }
+.mute-toggle svg { width: 18px; height: 18px; }
+
+/* Back to 4dpickleball link */
+.home-link {
+    position: fixed; top: 16px; left: 16px; z-index: 100;
+    padding: 6px 14px; border-radius: var(--4dp-r-pill);
+    background: rgba(8, 18, 37, 0.75);
+    border: 1px solid var(--4dp-hairline-s);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    color: var(--4dp-text-dim);
+    font-family: var(--4dp-font-body); font-weight: 700; font-size: 11px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+    transition: all 0.2s;
+}
+.home-link:hover { background: var(--4dp-surface-2); color: var(--4dp-text); }
+
+/* Keyboard hints */
+.kb-hints {
+    display: none; justify-content: center; gap: 14px;
+    padding: 10px 0 0; opacity: 0.5;
+    font-size: 11px; color: var(--4dp-text-mute);
+    font-family: var(--4dp-font-body); font-weight: 500;
+}
+.kb-hints kbd {
+    display: inline-block; padding: 2px 7px; min-width: 22px;
+    text-align: center; font-family: var(--4dp-font-data);
+    font-size: 10px; font-weight: 700;
+    background: var(--4dp-surface); color: var(--4dp-text);
+    border: 1px solid var(--4dp-hairline-s); border-radius: 4px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 2px 0 rgba(0,0,0,0.3);
+    margin-right: 4px;
+}
+@media (min-width: 768px) { .kb-hints.visible { display: flex; } }
+
+/* Replay button */
+.replay-btn {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 10px 16px; border-radius: 10px;
+    background: color-mix(in srgb, var(--4dp-drive) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--4dp-drive) 25%, transparent);
+    color: var(--4dp-drive);
+    font-family: var(--4dp-font-body); font-weight: 700; font-size: 12px;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s;
+    align-self: center; margin: 0 auto;
+}
+.replay-btn:hover { background: color-mix(in srgb, var(--4dp-drive) 15%, transparent); transform: translateY(-1px); }
+.replay-btn svg { width: 14px; height: 14px; }
+.replay-btn.spin svg { animation: spin 0.6s ease-out; }
+@keyframes spin { from { transform: rotate(0); } to { transform: rotate(-360deg); } }
+
+/* Feedback card */
+.sim-feedback {
+    margin-top: 10px;
+    border-color: var(--4dp-success) !important;
+    background: linear-gradient(135deg, rgba(52,211,153,.14), rgba(52,211,153,.04)) !important;
+    display: none;
+}
+.sim-feedback .step-text { color: var(--4dp-success); font-weight: 700; }
+.sim-feedback-explain {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--4dp-text-dim);
+    background: rgba(8, 18, 37, 0.50);
+    border-left: 3px solid color-mix(in srgb, var(--4dp-success) 55%, transparent);
+    padding: 12px 14px;
+    border-radius: 8px;
+    text-align: left;
+    display: none;
+    animation: explainFadeIn 500ms var(--4dp-ease) both;
+}
+.sim-feedback-explain strong { color: var(--4dp-text); }
+.sim-feedback-explain em {
+    font-family: var(--4dp-font-display); font-style: italic;
+    color: var(--4dp-drive); font-weight: 400; font-size: 1.02em;
+}
+@keyframes explainFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   COMPLETION
+   ========================================================= */
+.completion-card {
+    text-align: center; padding: 36px 24px 32px;
+    background: var(--4dp-surface);
+    border-radius: var(--4dp-r-lg); border: 1px solid var(--4dp-hairline-s);
+    box-shadow: var(--4dp-shadow-lg);
+    position: relative; overflow: hidden;
+}
+.completion-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top, var(--tier-glow, rgba(251,191,36,.25)), transparent 60%);
+    pointer-events: none;
+}
+.tier-badge {
+    position: relative; display: inline-block;
+    font-family: var(--4dp-font-body); font-weight: 900;
+    font-size: 12px; letter-spacing: 3px;
+    padding: 8px 18px; border-radius: var(--4dp-r-pill);
+    text-transform: uppercase; margin-bottom: 12px;
+    border: 1.5px solid var(--tier-color, var(--4dp-drive));
+    color: var(--tier-color, var(--4dp-drive));
+    box-shadow: 0 0 20px var(--tier-glow, rgba(251,191,36,.3));
+}
+.final-score-val {
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(72px, 16vw, 110px);
+    color: var(--tier-color, var(--4dp-drive));
+    margin: 12px 0 6px; line-height: 1;
+    text-shadow: 0 0 30px var(--tier-glow, rgba(251,191,36,.5));
+    letter-spacing: -2px;
+}
+.final-score-val.animating { animation: countUp 1.2s ease-out; }
+@keyframes countUp {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+.final-rating {
+    font-family: var(--4dp-font-display); font-style: italic;
+    font-weight: 400;
+    font-size: clamp(16px, 3.4vw, 20px);
+    color: var(--4dp-text); line-height: 1.35; margin-top: 8px;
+    max-width: 440px; margin-left: auto; margin-right: auto;
+    letter-spacing: -0.3px;
+}
+.stat-row {
+    display: flex; justify-content: center; gap: 22px; margin-top: 22px;
+    flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat-v {
+    font-family: var(--4dp-font-data); font-weight: 700;
+    font-size: clamp(18px, 4vw, 24px); color: var(--4dp-text);
+}
+.stat-l {
+    font-family: var(--4dp-font-body);
+    font-size: 10px; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--4dp-text-mute);
+    font-weight: 700; margin-top: 2px;
+}
+
+/* Up Next — R16: no dead ends */
+.up-next {
+    margin-top: 24px;
+    padding: 28px 24px;
+    background: var(--4dp-defend-soft);
+    border: 1px solid color-mix(in srgb, var(--4dp-defend) 35%, transparent);
+    border-radius: var(--4dp-r-lg);
+    text-align: center;
+}
+.up-next .label {
+    font-family: var(--4dp-font-body);
+    font-size: 11px; color: var(--4dp-defend); font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 10px;
+}
+.up-next h3 {
+    font-family: var(--4dp-font-display); font-style: italic;
+    font-weight: 400;
+    font-size: clamp(22px, 4.4vw, 30px);
+    color: var(--4dp-text); margin: 0 0 16px;
+    letter-spacing: -0.5px; line-height: 1.1;
+}
+.up-next .cta {
+    display: inline-block; padding: 14px 28px;
+    background: var(--4dp-defend);
+    color: var(--4dp-ink);
+    border-radius: var(--4dp-r-pill);
+    font-family: var(--4dp-font-body); font-weight: 700; font-size: 13px;
+    letter-spacing: 1px; text-transform: uppercase;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: transform 0.2s var(--4dp-ease);
+}
+.up-next .cta:hover { transform: translateY(-2px); }
+
+/* Footer */
+.fdp-footer {
+    margin-top: 16px;
+    padding: 20px 0;
+    border-top: 1px solid var(--4dp-hairline);
+    text-align: center;
+    font-family: var(--4dp-font-body);
+    font-size: 13px;
+    color: var(--4dp-text-faint);
+}
+.fdp-footer .parent {
+    color: var(--gnr-gold); font-weight: 400; font-style: italic;
+    font-family: var(--4dp-font-display); font-size: 16px;
+}
+.fdp-footer a { color: inherit; text-decoration: none; border-bottom: 1px dashed var(--4dp-hairline); }
+
+/* View switcher (2D / 3D) */
+.view-switch {
+    display: inline-flex; gap: 2px; padding: 3px;
+    border-radius: var(--4dp-r-pill);
+    background: var(--4dp-surface);
+    border: 1px solid var(--4dp-hairline-s);
+    margin: 0 auto;
+}
+.view-switch a {
+    padding: 6px 14px; border-radius: var(--4dp-r-pill);
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--4dp-text-dim); text-decoration: none;
+    transition: all 0.2s var(--4dp-ease);
+}
+.view-switch a.active { background: var(--4dp-drive); color: var(--4dp-ink); }
+.view-switch a:hover:not(.active) { color: var(--4dp-text); }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (min-width: 600px) {
+    .app { max-width: 720px; padding: clamp(18px, 3vw, 28px); gap: 18px; }
+    .scoreboard { grid-template-columns: 1fr 1fr 0.7fr; }
+    .btn-answer { font-size: 16px; min-height: 56px; }
+}
+
+@media (max-height: 540px) and (orientation: landscape) {
+    .app { gap: 10px; padding: 12px; }
+    .court-wrapper { padding: 18px 24px; }
+    .scoreboard { margin-top: 8px; padding: 8px; }
+    .score-num { font-size: 22px; }
+    .btn { min-height: 46px; }
+}
+
+@media (min-width: 1024px) {
+    .app { max-width: 1180px; padding: 36px; }
+    #main-screen.active { display: grid !important; }
+    #main-screen {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        gap: 22px;
+    }
+    .main-head { grid-column: 1 / -1; }
+    .main-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+        gap: 30px;
+        align-items: start;
+    }
+    .main-left, .main-right {
         display: flex; flex-direction: column;
-        gap: clamp(12px, 2.2vw, 16px);
+        gap: 16px; min-width: 0;
     }
+    .main-right { position: sticky; top: 28px; }
+    .court-wrapper { padding: 52px 60px; }
+    .scoreboard { grid-template-columns: 1fr 1fr 0.65fr; }
+    .score-num { font-size: 34px; }
+    #answer-options.multi {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    #answer-options.multi .btn-answer { margin-bottom: 0; }
+}
 
-    .screen { display: none; animation: screenIn 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
-    .screen.active { display: flex; flex-direction: column; gap: inherit; }
-    @keyframes screenIn {
-        from { opacity: 0; transform: translateY(14px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
+@media (min-width: 1440px) {
+    .app { max-width: 1320px; }
+}
 
-    /* =========================================================
-       HERO / INTRO
-       ========================================================= */
-    .hero-container {
-        position: relative; width: 100%; aspect-ratio: 21 / 10;
-        background:
-            radial-gradient(ellipse at 30% 30%, rgba(77, 166, 255, 0.22), transparent 60%),
-            radial-gradient(ellipse at 70% 70%, rgba(155, 93, 229, 0.15), transparent 60%),
-            linear-gradient(135deg, var(--nepc-navy-light) 0%, var(--nepc-navy-deep) 100%);
-        border-radius: 20px; border: 1px solid var(--glass-border-bright); overflow: hidden;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255,255,255,0.06);
-    }
-    .hero-grid {
-        position: absolute; inset: 0;
-        background-image:
-            linear-gradient(rgba(77, 166, 255, 0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(77, 166, 255, 0.06) 1px, transparent 1px);
-        background-size: 24px 24px; z-index: 1;
-        mask-image: radial-gradient(ellipse at center, #000 30%, transparent 85%);
-    }
-    .hero-bg-score {
-        position: absolute; font-family: 'Montserrat'; font-weight: 900;
-        font-size: clamp(60px, 14vw, 120px); letter-spacing: 6px;
-        color: rgba(255, 255, 255, 0.035); z-index: 2;
-        animation: pulseScore 4s infinite alternate ease-in-out;
-        white-space: nowrap; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    }
-    @keyframes pulseScore {
-        0%   { transform: translate(-50%, -50%) scale(0.96); opacity: 0.6; }
-        100% { transform: translate(-50%, -50%) scale(1.04); opacity: 1; }
-    }
-    .hero-mini-court {
-        width: 72%; aspect-ratio: 44 / 20;
-        border: 2px solid rgba(255,255,255,0.22); position: relative; z-index: 3;
-        border-radius: 3px;
-        box-shadow: 0 0 40px rgba(77, 166, 255, 0.15);
-    }
-    .hm-line { position: absolute; background: rgba(255,255,255,0.22); }
-    .hm-net { left: 50%; top: -6%; bottom: -6%; width: 2px; background: rgba(255,255,255,0.45); transform: translateX(-50%); }
-    .hm-k-left  { left: 34.1%; top: 0; bottom: 0; width: 1px; }
-    .hm-k-right { right: 34.1%; top: 0; bottom: 0; width: 1px; }
-    .hm-c-left  { left: 0; width: 34.1%; top: 50%; height: 1px; }
-    .hm-c-right { right: 0; width: 34.1%; top: 50%; height: 1px; }
+@media (max-width: 360px) {
+    .app { padding: 12px; gap: 12px; }
+    .court-wrapper { padding: 20px 24px; }
+    .btn { min-height: 50px; }
+    .score-label { font-size: 8.5px; letter-spacing: 0.8px; }
+}
 
-    .hero-dot {
-        position: absolute; width: 14px; height: 14px; border-radius: 50%;
-        transform: translate(-50%, -50%); box-shadow: 0 0 10px currentColor;
-    }
-    .hd-serve  { background: var(--team-serve);  color: var(--team-serve); }
-    .hd-return { background: var(--team-return); color: var(--team-return); }
-
-    /* Static start-of-point formation — servers behind LEFT baseline, returners on RIGHT (matches scoreboard) */
-    #hero-server           { left: -4%; top: 25%; }
-    #hero-server-partner   { left: -4%; top: 75%; }
-    #hero-returner         { left: 104%; top: 75%; }
-    #hero-returner-partner { left: 69%; top: 25%; }
-
-    .hero-ball {
-        position: absolute; width: 10px; height: 10px;
-        left: -2%; top: 25%;
-        background: var(--nepc-green); border-radius: 50%;
-        box-shadow: 0 0 16px var(--nepc-green);
-        z-index: 4; transform: translate(-50%, -50%);
-        animation: heroBallPulse 2.6s infinite ease-in-out;
-    }
-    @keyframes heroBallPulse {
-        0%, 100% { box-shadow: 0 0 10px var(--nepc-green); transform: translate(-50%, -50%) scale(1); }
-        50%      { box-shadow: 0 0 22px var(--nepc-green); transform: translate(-50%, -50%) scale(1.15); }
-    }
-
-    /* Intro heading */
-    .intro-kicker {
-        display: inline-block;
-        font-family: 'Montserrat'; font-weight: 800; font-size: 11px;
-        letter-spacing: 3px; text-transform: uppercase;
-        color: var(--nepc-blue);
-        padding: 6px 12px; border-radius: 999px;
-        background: rgba(77, 166, 255, 0.10);
-        border: 1px solid rgba(77, 166, 255, 0.25);
-        margin-bottom: 12px;
-    }
-    .intro-heading {
-        font-family: 'Montserrat'; font-weight: 800;
-        font-size: clamp(22px, 5.2vw, 34px); line-height: 1.15;
-        margin: 0; letter-spacing: -0.5px;
-        background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.75) 100%);
-        -webkit-background-clip: text; background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .intro-heading .word { display: inline-block; }
-    .intro-sub {
-        font-size: clamp(14px, 3vw, 16px); line-height: 1.5;
-        color: rgba(255,255,255,0.66); max-width: 520px; margin: 10px auto 0;
-        text-align: center;
-    }
-    .intro-header-wrap { text-align: center; padding: 8px 0 0; }
-
-    /* =========================================================
-       INTRO CHOREOGRAPHY — cinematic opener
-       ========================================================= */
-    #intro-screen.active .hero-container     { animation: heroDrop 950ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-    #intro-screen.active .hero-bg-score      { animation: bgScoreIn 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) 400ms both, pulseScore 4s infinite alternate 1.7s ease-in-out; }
-    #intro-screen.active .intro-kicker       { animation: kickerIn 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 700ms both; }
-    #intro-screen.active .intro-heading .word{ animation: fadeInUp 650ms cubic-bezier(0.2, 0.8, 0.2, 1) both; animation-delay: calc(850ms + var(--i, 0) * 90ms); }
-    #intro-screen.active .intro-sub          { animation: fadeInUp 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 1450ms both; }
-    #intro-screen.active .button-group       { animation: fadeInUp 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 1700ms both; }
-
-    @keyframes heroDrop {
-        from { opacity: 0; transform: translateY(-14px) scale(0.97); filter: blur(10px); }
-        to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-    }
-    @keyframes kickerIn {
-        from { opacity: 0; transform: translateY(-8px); letter-spacing: 6px; }
-        to   { opacity: 1; transform: translateY(0); letter-spacing: 3px; }
-    }
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(18px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes bgScoreIn {
-        from { opacity: 0; letter-spacing: 40px; }
-        to   { opacity: 1; letter-spacing: 6px; }
-    }
-
-    /* Sweep of light across the hero after it lands */
-    #intro-screen.active .hero-container::after {
-        content: ''; position: absolute; inset: 0; pointer-events: none;
-        background: linear-gradient(100deg, transparent 30%, rgba(77, 166, 255, 0.28) 48%, rgba(158, 240, 26, 0.22) 52%, transparent 70%);
-        transform: translateX(-120%);
-        animation: heroSweep 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) 950ms both;
-        mix-blend-mode: overlay; z-index: 5;
-    }
-    @keyframes heroSweep {
-        0%   { transform: translateX(-120%); }
-        100% { transform: translateX(120%); }
-    }
-
-    /* =========================================================
-       HEADER / PROGRESS
-       ========================================================= */
-    .top-row {
-        display: flex; align-items: center; gap: 14px;
-        padding: 4px 0;
-    }
-    .accent-line {
-        width: 6px; height: 44px; border-radius: 3px;
-        background: linear-gradient(180deg, var(--nepc-red), #8a0c22);
-        box-shadow: 0 0 12px rgba(255, 61, 90, 0.3);
-        flex-shrink: 0;
-    }
-    .kicker {
-        font-family: 'Montserrat'; font-weight: 700; font-size: 10px;
-        letter-spacing: 2.5px; text-transform: uppercase;
-        color: var(--nepc-blue); opacity: 0.85; margin-bottom: 2px;
-    }
-    h1#screen-header {
-        font-family: 'Montserrat'; font-weight: 800;
-        font-size: clamp(18px, 4.2vw, 24px);
-        margin: 0; text-transform: uppercase; letter-spacing: 0.5px;
-        line-height: 1.1;
-    }
-
-    .progress-dots {
-        display: flex; gap: 6px; padding: 4px 0;
-        align-items: center;
-    }
-    .pdot {
-        flex: 1; max-width: 36px; height: 5px; border-radius: 3px;
-        border: none; padding: 0; background: rgba(255,255,255,0.08);
-        transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        cursor: pointer; position: relative; overflow: hidden;
-    }
-    .pdot.done   { background: rgba(77, 166, 255, 0.45); }
-    .pdot.active { background: var(--nepc-blue); box-shadow: 0 0 10px rgba(77, 166, 255, 0.6); }
-    .pdot:disabled { cursor: default; }
-    .pdot:focus-visible { outline: 2px solid var(--nepc-blue); outline-offset: 3px; }
-
-    /* =========================================================
-       INSTRUCTION CARD
-       ========================================================= */
-    .slim-instruction {
-        background: var(--glass);
-        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-        border-radius: 14px; padding: 14px 18px;
-        border: 1px solid var(--glass-border);
-        display: flex; flex-direction: column; text-align: center;
-        box-shadow: var(--shadow-1);
-        animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    @keyframes cardIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    .step-label {
-        color: var(--nepc-blue);
-        font-family: 'Montserrat'; font-weight: 800; font-size: 11px;
-        text-transform: uppercase; letter-spacing: 2.2px; margin-bottom: 6px;
-    }
-    .instruction-text {
-        font-size: clamp(14px, 3.2vw, 16px);
-        line-height: 1.5; color: rgba(255,255,255,0.95); font-weight: 500;
-    }
-    .instruction-text strong { color: #fff; font-weight: 700; }
-
-    /* =========================================================
-       COURT
-       ========================================================= */
-    .court-wrapper {
-        width: 100%;
-        padding: clamp(24px, 5vw, 44px) clamp(28px, 6vw, 52px);
-        background: linear-gradient(180deg, var(--court-gray) 0%, #4a5462 100%);
-        border-radius: 18px; position: relative;
-        box-shadow:
-            inset 0 0 40px rgba(0,0,0,0.35),
-            0 10px 30px rgba(0,0,0,0.35);
-    }
-    .court-container {
-        width: 100%; aspect-ratio: 44 / 20;
-        border: 2px solid rgba(255,255,255,0.95);
-        position: relative;
-        background:
-            radial-gradient(ellipse at center, var(--court-blue-bright) 0%, var(--court-blue) 70%);
-        overflow: visible;
-        box-shadow: inset 0 0 60px rgba(0,0,0,0.25);
-        contain: layout paint;
-        transform: translateZ(0); /* GPU layer promotion */
-    }
-
-    .kitchen-area {
-        position: absolute; top: 0; bottom: 0; width: 15.9%;
-        background: linear-gradient(180deg, var(--court-burgundy), #52090f);
-        transition: box-shadow 0.4s, filter 0.4s;
-    }
-    .kitchen-area.pulse {
-        box-shadow: inset 0 0 20px rgba(255, 61, 90, 0.55);
-        filter: saturate(1.3) brightness(1.15);
-        animation: kitchenPulse 1.6s infinite alternate ease-in-out;
-    }
-    @keyframes kitchenPulse {
-        0%   { box-shadow: inset 0 0 15px rgba(255, 61, 90, 0.35); }
-        100% { box-shadow: inset 0 0 30px rgba(255, 61, 90, 0.70); }
-    }
-    .kitchen-left-side  { left: 34.1%; }
-    .kitchen-right-side { right: 34.1%; }
-
-    .kitchen-badge {
-        position: absolute; top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: 'Montserrat'; font-weight: 800;
-        font-size: clamp(9px, 1.8vw, 13px);
-        letter-spacing: 1.5px; white-space: nowrap;
-        color: rgba(255, 220, 220, 0.95);
-        text-shadow: 0 2px 8px rgba(0,0,0,0.7);
-        pointer-events: none; z-index: 11;
-        opacity: 0; transition: opacity 0.5s;
-        text-align: center; line-height: 1.2;
-    }
-    .kitchen-badge small {
-        display: block; font-weight: 700; font-size: 0.7em;
-        letter-spacing: 2px; opacity: 0.8; margin-top: 2px;
-    }
-    .kitchen-area.labeled .kitchen-badge { opacity: 1; }
-
-    .kitchen-line { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; z-index: 5; }
-    .kl-left  { left:  34.1%; transform: translateX(-50%); }
-    .kl-right { right: 34.1%; transform: translateX(50%); }
-
-    .net-line {
-        position: absolute; left: 50%; top: -8px; bottom: -8px;
-        width: 4px; background: #fff; z-index: 6; transform: translateX(-50%);
-        box-shadow: 0 0 12px rgba(255,255,255,0.3);
-    }
-    .center-line { position: absolute; height: 2px; background: #fff; top: 50%; width: 34.1%; transform: translateY(-50%); }
-    .center-left  { left: 0; }
-    .center-right { right: 0; }
-
-    /* Players */
-    .player {
-        position: absolute; width: clamp(24px, 5.2vw, 32px); height: clamp(24px, 5.2vw, 32px);
-        border-radius: 50%;
-        z-index: 20; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        display: flex; align-items: center; justify-content: center;
-        font-family: 'Montserrat'; font-weight: 800;
-        font-size: clamp(12px, 2.8vw, 14px);
-        color: #fff; transform: translate(-50%, -50%);
-        border: 2px solid rgba(255,255,255,0.55);
-        will-change: transform, left, top;
-        backface-visibility: hidden;
-    }
-    #p1, #p2 {
-        background: radial-gradient(circle at 30% 30%, #FCA5A5, var(--team-serve-deep));
-        box-shadow: 0 0 14px rgba(239, 68, 68, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
-    }
-    #p3, #p4 {
-        background: radial-gradient(circle at 30% 30%, #6EE7B7, var(--team-return-deep));
-        box-shadow: 0 0 14px rgba(16, 185, 129, 0.55), inset 0 1px 0 rgba(255,255,255,0.3);
-    }
-
-    /* Ball */
-    .ball {
-        position: absolute;
-        width: clamp(12px, 2.6vw, 16px); height: clamp(12px, 2.6vw, 16px);
-        background: radial-gradient(circle at 30% 30%, #d4ff7a, var(--nepc-green));
-        border-radius: 50%; z-index: 25;
-        box-shadow: 0 0 14px var(--nepc-green), 0 0 28px rgba(158, 240, 26, 0.4);
-        transition: all 0.6s linear;
-        transform: translate(-50%, -50%);
-        display: none;
-        will-change: transform, left, top;
-        backface-visibility: hidden;
-    }
-    .ball.idle { animation: ballIdle 2.5s infinite alternate ease-in-out; }
-    @keyframes ballIdle {
-        0%   { box-shadow: 0 0 10px var(--nepc-green), 0 0 20px rgba(158, 240, 26, 0.3); }
-        100% { box-shadow: 0 0 18px var(--nepc-green), 0 0 36px rgba(158, 240, 26, 0.55); }
-    }
-
-    .ball-trail {
-        position: absolute;
-        width: clamp(10px, 2.2vw, 14px); height: clamp(10px, 2.2vw, 14px);
-        background: var(--nepc-green); border-radius: 50%;
-        transform: translate(-50%, -50%); z-index: 24;
-        pointer-events: none; opacity: 0.7;
-        box-shadow: 0 0 8px var(--nepc-green);
-        animation: trailFade 0.7s forwards;
-    }
-    @keyframes trailFade {
-        0%   { opacity: 0.7; transform: translate(-50%, -50%) scale(0.95); }
-        100% { opacity: 0;   transform: translate(-50%, -50%) scale(0.35); }
-    }
-
-    /* Dynamic overlays */
-    .visual-layer { position: absolute; inset: 0; pointer-events: none; z-index: 15; }
-
-    .tooltip {
-        position: absolute; background: rgba(5, 13, 26, 0.92);
-        border: 1px solid var(--nepc-blue); color: #fff;
-        padding: 5px 9px; border-radius: 6px;
-        font-size: clamp(9px, 2vw, 11px); font-weight: 700; white-space: nowrap;
-        transform: translate(-50%, -36px); opacity: 0;
-        transition: opacity 0.3s, transform 0.3s ease;
-        z-index: 30; box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-        backdrop-filter: blur(6px);
-    }
-    .tooltip.show { opacity: 1; }
-    .tooltip::after {
-        content: ''; position: absolute; top: 100%;
-        left: var(--arrow-left, 50%); margin-left: -4px;
-        border-width: 4px; border-style: solid;
-        border-color: var(--nepc-blue) transparent transparent transparent;
-        transition: left 0.3s ease;
-    }
-
-    .bounce-ring {
-        position: absolute; width: 44px; height: 44px;
-        border: 3px dashed var(--nepc-green); border-radius: 50%;
-        transform: translate(-50%, -50%) scale(0); opacity: 0; z-index: 10;
-    }
-    @keyframes ping {
-        0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 1; }
-        100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
-    }
-
-    .score-popup {
-        position: absolute; font-family: 'Montserrat'; font-weight: 800;
-        font-size: clamp(20px, 5vw, 32px); color: var(--nepc-green);
-        text-shadow: 0 2px 14px rgba(0,0,0,0.85), 0 0 16px currentColor;
-        z-index: 40; transform: translate(-50%, -50%);
-        animation: floatUp 1.6s forwards ease-out; opacity: 0; white-space: nowrap;
-        letter-spacing: 1px;
-    }
-    @keyframes floatUp {
-        0%   { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
-        20%  { opacity: 1; transform: translate(-50%, -22px) scale(1.2); }
-        80%  { opacity: 1; transform: translate(-50%, -44px) scale(1); }
-        100% { opacity: 0; transform: translate(-50%, -54px) scale(1); }
-    }
-    .fault-popup { color: var(--nepc-red); animation: aggressivePop 1.5s forwards ease-out; }
-    @keyframes aggressivePop {
-        0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.1); }
-        15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.4) rotate(-5deg); }
-        30%  { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
-        45%  { transform: translate(-50%, -50%) scale(1.1) rotate(0deg); }
-        80%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
-    }
-
-    /* =========================================================
-       SCOREBOARD — fused below the court like a stadium display
-       ========================================================= */
-    .scoreboard {
-        display: none; grid-template-columns: 1fr 1fr 0.8fr;
-        gap: clamp(6px, 1.4vw, 10px);
-        margin-top: clamp(12px, 2.4vw, 18px);
-        padding: clamp(8px, 1.6vw, 12px);
-        border-radius: 12px;
-        background: linear-gradient(180deg, rgba(5, 13, 26, 0.88), rgba(5, 13, 26, 0.95));
-        border: 1px solid rgba(255,255,255,0.08);
-        box-shadow:
-            inset 0 2px 6px rgba(0,0,0,0.5),
-            0 6px 18px rgba(0,0,0,0.4);
-        /* Scoreboard "spine" connecting to court */
-        position: relative;
-    }
-    .scoreboard::before {
-        content: ''; position: absolute;
-        top: -6px; left: 50%; transform: translateX(-50%);
-        width: 42%; height: 6px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent);
-        pointer-events: none;
-    }
-    .scoreboard.show { display: grid; }
-
-    .score-box {
-        background: rgba(255,255,255,0.03);
-        padding: clamp(8px, 1.8vw, 12px) clamp(4px, 1vw, 8px);
-        border-radius: 10px; text-align: center;
-        border: 1px solid rgba(255,255,255,0.05);
-        position: relative; overflow: hidden;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        min-height: 64px;
-    }
-    .score-box.score-serve {
-        background: linear-gradient(180deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.04));
-        border-color: rgba(239, 68, 68, 0.30);
-    }
-    .score-box.score-serve .score-num { color: #FCA5A5; text-shadow: 0 0 14px rgba(239, 68, 68, 0.6); }
-    .score-box.score-receive {
-        background: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(16, 185, 129, 0.04));
-        border-color: rgba(16, 185, 129, 0.30);
-    }
-    .score-box.score-receive .score-num { color: #6EE7B7; text-shadow: 0 0 14px rgba(16, 185, 129, 0.55); }
-    .score-box.score-server-num .score-num { color: var(--nepc-blue); }
-
-    .score-box::after {
-        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-        pointer-events: none;
-    }
-
-    .score-num {
-        font-family: 'Montserrat'; font-weight: 900;
-        font-size: clamp(26px, 7vw, 36px); color: var(--nepc-blue);
-        text-shadow: 0 0 12px rgba(77, 166, 255, 0.55);
-        line-height: 1; font-variant-numeric: tabular-nums;
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .score-num.highlight {
-        color: var(--nepc-green); transform: scale(1.18);
-        text-shadow: 0 0 16px var(--nepc-green);
-    }
-    .score-num.pop { animation: scorePop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    @keyframes scorePop {
-        0%   { transform: scale(1); }
-        40%  { transform: scale(1.32); filter: brightness(1.35); }
-        100% { transform: scale(1); }
-    }
-    .score-label {
-        font-size: clamp(9px, 1.6vw, 10.5px);
-        text-transform: uppercase;
-        letter-spacing: 1.2px; opacity: 0.7;
-        margin-top: 6px; line-height: 1.2; font-weight: 700;
-        display: flex; align-items: center; justify-content: center;
-        gap: 5px;
-    }
-
-    /* =========================================================
-       SERVING PLAYER INDICATOR (pulses around active server)
-       ========================================================= */
-    .player.serving-indicator::before {
-        content: ''; position: absolute; inset: -6px;
-        border-radius: 50%; border: 2px solid var(--nepc-green);
-        box-shadow: 0 0 16px var(--nepc-green);
-        animation: servePulse 1.4s infinite ease-in-out;
-        pointer-events: none;
-    }
-    @keyframes servePulse {
-        0%, 100% { transform: scale(1);   opacity: 0.9; }
-        50%      { transform: scale(1.15); opacity: 0.4; }
-    }
-
-    /* =========================================================
-       SIM PROMPT (What happens next?)
-       ========================================================= */
-    .sim-prompt {
-        font-family: 'Montserrat'; font-weight: 800;
-        text-transform: uppercase;
-        margin: 4px 0 10px;
-        font-size: clamp(11px, 2.4vw, 13px);
-        letter-spacing: 2px; color: var(--nepc-blue);
-        text-align: center;
-    }
-
-    /* =========================================================
-       BUTTONS
-       ========================================================= */
-    .button-group { display: flex; gap: 12px; margin-top: 4px; }
-    .btn {
-        flex: 1; min-height: 56px; border-radius: 12px; border: none;
-        font-family: 'Montserrat'; font-weight: 700;
-        font-size: clamp(13px, 3vw, 15px);
-        text-transform: uppercase; cursor: pointer;
-        transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
-        display: flex; align-items: center; justify-content: center;
-        color: #fff; letter-spacing: 0.5px;
-    }
-    .btn-primary {
-        background: linear-gradient(135deg, var(--nepc-blue) 0%, #3588d9 100%);
-        color: var(--nepc-navy-deep);
-        box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35);
-    }
-    .btn-primary:hover:not(:disabled) {
-        box-shadow: 0 8px 24px rgba(77, 166, 255, 0.45);
-        transform: translateY(-1px);
-    }
-    .btn-primary:disabled { background: #3a4052; color: #6a7082; cursor: not-allowed; box-shadow: none; }
-    .btn-outline {
-        background: transparent; border: 2px solid var(--nepc-blue); color: var(--nepc-blue);
-    }
-    .btn-outline:hover:not(:disabled) {
-        background: rgba(77, 166, 255, 0.08);
-        box-shadow: 0 4px 12px rgba(77, 166, 255, 0.2);
-    }
-    .btn-answer {
-        width: 100%; background: rgba(255, 255, 255, 0.05);
-        border: 1px solid var(--glass-border); margin-bottom: 8px;
-        text-transform: none; font-family: 'Inter';
-        font-weight: 600; font-size: clamp(15px, 3.4vw, 17px);
-        line-height: 1.3; min-height: 54px;
-        backdrop-filter: blur(10px);
-    }
-    .btn-answer:hover:not(:disabled) {
-        background: rgba(77, 166, 255, 0.10);
-        border-color: rgba(77, 166, 255, 0.35);
-        transform: translateY(-1px);
-    }
-    .btn:active:not(:disabled) { transform: translateY(1px); }
-    .btn:focus-visible { outline: 2px solid var(--nepc-blue); outline-offset: 3px; }
-
-    .control-btn {
-        width: 100%; margin-top: 8px;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid var(--glass-border);
-        color: rgba(255, 255, 255, 0.55); padding: 10px;
-        border-radius: 10px; font-family: 'Montserrat';
-        font-size: 11px; font-weight: 800; cursor: pointer;
-        transition: all 0.2s; display: none;
-        text-align: center; letter-spacing: 2px;
-    }
-    .control-btn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
-
-    .pulse-btn { animation: pulseBtn 2.4s infinite; }
-    @keyframes pulseBtn {
-        0%   { box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35), 0 0 0 0 rgba(77, 166, 255, 0.5); }
-        70%  { box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35), 0 0 0 16px rgba(77, 166, 255, 0); }
-        100% { box-shadow: 0 6px 18px rgba(77, 166, 255, 0.35), 0 0 0 0 rgba(77, 166, 255, 0); }
-    }
-
-    /* =========================================================
-       PROGRESS BAR (SIMULATOR)
-       ========================================================= */
-    .progress-bar-wrap {
-        width: 100%; height: 6px;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 3px; overflow: hidden;
-        display: none;
-    }
-    #progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--nepc-blue), var(--nepc-blue-soft));
-        width: 0%; transition: width 0.5s ease;
-        box-shadow: 0 0 10px rgba(77, 166, 255, 0.6);
-    }
-
-    /* Streak pill */
-    .streak-pill {
-        display: none; align-items: center; gap: 6px;
-        padding: 6px 12px; border-radius: 999px;
-        background: rgba(255, 215, 0, 0.10);
-        border: 1px solid rgba(255, 215, 0, 0.35);
-        font-family: 'Montserrat'; font-weight: 800; font-size: 11px;
-        letter-spacing: 1.5px; color: var(--gold); text-transform: uppercase;
-        align-self: center; margin: 6px auto 0;
-        box-shadow: 0 0 12px rgba(255, 215, 0, 0.15);
-        animation: streakPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .streak-pill.show { display: inline-flex; }
-    @keyframes streakPop {
-        from { opacity: 0; transform: scale(0.8); }
-        to   { opacity: 1; transform: scale(1); }
-    }
-
-    /* =========================================================
-       CONFETTI
-       ========================================================= */
-    .confetti {
-        position: fixed; width: 9px; height: 14px;
-        pointer-events: none; z-index: 9999;
-        animation: confettiFly 1.4s ease-out forwards;
-        border-radius: 2px;
-    }
-    @keyframes confettiFly {
-        0%   { transform: translate(0,0) rotate(0); opacity: 1; }
-        100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
-    }
-
-    /* Shake */
-    .shake { animation: shake 0.35s ease-in-out; }
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25%      { transform: translateX(-8px); }
-        75%      { transform: translateX(8px); }
-    }
-
-    /* =========================================================
-       SERVE TARGET BOX (highlighted diagonal)
-       ========================================================= */
-    .serve-target {
-        position: absolute; z-index: 8; pointer-events: none;
-        border: 2px dashed var(--nepc-green); border-radius: 4px;
-        background: linear-gradient(135deg, rgba(158, 240, 26, 0.08), rgba(158, 240, 26, 0.02));
-        box-shadow: inset 0 0 20px rgba(158, 240, 26, 0.15), 0 0 18px rgba(158, 240, 26, 0.25);
-        opacity: 0; transition: opacity 0.5s;
-        animation: targetPulse 2s infinite alternate ease-in-out;
-    }
-    .serve-target.show { opacity: 1; }
-    @keyframes targetPulse {
-        0%   { box-shadow: inset 0 0 15px rgba(158, 240, 26, 0.12), 0 0 12px rgba(158, 240, 26, 0.18); }
-        100% { box-shadow: inset 0 0 30px rgba(158, 240, 26, 0.30), 0 0 24px rgba(158, 240, 26, 0.40); }
-    }
-
-    /* =========================================================
-       TEAM COLOR PIPS ON SCOREBOARD
-       ========================================================= */
-    .team-pip {
-        display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-        margin-right: 5px; vertical-align: middle;
-        box-shadow: 0 0 6px currentColor;
-    }
-    .pip-red   { background: var(--team-serve); color: var(--team-serve); }
-    .pip-green { background: var(--team-return); color: var(--team-return); }
-
-    /* =========================================================
-       AUDIO / MUTE TOGGLE
-       ========================================================= */
-    .mute-toggle {
-        position: fixed; top: 16px; right: 16px; z-index: 100;
-        width: 42px; height: 42px; border-radius: 50%;
-        background: rgba(10, 26, 47, 0.75);
-        border: 1px solid var(--glass-border);
-        backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-        color: rgba(255,255,255,0.8); cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        transition: all 0.2s; box-shadow: var(--shadow-1);
-    }
-    .mute-toggle:hover { background: rgba(27, 64, 121, 0.85); color: #fff; transform: scale(1.06); }
-    .mute-toggle svg { width: 18px; height: 18px; }
-
-    /* =========================================================
-       KEYBOARD HINTS STRIP
-       ========================================================= */
-    .kb-hints {
-        display: none; justify-content: center; gap: 14px;
-        padding: 10px 0 0; opacity: 0.5;
-        font-size: 11px; color: rgba(255,255,255,0.6);
-        font-family: 'Inter'; font-weight: 500;
-    }
-    .kb-hints kbd {
-        display: inline-block; padding: 2px 7px; min-width: 22px;
-        text-align: center; font-family: 'Montserrat';
-        font-size: 10px; font-weight: 700;
-        background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85);
-        border: 1px solid rgba(255,255,255,0.12); border-radius: 4px;
-        box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 2px 0 rgba(0,0,0,0.3);
-        margin-right: 4px;
-    }
-    @media (min-width: 768px) { .kb-hints.visible { display: flex; } }
-
-    /* =========================================================
-       REPLAY BUTTON
-       ========================================================= */
-    .replay-btn {
-        display: flex; align-items: center; justify-content: center;
-        gap: 6px; padding: 10px 16px; border-radius: 10px;
-        background: rgba(77, 166, 255, 0.08);
-        border: 1px solid rgba(77, 166, 255, 0.25);
-        color: var(--nepc-blue);
-        font-family: 'Montserrat'; font-weight: 700; font-size: 12px;
-        letter-spacing: 1.5px; text-transform: uppercase;
-        cursor: pointer; transition: all 0.2s;
-        align-self: center; margin: 0 auto;
-    }
-    .replay-btn:hover { background: rgba(77, 166, 255, 0.15); transform: translateY(-1px); }
-    .replay-btn svg { width: 14px; height: 14px; }
-    .replay-btn.spin svg { animation: spin 0.6s ease-out; }
-    @keyframes spin { from { transform: rotate(0); } to { transform: rotate(-360deg); } }
-
-    /* Feedback card */
-    .sim-feedback {
-        margin-top: 10px;
-        border-color: var(--success) !important;
-        background: linear-gradient(135deg, rgba(46, 213, 115, 0.16), rgba(46, 213, 115, 0.06)) !important;
-        display: none;
-    }
-    .sim-feedback .instruction-text { color: var(--success); font-weight: 700; }
-    .sim-feedback-explain {
-        margin-top: 10px;
-        font-size: 14px;
-        line-height: 1.55;
-        color: rgba(255,255,255,0.78);
-        background: rgba(10, 26, 47, 0.45);
-        border-left: 3px solid rgba(46, 213, 115, 0.55);
-        padding: 12px 14px;
-        border-radius: 8px;
-        text-align: left;
-        display: none;
-        animation: explainFadeIn 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-    }
-    .sim-feedback-explain strong { color: #fff; }
-    .sim-feedback-explain em { color: var(--nepc-blue); font-style: normal; font-weight: 600; }
-    @keyframes explainFadeIn {
-        from { opacity: 0; transform: translateY(6px); }
-        to   { opacity: 1; transform: none; }
-    }
-
-    /* =========================================================
-       COMPLETION
-       ========================================================= */
-    .completion-card {
-        text-align: center; padding: 32px 20px;
-        background: var(--glass); backdrop-filter: blur(18px);
-        border-radius: 18px; border: 1px solid var(--glass-border);
-        box-shadow: var(--shadow-2);
-        position: relative; overflow: hidden;
-    }
-    .completion-card::before {
-        content: ''; position: absolute; inset: 0;
-        background: radial-gradient(ellipse at top, var(--tier-glow, rgba(77,166,255,0.2)), transparent 60%);
-        pointer-events: none;
-    }
-    .tier-badge {
-        position: relative; display: inline-block;
-        font-family: 'Montserrat'; font-weight: 900;
-        font-size: 12px; letter-spacing: 3px;
-        padding: 8px 18px; border-radius: 999px;
-        text-transform: uppercase; margin-bottom: 12px;
-        border: 1.5px solid var(--tier-color, var(--nepc-blue));
-        color: var(--tier-color, var(--nepc-blue));
-        box-shadow: 0 0 20px var(--tier-glow, rgba(77,166,255,0.3));
-    }
-    .final-score-val {
-        font-family: 'Montserrat'; font-weight: 900;
-        font-size: clamp(56px, 14vw, 80px);
-        color: var(--tier-color, var(--nepc-blue));
-        margin: 12px 0 4px; line-height: 1;
-        text-shadow: 0 0 30px var(--tier-glow, rgba(77, 166, 255, 0.5));
-        font-variant-numeric: tabular-nums;
-    }
-    .final-score-val.animating { animation: countUp 1.2s ease-out; }
-    @keyframes countUp {
-        from { transform: scale(0.5); opacity: 0; }
-        to   { transform: scale(1); opacity: 1; }
-    }
-    .final-rating {
-        font-size: clamp(14px, 3vw, 16px);
-        color: rgba(255,255,255,0.85); line-height: 1.5; margin-top: 8px;
-        max-width: 440px; margin-left: auto; margin-right: auto;
-    }
-    .stat-row {
-        display: flex; justify-content: center; gap: 18px; margin-top: 18px;
-        flex-wrap: wrap;
-    }
-    .stat { text-align: center; }
-    .stat-v {
-        font-family: 'Montserrat'; font-weight: 800;
-        font-size: clamp(18px, 4vw, 22px); color: #fff;
-    }
-    .stat-l {
-        font-size: 10px; text-transform: uppercase;
-        letter-spacing: 1.5px; opacity: 0.6;
-        font-weight: 700; margin-top: 2px;
-    }
-
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
-
-    /* Tablet portrait — 600-1023px */
-    @media (min-width: 600px) {
-        .app { max-width: 720px; padding: clamp(18px, 3vw, 28px); gap: 16px; }
-        .hero-container { aspect-ratio: 21 / 8; }
-        .slim-instruction { padding: 16px 22px; }
-        .btn-answer { font-size: 16px; min-height: 56px; }
-        .scoreboard { grid-template-columns: 1fr 1fr 0.7fr; }
-        .score-num { font-size: clamp(28px, 4.5vw, 34px); }
-    }
-
-    /* Landscape phone: keep UI visible above the keyboard / chrome */
-    @media (max-height: 540px) and (orientation: landscape) {
-        .hero-container { aspect-ratio: 21 / 6; }
-        .app { gap: 10px; padding: 12px; }
-        .court-wrapper { padding: 18px 24px; }
-        .scoreboard { margin-top: 8px; padding: 8px; }
-        .score-num { font-size: 22px; }
-        .btn { min-height: 46px; }
-    }
-
-    /* Desktop — two-column 1024+ */
-    @media (min-width: 1024px) {
-        .app { max-width: 1180px; padding: 36px; }
-
-        #main-screen.active { display: grid !important; }
-        #main-screen {
-            grid-template-columns: 1fr;
-            grid-template-rows: auto auto 1fr;
-            gap: 20px;
-        }
-        .main-head { grid-column: 1 / -1; }
-        .main-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
-            gap: 28px;
-            align-items: start;
-        }
-        .main-left, .main-right {
-            display: flex; flex-direction: column;
-            gap: 16px; min-width: 0;
-        }
-        .main-right { position: sticky; top: 28px; }
-
-        .hero-container { aspect-ratio: 21 / 7; }
-        .intro-heading { font-size: 38px; }
-        .court-wrapper { padding: 52px 60px; }
-        .scoreboard { grid-template-columns: 1fr 1fr 0.65fr; }
-        .score-num { font-size: 34px; }
-
-        /* Two-column answer grid on desktop */
-        #answer-options.multi {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-        }
-        #answer-options.multi .btn-answer { margin-bottom: 0; }
-    }
-
-    /* Ultra-wide — 1440+ */
-    @media (min-width: 1440px) {
-        .app { max-width: 1320px; }
-    }
-
-    /* Very small phones */
-    @media (max-width: 360px) {
-        .app { padding: 12px; gap: 10px; }
-        .court-wrapper { padding: 20px 24px; }
-        .btn { min-height: 50px; }
-        .score-label { font-size: 8.5px; letter-spacing: 0.8px; }
-    }
-
-    /* Respect touch targets: all tappable elements min 44px (Apple HIG) */
-    @media (pointer: coarse) {
-        .btn, .btn-answer, .control-btn, .replay-btn, .mute-toggle { min-height: 48px; }
-        .pdot { height: 8px; } /* Easier to tap */
-    }
-    </style>
+@media (pointer: coarse) {
+    .btn, .btn-answer, .control-btn, .replay-btn, .mute-toggle { min-height: 48px; }
+    .pdot { height: 8px; }
+}
+</style>
 </head>
-<body>
+<body class="tokens-base">
 
-<div class="ambient-glow"></div>
-<div class="ambient-glow two"></div>
+<a href="https://4dpickleball.com" class="home-link">← 4D Pickleball</a>
 
-<!-- MUTE TOGGLE -->
 <button class="mute-toggle" id="mute-toggle" onclick="toggleMute()" aria-label="Toggle sound">
     <svg id="mute-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -1005,72 +1040,73 @@
 
 <div class="app">
 
-    <!-- ======= INTRO ======= -->
+    <!-- ====== INTRO ====== -->
     <section id="intro-screen" class="screen active">
-        <div class="hero-container">
-            <div class="hero-grid"></div>
-            <div class="hero-bg-score">0&ndash;0&ndash;2</div>
-            <div class="hero-mini-court">
-                <div class="hm-line hm-net"></div>
-                <div class="hm-line hm-k-left"></div>
-                <div class="hm-line hm-k-right"></div>
-                <div class="hm-line hm-c-left"></div>
-                <div class="hm-line hm-c-right"></div>
-                <div class="hero-dot hd-serve"  id="hero-server"></div>
-                <div class="hero-dot hd-serve"  id="hero-server-partner"></div>
-                <div class="hero-dot hd-return" id="hero-returner"></div>
-                <div class="hero-dot hd-return" id="hero-returner-partner"></div>
-                <div class="hero-ball"></div>
+        <div class="intro">
+            <span class="eyebrow"><span class="dot"></span>4D Pickleball · Level 1 · Scoring</span>
+            <div class="hero-head">
+                <h1>Pickleball scoring is<br><em>famously weird.</em></h1>
             </div>
-        </div>
+            <div class="word-row">
+                <span class="word-beat b1">Serve.</span>
+                <span class="word-sep">·</span>
+                <span class="word-beat b2">Score.</span>
+                <span class="word-sep">·</span>
+                <span class="word-beat b3">Switch.</span>
+                <span class="word-sep">·</span>
+                <span class="word-beat b4">Sideout.</span>
+            </div>
 
-        <div class="intro-header-wrap">
-            <span class="intro-kicker">4D Pickleball &middot; Scoring</span>
-            <h1 class="intro-heading">
-                <span class="word" style="--i:1">Master</span>
-                <span class="word" style="--i:2">Basic</span>
-                <span class="word" style="--i:3">Positioning</span><br>
-                <span class="word" style="--i:4">and</span>
-                <span class="word" style="--i:5">Scorekeeping</span>
-            </h1>
-            <p class="intro-sub">
-                Pickleball scoring is famously weird. First, watch the court to see how players move and how the serve rotates.
-                Then lock it in with six quick scenarios.
-            </p>
-        </div>
+            <!-- Live mini rally -->
+            <div class="mini-rally-wrap">
+                <div class="mini-court">
+                    <div class="mini-kitchen left"></div>
+                    <div class="mini-kitchen right"></div>
+                    <div class="mini-kline left"></div>
+                    <div class="mini-kline right"></div>
+                    <div class="mini-net"></div>
+                    <div class="mini-center left"></div>
+                    <div class="mini-center right"></div>
+                    <div class="mini-player serve"  id="mp1">1</div>
+                    <div class="mini-player serve"  id="mp2">2</div>
+                    <div class="mini-player return" id="mp3">3</div>
+                    <div class="mini-player return" id="mp4">4</div>
+                    <div class="mini-ball" id="mball"></div>
+                </div>
+                <div class="mini-scoreboard">
+                    <div class="mini-sb ms"><div class="mv" id="ms1">0</div><div class="ml">Serving</div></div>
+                    <div class="mini-sb mr"><div class="mv" id="ms2">0</div><div class="ml">Receiving</div></div>
+                    <div class="mini-sb"><div class="mv" id="ms3">2</div><div class="ml">Server #</div></div>
+                </div>
+            </div>
 
-        <div class="button-group" style="margin-top: 6px;">
-            <button class="btn btn-primary pulse-btn" onclick="nextStep()" style="min-height: 64px; flex-wrap: wrap;">
-                Start Your
-                <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="margin: 0 8px; filter: drop-shadow(0 0 6px rgba(158,240,26,0.7));">
-                    <circle cx="12" cy="12" r="10" fill="#9EF01A"/>
-                    <circle cx="8"  cy="9"  r="1.4" fill="#0A1A2F"/>
-                    <circle cx="16" cy="9"  r="1.4" fill="#0A1A2F"/>
-                    <circle cx="12" cy="12" r="1.4" fill="#0A1A2F"/>
-                    <circle cx="8"  cy="15" r="1.4" fill="#0A1A2F"/>
-                    <circle cx="16" cy="15" r="1.4" fill="#0A1A2F"/>
-                    <circle cx="12" cy="7"  r="1.2" fill="#0A1A2F"/>
-                    <circle cx="12" cy="17" r="1.2" fill="#0A1A2F"/>
-                </svg>
-                Journey Here
-            </button>
+            <p class="hero-sub">Watch one point unfold. Then lock it in with <em>six quick scenarios</em>.</p>
+
+            <div class="view-switch">
+                <a href="./" class="active">Top-Down</a>
+                <a href="./3d/">3D Experiment</a>
+            </div>
+
+            <div class="button-group" style="margin-top: 4px;">
+                <button class="btn btn-primary pulse-btn" onclick="startLesson()" style="min-height: 60px;">Start Your Journey</button>
+            </div>
         </div>
     </section>
 
-    <!-- ======= MAIN (lesson + simulator) ======= -->
+    <!-- ====== MAIN ====== -->
     <section id="main-screen" class="screen">
 
         <div class="main-head">
-            <div class="top-row">
-                <div class="accent-line"></div>
+            <div class="main-kicker">
+                <div class="dim-line"></div>
                 <div>
-                    <div class="kicker">4D Pickleball &middot; Scoring</div>
-                    <h1 id="screen-header">Positioning</h1>
+                    <div class="kicker-text">Scoring · Step <span id="step-num">1</span>/<span id="step-total">6</span></div>
+                    <h1 id="screen-header">The Court</h1>
                 </div>
             </div>
             <div class="progress-dots" id="progress-dots"></div>
             <div class="progress-bar-wrap" id="sim-progress"><div id="progress-fill"></div></div>
-            <div class="streak-pill" id="streak-pill">&#x2605; Streak &times;<span id="streak-val">2</span></div>
+            <div class="streak-pill" id="streak-pill">✦ Streak ×<span id="streak-val">2</span></div>
         </div>
 
         <div class="main-grid">
@@ -1083,9 +1119,6 @@
                         <div class="kitchen-area kitchen-right-side" id="kz-right">
                             <span class="kitchen-badge">KITCHEN<small>NVZ</small></span>
                         </div>
-
-                        <!-- Serve target box (shown during serve lesson) -->
-                        <div class="serve-target" id="serve-target"></div>
 
                         <div class="kitchen-line kl-left"></div>
                         <div class="kitchen-line kl-right"></div>
@@ -1126,9 +1159,9 @@
             </div>
 
             <div class="main-right">
-                <div class="slim-instruction" id="text-box">
+                <div class="instruction" id="text-box">
                     <div id="step-id" class="step-label">Step 1</div>
-                    <div id="step-text" class="instruction-text">Loading&hellip;</div>
+                    <div id="step-text" class="step-text">Loading…</div>
                 </div>
 
                 <div id="lesson-ui">
@@ -1137,15 +1170,15 @@
                             <polyline points="1 4 1 10 7 10"></polyline>
                             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                         </svg>
-                        Replay Animation
+                        Replay
                     </button>
                     <div class="button-group">
-                        <button id="lesson-back-btn" class="btn btn-outline" onclick="prevStep()">&larr; Back</button>
-                        <button id="next-btn" class="btn btn-primary" onclick="nextStep()">Next &rarr;</button>
+                        <button id="lesson-back-btn" class="btn btn-outline" onclick="prevStep()">← Back</button>
+                        <button id="next-btn" class="btn btn-primary" onclick="nextStep()">Next →</button>
                     </div>
-                    <button id="play-pause-btn" class="control-btn" onclick="togglePlayPause()">&#x23F8; PAUSE (SPACE)</button>
+                    <button id="play-pause-btn" class="control-btn" onclick="togglePlayPause()">⏸ Pause (Space)</button>
                     <div class="kb-hints visible" id="kb-hints">
-                        <span><kbd>&larr;</kbd><kbd>&rarr;</kbd> Navigate</span>
+                        <span><kbd>←</kbd><kbd>→</kbd> Navigate</span>
                         <span><kbd>Space</kbd> Pause</span>
                         <span><kbd>R</kbd> Replay</span>
                     </div>
@@ -1153,47 +1186,46 @@
 
                 <div id="simulator-ui" style="display:none;">
                     <div id="answer-options"></div>
-                    <div id="sim-feedback" class="slim-instruction sim-feedback">
-                        <div id="sim-feedback-text" class="instruction-text">Correct!</div>
+                    <div id="sim-feedback" class="instruction sim-feedback">
+                        <div id="sim-feedback-text" class="step-text">Correct!</div>
                         <div id="sim-feedback-explain" class="sim-feedback-explain"></div>
-                        <button id="sim-next-btn" class="btn btn-primary" style="margin-top: 14px; min-height: 48px;" onclick="nextScenario()">Next Scenario &rarr;</button>
+                        <button id="sim-next-btn" class="btn btn-primary" style="margin-top: 14px; min-height: 48px;" onclick="nextScenario()">Next Scenario →</button>
                     </div>
                     <div class="button-group" style="margin-top: 10px;">
-                        <button id="sim-back-btn" class="btn btn-outline" onclick="prevScenario()">&larr; Back</button>
+                        <button id="sim-back-btn" class="btn btn-outline" onclick="prevScenario()">← Back</button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ======= TRANSITION ======= -->
+    <!-- ====== TRANSITION ====== -->
     <section id="transition-screen" class="screen">
-        <div class="top-row">
-            <div class="accent-line"></div>
+        <div class="main-kicker">
+            <div class="dim-line"></div>
             <div>
-                <div class="kicker">4D Pickleball</div>
-                <h1>Training Complete</h1>
+                <div class="kicker-text">4D Pickleball · Scoring</div>
+                <h1>The lesson is done.</h1>
             </div>
         </div>
-        <div class="slim-instruction" style="padding: 32px 22px;">
+        <div class="instruction" style="padding: 28px 24px;">
             <div class="step-label">Ready to test it</div>
-            <div class="instruction-text">
-                You've seen the rules in action. Six quick scenarios to lock it in.
-                Aim for a perfect run.
+            <div class="step-text">
+                You've seen the rules in motion. Six quick scenarios to lock it in. <em>Aim for a perfect run.</em>
             </div>
         </div>
         <div class="button-group">
-            <button class="btn btn-primary pulse-btn" onclick="startSimulator()">Enter Simulator</button>
+            <button class="btn btn-primary pulse-btn" onclick="startSimulator()">Enter Simulator →</button>
         </div>
     </section>
 
-    <!-- ======= COMPLETION ======= -->
+    <!-- ====== COMPLETION ====== -->
     <section id="completion-screen" class="screen">
-        <div class="top-row">
-            <div class="accent-line"></div>
+        <div class="main-kicker">
+            <div class="dim-line"></div>
             <div>
-                <div class="kicker">4D Pickleball</div>
-                <h1>Simulator Complete</h1>
+                <div class="kicker-text">Simulator Complete</div>
+                <h1>How'd you do?</h1>
             </div>
         </div>
 
@@ -1208,13 +1240,21 @@
             </div>
         </div>
 
-        <div class="button-group">
-            <a href="https://www.newenglandpickleball.com/" target="_blank" rel="noopener" class="btn btn-primary" style="text-decoration: none;">Play at NEPC</a>
-            <button id="share-btn" class="btn btn-outline" onclick="shareResult()">Share Score</button>
+        <!-- R16: Up Next — no dead ends -->
+        <div class="up-next">
+            <div class="label">Up Next · Level 2</div>
+            <h3>You can read the scoreboard.<br>Now learn to <em>anticipate out balls.</em></h3>
+            <a href="../outballs/" class="cta">Start Out Balls →</a>
         </div>
-        <div class="button-group">
-            <button class="btn btn-outline" onclick="prevStep()">&larr; Back</button>
-            <button onclick="location.reload()" class="btn btn-outline" style="border-color: rgba(255,255,255,0.18); color: rgba(255,255,255,0.55);">Restart Module</button>
+
+        <div class="button-group" style="margin-top: 8px;">
+            <button class="btn btn-outline" onclick="shareResult()">Share Score</button>
+            <button onclick="location.reload()" class="btn btn-outline">Restart</button>
+        </div>
+
+        <div class="fdp-footer">
+            <div>Built at <a href="https://www.newenglandpickleball.com">New England Pickleball Club</a></div>
+            <div style="margin-top:6px"><span class="parent">A Give 'n Receive product</span></div>
         </div>
     </section>
 
@@ -1225,7 +1265,7 @@
 // AUDIO (Web Audio API — no files needed)
 // =========================================================
 let audioCtx = null;
-let muted = (localStorage.getItem('nepc-muted') === '1');
+let muted = (localStorage.getItem('fdp-muted') === '1');
 
 function syncMuteUI() {
     document.getElementById('mute-icon-on').style.display  = muted ? 'none' : 'block';
@@ -1235,9 +1275,8 @@ syncMuteUI();
 
 function initAudio() {
     if (audioCtx) return;
-    try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch (e) { audioCtx = null; }
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (e) { audioCtx = null; }
 }
 
 function playTone(freq, duration, type='sine', gain=0.15, when=0) {
@@ -1265,14 +1304,63 @@ function sfxClick()   { playTone(1200, 0.04, 'sine', 0.06); }
 
 function toggleMute() {
     muted = !muted;
-    localStorage.setItem('nepc-muted', muted ? '1' : '0');
+    localStorage.setItem('fdp-muted', muted ? '1' : '0');
     syncMuteUI();
     if (!muted) { initAudio(); sfxClick(); }
 }
 
-// Prime audio on first interaction (browser autoplay rules)
 document.addEventListener('click', () => { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
 document.addEventListener('keydown', () => { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+
+// =========================================================
+// HERO MINI-RALLY — autoplaying loop
+// =========================================================
+async function runMiniRally() {
+    const mb = document.getElementById('mball');
+    if (!mb) return;
+    const introVisible = () => document.getElementById('intro-screen').classList.contains('active');
+    const reset = () => {
+        document.getElementById('mp1').style.left = '-4%';  document.getElementById('mp1').style.top = '25%';
+        document.getElementById('mp2').style.left = '-4%';  document.getElementById('mp2').style.top = '75%';
+        document.getElementById('mp3').style.left = '104%'; document.getElementById('mp3').style.top = '75%';
+        document.getElementById('mp4').style.left = '69%';  document.getElementById('mp4').style.top = '25%';
+        mb.style.left = '-2%'; mb.style.top = '25%';
+        document.getElementById('ms1').textContent = '0';
+        document.getElementById('ms2').textContent = '0';
+        document.getElementById('ms3').textContent = '2';
+    };
+    reset();
+
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+    while (true) {
+        if (!introVisible()) { await wait(500); reset(); continue; }
+
+        // Serve
+        await wait(900);
+        mb.style.left = '85%'; mb.style.top = '75%';
+        await wait(850);
+        if (!introVisible()) { reset(); continue; }
+        // Return
+        mb.style.left = '15%'; mb.style.top = '25%';
+        await wait(800);
+        // Rally 1
+        mb.style.left = '80%'; mb.style.top = '55%';
+        await wait(700);
+        // Rally 2 (winner)
+        mb.style.left = '10%'; mb.style.top = '65%';
+        await wait(700);
+        // Point won — tick score
+        document.getElementById('ms1').textContent = '1';
+        // Winners swap sides (server team)
+        await wait(450);
+        document.getElementById('mp1').style.top = '75%';
+        document.getElementById('mp2').style.top = '25%';
+        await wait(1200);
+        reset();
+        await wait(600);
+    }
+}
 
 // =========================================================
 // ANIMATION CONTROLLER
@@ -1292,7 +1380,7 @@ function togglePlayPause() { if (isPaused) resumeAnimations(); else pauseAnimati
 
 function pauseAnimations() {
     isPaused = true;
-    document.getElementById('play-pause-btn').innerHTML = '&#x25B6; PLAY (SPACE)';
+    document.getElementById('play-pause-btn').innerHTML = '▶ Play (Space)';
     ['ball','p1','p2','p3','p4'].forEach(id => {
         const el = document.getElementById(id); if (!el) return;
         const comp = window.getComputedStyle(el);
@@ -1309,10 +1397,10 @@ function pauseAnimations() {
 
 function resumeAnimations() {
     isPaused = false;
-    document.getElementById('play-pause-btn').innerHTML = '&#x23F8; PAUSE (SPACE)';
+    document.getElementById('play-pause-btn').innerHTML = '⏸ Pause (Space)';
     ['ball','p1','p2','p3','p4'].forEach(id => {
         const el = document.getElementById(id); if (!el) return;
-        el.style.transition = el.dataset.transition || 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        el.style.transition = el.dataset.transition || 'all 0.65s cubic-bezier(0.34, 1.4, 0.64, 1)';
         if (id === 'ball') el.style.transition = 'all 0.6s linear';
         if (el.dataset.targetLeft) el.style.left = el.dataset.targetLeft;
         if (el.dataset.targetTop)  el.style.top  = el.dataset.targetTop;
@@ -1324,19 +1412,14 @@ function resumeAnimations() {
 function setBall(left, top, show=true) {
     const ball = document.getElementById('ball');
     const wasVisible = show && ball.style.display !== 'none' && ball.style.left && ball.style.top;
-
     if (wasVisible) {
-        // Ball is already visible — slide smoothly rather than teleporting
         ball.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        ball.style.left = left;
-        ball.style.top = top;
+        ball.style.left = left; ball.style.top = top;
         ball.classList.toggle('idle', show);
     } else {
-        // First placement (or re-showing after hide) — instant, then re-enable motion transition
         ball.style.transition = 'none';
         ball.style.display = show ? 'block' : 'none';
-        ball.style.left = left;
-        ball.style.top = top;
+        ball.style.left = left; ball.style.top = top;
         ball.classList.toggle('idle', show);
         void ball.offsetWidth;
         ball.style.transition = 'all 0.6s linear';
@@ -1361,7 +1444,6 @@ async function moveBall(left, top, animId, duration=600) {
     const endLeft   = parseFloat(left);
     const endTop    = parseFloat(top);
 
-    // Spawn comet trail dots along the path
     const trailCount = Math.min(7, Math.max(3, Math.round(duration / 120)));
     for (let i = 1; i < trailCount; i++) {
         const pct = i / trailCount;
@@ -1394,7 +1476,7 @@ function spawnBounceRing(left, top) {
     setTimeout(() => { if (document.body.contains(ring)) ring.remove(); }, 1200);
 }
 
-function spawnScorePopup(left, top, text, color="var(--nepc-green)", isFault=false) {
+function spawnScorePopup(left, top, text, color="var(--4dp-success)", isFault=false) {
     const layer = document.getElementById('visual-layer');
     const pop = document.createElement('div');
     pop.className = 'score-popup';
@@ -1428,22 +1510,14 @@ function updateTooltipPositions() {
         if (tt.classList.contains('show')) {
             const leftVal = parseFloat(p.style.left);
             tt.style.left = p.style.left; tt.style.top = p.style.top;
-            if (leftVal > 85) {
-                tt.style.transform = 'translate(-90%, -36px)';
-                tt.style.setProperty('--arrow-left', '90%');
-            } else if (leftVal < 15) {
-                tt.style.transform = 'translate(-10%, -36px)';
-                tt.style.setProperty('--arrow-left', '10%');
-            } else {
-                tt.style.transform = 'translate(-50%, -36px)';
-                tt.style.setProperty('--arrow-left', '50%');
-            }
+            if (leftVal > 85) { tt.style.transform = 'translate(-90%, -36px)'; tt.style.setProperty('--arrow-left', '90%'); }
+            else if (leftVal < 15) { tt.style.transform = 'translate(-10%, -36px)'; tt.style.setProperty('--arrow-left', '10%'); }
+            else { tt.style.transform = 'translate(-50%, -36px)'; tt.style.setProperty('--arrow-left', '50%'); }
         }
     }
 }
 setInterval(updateTooltipPositions, 40);
 
-// Zone highlighting
 function setKitchenPulse(on) {
     document.getElementById('kz-left').classList.toggle('pulse', on);
     document.getElementById('kz-right').classList.toggle('pulse', on);
@@ -1453,23 +1527,9 @@ function setKitchenLabels(on) {
     document.getElementById('kz-right').classList.toggle('labeled', on);
 }
 
-// Serve target (diagonal box highlight for step 2)
-function setServeTarget(bounds) {
-    const el = document.getElementById('serve-target');
-    if (!bounds) { el.classList.remove('show'); return; }
-    // bounds: {left, top, width, height} as CSS strings
-    el.style.left   = bounds.left;
-    el.style.top    = bounds.top;
-    el.style.width  = bounds.width;
-    el.style.height = bounds.height;
-    el.classList.add('show');
-}
-
-// =========================================================
-// CONFETTI
-// =========================================================
+// Confetti
 function spawnConfetti(x, y) {
-    const colors = ['#9EF01A','#4DA6FF','#b87df5','#FFD700','#33ccff','#FF3D5A'];
+    const colors = ['#FBBF24','#F472B6','#34D399','#2B8BFC','#F5F3EE','#F59E0B'];
     const count = 28;
     for (let i = 0; i < count; i++) {
         const c = document.createElement('div');
@@ -1489,9 +1549,7 @@ function spawnConfetti(x, y) {
     }
 }
 
-// =========================================================
-// KEYBOARD
-// =========================================================
+// Keyboard + swipe
 document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     if (e.code === 'Space') {
@@ -1501,7 +1559,7 @@ document.addEventListener('keydown', (e) => {
     } else if (e.code === 'ArrowRight') {
         if (currentStep === -1) nextStep();
         else if (mode === 'lesson' && !document.getElementById('next-btn').disabled) nextStep();
-        else if (mode === 'simulator' && document.getElementById('sim-feedback').style.display === 'block') nextScenario();
+        else if (mode === 'simulator' && document.getElementById('sim-feedback').style.display === 'flex') nextScenario();
     } else if (e.code === 'ArrowLeft') {
         if (mode === 'lesson' && !document.getElementById('lesson-back-btn').disabled) prevStep();
         else if (document.getElementById('completion-screen').classList.contains('active')) prevStep();
@@ -1514,33 +1572,20 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// =========================================================
-// HAPTICS (mobile) — tiny, non-intrusive pulses
-// =========================================================
 function hapticTap()     { if (navigator.vibrate) try { navigator.vibrate(8);  } catch(e){} }
 function hapticSuccess() { if (navigator.vibrate) try { navigator.vibrate([12, 40, 18]); } catch(e){} }
 function hapticFail()    { if (navigator.vibrate) try { navigator.vibrate([40, 30, 40]); } catch(e){} }
 
-// =========================================================
-// SERVING PLAYER INDICATOR
-// =========================================================
 function setServingPlayer(n) {
     for (let i = 1; i <= 4; i++) {
         document.getElementById(`p${i}`).classList.toggle('serving-indicator', i === n);
     }
 }
 
-// =========================================================
-// SWIPE GESTURES — mobile navigation
-// =========================================================
 (function setupSwipe() {
     let startX = 0, startY = 0, startT = 0, tracking = false;
-    const SWIPE_MIN = 60;     // px
-    const SWIPE_MAX_OFF = 80; // px perpendicular tolerance
-    const SWIPE_MAX_TIME = 700;
-
+    const SWIPE_MIN = 60, SWIPE_MAX_OFF = 80, SWIPE_MAX_TIME = 700;
     function onStart(e) {
-        // Only honor swipes that begin on the main-screen body (not on a button)
         const t = e.target;
         if (t.closest('button, a, input, textarea, .btn, .btn-answer, .pdot, .mute-toggle')) return;
         if (!document.getElementById('main-screen').classList.contains('active')) return;
@@ -1559,11 +1604,9 @@ function setServingPlayer(n) {
         if (Math.abs(dy) > SWIPE_MAX_OFF) return;
         if (Math.abs(dx) < SWIPE_MIN) return;
         if (dx < 0) {
-            // Swipe left = next
             if (mode === 'lesson' && !document.getElementById('next-btn').disabled) { hapticTap(); nextStep(); }
-            else if (mode === 'simulator' && document.getElementById('sim-feedback').style.display === 'block') { hapticTap(); nextScenario(); }
+            else if (mode === 'simulator' && document.getElementById('sim-feedback').style.display === 'flex') { hapticTap(); nextScenario(); }
         } else {
-            // Swipe right = back
             if (mode === 'lesson' && !document.getElementById('lesson-back-btn').disabled) { hapticTap(); prevStep(); }
             else if (mode === 'simulator') { hapticTap(); prevScenario(); }
         }
@@ -1573,107 +1616,25 @@ function setServingPlayer(n) {
 })();
 
 // =========================================================
-// LESSON DATA
+// LESSON — 6 steps, scoring-focused (pedagogy rebuild)
 // =========================================================
 const steps = [
+    // Step 1: The Court & The Team
     {
-        header: "The Start", step: "Starting position",
-        text: "",
+        header: "The Court & The Team",
+        step: "Who stands where",
+        text: "Four players. <strong>Red team</strong> serves from the left baseline. <strong>Green team</strong> receives from the right. Only one team serves at a time — and only the serving team can score.",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: false,
         server: 1,
         tooltips: { p1: "Server", p2: "Server's Partner", p3: "Returner", p4: "Returner's Partner" },
         animSequence: async (id) => { setBall('-2%', '25%', true); }
     },
+    // Step 2: Only Servers Score
     {
-        header: "The Kitchen", step: "Non-Volley Zone",
-        text: "",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
-        showScore: false,
-        static: true,
-        tooltips: {},
-        onEnter: () => { setKitchenPulse(true); setKitchenLabels(true); },
-        onExit:  () => { setKitchenPulse(false); setKitchenLabels(false); },
-        animSequence: async (id) => { setBall('0','0', false); }
-    },
-    {
-        header: "The Serve", step: "Diagonal, past the kitchen",
-        text: "",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
-        showScore: false,
-        server: 1,
-        tooltips: { p1: "Serves" },
-        onEnter: () => { setKitchenPulse(true); setServeTarget({left:'65.9%', top:'50%', width:'34.1%', height:'50%'}); },
-        onExit:  () => { setKitchenPulse(false); setServeTarget(null); },
-        animSequence: async (id) => {
-            setBall('-2%','25%',true);
-            if (!await sleep(500, id)) return;
-            if (!await moveBall('65.9%','75%', id)) return;
-            spawnScorePopup('65.9%','75%','FAULT','var(--nepc-red)', true);
-            if (!await sleep(1200, id)) return;
-            if (!await moveBall('-2%','25%', id, 500)) return;
-            if (!await sleep(400, id)) return;
-            if (!await moveBall('85%','75%', id)) return;
-            spawnBounceRing('85%','75%');
-            spawnScorePopup('85%','75%','IN','var(--nepc-green)');
-        }
-    },
-    {
-        header: "Two-Bounce Rule", step: "One bounce each side first",
-        text: "",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
-        showScore: false,
-        tooltips: {},
-        animSequence: async (id) => {
-            setBall('-2%','25%',true);
-            if (!await sleep(500, id)) return;
-            if (!await moveBall('85%','75%', id)) return;
-            spawnBounceRing('85%','75%');
-            if (!await sleep(300, id)) return;
-            if (!await moveBall('15%','25%', id)) return;
-            spawnBounceRing('15%','25%');
-            if (!await sleep(300, id)) return;
-            await moveBall('-2%','25%', id);
-        }
-    },
-    {
-        header: "Return & Run", step: "Return & Run",
-        text: "",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
-        showScore: false,
-        tooltips: { p3: "Return & Run!" },
-        animSequence: async (id) => {
-            setBall('-2%','25%',true);
-            if (!await sleep(300, id)) return;
-            if (!await moveBall('104%','75%', id)) return;
-            if (!await sleep(200, id)) return;
-            moveBall('15%','25%', id);
-            document.getElementById('p3').style.left = '69%';
-            if (!await sleep(1000, id)) return;
-            document.getElementById('p3').style.left = '104%';
-        }
-    },
-    {
-        header: "Foot Fault", step: "Foot Fault",
-        text: "You cannot hit the ball out of the air while touching the non-volley-zone.",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
-        showScore: false,
-        tooltips: {},
-        onEnter: () => setKitchenPulse(true),
-        onExit:  () => setKitchenPulse(false),
-        animSequence: async (id) => {
-            setBall('15%','75%',true);
-            if (!await sleep(500, id)) return;
-            document.getElementById('p4').style.left = '55%';
-            if (!await moveBall('55%','25%', id)) return;
-            spawnScorePopup('55%','25%','FOOT FAULT','var(--nepc-red)', true);
-            if (!await sleep(1500, id)) return;
-            document.getElementById('p4').style.left = '69%';
-        }
-    },
-    {
-        header: "Who Scores", step: "Only the serving team",
-        text: "",
+        header: "Only Servers Score",
+        step: "The #1 rule",
+        text: "If the <strong>serving team</strong> wins the rally, they get a point. If they lose, <em>nothing</em> changes on the scoreboard — the serve just passes.",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
@@ -1683,72 +1644,121 @@ const steps = [
             if (!await sleep(500, id)) return;
             if (!await moveBall('69%','75%', id)) return;
             if (!await moveBall('-2%','25%', id)) return;
+            if (!await moveBall('85%','75%', id)) return;
+            spawnBounceRing('85%','75%');
             spawnScorePopup('20%','50%',"+1 POINT","var(--team-serve)");
             document.getElementById('s-val-1').classList.add('highlight');
             if (!await sleep(1000, id)) return;
             document.getElementById('s-val-1').classList.remove('highlight');
         }
     },
+    // Step 3: Read the Score
     {
-        header: "Switching Sides", step: "Winners swap",
-        text: "",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'104%',top:'25%'} },
+        header: "Read the Score",
+        step: "Three numbers",
+        text: "Every call has three numbers. <strong>Your score · Their score · Server 1 or 2</strong>. The serving team says theirs <em>first</em>. It's the only way to know whose turn it is to serve.",
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
+        showScore: true, score: [0,0,2],
+        server: 1,
+        tooltips: { p1: "Calls 0-0-2" },
+        animSequence: async (id) => {
+            setBall('-2%','25%',true);
+            if (!await sleep(400, id)) return;
+            // Highlight each score digit in sequence
+            document.getElementById('s-val-1').classList.add('highlight');
+            if (!await sleep(700, id)) return;
+            document.getElementById('s-val-1').classList.remove('highlight');
+            document.getElementById('s-val-2').classList.add('highlight');
+            if (!await sleep(700, id)) return;
+            document.getElementById('s-val-2').classList.remove('highlight');
+            document.getElementById('s-val-3').classList.add('highlight');
+            if (!await sleep(900, id)) return;
+            document.getElementById('s-val-3').classList.remove('highlight');
+        }
+    },
+    // Step 4: Winners Swap
+    {
+        header: "Winners Swap, Losers Stay",
+        step: "Position rule",
+        text: "When the serving team scores, <strong>they swap sides</strong> — so the same player serves from the other half. The receiving team never swaps. <em>Even score = right side. Odd score = left.</em>",
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [1,0,2],
         tooltips: { p1: "Moves down", p2: "Moves up" },
         animSequence: async (id) => {
             setBall('-2%','25%', false);
-            if (!await sleep(600, id)) return;
+            if (!await sleep(500, id)) return;
             spawnScorePopup('20%','50%',"+1 POINT","var(--team-serve)");
-            if (!await sleep(700, id)) return;
+            document.getElementById('s-val-1').classList.add('highlight');
+            if (!await sleep(800, id)) return;
+            document.getElementById('s-val-1').classList.remove('highlight');
             document.getElementById('p1').style.top = '75%';
             document.getElementById('p2').style.top = '25%';
             if (!await sleep(1000, id)) return;
         }
     },
+    // Step 5: Two Servers, Then Sideout
     {
-        header: "Sideout", step: "Serve flips teams",
-        text: "When the serving team loses a rally on the second server, the other team takes over the serve. That's a <strong>\"sideout\"</strong>.",
-        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
-        showScore: true, score: [0,1,1],
-        server: 3,
-        tooltips: { p1: "Lost rally", p3: "New Server" },
-        animSequence: async (id) => {
-            setBall('-2%','75%',true);
-            if (!await sleep(400, id)) return;
-            if (!await moveBall('69%','75%', id)) return;
-            spawnScorePopup('80%','50%',"SIDEOUT","var(--team-return)");
-            if (!await sleep(700, id)) return;
-            if (!await moveBall('104%','75%', id, 450)) return;
-        }
-    },
-    {
-        header: "Server 2", step: "Partner gets a turn",
-        text: "",
-        positions: { p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'}, p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'} },
-        showScore: true, score: [0,1,2],
-        server: 1,
-        tooltips: { p2: "Lost rally", p1: "Server 2 up" },
+        header: "Two Servers, Then Sideout",
+        step: "Everyone gets a turn",
+        text: "Server 1 keeps serving until they <em>lose</em> a rally. Then their <strong>partner</strong> takes over as Server 2. When Server 2 also loses — <strong>sideout</strong>. The other team gets the serve.",
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
+        showScore: true, score: [1,0,1],
+        server: 2,
+        tooltips: { p1: "Lost — sits", p2: "Now Server 2" },
         animSequence: async (id) => {
             setBall('-2%','25%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('104%','75%', id)) return;
-            spawnScorePopup('50%','50%',"SECOND SERVE","var(--nepc-blue)");
+            if (!await moveBall('69%','75%', id)) return;
+            spawnScorePopup('50%','50%',"SECOND SERVE","var(--4dp-drive)");
+            document.getElementById('s-val-3').innerText = '2';
+            document.getElementById('s-val-3').classList.add('highlight');
+            if (!await sleep(900, id)) return;
+            document.getElementById('s-val-3').classList.remove('highlight');
+            if (!await sleep(400, id)) return;
+            if (!await moveBall('104%','75%', id, 500)) return;
+            spawnScorePopup('80%','50%',"SIDEOUT","var(--team-return)");
+            if (!await sleep(900, id)) return;
+        }
+    },
+    // Step 6: The Score Flips
+    {
+        header: "The Score Flips",
+        step: "Whoever serves reads first",
+        text: "After a sideout, the <em>new serving team</em> reads their score first. <strong>5-3-1</strong> from Red's side becomes <strong>3-5-1</strong> from Green's. Same game — just whose turn it is to call the score.",
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
+        showScore: true, score: [5,3,2],
+        server: 3,
+        tooltips: { p3: "New server" },
+        animSequence: async (id) => {
+            setBall('-2%','75%',false);
+            if (!await sleep(400, id)) return;
+            spawnScorePopup('50%','40%',"SIDEOUT","var(--team-return)");
             if (!await sleep(700, id)) return;
-            if (!await moveBall('-2%','75%', id, 550)) return;
+            // Score flip animation
+            const s1 = document.getElementById('s-val-1');
+            const s2 = document.getElementById('s-val-2');
+            const s3 = document.getElementById('s-val-3');
+            s1.classList.add('pop'); s2.classList.add('pop');
+            void s1.offsetWidth; void s2.offsetWidth;
+            s1.innerText = '3'; s2.innerText = '5'; s3.innerText = '1';
+            if (!await sleep(600, id)) return;
+            s1.classList.remove('pop'); s2.classList.remove('pop');
+            setBall('85%','75%', true);
+            if (!await sleep(500, id)) return;
         }
     }
 ];
 
 // =========================================================
-// SIMULATOR
+// SIMULATOR — 6 scoring scenarios (not rules trivia)
 // =========================================================
 const scenarios = [
     {
         step: "Scenario 1 of 6",
-        text: "New game. Red serves first. What's the score?",
+        text: "New game. Red serves first. What score do they call before their first serve?",
         correct: "0-0-2",
         options: ["0-0-2","0-0-1","0-0-0"],
-        explain: "Every pickleball game starts at <strong>0-0-2</strong>. The third number is the server number &mdash; but the first server of the game is treated as <em>Server 2</em> so only one player gets to serve before the first sideout. It's a one-time quirk.",
+        explain: "Every new game starts at <strong>0-0-2</strong>. The first serving team of the whole game is treated as <em>Server 2</em> — a one-time handicap so only one player gets to serve before the first sideout. Every other game in your life starts with this quirk. It's the one thing beginners have to just memorize.",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
@@ -1756,10 +1766,10 @@ const scenarios = [
     },
     {
         step: "Scenario 2 of 6",
-        text: "Red wins the rally. What happens next?",
-        correct: "Red players swap positions, 1-0-2",
-        options: ["Red players swap positions, 1-0-2","Red stays put, 1-0-2","Green switches sides, 0-1-1"],
-        explain: "Only the <strong>serving team</strong> switches sides when they score. The returning team stays put. This keeps the server on the right side for even scores and left for odd &mdash; a fast cue for correctness during a long match.",
+        text: "Red wins the first rally. What happens next?",
+        correct: "Red's players swap sides, score becomes 1-0-2",
+        options: ["Red's players swap sides, score becomes 1-0-2","Red stays put, score becomes 1-0-2","Green switches sides, score becomes 0-1-1"],
+        explain: "Only the <strong>serving team</strong> swaps sides when they score. Receivers never swap during a game. This is also how servers know which side to stand on: <em>even score = right, odd score = left</em>. If the servers are on the wrong side, the score is wrong.",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
@@ -1767,46 +1777,47 @@ const scenarios = [
     },
     {
         step: "Scenario 3 of 6",
-        text: "Red serves. The ball clears the net but lands exactly ON the kitchen line. What happens?",
-        correct: "Fault",
-        options: ["Fault","Play On","Let &mdash; Re-serve"],
-        explain: "The serve must <strong>land past the kitchen line</strong>. Every other boundary line is in, but the kitchen line is a fault. If it was a first serve, it's now second serve. If it was second, it's a sideout.",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
-        showScore: true, score: [1,0,2],
-        server: 1,
-        ballHolder: 1
+        text: "Score: <strong>3-5-1</strong>. Green is serving. Green wins the rally. Who just scored, and what's the new score?",
+        correct: "Green scored, new score is 4-5-1",
+        options: ["Green scored, new score is 4-5-1","Red scored, new score is 3-6-1","Green scored, new score is 5-3-1"],
+        explain: "Green is the <strong>serving team</strong>, so Green's number is read first — that's the <em>3</em>. Green wins, so the 3 becomes a 4. New score: <strong>4-5-1</strong>. The order doesn't flip unless there's a sideout.",
+        positions: { p1:{left:'104%',top:'25%'}, p2:{left:'104%',top:'75%'}, p3:{left:'-4%',top:'75%'}, p4:{left:'-4%',top:'25%'} },
+        showScore: true, score: [3,5,1],
+        server: 3,
+        ballHolder: 3
     },
     {
         step: "Scenario 4 of 6",
-        text: "Player 4 smashes a ball out of the air while her foot is touching the kitchen. What happens?",
-        correct: "Kitchen violation &mdash; fault",
-        options: ["Kitchen violation &mdash; fault","Point for Green","Play On"],
-        explain: "You cannot <strong>volley</strong> (hit before the ball bounces) while any part of you touches the kitchen. Even your momentum carrying you into the zone <em>after</em> the shot is a fault. That's why it's called the Non-Volley Zone.",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'55%',top:'25%'} },
-        showScore: true, score: [2,1,1],
-        ballHolder: 4
-    },
-    {
-        step: "Scenario 5 of 6",
-        text: "Mid-game. Score 5-3-1. Red's Server 1 loses the rally. What happens?",
-        correct: "Server 2's turn &mdash; 5-3-2",
-        options: ["Server 2's turn &mdash; 5-3-2","Sideout to Green, 3-5-1","Green gets +1 point"],
-        explain: "When Server 1 loses, their <strong>partner</strong>  takes over as Server 2. The score doesn't change &mdash; only the third digit flips from 1 to 2. The team keeps serving until both partners lose.",
+        text: "Mid-game. Score is <strong>5-3-1</strong>. Red's Server 1 loses the rally. What happens?",
+        correct: "Red's Server 2 tries — new call is 5-3-2",
+        options: ["Red's Server 2 tries — new call is 5-3-2","Sideout — Green serves at 3-5-1","Green gets a point — 5-4-1"],
+        explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. Score stays the same — only the third number ticks from 1 to 2. The team keeps serving until <em>both</em> partners lose a rally.",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [5,3,1],
         server: 1,
         ballHolder: 0
     },
     {
-        step: "Scenario 6 of 6",
-        text: "Now Red's Server 2 loses the next rally. What happens?",
-        correct: "Sideout &mdash; Green serves, 3-5-1",
-        options: ["Sideout &mdash; Green serves, 3-5-1","Server 2 tries again","Score becomes 5-3-0"],
-        explain: "Both Red servers have lost. Serve goes to Green &mdash; <strong>that's a sideout</strong>. Notice the score flips: Green's 3 is now first because they're serving. Green starts as Server 1.",
+        step: "Scenario 5 of 6",
+        text: "Now Red's Server 2 loses the next rally. What's the new score from Green's point of view?",
+        correct: "Sideout — Green serves, score is 3-5-1",
+        options: ["Sideout — Green serves, score is 3-5-1","Red's Server 2 tries again — 5-3-2","Score becomes 5-3-0"],
+        explain: "Both Red servers have lost — <strong>sideout</strong>. Serve goes to Green. Green's 3 is now read first because Green is serving. <em>Same game, same points — just a different team calling.</em> Green starts with Server 1 (the one on the right side).",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'69%',top:'75%'}, p4:{left:'69%',top:'25%'} },
         showScore: true, score: [5,3,2],
         server: 2,
         ballHolder: 0
+    },
+    {
+        step: "Scenario 6 of 6",
+        text: "Red's score is <strong>even</strong> (6-3-1). On which side of the court should the server be standing?",
+        correct: "Right side (even = right)",
+        options: ["Right side (even = right)","Left side (even = left)","Either — it's the partner's choice"],
+        explain: "<strong>Even score = right. Odd score = left.</strong> This is the self-check pros use to know the score is right — if the server is on the wrong side, you miscounted. At <em>6-3-1</em>, Red's score is even, so Server 1 belongs on the right.",
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'69%',top:'25%'} },
+        showScore: true, score: [6,3,1],
+        server: 1,
+        ballHolder: 1
     }
 ];
 
@@ -1822,9 +1833,6 @@ let perfectCount = 0;
 let streak = 0;
 let bestStreak = 0;
 
-// =========================================================
-// NAVIGATION
-// =========================================================
 function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -1841,6 +1849,7 @@ function buildProgressDots() {
         dot.onclick = () => goToStep(i);
         container.appendChild(dot);
     }
+    document.getElementById('step-total').innerText = steps.length;
 }
 buildProgressDots();
 
@@ -1850,18 +1859,17 @@ function updateProgressDots() {
         d.classList.toggle('active', i === currentStep && mode === 'lesson');
         d.disabled = i > currentStep || mode !== 'lesson';
     });
+    if (mode === 'lesson' && currentStep >= 0) document.getElementById('step-num').innerText = currentStep + 1;
 }
 
 async function goToStep(i) {
     if (mode !== 'lesson' || i < 0 || i >= steps.length || i === currentStep) return;
-    // Run exit for current
     const curr = steps[currentStep];
     if (curr && curr.onExit) curr.onExit();
     currentStep = i;
     await renderStep(steps[currentStep]);
 }
 
-// Replay current step's animation from the top
 async function replayStep() {
     if (mode !== 'lesson' || currentStep < 0 || currentStep >= steps.length) return;
     const btn = document.getElementById('replay-btn');
@@ -1872,19 +1880,22 @@ async function replayStep() {
     await renderStep(curr);
 }
 
+function startLesson() {
+    mode = 'lesson';
+    currentStep = 0;
+    document.getElementById('lesson-ui').style.display = 'block';
+    document.getElementById('simulator-ui').style.display = 'none';
+    document.getElementById('sim-progress').style.display = 'none';
+    document.getElementById('progress-dots').style.display = 'flex';
+    showScreen('main-screen');
+    renderStep(steps[0]);
+}
+
 async function nextStep() {
     hapticTap();
     const curr = steps[currentStep];
     if (curr && curr.onExit) curr.onExit();
     currentStep++;
-    if (currentStep === 0) {
-        mode = 'lesson';
-        document.getElementById('lesson-ui').style.display = 'block';
-        document.getElementById('simulator-ui').style.display = 'none';
-        document.getElementById('sim-progress').style.display = 'none';
-        document.getElementById('progress-dots').style.display = 'flex';
-        showScreen('main-screen');
-    }
     if (currentStep < steps.length) await renderStep(steps[currentStep]);
     else {
         document.getElementById('progress-dots').style.display = 'none';
@@ -1912,9 +1923,6 @@ async function prevStep() {
     else await renderStep(steps[currentStep]);
 }
 
-// =========================================================
-// RENDER
-// =========================================================
 async function renderStep(s) {
     currentAnimId++;
     const myAnimId = currentAnimId;
@@ -1926,13 +1934,11 @@ async function renderStep(s) {
     document.getElementById('visual-layer').innerHTML = '';
     setKitchenPulse(false);
     setKitchenLabels(false);
-    setServeTarget(null);
 
     document.getElementById('screen-header').innerText = mode === 'lesson' ? s.header : "Simulator";
     document.getElementById('step-id').innerText = s.step;
     document.getElementById('step-text').innerHTML = s.text;
 
-    // Re-trigger the card entrance animation
     const textBox = document.getElementById('text-box');
     textBox.style.animation = 'none';
     void textBox.offsetWidth;
@@ -1944,19 +1950,17 @@ async function renderStep(s) {
 
     for (let i = 1; i <= 4; i++) {
         const p = document.getElementById(`p${i}`);
-        p.style.transition = mode === 'lesson' ? 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none';
+        p.style.transition = mode === 'lesson' ? 'all 0.65s cubic-bezier(0.34, 1.4, 0.64, 1)' : 'none';
         p.style.left = s.positions[`p${i}`].left;
         p.style.top  = s.positions[`p${i}`].top;
     }
 
-    // Score display — shared across lesson + simulator when scenario has showScore
     const scoreArea = document.getElementById('score-display-area');
     if (s.showScore) {
         scoreArea.classList.add('show');
         setScore(s.score[0], s.score[1], s.score[2]);
     } else scoreArea.classList.remove('show');
 
-    // Active-server ring — highlight who's about to serve (if any)
     setServingPlayer(typeof s.server === 'number' ? s.server : 0);
 
     if (mode === 'lesson') {
@@ -1972,8 +1976,6 @@ async function renderStep(s) {
             const holder = document.getElementById(`p${s.ballHolder}`);
             const pLeft = parseFloat(holder.style.left);
             const pTop  = parseFloat(holder.style.top);
-            // Use pure percentage so moveBall's parseFloat can read it. Nudge 2% inside the court
-            // so the ball is visually next to the player without relying on calc().
             const ballLeft = pLeft > 50 ? (pLeft - 2) : (pLeft + 2);
             setBall(`${ballLeft}%`, `${pTop}%`, true);
         } else setBall('0','0',false);
@@ -1983,9 +1985,6 @@ async function renderStep(s) {
     document.getElementById('lesson-back-btn').disabled = false;
 }
 
-// =========================================================
-// SIMULATOR LOGIC
-// =========================================================
 function startSimulator() {
     mode = 'simulator';
     simIndex = 0; totalScore = 0;
@@ -1995,6 +1994,8 @@ function startSimulator() {
     document.getElementById('progress-dots').style.display = 'none';
     document.getElementById('sim-progress').style.display = 'block';
     document.getElementById('streak-pill').classList.remove('show');
+    document.getElementById('step-num').innerText = '—';
+    document.getElementById('step-total').innerText = scenarios.length;
     showScreen('main-screen');
     renderScenario();
 }
@@ -2009,7 +2010,6 @@ function renderScenario() {
 
     const container = document.getElementById('answer-options');
     container.innerHTML = '';
-    // On desktop, 2-col grid if all options are short-ish
     const maxLen = Math.max(...s.options.map(o => o.length));
     container.classList.toggle('multi', maxLen <= 22);
 
@@ -2025,13 +2025,13 @@ function renderScenario() {
 
 function handleAnswer(btn, choice) {
     const s = scenarios[simIndex];
-    const POINTS_FIRST = 100 / scenarios.length;      // 16.67 for 6
+    const POINTS_FIRST = 100 / scenarios.length;
     const POINTS_RETRY = POINTS_FIRST / 2;
 
     if (choice === s.correct) {
-        btn.style.backgroundColor = 'var(--success)';
-        btn.style.borderColor = 'var(--success)';
-        btn.style.color = '#fff';
+        btn.style.backgroundColor = 'var(--4dp-success)';
+        btn.style.borderColor = 'var(--4dp-success)';
+        btn.style.color = '#0E1F38';
         sfxCorrect();
         hapticSuccess();
         const firstTry = attempts === 0;
@@ -2050,7 +2050,6 @@ function handleAnswer(btn, choice) {
             }
         } else streak = 0;
 
-        // Confetti from the button center
         const rect = btn.getBoundingClientRect();
         spawnConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
 
@@ -2062,8 +2061,8 @@ function handleAnswer(btn, choice) {
         document.getElementById('sim-feedback').style.display = 'flex';
     } else {
         btn.classList.add('shake');
-        btn.style.backgroundColor = 'var(--nepc-red)';
-        btn.style.borderColor = 'var(--nepc-red)';
+        btn.style.backgroundColor = 'var(--4dp-error)';
+        btn.style.borderColor = 'var(--4dp-error)';
         btn.style.color = '#fff';
         btn.disabled = true;
         sfxWrong();
@@ -2075,41 +2074,23 @@ function handleAnswer(btn, choice) {
     }
 }
 
-// =========================================================
-// SHARE
-// =========================================================
 async function shareResult() {
-    const tier = document.getElementById('tier-badge').innerText;
+    const tier = document.getElementById('tier-badge').innerText.replace(/·/g, '·');
     const displayScore = Math.round(totalScore);
-    const text = `I scored ${displayScore}/100 on the 4D Pickleball scoring module — ${tier}. ${perfectCount}/${scenarios.length} perfect, best streak ${bestStreak}.`;
+    const text = `I scored ${displayScore}/100 on 4D Pickleball — Scoring. ${perfectCount}/${scenarios.length} perfect, best streak ${bestStreak}.`;
     const url = 'https://4dpickleball.com/scoring/';
-    const shareBtn = document.getElementById('share-btn');
-
+    const shareBtn = event.target;
     sfxClick();
-
     if (navigator.share) {
-        try {
-            await navigator.share({ title: '4D Pickleball — Scoring', text, url });
-            return;
-        } catch (e) { /* user cancelled or share failed — fall through */ }
+        try { await navigator.share({ title: '4D Pickleball — Scoring', text, url }); return; }
+        catch (e) { }
     }
-
     try {
         await navigator.clipboard.writeText(`${text} ${url}`);
         const original = shareBtn.innerText;
         shareBtn.innerText = 'Copied!';
-        shareBtn.style.background = 'rgba(46, 213, 115, 0.15)';
-        shareBtn.style.borderColor = 'var(--success)';
-        shareBtn.style.color = 'var(--success)';
-        setTimeout(() => {
-            shareBtn.innerText = original;
-            shareBtn.style.background = '';
-            shareBtn.style.borderColor = '';
-            shareBtn.style.color = '';
-        }, 1800);
-    } catch (e) {
-        alert(text);
-    }
+        setTimeout(() => { shareBtn.innerText = original; }, 1800);
+    } catch (e) { alert(text); }
 }
 
 function nextScenario() {
@@ -2124,7 +2105,6 @@ function nextScenario() {
 function prevScenario() {
     sfxClick();
     hapticTap();
-    // If we're on the first scenario, back out of simulator to the transition screen
     if (simIndex === 0) {
         mode = 'lesson';
         document.getElementById('lesson-ui').style.display = 'block';
@@ -2134,14 +2114,12 @@ function prevScenario() {
         showScreen('transition-screen');
         return;
     }
-    // Otherwise back up one scenario — don't erase their earned points, but reset the streak for this retry
     simIndex--;
     streak = 0;
     document.getElementById('streak-pill').classList.remove('show');
     renderScenario();
 }
 
-// setScore — updates the scoreboard with a pop animation on any digit that changed.
 function setScore(s1, s2, s3) {
     const map = [
         ['s-val-1', String(s1)],
@@ -2161,9 +2139,6 @@ function setScore(s1, s2, s3) {
     });
 }
 
-// =========================================================
-// COMPLETION TIERS
-// =========================================================
 function showCompletion() {
     showScreen('completion-screen');
     const card = document.getElementById('completion-card');
@@ -2171,35 +2146,33 @@ function showCompletion() {
     const valEl = document.getElementById('final-score-val');
     const ratingEl = document.getElementById('final-rating');
 
-    // Snap to 100 on a perfect run (float arithmetic slop guard)
     if (perfectCount === scenarios.length) totalScore = 100;
     else totalScore = Math.round(totalScore);
 
     document.getElementById('stat-perfect').innerText = `${perfectCount}/${scenarios.length}`;
     document.getElementById('stat-streak').innerText = bestStreak;
 
-    // Tier styling
     let tierColor, tierGlow, tierLabel, rating;
     if (totalScore >= 95) {
-        tierColor = 'var(--gold)';
-        tierGlow = 'rgba(255, 215, 0, 0.45)';
-        tierLabel = 'Gold &middot; Perfect Run';
+        tierColor = 'var(--gnr-gold)';
+        tierGlow = 'rgba(245,158,11,0.45)';
+        tierLabel = 'Gold · Perfect Run';
         rating = "Flawless. You understand pickleball scoring better than most people at the club.";
     } else if (totalScore >= 80) {
-        tierColor = 'var(--silver)';
-        tierGlow = 'rgba(192, 201, 212, 0.45)';
-        tierLabel = 'Silver &middot; Court-Ready';
+        tierColor = '#C0C9D4';
+        tierGlow = 'rgba(192,201,212,0.45)';
+        tierLabel = 'Silver · Court-Ready';
         rating = "You're ready for the court. A few more matches and it'll be second nature.";
     } else if (totalScore >= 60) {
-        tierColor = 'var(--bronze)';
-        tierGlow = 'rgba(205, 127, 50, 0.45)';
-        tierLabel = 'Bronze &middot; Solid Start';
+        tierColor = '#CD7F32';
+        tierGlow = 'rgba(205,127,50,0.45)';
+        tierLabel = 'Bronze · Solid Start';
         rating = "Solid foundation. Rewatch the lesson once and you'll own this.";
     } else {
-        tierColor = 'var(--nepc-blue)';
-        tierGlow = 'rgba(77, 166, 255, 0.45)';
+        tierColor = 'var(--4dp-drive)';
+        tierGlow = 'rgba(251,191,36,0.45)';
         tierLabel = 'Keep Going';
-        rating = "Don't sweat it. Replay the lesson &mdash; positioning clicks fast once the pattern lands.";
+        rating = "Don't sweat it. Replay the lesson — positioning clicks fast once the pattern lands.";
     }
 
     card.style.setProperty('--tier-color', tierColor);
@@ -2207,7 +2180,6 @@ function showCompletion() {
     badge.innerHTML = tierLabel;
     ratingEl.innerHTML = rating;
 
-    // Count-up animation
     valEl.classList.remove('animating');
     void valEl.offsetWidth;
     valEl.classList.add('animating');
@@ -2222,7 +2194,6 @@ function showCompletion() {
     }
     requestAnimationFrame(tick);
 
-    // Celebration confetti for high scores
     if (totalScore >= 80) {
         setTimeout(() => {
             const rect = valEl.getBoundingClientRect();
@@ -2237,6 +2208,9 @@ function showCompletion() {
         }
     }
 }
+
+// Kick off the hero mini-rally
+runMiniRally();
 </script>
 </body>
 </html>
