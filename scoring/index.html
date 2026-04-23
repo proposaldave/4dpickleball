@@ -942,24 +942,6 @@ h1#screen-header {
 }
 .fdp-footer a { color: inherit; text-decoration: none; border-bottom: 1px dashed var(--4dp-hairline); }
 
-/* View switcher (2D / 3D) */
-.view-switch {
-    display: inline-flex; gap: 2px; padding: 3px;
-    border-radius: var(--4dp-r-pill);
-    background: var(--4dp-surface);
-    border: 1px solid var(--4dp-hairline-s);
-    margin: 0 auto;
-}
-.view-switch a {
-    padding: 6px 14px; border-radius: var(--4dp-r-pill);
-    font-family: var(--4dp-font-body); font-weight: 700;
-    font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase;
-    color: var(--4dp-text-dim); text-decoration: none;
-    transition: all 0.2s var(--4dp-ease);
-}
-.view-switch a.active { background: var(--4dp-drive); color: var(--4dp-ink); }
-.view-switch a:hover:not(.active) { color: var(--4dp-text); }
-
 /* =========================================================
    RESPONSIVE
    ========================================================= */
@@ -1045,7 +1027,7 @@ h1#screen-header {
     <!-- ====== INTRO ====== -->
     <section id="intro-screen" class="screen active">
         <div class="intro">
-            <span class="eyebrow"><span class="dot"></span>4D Pickleball · Level 1 · Scoring</span>
+            <span class="eyebrow"><span class="dot"></span>4D Pickleball · Beginner · Scoring · Positioning</span>
             <div class="hero-head">
                 <h1>Pickleball scoring is<br><em>famously weird.</em></h1>
             </div>
@@ -1083,11 +1065,6 @@ h1#screen-header {
             </div>
 
             <p class="hero-sub">Watch one point unfold. Then lock it in with <em>six quick scenarios</em>.</p>
-
-            <div class="view-switch">
-                <a href="./" class="active">Top-Down</a>
-                <a href="./3d/">3D Experiment</a>
-            </div>
 
             <div class="button-group" style="margin-top: 4px;">
                 <button class="btn btn-primary pulse-btn" onclick="startLesson()" style="min-height: 60px;">Start Your Journey</button>
