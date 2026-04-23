@@ -149,11 +149,13 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 .pr-btn-retry:hover{background:rgba(255,255,255,.1);}
 .pr-btn-next{padding:14px;border:0;border-radius:12px;font-family:var(--4dp-font-body);font-weight:700;font-size:13px;cursor:pointer;background:var(--4dp-dink);color:var(--4dp-text);}
 .pr-btn-next:hover{background:#1E6FD9;}
-/* Practice HUD tag - shows above viewport during practice shots */
-#practice-hud{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:95;padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;background:rgba(10,22,40,.85);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.35);color:#FBBF24;display:none;}
+/* Practice HUD tag - shows above viewport during practice shots. pointer-events:none
+   so it can never eat mouse/right-click events aimed at the gameplay underneath. */
+#practice-hud{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:95;padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;background:rgba(10,22,40,.85);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.35);color:#FBBF24;display:none;pointer-events:none;}
 #practice-hud.on{display:block;}
-/* Coaching banner for VOLLEY + BOUNCE drills — impossible to miss the hold rule */
-#drill-rule-banner{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:96;padding:12px 24px;border-radius:14px;font-family:var(--4dp-font-body);font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(90deg,rgba(251,113,133,.12),rgba(251,191,36,.18),rgba(251,113,133,.12));backdrop-filter:blur(10px);border:2px solid rgba(251,191,36,.7);color:#FBBF24;text-align:center;display:none;box-shadow:0 8px 28px rgba(251,191,36,.35);animation:drillRulePulse 1.6s ease-in-out infinite;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* Coaching banner for VOLLEY + BOUNCE drills — impossible to miss the hold rule.
+   pointer-events:none — decorative label only, never intercepts clicks. */
+#drill-rule-banner{position:fixed;top:52px;left:50%;transform:translateX(-50%);z-index:96;padding:12px 24px;border-radius:14px;font-family:var(--4dp-font-body);font-weight:800;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(90deg,rgba(251,113,133,.12),rgba(251,191,36,.18),rgba(251,113,133,.12));backdrop-filter:blur(10px);border:2px solid rgba(251,191,36,.7);color:#FBBF24;text-align:center;display:none;box-shadow:0 8px 28px rgba(251,191,36,.35);animation:drillRulePulse 1.6s ease-in-out infinite;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;}
 #drill-rule-banner.on{display:block;}
 #drill-rule-banner .rule-big{display:inline-block;font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:16px;letter-spacing:0;text-transform:none;color:#FDE68A;margin-right:8px;}
 @keyframes drillRulePulse{
@@ -288,7 +290,7 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 }
 
 /* ── Arcade leaderboard ── */
-#hi-score{position:fixed;top:18px;right:24px;z-index:12;padding:6px 14px;border-radius:999px;background:rgba(10,22,40,.8);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.3);font-family:var(--4dp-font-data);font-weight:800;font-size:11px;letter-spacing:1.5px;color:#FBBF24;display:none;}
+#hi-score{position:fixed;top:18px;right:24px;z-index:12;padding:6px 14px;border-radius:999px;background:rgba(10,22,40,.8);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.3);font-family:var(--4dp-font-data);font-weight:800;font-size:11px;letter-spacing:1.5px;color:#FBBF24;display:none;pointer-events:none;}
 #hi-score.on{display:block;}
 #hi-score .lbl{color:var(--4dp-text-mute);margin-right:6px;}
 /* Name entry overlay — arcade-style HIGH SCORE letter picker */
@@ -1721,26 +1723,33 @@ function isUIChrome(el){
   return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score, #drill-rule-banner'));
 }
 
-window.addEventListener('contextmenu', (e) => {
-  // Never show the browser context menu anywhere in the game — right-click
-  // and long-press are game inputs. UI buttons still work normally (they
-  // don't have custom contextmenu behavior).
-  if (!isUIChrome(e.target)) e.preventDefault();
-});
+// ALWAYS suppress the browser context menu, no exceptions. Dave's mom kept
+// triggering Chrome's right-click menu when she tried to hit a ball because
+// her cursor was over the drill banner / practice-hud pill, which the old
+// isUIChrome exemption allowed. The browser menu ate the swing event, she
+// got "no commit" verdicts, and the ball fell through to the next trial
+// while she dismissed the menu. No element in this game legitimately needs
+// the browser's right-click menu.
+window.addEventListener('contextmenu', (e) => { e.preventDefault(); });
 
 window.addEventListener('mousedown', (e) => {
+  // RIGHT MOUSE = HIT, ALWAYS. Routes to onSwing regardless of what's under
+  // the cursor — otherwise decorative UI (banners, HUD pills) eats the event.
+  // (Real UI buttons that use right-click semantics: none exist in this game.)
+  if (e.button === 2) {
+    e.preventDefault();
+    if (STATE.phase === 'WINDUP' || STATE.phase === 'FLIGHT') onSwing();
+    return;
+  }
+  // LEFT MOUSE — skip if the click is on interactive UI (buttons etc.) so
+  // Play-again / Camera / etc. keep working normally.
   if (isUIChrome(e.target)) return;
-  // If camera is UNLOCKED, let OrbitControls handle the drag — don't fire HIT/HOLD
-  if (controls && controls.enabled) return;
-  // Close help popup on any outside click
+  if (controls && controls.enabled) return;  // camera unlocked: OrbitControls takes over
   const help = document.getElementById('help-popup');
   if (help && help.classList.contains('on')) { help.classList.remove('on'); return; }
-  // Mac trackpad Ctrl+click fires as button===0 with ctrlKey===true. Route
-  // it to HIT (right-click equivalent) so Mac users aren't stuck holding
-  // without a way to swing. Windows/Linux use button===2 for right-click.
+  // Mac trackpad Ctrl+click fires as button===0 with ctrlKey===true → HIT.
   if (e.button === 0 && e.ctrlKey) { e.preventDefault(); onSwing(); return; }
-  if (e.button === 0)      { e.preventDefault(); onReadyDown(); }
-  else if (e.button === 2) { e.preventDefault(); onSwing(); }
+  if (e.button === 0) { e.preventDefault(); onReadyDown(); }
 });
 window.addEventListener('mouseup', (e) => {
   if (e.button === 0 && STATE.holdingReady) { e.preventDefault(); onReadyUp(); }
