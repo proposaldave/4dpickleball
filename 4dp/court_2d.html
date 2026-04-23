@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4DP · 2D Court Library (canonical)</title>
+<meta name="description" content="Canonical 2D pickleball court component for every 4DP module. CSS-positioned divs, locked geometry, NEPC palette. Copy markup + import tokens to use.">
+<link rel="stylesheet" href="./tokens.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   4DP · 2D COURT LIBRARY — canonical component for every 2D surface
+   ═══════════════════════════════════════════════════════════════════
+
+   WHY THIS FILE EXISTS
+   Every 4DP module that needs a 2D pickleball court top-down view
+   should USE THIS COMPONENT, not roll its own. This is the 2D analog
+   of `3d_module_template.html` for 3D.
+
+   HOW TO USE IT (copy-paste block, ~40 lines)
+
+     <div class="fdp-court">
+       <div class="fdp-court-surface">
+         <div class="fdp-kitchen fdp-kitchen-left"></div>
+         <div class="fdp-kitchen fdp-kitchen-right"></div>
+         <div class="fdp-kline  fdp-kline-left"></div>
+         <div class="fdp-kline  fdp-kline-right"></div>
+         <div class="fdp-net"></div>
+         <div class="fdp-center fdp-center-left"></div>
+         <div class="fdp-center fdp-center-right"></div>
+         <!-- add players/ball as children of .fdp-court-surface -->
+       </div>
+     </div>
+
+   GEOMETRY (locked to real pickleball court, 44ft × 20ft)
+   ──────────────────────────────────────────────────────────
+     - Court aspect ratio            44 / 20
+     - Kitchen band width            15.9 %   (7ft of 44ft court length)
+     - Kitchen starts at             34.1 %   (from each side, meeting net)
+     - Net position                  50 %
+     - Centerline extends from       0 %  →  34.1 %  (each half)
+     - Court line thickness          2 px (kitchen + centerline)
+                                     4 px (net)
+     - Border (court edge)           2 px white at 95% opacity
+
+   COLORS (from tokens.css — R19 LOCKED palette)
+   ──────────────────────────────────────────────────────────
+     - Surface   radial  var(--nepc-court-blue-bright)  → var(--nepc-court-blue)
+     - Kitchen   linear  var(--nepc-kitchen-burgundy)   → var(--nepc-kitchen-deep)
+     - Deck      linear  var(--nepc-court-gray)         → var(--nepc-court-gray-dark)
+     - Lines             var(--nepc-line-white)
+
+   POSITIONING A PLAYER OR BALL
+     - Use percentages on children of .fdp-court-surface:
+       style="left: 70%; top: 25%;"   // near-right player at kitchen line
+     - Coordinate convention (top-down, LANDSCAPE):
+         X axis = court LENGTH (baseline → baseline). 0% = far baseline, 100% = near baseline.
+         Y axis = court WIDTH  (sideline → sideline). 0% = top sideline, 100% = bottom sideline.
+         Net = 50% X.
+         Kitchens = 34.1%–50% and 50%–65.9% X.
+         Centerline (left) = 0%–34.1% X at 50% Y.
+         Centerline (right) = 65.9%–100% X at 50% Y.
+
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  background: var(--4dp-ink);
+  color: var(--4dp-text);
+  font-family: var(--4dp-font-body);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+}
+
+/* ── Court wrapper: deck background (slate gradient) ── */
+.fdp-court {
+  width: 100%;
+  padding: clamp(18px, 3.6vw, 34px);
+  background: linear-gradient(180deg, var(--nepc-court-gray) 0%, var(--nepc-court-gray-dark) 100%);
+  border-radius: var(--4dp-r-lg);
+  box-shadow:
+    inset 0 0 50px rgba(0, 0, 0, 0.30),
+    0 24px 64px rgba(0, 0, 0, 0.42);
+  position: relative;
+}
+
+/* ── Court surface: the blue playing area ── */
+.fdp-court-surface {
+  width: 100%;
+  aspect-ratio: 44 / 20;
+  border: 2px solid var(--nepc-line-white);
+  position: relative;
+  background: radial-gradient(
+    ellipse at center,
+    var(--nepc-court-blue-bright) 0%,
+    var(--nepc-court-blue) 70%
+  );
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.26);
+  overflow: visible;
+  transform: translateZ(0);
+}
+
+/* ── Kitchens (burgundy bands on each side of the net) ── */
+.fdp-kitchen {
+  position: absolute; top: 0; bottom: 0;
+  width: 15.9%;
+  background: linear-gradient(180deg, var(--nepc-kitchen-burgundy), var(--nepc-kitchen-deep));
+  z-index: 2;
+}
+.fdp-kitchen-left  { left: 34.1%; }
+.fdp-kitchen-right { right: 34.1%; }
+
+/* ── Kitchen lines (white vertical boundaries between kitchen and service area) ── */
+.fdp-kline {
+  position: absolute; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--nepc-line-white);
+  z-index: 3;
+}
+.fdp-kline-left  { left: 34.1%;  transform: translateX(-50%); }
+.fdp-kline-right { right: 34.1%; transform: translateX(50%); }
+
+/* ── Net (vertical at the center, extends slightly beyond sidelines) ── */
+.fdp-net {
+  position: absolute; left: 50%;
+  top: -8px; bottom: -8px;
+  width: 4px;
+  background: var(--nepc-line-white);
+  z-index: 5;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+/* ── Centerlines (horizontal on each service half, splitting into service boxes) ── */
+.fdp-center {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  width: 34.1%;
+  background: var(--nepc-line-white);
+  z-index: 3;
+  transform: translateY(-50%);
+}
+.fdp-center-left  { left: 0; }
+.fdp-center-right { right: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   OPTIONAL KITCHEN LABEL BADGE
+   ═══════════════════════════════════════════════════════════════════ */
+.fdp-kitchen-badge {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--4dp-font-body); font-weight: 800;
+  font-size: clamp(9px, 1.7vw, 12px);
+  letter-spacing: 1.5px;
+  color: rgba(255, 220, 220, 0.90);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s var(--4dp-ease);
+  white-space: nowrap;
+  text-align: center; line-height: 1.2;
+}
+.fdp-kitchen-badge small {
+  display: block;
+  font-weight: 700; font-size: 0.7em;
+  letter-spacing: 2px; opacity: 0.8;
+  margin-top: 2px;
+}
+.fdp-kitchen.labeled .fdp-kitchen-badge { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PLAYER TOKEN — reusable circle-with-hat-color
+   ═══════════════════════════════════════════════════════════════════ */
+.fdp-player {
+  position: absolute;
+  width: clamp(22px, 3.6vw, 30px);
+  height: clamp(22px, 3.6vw, 30px);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--4dp-font-body); font-weight: 800;
+  font-size: clamp(10px, 1.5vw, 12px);
+  color: var(--4dp-ink);
+  border: 1.5px solid rgba(14, 31, 56, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  transition: left 0.5s cubic-bezier(.3, 1.2, .3, 1),
+              top  0.5s cubic-bezier(.3, 1.2, .3, 1);
+}
+.fdp-player[data-hat="green"]  { background: #4ADE80; }
+.fdp-player[data-hat="orange"] { background: #FB923C; }
+.fdp-player[data-hat="blue"]   { background: #2B8BFC; color: #fff; }
+.fdp-player[data-hat="yellow"] { background: #FDE047; }
+.fdp-player[data-hat="red"]    { background: #FB7185; color: #fff; }
+.fdp-player[data-hat="pink"]   { background: #F472B6; color: #fff; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   BALL TOKEN
+   ═══════════════════════════════════════════════════════════════════ */
+.fdp-ball {
+  position: absolute;
+  width: clamp(9px, 1.6vw, 12px);
+  height: clamp(9px, 1.6vw, 12px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #E8FF9A, #C6FF00);
+  box-shadow: 0 0 10px rgba(198, 255, 0, 0.7),
+              0 0 20px rgba(198, 245, 29, 0.3);
+  z-index: 11;
+  transform: translate(-50%, -50%);
+  transition: left 0.6s linear, top 0.6s linear;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TRAJECTORY LINE (between two court points)
+   Use inline style for --from-x, --from-y, --to-x, --to-y in %.
+   ═══════════════════════════════════════════════════════════════════ */
+.fdp-trajectory {
+  position: absolute;
+  left: 0; top: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHOWCASE PAGE STYLES (for this reference file only)
+   ═══════════════════════════════════════════════════════════════════ */
+.showcase {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 64px 24px 96px;
+}
+.showcase h1 {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 0.98; letter-spacing: -1.8px;
+  color: var(--4dp-text);
+  margin: 0 0 16px;
+}
+.showcase .eyebrow {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 11px; letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--4dp-dink);
+  margin-bottom: 20px;
+}
+.showcase .lead {
+  max-width: 720px;
+  font-size: 17px; color: var(--4dp-text-dim);
+  line-height: 1.6;
+  margin-bottom: 56px;
+}
+.showcase .lead code {
+  font-family: var(--4dp-font-data); font-weight: 600;
+  font-size: 0.9em;
+  padding: 2px 6px;
+  background: var(--4dp-surface);
+  border: 1px solid var(--4dp-hairline);
+  border-radius: 4px;
+  color: var(--4dp-text);
+}
+.showcase h2 {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(24px, 3.4vw, 34px);
+  margin: 56px 0 16px;
+  color: var(--4dp-text);
+  letter-spacing: -0.4px;
+}
+.showcase .note {
+  font-size: 13px; color: var(--4dp-text-mute);
+  margin-top: 10px;
+}
+.showcase .note code {
+  font-family: var(--4dp-font-data); font-weight: 600;
+  color: var(--4dp-text-dim);
+}
+.showcase pre {
+  font-family: var(--4dp-font-data);
+  font-size: 12px;
+  color: var(--4dp-text-dim);
+  background: var(--4dp-ink-deep);
+  border: 1px solid var(--4dp-hairline);
+  border-radius: var(--4dp-r-md);
+  padding: 20px 24px;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+.showcase pre .hl { color: var(--4dp-dink); }
+.showcase .demo-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+.showcase .demo-label {
+  font-family: var(--4dp-font-body); font-weight: 700;
+  font-size: 12px; letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--4dp-text-faint);
+  margin-bottom: 10px;
+}
+.showcase .demo-cell { /* spacing between label + demo */ }
+</style>
+</head>
+<body>
+
+<div class="showcase">
+  <div class="eyebrow">4DP · Canonical 2D court component</div>
+  <h1>The court, one way.</h1>
+  <p class="lead">
+    This is the canonical 2D pickleball court every 4DP module uses.
+    CSS-positioned divs (not SVG), locked geometry matching real court dimensions (44 × 20),
+    NEPC R19 palette from <code>tokens.css</code>. Drop the <code>.fdp-court</code> block
+    into any module. Fix something here → every module gets the fix on next sync.
+  </p>
+
+  <!-- DEMO 1 — Bare court, no players or ball -->
+  <h2>Bare court.</h2>
+  <div class="demo-row">
+    <div class="demo-cell">
+      <div class="demo-label">01 · Empty · labeled kitchens</div>
+      <div class="fdp-court">
+        <div class="fdp-court-surface">
+          <div class="fdp-kitchen fdp-kitchen-left labeled">
+            <span class="fdp-kitchen-badge">KITCHEN<small>NVZ</small></span>
+          </div>
+          <div class="fdp-kitchen fdp-kitchen-right labeled">
+            <span class="fdp-kitchen-badge">KITCHEN<small>NVZ</small></span>
+          </div>
+          <div class="fdp-kline fdp-kline-left"></div>
+          <div class="fdp-kline fdp-kline-right"></div>
+          <div class="fdp-net"></div>
+          <div class="fdp-center fdp-center-left"></div>
+          <div class="fdp-center fdp-center-right"></div>
+        </div>
+      </div>
+      <p class="note">Every element is a div with a locked class. No SVG. Fully responsive via aspect-ratio.</p>
+    </div>
+  </div>
+
+  <!-- DEMO 2 — All 4 players at kitchen line -->
+  <h2>All four at the kitchen line.</h2>
+  <div class="demo-row">
+    <div class="demo-cell">
+      <div class="demo-label">02 · Standard 4D formation</div>
+      <div class="fdp-court">
+        <div class="fdp-court-surface">
+          <div class="fdp-kitchen fdp-kitchen-left"></div>
+          <div class="fdp-kitchen fdp-kitchen-right"></div>
+          <div class="fdp-kline fdp-kline-left"></div>
+          <div class="fdp-kline fdp-kline-right"></div>
+          <div class="fdp-net"></div>
+          <div class="fdp-center fdp-center-left"></div>
+          <div class="fdp-center fdp-center-right"></div>
+
+          <!-- Players — positioned via left/top percentages -->
+          <div class="fdp-player" data-hat="green"  style="left: 31.5%; top: 25%;">O</div>
+          <div class="fdp-player" data-hat="orange" style="left: 31.5%; top: 75%;">O</div>
+          <div class="fdp-player" data-hat="blue"   style="left: 68.5%; top: 25%;">Y</div>
+          <div class="fdp-player" data-hat="yellow" style="left: 68.5%; top: 75%;">P</div>
+        </div>
+      </div>
+      <p class="note">
+        Near team (you + partner) on the right; far team on the left. Kitchen lines at 34.1% / 65.9%; players
+        stand just behind them (31.5% / 68.5%). Hat color = player identity per 3D-engine convention.
+      </p>
+    </div>
+  </div>
+
+  <!-- DEMO 3 — Drop-in copy block -->
+  <h2>Copy block.</h2>
+  <p class="note">Paste into any module. Import tokens.css at the top.</p>
+  <pre>
+&lt;link rel="stylesheet" href="<span class="hl">06_ACADEMY/4dp/tokens.css</span>"&gt;
+&lt;link rel="stylesheet" href="<span class="hl">06_ACADEMY/4dp/court_2d.css</span>"&gt;
+&lt;!-- or inline the .fdp-* CSS block from court_2d.html --&gt;
+
+&lt;div class="fdp-court"&gt;
+  &lt;div class="fdp-court-surface"&gt;
+    &lt;div class="fdp-kitchen fdp-kitchen-left"&gt;&lt;/div&gt;
+    &lt;div class="fdp-kitchen fdp-kitchen-right"&gt;&lt;/div&gt;
+    &lt;div class="fdp-kline  fdp-kline-left"&gt;&lt;/div&gt;
+    &lt;div class="fdp-kline  fdp-kline-right"&gt;&lt;/div&gt;
+    &lt;div class="fdp-net"&gt;&lt;/div&gt;
+    &lt;div class="fdp-center fdp-center-left"&gt;&lt;/div&gt;
+    &lt;div class="fdp-center fdp-center-right"&gt;&lt;/div&gt;
+
+    &lt;!-- players + balls as children, positioned with left/top % --&gt;
+    &lt;div class="fdp-player" data-hat="blue" style="left:68.5%;top:25%"&gt;Y&lt;/div&gt;
+    &lt;div class="fdp-ball" style="left:50%;top:50%"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+</pre>
+
+  <h2>Geometry reference.</h2>
+  <pre>
+Court aspect         <span class="hl">44 / 20</span>   (real pickleball court, feet)
+Kitchen band width   <span class="hl">15.9%</span>   (7 / 44)
+Kitchen L/R starts   <span class="hl">34.1%</span>   (from each side)
+Net X                <span class="hl">50%</span>
+Centerline width     <span class="hl">34.1%</span>   (each half · 0→34.1% and 65.9%→100%)
+Centerline Y         <span class="hl">50%</span>
+Line thickness       <span class="hl">2px</span>  kitchen + center,  <span class="hl">4px</span>  net
+Border               <span class="hl">2px solid rgba(255,255,255,0.95)</span>
+
+Colors are from <span class="hl">tokens.css</span> · R19 NEPC palette.
+Never hardcode — always reference <span class="hl">--nepc-*</span> tokens.
+</pre>
+
+  <h2>Sister references.</h2>
+  <p class="note">
+    <code>sites/4dpickleball/scoring/index.html</code> — origin of this geometry (full interactive court).
+    <br>
+    <code>06_ACADEMY/4dp/3d_module_template.html</code> — 3D equivalent of this reference.
+    <br>
+    <code>06_ACADEMY/4dp/4dp_engine.mjs</code> — Three.js engine for 3D modules.
+    <br>
+    <code>06_ACADEMY/4dp/tokens.css</code> — the shared design tokens, including R19 court palette.
+  </p>
+</div>
+
+</body>
+</html>

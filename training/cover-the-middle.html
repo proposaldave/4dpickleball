@@ -148,61 +148,177 @@ a:hover{text-decoration:underline;}
   margin: 0 auto 24px;
   max-width: 820px;
 }
-/* Hero animated viz — top-down moment showing ball through the seam */
-.hero-viz {
-  max-width: 640px; margin: 24px auto 32px;
-  padding: 0;
+/* ═══════════════════════════════════════════════════════════════════
+   CANONICAL 2D COURT (from 06_ACADEMY/4dp/court_2d.html)
+   Drop-in block. Geometry locked to real pickleball (44/20 aspect).
+   Centerlines, kitchens, net — all via CSS-positioned divs.
+   ═══════════════════════════════════════════════════════════════════ */
+.fdp-court {
+  width: 100%;
+  padding: clamp(14px, 2.6vw, 24px);
+  background: linear-gradient(180deg, var(--nepc-court-gray) 0%, var(--nepc-court-gray-dark) 100%);
   border-radius: var(--4dp-r-lg);
-  overflow: hidden;
-  box-shadow: 0 24px 72px rgba(0,0,0,.48), 0 0 0 1px color-mix(in srgb, var(--4dp-dink) 16%, transparent);
+  box-shadow:
+    inset 0 0 50px rgba(0, 0, 0, 0.30),
+    0 24px 64px rgba(0, 0, 0, 0.42);
+  position: relative;
 }
-.hero-viz svg { display: block; width: 100%; height: auto; }
+.fdp-court-surface {
+  width: 100%;
+  aspect-ratio: 44 / 20;
+  border: 2px solid var(--nepc-line-white);
+  position: relative;
+  background: radial-gradient(
+    ellipse at center,
+    var(--nepc-court-blue-bright) 0%,
+    var(--nepc-court-blue) 70%
+  );
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.26);
+  overflow: visible;
+  transform: translateZ(0);
+}
+.fdp-kitchen {
+  position: absolute; top: 0; bottom: 0;
+  width: 15.9%;
+  background: linear-gradient(180deg, var(--nepc-kitchen-burgundy), var(--nepc-kitchen-deep));
+  z-index: 2;
+}
+.fdp-kitchen-left  { left: 34.1%; }
+.fdp-kitchen-right { right: 34.1%; }
+.fdp-kline {
+  position: absolute; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--nepc-line-white);
+  z-index: 3;
+}
+.fdp-kline-left  { left: 34.1%;  transform: translateX(-50%); }
+.fdp-kline-right { right: 34.1%; transform: translateX(50%); }
+.fdp-net {
+  position: absolute; left: 50%;
+  top: -8px; bottom: -8px;
+  width: 4px;
+  background: var(--nepc-line-white);
+  z-index: 5;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+.fdp-center {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  width: 34.1%;
+  background: var(--nepc-line-white);
+  z-index: 3;
+  transform: translateY(-50%);
+}
+.fdp-center-left  { left: 0; }
+.fdp-center-right { right: 0; }
 
-/* Ball drifts from far-right opp → through the seam → past the near team.
-   6s loop with a hold that emphasizes the decision moment. */
+.fdp-player {
+  position: absolute;
+  width: clamp(22px, 3.6vw, 30px);
+  height: clamp(22px, 3.6vw, 30px);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--4dp-font-body); font-weight: 800;
+  font-size: clamp(10px, 1.5vw, 12px);
+  color: var(--4dp-ink);
+  border: 1.5px solid rgba(14, 31, 56, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  transform: translate(-50%, -50%);
+}
+.fdp-player[data-hat="green"]  { background: #4ADE80; }
+.fdp-player[data-hat="orange"] { background: #FB923C; }
+.fdp-player[data-hat="blue"]   { background: #2B8BFC; color: #fff; }
+.fdp-player[data-hat="yellow"] { background: #FDE047; }
+
+.fdp-ball {
+  position: absolute;
+  width: clamp(10px, 1.8vw, 14px);
+  height: clamp(10px, 1.8vw, 14px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #E8FF9A, #C6FF00);
+  box-shadow: 0 0 10px rgba(198, 255, 0, 0.7),
+              0 0 20px rgba(198, 245, 29, 0.3);
+  z-index: 11;
+  transform: translate(-50%, -50%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   HERO VIZ — hesitation + ball-through-seam animation
+   Uses the canonical court; adds per-element animation layers.
+   ═══════════════════════════════════════════════════════════════════ */
+.hero-viz {
+  max-width: 720px;
+  margin: 24px auto 32px;
+}
+
+/* Ball: starts at far-orange paddle (left:31.5%, top:75%),
+   arcs through the middle seam of the near side (left:~58%, top:50%),
+   exits past near-baseline off the right edge.
+   6s loop with a hold at the decision moment so "whose ball?" lands. */
 @keyframes hvBall {
-  0%   { transform: translate(0, 0);       opacity: 0; }
+  0%   { left: 31.5%; top: 75%; opacity: 0; }
   8%   { opacity: 1; }
-  /* deliver ball into seam, pause briefly so the question lands */
-  40%  { transform: translate(150px, -50px); }
-  52%  { transform: translate(168px, -40px); }
-  /* ball escapes through the seam — team missed it */
-  88%  { transform: translate(344px, -40px); opacity: 1; }
+  /* deliver ball into the seam */
+  40%  { left: 58%;   top: 55%; opacity: 1; }
+  /* hold in the decision zone */
+  52%  { left: 62%;   top: 50%; opacity: 1; }
+  /* ball escapes past both near players */
+  88%  { left: 102%;  top: 50%; opacity: 1; }
   94%  { opacity: 0; }
-  100% { transform: translate(344px, -40px); opacity: 0; }
+  100% { left: 102%;  top: 50%; opacity: 0; }
 }
 .hv-ball {
   animation: hvBall 5.6s cubic-bezier(.4, 0, .7, 1) infinite;
-  transform-box: fill-box; transform-origin: center;
+  will-change: left, top, opacity;
 }
 
-/* Near team — both hesitate (subtle wobble toward middle, neither commits) */
+/* Near team hesitates: subtle shift toward the middle but neither commits */
 @keyframes hvHesLeft {
-  0%,   32%, 100% { transform: translate(0, 0); }
-  45%,  55%       { transform: translate(-6px, 4px); }
-  70%             { transform: translate(-2px, 2px); }
+  0%,   32%, 100% { transform: translate(-50%, -50%); }
+  45%,  55%       { transform: translate(calc(-50% - 8px), calc(-50% + 6px)); }
+  70%             { transform: translate(calc(-50% - 3px), calc(-50% + 3px)); }
 }
 @keyframes hvHesRight {
-  0%,   32%, 100% { transform: translate(0, 0); }
-  45%,  55%       { transform: translate(-6px, -4px); }
-  70%             { transform: translate(-2px, -2px); }
+  0%,   32%, 100% { transform: translate(-50%, -50%); }
+  45%,  55%       { transform: translate(calc(-50% - 8px), calc(-50% - 6px)); }
+  70%             { transform: translate(calc(-50% - 3px), calc(-50% - 3px)); }
 }
-.hv-nL { animation: hvHesLeft 5.6s cubic-bezier(.4, 0, .7, 1) infinite; transform-origin: center; }
-.hv-nR { animation: hvHesRight 5.6s cubic-bezier(.4, 0, .7, 1) infinite; transform-origin: center; }
+.hv-nL { animation: hvHesLeft  5.6s cubic-bezier(.4, 0, .7, 1) infinite; }
+.hv-nR { animation: hvHesRight 5.6s cubic-bezier(.4, 0, .7, 1) infinite; }
 
-/* Question pulses during decision window */
-@keyframes hvQ {
-  0%, 34%  { opacity: 0; transform: translateY(6px); }
-  42%      { opacity: 1; transform: translateY(0); }
-  80%      { opacity: 1; }
-  90%, 100%{ opacity: 0; transform: translateY(-4px); }
+/* "whose ball?" pill — appears at the decision moment */
+.hv-q-pill {
+  position: absolute;
+  left: 68%;
+  top: 28%;
+  transform: translate(-50%, -50%);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(14, 31, 56, 0.88);
+  border: 1px solid color-mix(in srgb, var(--4dp-dink) 50%, transparent);
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(13px, 1.8vw, 16px);
+  color: var(--4dp-text);
+  z-index: 12;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  animation: hvQ 5.6s cubic-bezier(.4, 0, .7, 1) infinite;
 }
-.hv-q { animation: hvQ 5.6s cubic-bezier(.4, 0, .7, 1) infinite; transform-origin: center; }
+@keyframes hvQ {
+  0%, 34%  { opacity: 0; transform: translate(-50%, calc(-50% + 6px)); }
+  42%      { opacity: 1; transform: translate(-50%, -50%); }
+  80%      { opacity: 1; transform: translate(-50%, -50%); }
+  90%, 100%{ opacity: 0; transform: translate(-50%, calc(-50% - 4px)); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .hv-ball, .hv-nL, .hv-nR, .hv-q { animation: none; }
-  .hv-ball { transform: translate(220px, -40px); }
-  .hv-q { opacity: 1; }
+  .hv-ball, .hv-nL, .hv-nR, .hv-q-pill { animation: none; }
+  .hv-ball { left: 62%; top: 50%; opacity: 1; }
+  .hv-q-pill { opacity: 1; }
 }
 .hero .sub {
   font-size: 17px; color: var(--4dp-text-dim);
@@ -1057,83 +1173,34 @@ a:hover{text-decoration:underline;}
   <div class="eyebrow"><span class="dot"></span>Kitchen line · Partnership skill</div>
   <h1>Whose ball<br>is&nbsp;that?</h1>
 
-  <!-- HERO VIZ — animated top-down moment: ball splits the seam, both players hesitate -->
+  <!-- HERO VIZ — canonical 2D court from 06_ACADEMY/4dp/court_2d.html
+       CSS-positioned divs (not SVG). Proper centerlines. R19 palette via tokens.css. -->
   <div class="hero-viz">
-    <svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <radialGradient id="heroCourt" cx="50%" cy="50%" r="70%">
-          <stop offset="0%"   stop-color="#2D5FA8"/>
-          <stop offset="70%"  stop-color="#234E8C"/>
-          <stop offset="100%" stop-color="#1B3E72"/>
-        </radialGradient>
-        <linearGradient id="heroKitchen" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#6B0F1A"/>
-          <stop offset="100%" stop-color="#52090F"/>
-        </linearGradient>
-        <linearGradient id="heroDeck" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"  stop-color="#7A8290"/>
-          <stop offset="100%" stop-color="#5E6878"/>
-        </linearGradient>
-        <radialGradient id="heroVig" cx="50%" cy="50%" r="75%">
-          <stop offset="55%" stop-color="#000" stop-opacity="0"/>
-          <stop offset="100%" stop-color="#000" stop-opacity=".34"/>
-        </radialGradient>
-        <filter id="heroBallGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
+    <div class="fdp-court">
+      <div class="fdp-court-surface">
+        <div class="fdp-kitchen fdp-kitchen-left"></div>
+        <div class="fdp-kitchen fdp-kitchen-right"></div>
+        <div class="fdp-kline  fdp-kline-left"></div>
+        <div class="fdp-kline  fdp-kline-right"></div>
+        <div class="fdp-net"></div>
+        <div class="fdp-center fdp-center-left"></div>
+        <div class="fdp-center fdp-center-right"></div>
 
-      <!-- Deck -->
-      <rect x="8" y="14" width="584" height="232" rx="10" fill="url(#heroDeck)"/>
-      <!-- Surface -->
-      <rect x="30" y="30" width="540" height="200" fill="url(#heroCourt)" stroke="rgba(255,255,255,.95)" stroke-width="2"/>
-      <!-- Kitchens -->
-      <rect x="230" y="30" width="70" height="200" fill="url(#heroKitchen)"/>
-      <rect x="300" y="30" width="70" height="200" fill="url(#heroKitchen)"/>
-      <!-- Kitchen lines -->
-      <line x1="230" y1="30" x2="230" y2="230" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
-      <line x1="370" y1="30" x2="370" y2="230" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
-      <!-- Centerlines — each half's service boxes. Far side baseline→kitchen, near side kitchen→baseline. -->
-      <line x1="30"  y1="130" x2="230" y2="130" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
-      <line x1="370" y1="130" x2="570" y2="130" stroke="rgba(255,255,255,.95)" stroke-width="1.6"/>
-      <!-- Net -->
-      <line x1="300" y1="20" x2="300" y2="240" stroke="#F5F3EE" stroke-width="3" stroke-linecap="round"/>
-      <!-- Vignette -->
-      <rect x="30" y="30" width="540" height="200" fill="url(#heroVig)" pointer-events="none"/>
+        <!-- Far team (left side) — steady at kitchen line -->
+        <div class="fdp-player hv-pl" data-hat="green"  style="left:31.5%;top:25%;">O</div>
+        <div class="fdp-player hv-pl" data-hat="orange" style="left:31.5%;top:75%;">O</div>
 
-      <!-- Far team (left kitchen) — steady -->
-      <g class="hv-pl">
-        <circle cx="216" cy="90"  r="11" fill="#4ADE80" stroke="#0E1F38" stroke-width="1.5"/>
-        <text x="216" y="94" text-anchor="middle" font-family="DM Sans" font-weight="800" font-size="10" fill="#0E1F38">O</text>
-      </g>
-      <g class="hv-pl">
-        <circle cx="216" cy="170" r="11" fill="#FB923C" stroke="#0E1F38" stroke-width="1.5"/>
-        <text x="216" y="174" text-anchor="middle" font-family="DM Sans" font-weight="800" font-size="10" fill="#0E1F38">O</text>
-      </g>
+        <!-- Near team (right side) — BOTH HESITATE when ball comes through middle -->
+        <div class="fdp-player hv-near hv-nL" data-hat="blue"   style="left:68.5%;top:25%;">Y</div>
+        <div class="fdp-player hv-near hv-nR" data-hat="yellow" style="left:68.5%;top:75%;">P</div>
 
-      <!-- Near team (right kitchen) — BOTH HESITATE -->
-      <g class="hv-near hv-nL">
-        <circle cx="384" cy="90" r="11" fill="#2B8BFC" stroke="#0E1F38" stroke-width="1.5"/>
-        <text x="384" y="94" text-anchor="middle" font-family="DM Sans" font-weight="800" font-size="10" fill="#0E1F38">Y</text>
-      </g>
-      <g class="hv-near hv-nR">
-        <circle cx="384" cy="170" r="11" fill="#FDE047" stroke="#0E1F38" stroke-width="1.5"/>
-        <text x="384" y="174" text-anchor="middle" font-family="DM Sans" font-weight="800" font-size="10" fill="#0E1F38">P</text>
-      </g>
+        <!-- Ball — animates through the seam -->
+        <div class="fdp-ball hv-ball" style="left:31.5%;top:75%;"></div>
 
-      <!-- Ball trajectory (shown faintly) -->
-      <path d="M 216 170 Q 340 100 560 130" stroke="rgba(198,255,0,.18)" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
-
-      <!-- Ball — animates through the seam -->
-      <circle class="hv-ball" cx="216" cy="170" r="7" fill="#C6FF00" filter="url(#heroBallGlow)"/>
-
-      <!-- "whose ball?" label — appears at the critical moment -->
-      <g class="hv-q">
-        <rect x="410" y="108" width="128" height="28" rx="14" fill="rgba(14,31,56,.88)" stroke="rgba(43,139,252,.5)" stroke-width="1"/>
-        <text x="474" y="127" text-anchor="middle" font-family="Instrument Serif" font-style="italic" font-size="16" fill="#F5F3EE">whose ball?</text>
-      </g>
-    </svg>
+        <!-- "whose ball?" pill — appears mid-flight -->
+        <div class="hv-q-pill">whose ball?</div>
+      </div>
+    </div>
   </div>
 
   <p class="sub">Your team loses points through the middle. <em>These are the four places yours breaks</em> — and how to own every one.</p>
