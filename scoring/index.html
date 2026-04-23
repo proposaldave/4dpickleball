@@ -1335,68 +1335,66 @@ async function runMiniRally() {
         p.classList.add('hit');
     };
 
-    // Beat order invariant:
-    //   (1) HITTER pulses + ball launches in the SAME frame
-    //   (2) ~220ms later (ball is 1/3 through its 700ms flight) the receiver
-    //       starts moving to intercept, retreating players slide back
-    //   (3) Nobody ever moves before the ball they're about to receive is hit.
+    // Canonical rally — matches 3D template (3d_module_template.html playerFrames
+    // Drop rally F0–F4) and memory/feedback_pickleball_animation_reference.md §4:
+    //
+    //   - Receiver stands AT baseline during the serve. Does NOT move to intercept.
+    //   - After hitting the return, receiver SPRINTS to the kitchen. This is
+    //     THE defining move that unlocks pickleball.
+    //   - Server team stays behind the baseline until after their third shot.
+    //   - Server's partner (mp2) and receiver's partner (mp4) stay anchored.
     while (true) {
         if (!introVisible()) { await wait(500); reset(); continue; }
 
-        // Pause with ball at server before the rally starts
-        await wait(900);
+        // Pause with ball at server — everyone in canonical receive formation.
+        //   mp1 (server)            baseline top-left
+        //   mp2 (server's partner)  baseline bottom-left
+        //   mp3 (receiver)          baseline bottom-right  <-- WAITS HERE for the serve
+        //   mp4 (receiver's partner) kitchen line top-right (one-up/one-back)
+        await wait(1000);
 
-        // ── SERVE ── mp1 hits. Ball launches. mp3 only starts moving AFTER.
+        // ── SERVE ── mp1 hits. Ball flies diagonal into mp3's service box.
+        //            mp3 is ALREADY at the baseline — does not move.
+        //            No one else moves during the serve.
         pulse(mp1);
-        mb.style.left = '85%';  mb.style.top = '75%';
-        await wait(220);
-        mp3.style.left = '88%'; mp3.style.top = '75%';
-        await wait(700);
+        mb.style.left = '88%'; mb.style.top = '75%';
+        await wait(900);
         if (!introVisible()) { reset(); continue; }
 
-        // ── RETURN ── mp3 hits. Ball launches. Then mp1 steps in / mp3 retreats.
+        // ── RETURN + SPRINT ── mp3 hits return from baseline. Ball launches deep
+        //                      to red's side. THEN mp3 sprints to the kitchen line
+        //                      (the canonical move). mp1 takes a small step in to
+        //                      meet the incoming ball. Server team otherwise holds.
         pulse(mp3);
-        mb.style.left = '18%';  mb.style.top = '25%';
-        await wait(220);
-        mp1.style.left = '22%'; mp1.style.top = '25%';
-        mp3.style.left = '104%';mp3.style.top = '75%';
+        mb.style.left = '14%'; mb.style.top = '25%';
+        await wait(240);
+        mp3.style.left = '70%'; mp3.style.top = '75%';   // SPRINT to kitchen
+        mp1.style.left = '14%'; mp1.style.top = '25%';   // step to meet the ball
+        await wait(900);
+
+        // ── THIRD SHOT DRIVE ── mp1 drives it past mp3 into green's top corner.
+        //                       mp3 is at the bottom kitchen, mp4 anchored at top
+        //                       kitchen — neither can reach the ball's landing spot.
+        //                       mp1 retreats back behind the baseline.
+        pulse(mp1);
+        mb.style.left = '96%'; mb.style.top = '40%';
+        await wait(240);
+        mp1.style.left = '-4%'; mp1.style.top = '25%';
+        await wait(900);
+
+        // ── POINT WON ── red's score ticks up. Ball sits in the corner where
+        //                green couldn't reach it.
+        document.getElementById('ms1').textContent = '1';
         await wait(700);
 
-        // ── THIRD SHOT ── mp1 hits. Ball launches. Then mp3 sprints / mp1 retreats.
-        pulse(mp1);
-        mb.style.left = '80%';  mb.style.top = '55%';
-        await wait(220);
-        mp3.style.left = '78%'; mp3.style.top = '55%';
-        mp1.style.left = '-4%'; mp1.style.top = '25%';
-        await wait(720);
-
-        // ── RALLY BLOCK ── mp3 hits. Ball launches. Then mp2 charges / mp3 retreats.
-        pulse(mp3);
-        mb.style.left = '14%';  mb.style.top = '62%';
-        await wait(220);
-        mp2.style.left = '18%'; mp2.style.top = '62%';
-        mp3.style.left = '104%';mp3.style.top = '75%';
-        await wait(720);
-
-        // ── WINNER ── mp2 hits. Ball launches toward empty corner. Then mp2 retreats.
-        //            No green defender can reach in time (mp4 stays at kitchen).
-        pulse(mp2);
-        mb.style.left = '96%';  mb.style.top = '38%';
-        await wait(220);
-        mp2.style.left = '-4%'; mp2.style.top = '75%';
-        await wait(750);
-
-        // ── POINT WON ── score ticks up.
-        document.getElementById('ms1').textContent = '1';
-        await wait(650);
-
-        // ── WINNERS SWAP SIDES ── red team swaps halves (serving rule).
+        // ── WINNERS SWAP SIDES ── red serving team swaps halves. mp3 stays at
+        //                         kitchen (only the serving team rotates on score).
         mp1.style.top = '75%';
         mp2.style.top = '25%';
         await wait(1200);
 
         reset();
-        await wait(650);
+        await wait(700);
     }
 }
 
