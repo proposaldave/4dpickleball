@@ -13,7 +13,7 @@
 <meta name="description" content="Pressure dinking — the foundation of creating offense in the kitchen. Four cinematic 3D rallies teach depth, precision, deception, and volley dinking. Go from winning 55% of kitchen points to 85%.">
 <meta property="og:title" content="Pressure Dinking · 4D Pickleball">
 <meta property="og:description" content="Four rallies. One skill. Depth is the key. Under the ball. Move them first. Speed up last.">
-<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="/4dp/tokens.css">
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--4dp-ink); }
   body { font-family: var(--4dp-font-body); color: var(--4dp-text); -webkit-font-smoothing: antialiased; }
@@ -568,23 +568,18 @@ setTimeout(function(){
 <div class="shot-bar">
   <button class="shot-chip dim-drive active" data-shot="drive">
     <span class="kbd">1</span>
-    <span class="num">Rally 1 · Cone #1</span>
+    <span class="num">Drill 1 · Red Cone</span>
     <span class="name">Cross-Court Depth</span>
   </button>
   <button class="shot-chip dim-defend" data-shot="defend">
     <span class="kbd">2</span>
-    <span class="num">Rally 2 · Cone #2</span>
-    <span class="name">Middle &amp; Simple</span>
+    <span class="num">Drill 2 · Yellow Cone</span>
+    <span class="name">Middle Deep</span>
   </button>
   <button class="shot-chip dim-drop" data-shot="drop">
     <span class="kbd">3</span>
-    <span class="num">Rally 3 · Combined</span>
-    <span class="name">Move &amp; Deceive</span>
-  </button>
-  <button class="shot-chip dim-dink" data-shot="dink">
-    <span class="kbd">4</span>
-    <span class="num">Rally 4 · Volley Dink</span>
-    <span class="name">Take Time Away</span>
+    <span class="num">Drill 3 · Orange Cones</span>
+    <span class="name">Volley Dink</span>
   </button>
 </div>
 
@@ -682,177 +677,202 @@ import { OutputPass }       from 'three/addons/postprocessing/OutputPass.js';
 // Rally 4 = Volley dinking → speedup → finish
 const SHOTS = {
   drive: {
-    label: 'Rally 1 · Cone #1',
+    label: 'Drill 1 · Red Cone',
     dim: 'drive',
-    color: 0xFBBF24,
+    color: 0xEF4444,
     role: 'Cross-court depth',
-    mantra: 'Depth is the key. Dink it to the cone at the cross-court T — deep enough that a speedup is a losing exchange.',
-    traj: 'Cross-court is the longest diagonal and the lowest net. Depth there stretches your opponent off the kitchen line and tempts a mistake.',
-    cam: { pos: [32, 18, 22], look: [0, 2, 0] },
-    story: 'Depth is the key. Cross-court is the longest diagonal — dink deep and they can\'t speed up without losing the exchange.',
+    mantra: 'Hit the red cone. 100 balls, backhand first — then forehand. Blue friend feeds all kinds: forehand, backhand, out of air, bounce. Green hits low pressure dinks that stay tight to the net.',
+    traj: 'Blue drilling friend stands 5 ft behind the red cone — off the court, out of bounds. Friend feeds high-arc defensive drops (forehand / backhand / out of air). Green returns every feed with a low pressure dink on the red cone.',
+    cam: { pos: [32, 10, 0], look: [0, 2, 0] },
+    story: 'Drill #1 — hit the red cone. The simplest drill in the class and the foundation of pressure dinking.',
     shot: {
       segments: [
-        // 1 - nearLeft dinker unloads cross-court DEEP to Cone #1 (far-right kitchen T)
-        { from: [-5, 2.5, 7], to: [ 7, 0.15, -6], apex: 3.2, dur: 0.80 },
-        // 2 - bounce -> farRight has to reach WIDE, slightly off-balance contact
-        { from: [ 7, 0.15, -6], to: [ 7.6, 2.0, -7.4], apex: 1.8, dur: 0.45 },
-        // 3 - farRight stretched return pops up slightly high in the middle
-        { from: [ 7.6, 2.0, -7.4], to: [-2, 3.3, 6], apex: 3.6, dur: 0.75 },
-        // 4 - nearLeft reads the sitter, VOLLEYS cross-court at far-right body (speedup window)
-        { from: [-2, 3.3, 6], to: [ 6, 1.3, -6.3], apex: 2.4, dur: 0.42, cinematic: true },
-        // 5 - farRight reflex pop-up floats high in the near kitchen
-        { from: [ 6, 1.3, -6.3], to: [ 1, 3.3, 5], apex: 3.6, dur: 0.68 },
-        // 6 - FINISH: nearLeft smashes into the open far-left court
-        { from: [ 1, 3.3, 5], to: [-6, 0.15, -10], apex: 2.6, dur: 0.42, cinematic: true }
+        // ── Cycle 1 — forehand feed with bounce ──
+        // 1 - Blue friend (at 13, -9 OOB) feeds a high-arc drop to green's forehand (lands in front of green)
+        { from: [ 13, 2.3, -9], to: [-4,  0.15,  6.2], apex: 5.2, dur: 0.95 },
+        // 2 - ball bounces up into green's paddle
+        { from: [-4,  0.15,  6.2], to: [-4.5, 2.4, 7.5], apex: 2.2, dur: 0.40 },
+        // 3 - GREEN pressure dinks low + tight to the RED cone
+        { from: [-4.5, 2.4, 7.5], to: [ 9,  0.15, -6], apex: 2.3, dur: 0.85 },
+        // 4 - ball bounces on the cone
+        { from: [ 9,  0.15, -6], to: [ 9.5, 0.3, -6.7], apex: 0.4, dur: 0.38 },
+
+        // ── Cycle 2 — backhand feed out of the air (no bounce — higher, to volley) ──
+        // 5 - Friend feeds high to green's BACKHAND side
+        { from: [ 13, 2.3, -9], to: [-6,  2.7,  7.5], apex: 5.6, dur: 1.00 },
+        // 6 - GREEN volley-dinks out of air, low and tight to the RED cone
+        { from: [-6,  2.7,  7.5], to: [ 9,  0.15, -6], apex: 2.0, dur: 0.80, cinematic: true },
+        // 7 - ball bounces on the cone
+        { from: [ 9,  0.15, -6], to: [ 9.5, 0.3, -6.7], apex: 0.4, dur: 0.38 },
+
+        // ── Cycle 3 — bounce feed to middle ──
+        // 8 - Friend feeds high bouncy drop to center-green
+        { from: [ 13, 2.3, -9], to: [-5,  0.15,  5.5], apex: 5.1, dur: 0.95 },
+        // 9 - ball bounces up
+        { from: [-5,  0.15,  5.5], to: [-5,  2.4,  7.3], apex: 2.2, dur: 0.40 },
+        // 10 - GREEN dinks tight cross-court to the RED cone (third rep)
+        { from: [-5,  2.4,  7.3], to: [ 9,  0.15, -6], apex: 2.3, dur: 0.85 },
+        // 11 - ball bounces on the cone
+        { from: [ 9,  0.15, -6], to: [ 9.5, 0.3, -6.7], apex: 0.4, dur: 0.38 }
       ]
     },
     playerFrames: [
-      // F0 - four behind the kitchen line, pressure dinking stance (feet clear of NVZ)
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[5,-7.8] },
-      // F1 - nearLeft loads the swing; farRight reads cross-court
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[5.5,-7.8] },
-      // F2 - farRight slides WIDE to reach the deep cone (still behind line)
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[7.5,-8.1] },
-      // F3 - farRight off-balance, stretched back; others ready
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-4.5,-7.8], farRight:[8,-8.3] },
-      // F4 - nearLeft coils for the volley speedup (feet stay BEHIND the line)
-      { nearLeft:[-4.5,7.8], nearRight:[5,7.8],   farLeft:[-4.5,-7.8], farRight:[7,-7.9] },
-      // F5 - farRight reflex — still recovering from stretch, pop-up goes middle
-      { nearLeft:[-4.5,7.8], nearRight:[5,7.8],   farLeft:[-4,-7.8],   farRight:[6,-7.8] },
-      // F6 - nearLeft tracks overhead; far-left corner is WIDE OPEN
-      { nearLeft:[-3.5,7.8], nearRight:[5,7.8],   farLeft:[-4,-7.8],   farRight:[6,-7.8] }
+      // F0 - green at near kitchen line · blue friend OOB 5 ft behind red cone · others hidden off-scene
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F1 - feed in flight, green steady, friend recovered
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F2 - ball bouncing at green's forehand
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F3 - green contact · pressure dink in flight to red cone
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F4 - ball on red cone · friend reaches to retrieve
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F5 - second feed (to backhand, out of air)
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F6 - green volley dink to red cone (cinematic)
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F7 - ball on red cone
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F8 - third feed (middle, bounce)
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F9 - ball bounces at green
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F10 - green contact · dink to red cone
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] },
+      // F11 - ball on red cone
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[13,-9] }
     ],
     moments: [
-      { at: 0.18, label: 'DEPTH IS THE KEY',
-        why: 'Dink lands on the cone at the cross-court T — deep enough that a speedup is a losing exchange.',
-        arrow: { type: 'court', pos: [ 7, -6] }, hold: 1.7 },
-      { at: 0.58, label: 'STRETCHED → WINDOW',
-        why: 'Off-balance reach = slightly high reply. That\'s your window.',
+      { at: 0.10, label: 'BLUE FRIEND · OFF THE COURT',
+        why: 'Drilling friend stands 5 ft behind the red cone — out of bounds. They feed; green hits.',
         arrow: { type: 'player', key: 'farRight' }, hold: 1.6 },
-      { at: 0.90, label: 'FINISH THE OPEN COURT',
-        why: 'Far-left corner is abandoned. Angle the smash where they aren\'t.',
-        arrow: { type: 'court', pos: [-6, -10] }, hold: 1.8 }
+      { at: 0.28, label: 'HIT THE RED CONE · DEPTH',
+        why: 'Deep cross-court. Land the pressure dink on the red cone — low and tight to the net.',
+        arrow: { type: 'court', pos: [9, -6] }, hold: 1.7 },
+      { at: 0.55, label: 'VOLLEY DINK · OUT OF AIR',
+        why: 'Friend feeds high. Green takes it out of the air, stays tight to the net, and still hits the cone.',
+        arrow: { type: 'ball' }, hold: 1.5 },
+      { at: 0.92, label: '100 BALLS · BACKHAND FIRST, THEN FOREHAND',
+        why: 'The drill is extremely simple. You have to MASTER it. That is the foundation.',
+        arrow: { type: 'court', pos: [9, -6] }, hold: 1.9 }
     ]
   },
   defend: {
-    label: 'Rally 2 · Cone #2',
+    label: 'Drill 2 · Yellow Cone',
     dim: 'defend',
-    color: 0xF472B6,
-    role: 'Middle & simple',
-    mantra: 'Shorter dinks need simpler technique. Tip down, no wrist cock, from the shoulder. Under the ball is critical.',
-    traj: 'A tight middle dink drops onto the cone one foot past the kitchen line. It forces the defender forward and takes away their angle — and the paddle they don\'t commit on.',
-    cam: { pos: [0, 14, 24], look: [0, 1.5, -1] },
-    story: 'Short dink, simpler swing. Shoulder, not wrist. Under the ball.',
+    color: 0xFBBF24,
+    role: 'Middle deep',
+    mantra: 'Hit the yellow cone. Blue friend stands in line directly behind the cone and feeds with high-arc drops. Green hits low pressure dinks — shoulder, not wrist, under the ball.',
+    traj: 'Feeder stands on the centerline 5 ft behind the yellow cone. Feeds are higher and softer — reset-style drops. Green returns each one as a tight pressure dink onto the yellow cone, deep past the kitchen line.',
+    cam: { pos: [32, 10, 0], look: [0, 2, 0] },
+    story: 'Drill #2 — hit the yellow cone. Shorter dinks require simpler technique. Under the ball.',
     shot: {
       segments: [
-        // 1 - nearLeft dinks SHORT to Cone #2 (middle, 1 ft past far kitchen line)
-        { from: [-5, 2.3, 7], to: [ 0, 0.15, -6], apex: 2.6, dur: 0.70 },
-        // 2 - bounce -> farLeft has to scramble forward + middle-ward
-        { from: [ 0, 0.15, -6], to: [-1, 2.0, -7.4], apex: 1.5, dur: 0.42 },
-        // 3 - farLeft off-balance low dink back, slightly deep & floaty
-        { from: [-1, 2.0, -7.4], to: [-4, 2.6, 6], apex: 2.8, dur: 0.70 },
-        // 4 - nearLeft resets again to the SAME middle cone (unrelenting pressure)
-        { from: [-4, 2.6, 6], to: [ 0.3, 0.15, -5.6], apex: 2.5, dur: 0.68 },
-        // 5 - bounce -> farRight scrambles, committed to middle, no balance
-        { from: [ 0.3, 0.15, -5.6], to: [ 1.2, 2.0, -7.3], apex: 1.5, dur: 0.42 },
-        // 6 - farRight mishits into the NET (cinematic death)
-        { from: [ 1.2, 2.0, -7.3], to: [ 0.7, 0.35, 0.15], apex: 1.3, dur: 0.60, cinematic: true }
+        // ── Cycle 1 — forehand feed with bounce ──
+        // 1 - Feeder (at 0, -13.5 on the centerline) feeds high-arc drop to green's forehand
+        { from: [ 0,   2.3, -13.5], to: [-4,  0.15,  6.2], apex: 5.8, dur: 0.98 },
+        // 2 - ball bounces up to green's paddle
+        { from: [-4,   0.15,  6.2], to: [-4.5, 2.4,  7.5], apex: 2.2, dur: 0.40 },
+        // 3 - GREEN pressure dinks tight + low onto the YELLOW cone
+        { from: [-4.5, 2.4,  7.5], to: [ 0,  0.15, -8.5], apex: 2.5, dur: 0.85 },
+        // 4 - ball bounces on the yellow cone
+        { from: [ 0,   0.15, -8.5], to: [ 0.3, 0.3, -9.1], apex: 0.4, dur: 0.38 },
+
+        // ── Cycle 2 — backhand feed out of the air ──
+        // 5 - Feeder sends high-arc floater to green's backhand side (no bounce)
+        { from: [ 0,   2.3, -13.5], to: [-6,  2.7,  7.5], apex: 6.0, dur: 1.02 },
+        // 6 - GREEN volley-dinks under the ball to the YELLOW cone
+        { from: [-6,   2.7,  7.5], to: [ 0,  0.15, -8.5], apex: 2.2, dur: 0.82, cinematic: true },
+        // 7 - ball bounces on the yellow cone
+        { from: [ 0,   0.15, -8.5], to: [ 0.3, 0.3, -9.1], apex: 0.4, dur: 0.38 },
+
+        // ── Cycle 3 — middle bounce feed ──
+        // 8 - Feeder feeds a bouncy drop to green's middle
+        { from: [ 0,   2.3, -13.5], to: [-5,  0.15,  5.5], apex: 5.6, dur: 0.98 },
+        // 9 - ball bounces up
+        { from: [-5,   0.15,  5.5], to: [-5,  2.4,  7.3], apex: 2.2, dur: 0.40 },
+        // 10 - GREEN dinks tight to the YELLOW cone (third rep)
+        { from: [-5,   2.4,  7.3], to: [ 0,  0.15, -8.5], apex: 2.5, dur: 0.85 },
+        // 11 - ball bounces on the yellow cone
+        { from: [ 0,   0.15, -8.5], to: [ 0.3, 0.3, -9.1], apex: 0.4, dur: 0.38 }
       ]
     },
     playerFrames: [
-      // F0 - four behind the kitchen line
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[5,-7.8] },
-      // F1 - nearLeft tips paddle down under the ball; feet planted behind line
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[5,-7.8] },
-      // F2 - farLeft slides toward middle to cover (stays behind line)
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-2,-7.9],   farRight:[5,-7.8] },
-      // F3 - farLeft off-balance, reply slightly high
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-1,-7.9],   farRight:[5,-7.8] },
-      // F4 - nearLeft compact second swing — same target
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-2,-7.8],   farRight:[5,-7.8] },
-      // F5 - farRight slides middle (both far defenders scrambled middle, still behind line)
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-2,-7.8],   farRight:[1.5,-7.9] },
-      // F6 - farRight net mishit — paddle too high, wrist not under ball
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-2,-7.8],   farRight:[1.5,-8.0] }
+      // F0 - green at near kitchen line · blue feeder 5 ft behind yellow cone on the centerline · others hidden
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[0,-13.5] }
     ],
     moments: [
-      { at: 0.08, label: 'UNDER THE BALL',
-        why: 'Tip down, no wrist cock, no spin. The shoulder swings — the wrist holds still.',
-        arrow: { type: 'player', key: 'nearLeft' }, hold: 1.6 },
-      { at: 0.45, label: 'DRAG THEM FORWARD',
-        why: 'A short middle dink forces the defender into the line and off their balance.',
-        arrow: { type: 'court', pos: [0, -6] }, hold: 1.5 },
-      { at: 0.92, label: 'NET MISHIT',
-        why: 'Over-swinging a short ball = paddle above the ball = the net wins.',
-        arrow: { type: 'ball' }, hold: 1.8 }
-    ]  },
+      { at: 0.10, label: 'FEEDER IN LINE · BEHIND YELLOW CONE',
+        why: 'Feeder stands on the centerline 5 ft behind the yellow cone. Higher-arc feeds — like a reset drop.',
+        arrow: { type: 'player', key: 'farRight' }, hold: 1.6 },
+      { at: 0.30, label: 'HIT THE YELLOW CONE · DEEP MIDDLE',
+        why: 'Target is 1.5 ft past the kitchen line. A dink this deep forces the opponent to take it out of the air.',
+        arrow: { type: 'court', pos: [0, -8.5] }, hold: 1.7 },
+      { at: 0.58, label: 'UNDER THE BALL · VOLLEY DINK',
+        why: 'Shorter dinks need simpler technique. Tip down, no wrist cock, shoulder swing.',
+        arrow: { type: 'ball' }, hold: 1.5 },
+      { at: 0.92, label: 'HIGH-ARC FEEDS · LOW PRESSURE DINKS',
+        why: 'Feeder arc is defensive and tall. Green\'s pressure dinks stay close to the net.',
+        arrow: { type: 'court', pos: [0, -8.5] }, hold: 1.8 }
+    ]
+  },
   drop: {
-    label: 'Rally 3 · Combined',
+    label: 'Drill 3 · Orange Cones',
     dim: 'drop',
-    color: 0x34D399,
-    role: 'Move & deceive',
-    mantra: 'The #1 rule of dinking: make your opponent MOVE. Alternate targets — cross-court, middle, down the line. Don\'t let them read you.',
-    traj: 'Same setup, three destinations. Crosscourt pulls them wide. Middle pulls them forward. Down-the-line punishes the anticipation.',
-    cam: { pos: [40, 16, 0], look: [0, 2, -1] },
-    story: 'Move them. Move them again. Then change where they thought you were going.',
+    color: 0xFB923C,
+    role: 'Volley dink · kitchen line',
+    mantra: 'Straight across, both at the kitchen line. High-arc unattackable volley dinks paddle-to-paddle. Trying to land on the orange cone just inside the kitchen line.',
+    traj: 'Both players straight across at the kitchen line. The ball never touches the ground — it goes paddle-to-paddle on gentle arcs that clear the net safely and drop onto the orange cone just inside the opponent\'s kitchen line.',
+    cam: { pos: [32, 10, 0], look: [0, 3, 0] },
+    story: 'Drill #3 — Unattackable volley dinks. Straight across. Hit each other\'s paddles. Trust the orange cones.',
     shot: {
       segments: [
-        // 1 - nearLeft dink CROSS-COURT to Cone #1 (far-right T)
-        { from: [-5, 2.4, 7], to: [ 7, 0.15, -6], apex: 3.0, dur: 0.78 },
-        // 2 - farRight (pulled wide) returns crosscourt back to near-left
-        { from: [ 7, 0.15, -6], to: [-5, 2.4, 6], apex: 3.0, dur: 0.78 },
-        // 3 - nearLeft CHANGES target — middle Cone #2
-        { from: [-5, 2.4, 6], to: [ 0, 0.15, -5.8], apex: 2.5, dur: 0.72 },
-        // 4 - farLeft (still scrambling back from wide) lunges middle
-        { from: [ 0, 0.15, -5.8], to: [-1, 2.1, -7.2], apex: 1.6, dur: 0.42 },
-        // 5 - farLeft returns crosscourt to near-right (he thinks near-right will stay middle)
-        { from: [-1, 2.1, -7.2], to: [ 5, 2.3, 6], apex: 2.8, dur: 0.80 },
-        // 6 - near-right dinks SAME middle cone again — pattern reinforced
-        { from: [ 5, 2.3, 6], to: [ 0.2, 0.15, -5.8], apex: 2.5, dur: 0.72 },
-        // 7 - farRight anticipates middle — commits to middle early
-        { from: [ 0.2, 0.15, -5.8], to: [ 1, 2.1, -7.2], apex: 1.6, dur: 0.40 },
-        // 8 - farRight compact middle reply back across
-        { from: [ 1, 2.1, -7.2], to: [ 5, 2.3, 5.5], apex: 2.6, dur: 0.72 },
-        // 9 - DECEPTION: near-right FAKES middle, goes DOWN-THE-LINE to Cone #3
-        { from: [ 5, 2.3, 5.5], to: [ 8, 0.15, -5.5], apex: 2.7, dur: 0.68, cinematic: true },
-        // 10 - farRight is CAUGHT middle — can't recover, ball rolls wide untouched
-        { from: [ 8, 0.15, -5.5], to: [ 9.5, 0.35, -8], apex: 0.9, dur: 0.55 }
+        // 1 - Green volley-dinks to blue's paddle — high-arc, lands on/above orange cone far side
+        { from: [-5, 2.6, 7.5], to: [-5, 2.4, -7.5], apex: 3.4, dur: 0.72 },
+        // 2 - Blue volleys back to green's paddle — mirror arc
+        { from: [-5, 2.4, -7.5], to: [-5, 2.6, 7.5], apex: 3.4, dur: 0.72 },
+        // 3 - Green volley-dink again (consistent rhythm)
+        { from: [-5, 2.6, 7.5], to: [-5, 2.4, -7.5], apex: 3.4, dur: 0.72 },
+        // 4 - Blue returns (cinematic mid-rally beat)
+        { from: [-5, 2.4, -7.5], to: [-5, 2.6, 7.5], apex: 3.4, dur: 0.72, cinematic: true },
+        // 5 - Green's third volley dink
+        { from: [-5, 2.6, 7.5], to: [-5, 2.4, -7.5], apex: 3.4, dur: 0.72 },
+        // 6 - Blue's closing volley dink
+        { from: [-5, 2.4, -7.5], to: [-5, 2.6, 7.5], apex: 3.4, dur: 0.72 }
       ]
     },
     playerFrames: [
-      // F0 - four behind the kitchen line
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[5,-7.8] },
-      // F1 - crosscourt dink sent; farRight slides WIDE to reach
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[7,-7.9] },
-      // F2 - farRight still wide; far defense pulled right
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-4,-7.8],   farRight:[7,-7.9] },
-      // F3 - nearLeft dinks middle; farLeft lunges middle (feet stay behind line)
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-2,-7.9],   farRight:[6.5,-7.9] },
-      // F4 - farLeft middle scramble; farRight recovering from wide
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-1,-7.9],   farRight:[6,-7.8] },
-      // F5 - near-right engages; farRight sliding back to middle zone
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-2,-7.8],   farRight:[3,-7.9] },
-      // F6 - near-right hits SAME middle; farRight commits middle early
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-2,-7.8],   farRight:[1,-7.9] },
-      // F7 - farRight over-committed middle; down-the-line corner WIDE OPEN
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-3,-7.8],   farRight:[0.5,-7.9] },
-      // F8 - deception — near-right ball heading down the line
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-4,-7.8],   farRight:[1,-7.9] },
-      // F9 - farRight too far middle to recover — winner lands
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-4,-7.8],   farRight:[2,-7.9] },
-      // F10 - ball rolls untouched in the far-right corner
-      { nearLeft:[-5,7.8],   nearRight:[5,7.8],   farLeft:[-5,-7.8],   farRight:[3,-7.8] }
+      // Green at near-left kitchen line. Blue drilling friend STRAIGHT ACROSS at far-left kitchen line.
+      // Other two players hidden off-scene.
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[-5,-7.8] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[-5,-7.8] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[-5,-7.8] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[-5,-7.8] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[-5,-7.8] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[-5,-7.8] },
+      { nearLeft:[-5,7.8], nearRight:[100,100], farLeft:[100,100], farRight:[-5,-7.8] }
     ],
     moments: [
-      { at: 0.15, label: 'CONE #1 · CROSS-COURT',
-        why: 'Start wide. Pull them off the line with the longest diagonal.',
-        arrow: { type: 'court', pos: [ 7, -6] }, hold: 1.5 },
-      { at: 0.48, label: 'CONE #2 · MIDDLE',
-        why: 'Change the target. Force lateral movement. Now their feet are moving, not set.',
-        arrow: { type: 'court', pos: [ 0, -6] }, hold: 1.5 },
-      { at: 0.86, label: 'DECEPTION · DOWN THE LINE',
-        why: 'Same load-up, new destination. Opponent leans middle — the line is empty.',
-        arrow: { type: 'court', pos: [ 8, -5.5] }, hold: 1.9 }
+      { at: 0.08, label: 'STRAIGHT ACROSS · BOTH AT KITCHEN LINE',
+        why: 'Green and blue stand directly across from each other at the kitchen line. Ball never bounces.',
+        arrow: { type: 'player', key: 'farRight' }, hold: 1.6 },
+      { at: 0.35, label: 'UNATTACKABLE VOLLEY DINKS',
+        why: 'High-arc, soft, paddle-to-paddle. The ball flies over the net too low and soft to attack.',
+        arrow: { type: 'ball' }, hold: 1.6 },
+      { at: 0.90, label: 'HIT THE ORANGE CONES · JUST INSIDE THE KITCHEN LINE',
+        why: 'Trust the cones. Aim for the disc — the volley dink partner\'s paddle will be right over it.',
+        arrow: { type: 'court', pos: [-5, -6] }, hold: 1.8 }
     ]
   },
   dink: {
@@ -1095,42 +1115,39 @@ netGroup.add(weave);
 courtGroup.add(netGroup);
 scene.add(courtGroup);
 
-// ═════ DRILL CONES — pressure dinking target spots ═════
-// Cones removed 2026-04-23 per Dave — waiting for exact spot placement.
-// Helper functions kept below so we can drop cones back in quickly.
+// ═════ DRILL TARGETS — flat agility cones (soft plastic discs on the ground) ═════
+// Style: flat agility-cone discs like the ones in the reference image Dave sent —
+// solid saturated colors, no outline, safe for players to step on. Each drill
+// has a dedicated color so students remember which color = which target.
+//   RED    · Drill 1: cross-court T, 1 ft inside kitchen from the kitchen line
+//   YELLOW · Drill 2: middle, 1.5 ft past the kitchen line (deep middle)
+//   ORANGE · Drill 3: just inside the kitchen lines, both sides (volley dink drill)
 const coneGroup = new THREE.Group();
-const CONE_ORANGE = 0xFF6B35;
-const CONE_ORANGE_DIM = 0xB24820;
-function makeTargetRing(x, z, color) {
-  const ring = new THREE.Mesh(
-    new THREE.RingGeometry(0.75, 1.1, 32),
-    new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.55, side: THREE.DoubleSide })
+const DRILL_SPOTS = [
+  { x:  9,  z: -6,   color: 0xEF4444, name: 'red'    },  // Drill 1 cross-court T
+  { x:  0,  z: -8.5, color: 0xFBBF24, name: 'yellow' },  // Drill 2 middle deep
+  { x: -5,  z: -6,   color: 0xFB923C, name: 'orange' },  // Drill 3 far-side volley target
+  { x: -5,  z:  6,   color: 0xFB923C, name: 'orange' }   // Drill 3 near-side volley target
+];
+
+function makeFlatTarget(x, z, color) {
+  // Flat plastic agility-cone disc — no height, so players can step on it.
+  const disc = new THREE.Mesh(
+    new THREE.CircleGeometry(1.0, 40),
+    new THREE.MeshStandardMaterial({
+      color, roughness: 0.55, metalness: 0.02,
+      emissive: color, emissiveIntensity: 0.3,
+      side: THREE.DoubleSide
+    })
   );
-  ring.rotation.x = -Math.PI / 2;
-  ring.position.set(x, 0.03, z);
-  return ring;
+  disc.rotation.x = -Math.PI / 2;
+  disc.position.set(x, 0.03, z);
+  return disc;
 }
-function makeCone(x, z) {
-  const group = new THREE.Group();
-  const base = new THREE.Mesh(
-    new THREE.BoxGeometry(0.9, 0.08, 0.9),
-    new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9, metalness: 0 })
-  );
-  base.position.y = 0.04; base.castShadow = true; group.add(base);
-  const body = new THREE.Mesh(
-    new THREE.ConeGeometry(0.42, 1.4, 18, 1, true),
-    new THREE.MeshStandardMaterial({ color: CONE_ORANGE, roughness: 0.55, metalness: 0.05, emissive: CONE_ORANGE_DIM, emissiveIntensity: 0.25 })
-  );
-  body.position.y = 0.78; body.castShadow = true; group.add(body);
-  const stripe = new THREE.Mesh(
-    new THREE.TorusGeometry(0.29, 0.05, 8, 24),
-    new THREE.MeshStandardMaterial({ color: 0xF5F3EE, roughness: 0.4, metalness: 0.1, emissive: 0x808080, emissiveIntensity: 0.3 })
-  );
-  stripe.rotation.x = Math.PI / 2; stripe.position.y = 0.9; group.add(stripe);
-  group.position.set(x, 0, z);
-  return group;
-}
-// When Dave marks the spots, call: coneGroup.add(makeTargetRing(x,z,CONE_ORANGE)); coneGroup.add(makeCone(x,z));
+
+DRILL_SPOTS.forEach(spot => {
+  coneGroup.add(makeFlatTarget(spot.x, spot.z, spot.color));
+});
 scene.add(coneGroup);
 
 // ═════ CROWD SILHOUETTES — stadium ambience beyond each baseline ═════
@@ -1258,7 +1275,7 @@ function makePlayer({ jersey, shorts, z, x = 0, facing, hat }) {
 // still distinguish teams (navy far vs burgundy near); hats distinguish positions within
 // each team. Colors are bright enough to pop against both jerseys.
 const playerFarLeft   = makePlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0x4ADE80, z: -20, x: -5, facing: +1 });  // GREEN
-const playerFarRight  = makePlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0xFB923C, z: -20, x:  5, facing: +1 });  // ORANGE
+const playerFarRight  = makePlayer({ jersey: 0x2B8BFC, shorts: 0x0F2138, hat: 0xFB923C, z: -20, x:  5, facing: +1 });  // BRIGHT BLUE SHIRT · ORANGE HAT — this is the DRILLING FRIEND (feeder) for the green dinker
 const playerNearLeft  = makePlayer({ jersey: 0x22C55E, shorts: 0x0F2138, hat: 0xFDE047, z:  20, x: -5, facing: -1 });  // GREEN SHIRT · YELLOW HAT — this is the pressure-dinking DINKER (our POV)
 const playerNearRight = makePlayer({ jersey: 0x8B1A2B, shorts: 0x0F2138, hat: 0x22D3EE, z:  20, x:  5, facing: -1 });  // CYAN
 scene.add(playerFarLeft, playerFarRight, playerNearLeft, playerNearRight);
@@ -2313,7 +2330,7 @@ function playCinematicReplay(onDone) {
 }
 
 // ═════ STORY MODE — autoplay Drive → Defend → Drop → Dink ═════
-const STORY_ORDER = ['drive', 'defend', 'drop', 'dink'];
+const STORY_ORDER = ['drive', 'defend', 'drop'];  // Only 3 drills — 'dink' is retained in SHOTS as legacy but no chip/story
 function enterStoryMode() {
   if (storyMode) return;
   storyMode = true;
