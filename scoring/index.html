@@ -1381,16 +1381,21 @@ async function runMiniRally() {
         mb.style.left = '96%'; mb.style.top = '40%';
         await wait(900);
 
-        // ── POINT WON ── red's score ticks up. Ball sits in the corner where
-        //                green couldn't reach it.
+        // ── POINT WON ── red's score ticks up. Ball sits in the corner.
+        //                Both red players recover BEHIND the baseline for the
+        //                next point. mp1 had stepped in at 6% to hit the winner;
+        //                now it retreats so both are back at x=-4%.
         document.getElementById('ms1').textContent = '1';
-        await wait(700);
+        mp1.style.left = '-4%'; mp1.style.top = '25%';
+        mp2.style.left = '-4%'; mp2.style.top = '75%';
+        await wait(800);
 
-        // ── WINNERS SWAP SIDES ── red serving team swaps halves. mp3 stays at
-        //                         kitchen (only the serving team rotates on score).
+        // ── WINNERS SWAP SIDES ── red serving team swaps halves (serving rule).
+        //                         Both stay behind the baseline — just flip halves.
+        //                         mp3 stays at kitchen (receiver team never rotates).
         mp1.style.top = '75%';
         mp2.style.top = '25%';
-        await wait(1200);
+        await wait(1100);
 
         reset();
         await wait(700);
