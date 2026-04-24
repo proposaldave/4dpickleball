@@ -1098,6 +1098,82 @@ a:hover{text-decoration:underline;}
 }
 .trainer-launch .cta svg { width: 14px; height: 14px; }
 
+/* ═══════════════════════════════════════════════════════════════════
+   TRAINER MODES — 3 game variants, pickable from the trainer launch
+   ═══════════════════════════════════════════════════════════════════ */
+.trainer-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 28px;
+}
+@media (max-width: 820px) { .trainer-modes { grid-template-columns: 1fr; } }
+
+.mode-card {
+  text-align: left;
+  padding: 22px 22px 20px;
+  background: rgba(14, 31, 56, 0.55);
+  border: 1px solid var(--4dp-hairline-s);
+  border-radius: var(--4dp-r-lg);
+  cursor: pointer;
+  transition: all .25s var(--4dp-ease);
+  color: var(--4dp-text);
+  font-family: var(--4dp-font-body);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  position: relative;
+  overflow: hidden;
+}
+.mode-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--4dp-dink-soft) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity .3s var(--4dp-ease);
+}
+.mode-card:hover::before { opacity: 1; }
+.mode-card:hover {
+  border-color: var(--4dp-dink);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--4dp-dink);
+}
+.mode-card > * { position: relative; z-index: 1; }
+.mode-card.mode-lightning:hover { border-color: var(--gnr-gold); box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 0 1px var(--gnr-gold); }
+.mode-card.mode-quiz:hover { border-color: var(--4dp-drop); box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 0 1px var(--4dp-drop); }
+
+.mode-tag {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 10px; letter-spacing: 2px;
+  color: var(--4dp-dink);
+  margin-bottom: 10px;
+}
+.mode-card.mode-lightning .mode-tag { color: var(--gnr-gold); }
+.mode-card.mode-quiz .mode-tag { color: var(--4dp-drop); }
+
+.mode-name {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: 26px; line-height: 1.04; letter-spacing: -.5px;
+  color: var(--4dp-text);
+  margin-bottom: 6px;
+}
+.mode-sub {
+  font-size: 12px; color: var(--4dp-text-dim);
+  line-height: 1.45;
+  margin-bottom: 18px;
+}
+.mode-go {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-weight: 700; font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--4dp-dink);
+  padding: 8px 0 0;
+  border-top: 1px solid var(--4dp-hairline);
+}
+.mode-card.mode-lightning .mode-go { color: var(--gnr-gold); }
+.mode-card.mode-quiz .mode-go { color: var(--4dp-drop); }
+.mode-go svg { width: 12px; height: 12px; }
+
 /* ─ 3D modal ───────────────── */
 #trainer-modal {
   position: fixed; inset: 0; z-index: 900;
@@ -1586,9 +1662,20 @@ a:hover{text-decoration:underline;}
   <h1><em>Whose ball</em><br>is&nbsp;that?</h1>
 
   <div class="dogma-bust">
-    <p class="dogma-line">Heard <em>"forehand takes the middle"</em>?<span class="verdict">Sometimes.</span></p>
-    <p class="dogma-line">Heard <em>"respect the X"</em>?<span class="verdict">Sometimes.</span></p>
-    <p class="dogma-punch">Covering the middle isn't one rule. It's <em>scenario recognition.</em></p>
+    <p class="dogma-line">
+      <em class="dg-rule">"Forehand takes the middle"</em>
+      <span class="dg-dash">—</span>
+      <span class="dg-verdict">sometimes.</span>
+    </p>
+    <p class="dogma-line">
+      <em class="dg-rule">"Respect the X"</em>
+      <span class="dg-dash">—</span>
+      <span class="dg-verdict">sometimes.</span>
+    </p>
+    <p class="dogma-punch">
+      Neither's wrong. Neither's always right.<br>
+      <em class="dg-thesis">Covering the middle is scenario recognition.</em>
+    </p>
   </div>
 </section>
 
@@ -1636,47 +1723,40 @@ a:hover{text-decoration:underline;}
       <div class="scen-body">
         <div class="scen-kicker">START OF POINT</div>
         <h3 class="scen-h">Player in front has the option.</h3>
-        <div class="scen-rule">NVZ-player takes it. Block or reset.</div>
-        <p class="scen-why">Serve, return, third-shot drive through the middle. Your partner returned and is still <strong>running up</strong> from the baseline. By the time they reach the line, the ball is at their shins. You're already there — slide, block, protect.</p>
-        <div class="scen-chip">Forehand rule doesn't apply · backhand block is fine</div>
       </div>
-      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="scen-play" aria-label="Watch scenario 1 in 3D">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
     </li>
-
     <li class="scen-card" data-scen="2">
       <div class="scen-num">02</div>
       <div class="scen-body">
-        <div class="scen-kicker">BOTH AT KITCHEN · SOFT BALL</div>
-        <h3 class="scen-h">High, soft floater through the middle.</h3>
-        <div class="scen-rule"><em>"Forehand takes the middle"</em> — here it's true.</div>
-        <p class="scen-why">Soft balls give time. Whichever forehand is closer has <strong>reach, angle, and power</strong>. This is the scenario the old dogma was built for. Call "mine" early, put it away.</p>
-        <div class="scen-chip chip-green">The dogma works · when the ball gives you time</div>
+        <div class="scen-kicker">SOFT BALL · BOTH AT KITCHEN</div>
+        <h3 class="scen-h">Forehand takes the middle.</h3>
       </div>
-      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="scen-play" aria-label="Watch scenario 2 in 3D">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
     </li>
-
     <li class="scen-card" data-scen="3">
       <div class="scen-num">03</div>
       <div class="scen-body">
-        <div class="scen-kicker">BOTH AT KITCHEN · HARD ATTACK</div>
-        <h3 class="scen-h">Tough attack through the middle.</h3>
-        <div class="scen-rule"><em>"Respect the X"</em> — here it's true.</div>
-        <p class="scen-why">Fast balls don't wait for the forehand to arrive. The player <strong>diagonally cross-court from the hitter</strong> is the only one the ball's traveling toward. Their paddle's already pointed at it. Partner covers the line; you anticipate and absorb.</p>
-        <div class="scen-chip chip-green">The X rule works · when the ball doesn't give you time</div>
+        <div class="scen-kicker">HARD ATTACK · BOTH AT KITCHEN</div>
+        <h3 class="scen-h">Respect the X.</h3>
       </div>
-      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="scen-play" aria-label="Watch scenario 3 in 3D">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
     </li>
-
     <li class="scen-card" data-scen="4">
       <div class="scen-num">04</div>
       <div class="scen-body">
-        <div class="scen-kicker">RIGHT-HANDER ON THE LEFT</div>
-        <h3 class="scen-h">Cross-court rally. Pre-load forehand.</h3>
-        <div class="scen-rule">Camp paddle on the forehand. Let backhand speed-ups fly.</div>
-        <p class="scen-why">You're a righty on the left side. Opponent cross-court can't hit a backhand speed-up that stays in — the geometry pushes it wide. So <strong>ignore the backhand lane</strong>. Keep your paddle pre-loaded on the forehand side. Clean, offensive, no scramble.</p>
-        <div class="scen-chip">Coach Phil &amp; Simone Jardim · "sit on your forehand"</div>
+        <div class="scen-kicker">RIGHTY ON THE LEFT</div>
+        <h3 class="scen-h">Sit on the forehand.</h3>
       </div>
-      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="scen-play" aria-label="Watch scenario 4 in 3D">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
     </li>
   </ol>
 </section>
@@ -2008,13 +2088,40 @@ a:hover{text-decoration:underline;}
   <div class="section-label">The drill</div>
 
   <div class="trainer-launch">
-    <div class="label">3D · 5 rounds · pass 4/5</div>
     <h3>Now make it instinct.</h3>
-    <p>Five live scenarios. You're at the near-left kitchen line. Every ball arrives with different context — and you have half a second to decide. <em>STAY</em> or <em>GO</em>.</p>
-    <button class="cta" id="trainer-start">
-      Start training
-      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
+    <p>Ball comes at you. Context is different every time. <em>Mine</em> or <em>yours</em>? You have half a second.</p>
+
+    <div class="trainer-modes">
+      <button class="mode-card" data-mode="decision">
+        <div class="mode-tag">01 · DECISION</div>
+        <div class="mode-name">Mine or Yours</div>
+        <div class="mode-sub">5 scenarios · pass 4/5 · teach the read</div>
+        <div class="mode-go">
+          <span>Play</span>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </button>
+
+      <button class="mode-card mode-lightning" data-mode="lightning">
+        <div class="mode-tag">02 · LIGHTNING</div>
+        <div class="mode-name">Lightning Reads</div>
+        <div class="mode-sub">10 rounds · half-second window · streak bonus</div>
+        <div class="mode-go">
+          <span>Play</span>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </button>
+
+      <button class="mode-card mode-quiz" data-mode="quiz">
+        <div class="mode-tag">03 · QUIZ</div>
+        <div class="mode-name">Name the Rule</div>
+        <div class="mode-sub">4 scenarios · pick the rule · no clock</div>
+        <div class="mode-go">
+          <span>Play</span>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </button>
+    </div>
   </div>
 </section>
 
@@ -3241,8 +3348,35 @@ const GAME = {
   decisionDeadline: 0.85, // fraction of shot — miss if no input by this point
   resolvedAnim: null,
   resolvedProgress: 0,
-  playerShiftT: 0
+  playerShiftT: 0,
+  // Game mode — set by mode-card click before openTrainer()
+  mode: 'decision',          // 'decision' | 'lightning' | 'quiz'
+  totalRounds: 5,
+  useRandomOrder: false,
+  quizMode: false,
+  streak: 0,
+  bestStreak: 0,
+  // Dynamic session scenario order (rebuilt per resetSession based on mode)
+  sessionOrder: null
 };
+
+function buildSessionOrder() {
+  const n = GAME.totalRounds;
+  if (GAME.useRandomOrder) {
+    // Lightning: random picks from SCENARIOS, no repeats until all shown
+    const order = [];
+    let pool = [...Array(SCENARIOS.length).keys()];
+    while (order.length < n) {
+      if (pool.length === 0) pool = [...Array(SCENARIOS.length).keys()];
+      const i = Math.floor(Math.random() * pool.length);
+      order.push(pool[i]);
+      pool.splice(i, 1);
+    }
+    GAME.sessionOrder = order;
+  } else {
+    GAME.sessionOrder = Array.from({length: n}, (_, i) => i % SCENARIOS.length);
+  }
+}
 
 function ballPos(shotData, t) {
   // Parabolic arc (simplified; enough for the trainer aesthetic)
@@ -3258,7 +3392,10 @@ function ballPos(shotData, t) {
 
 /* ─────── Scenario flow ────────────────────────────── */
 function startRound(idx) {
-  const sc = SCENARIOS[idx];
+  // idx = position in the SESSION (0-based); maps via sessionOrder to SCENARIOS index
+  if (!GAME.sessionOrder) buildSessionOrder();
+  const scIdx = GAME.sessionOrder[idx] ?? 0;
+  const sc = SCENARIOS[scIdx];
   GAME.roundIdx = idx;
   GAME.state = 'playing';
   GAME.answerLocked = false;
@@ -3268,17 +3405,22 @@ function startRound(idx) {
   GAME.resolvedProgress = 0;
   GAME.playerShiftT = 0;
   const sd = sc.setup();
+  // Lightning mode: speed everything up ~20% (shorter shot duration = faster ball)
+  let durMult = 1.12;
+  if (GAME.mode === 'lightning') durMult = 0.82;
+  if (GAME.mode === 'quiz')      durMult = 1.6;  // slower, let them think
   GAME.shotData = sd;
-  GAME.shotDur = sd.duration * 1.12;  // slight buffer
+  GAME.shotDur = sd.duration * durMult;
 
   // Hide verdict
   document.getElementById('tr-verdict').classList.remove('on');
 
-  // Prompt
-  document.getElementById('tr-prompt-eyebrow').textContent = `Round ${idx+1} · Read it`;
+  // Prompt — mode-aware
+  const modeLabel = GAME.mode === 'lightning' ? '⚡ Lightning' : (GAME.mode === 'quiz' ? '? Quiz' : 'Read it');
+  document.getElementById('tr-prompt-eyebrow').textContent = `Round ${idx+1} · ${modeLabel}`;
   document.getElementById('tr-prompt-h').textContent = sc.prompt;
   document.getElementById('tr-prompt-sub').textContent = sc.sub;
-  document.getElementById('tr-round-n').textContent = `Round ${idx+1} / 5`;
+  document.getElementById('tr-round-n').textContent = `Round ${idx+1} / ${GAME.totalRounds}`;
 
   // Position ball at start, visible
   ball.mesh.position.copy(sd.from);
@@ -3309,22 +3451,35 @@ function lockAnswer(answer) {
 }
 
 function resolveRound() {
-  const sc = SCENARIOS[GAME.roundIdx];
+  const scIdx = GAME.sessionOrder?.[GAME.roundIdx] ?? 0;
+  const sc = SCENARIOS[scIdx];
   const answer = GAME.playerAnswer || 'miss';
   const correct = answer === sc.correct;
   GAME.results.push({ id: sc.id, name: sc.name, answer, correct, correctAnswer: sc.correct });
-  if (correct) GAME.score++;
 
-  // Update score display
+  // Scoring — lightning mode awards streak bonus
+  if (correct) {
+    GAME.score++;
+    GAME.streak = (GAME.streak || 0) + 1;
+    if (GAME.streak > (GAME.bestStreak || 0)) GAME.bestStreak = GAME.streak;
+  } else {
+    GAME.streak = 0;
+  }
+
+  // Update score display (mode-aware)
   const val = document.getElementById('tr-score-val');
-  val.textContent = GAME.score;
+  if (GAME.mode === 'lightning' && GAME.streak >= 2) {
+    val.innerHTML = `${GAME.score} <span style="font-size:.52em;color:var(--gnr-gold);vertical-align:3px;">🔥${GAME.streak}</span>`;
+  } else {
+    val.textContent = GAME.score;
+  }
 
   // Verdict
   const verdict = document.getElementById('tr-verdict');
   const big = document.getElementById('tr-verdict-big');
   const sub = document.getElementById('tr-verdict-sub');
   if (correct) {
-    big.textContent = 'Good.';
+    big.textContent = GAME.mode === 'lightning' && GAME.streak >= 3 ? `${GAME.streak} IN A ROW.` : 'Good.';
     big.className = 'big good';
     sub.textContent = sc.explainGood;
     audio.good();
@@ -3341,15 +3496,16 @@ function resolveRound() {
   GAME.resolvedAnim = sc.resolveAnim ? sc.resolveAnim(answer, GAME.shotData) : null;
   GAME.resolvedProgress = 0;
 
-  // Auto-advance after 2.6s
+  // Auto-advance — lightning is quick, quiz gives more time to read the explanation
+  const advanceDelay = GAME.mode === 'lightning' ? 1800 : (GAME.mode === 'quiz' ? 3400 : 2600);
   setTimeout(() => {
     verdict.classList.remove('on');
-    if (GAME.roundIdx + 1 >= SCENARIOS.length) {
+    if (GAME.roundIdx + 1 >= (GAME.totalRounds || SCENARIOS.length)) {
       endSession();
     } else {
       startRound(GAME.roundIdx + 1);
     }
-  }, 2600);
+  }, advanceDelay);
 }
 
 function endSession() {
@@ -3358,16 +3514,25 @@ function endSession() {
   ball.mesh.visible = false;
   ball.shadow.visible = false;
 
-  // End card
+  // End card — mode-aware pass thresholds + headline
   const end = document.getElementById('tr-end');
   const score = document.getElementById('tr-end-score');
   const pct = document.getElementById('tr-end-pct');
   const rows = document.getElementById('tr-end-rows');
-  const pass = GAME.score >= 4;
-  score.textContent = GAME.score;
-  score.innerHTML = `${GAME.score}<span class="slash">/5</span>`;
+  const total = GAME.totalRounds || 5;
+  const passNeeded = GAME.mode === 'lightning' ? Math.ceil(total * .7) : Math.ceil(total * .8);
+  const pass = GAME.score >= passNeeded;
+  score.innerHTML = `${GAME.score}<span class="slash">/${total}</span>`;
   score.className = 'tr-end-score ' + (pass ? 'pass' : 'fail');
-  pct.textContent = pass ? 'Passed · reads getting sharper' : 'Below threshold · run it again';
+  if (GAME.mode === 'lightning') {
+    pct.textContent = pass
+      ? `Best streak · ${GAME.bestStreak} in a row`
+      : 'Below threshold · try again';
+  } else if (GAME.mode === 'quiz') {
+    pct.textContent = pass ? 'Rules locked in' : 'Review the scenarios and retry';
+  } else {
+    pct.textContent = pass ? 'Passed · reads getting sharper' : 'Below threshold · run it again';
+  }
 
   rows.innerHTML = GAME.results.map(r =>
     `<div class="row">
@@ -3382,7 +3547,10 @@ function endSession() {
 function resetSession() {
   GAME.roundIdx = 0;
   GAME.score = 0;
+  GAME.streak = 0;
+  GAME.bestStreak = 0;
   GAME.results = [];
+  buildSessionOrder();
   document.getElementById('tr-score-val').textContent = '0';
   document.getElementById('tr-end').classList.remove('on');
   startRound(0);
@@ -3561,7 +3729,46 @@ function closeTrainer() {
   if (raf) { cancelAnimationFrame(raf); raf = null; }
 }
 
-document.getElementById('trainer-start').addEventListener('click', openTrainer);
+// Mode-card launch buttons
+document.querySelectorAll('.mode-card').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode;
+    GAME.mode = mode || 'decision';
+    // Per-mode tuning
+    if (GAME.mode === 'lightning') {
+      GAME.totalRounds = 10;
+      GAME.decisionDeadline = 0.55;
+      GAME.useRandomOrder = true;
+    } else if (GAME.mode === 'quiz') {
+      GAME.totalRounds = 4;
+      GAME.decisionDeadline = 1.0;
+      GAME.useRandomOrder = false;
+      GAME.quizMode = true;
+    } else {
+      GAME.totalRounds = 5;
+      GAME.decisionDeadline = 0.85;
+      GAME.useRandomOrder = false;
+      GAME.quizMode = false;
+    }
+    // Update pregame copy per mode
+    const pgCard = document.querySelector('.tr-pg-card');
+    if (pgCard) {
+      const eyebrow = pgCard.querySelector('.tr-pg-eyebrow');
+      const h = pgCard.querySelector('.tr-pg-h');
+      if (GAME.mode === 'lightning') {
+        eyebrow.textContent = 'Lightning Reads';
+        h.textContent = 'Half a second. Ten rounds. Go.';
+      } else if (GAME.mode === 'quiz') {
+        eyebrow.textContent = 'Name the Rule';
+        h.textContent = 'Four scenarios. Pick the right rule.';
+      } else {
+        eyebrow.textContent = 'Mine or Yours';
+        h.textContent = 'Two keys. One decision. Five rounds.';
+      }
+    }
+    openTrainer();
+  });
+});
 document.getElementById('tr-close-btn').addEventListener('click', closeTrainer);
 
 document.getElementById('tr-pg-go').addEventListener('click', () => {
