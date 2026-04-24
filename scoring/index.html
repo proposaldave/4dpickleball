@@ -7,6 +7,10 @@
 <meta name="description" content="Pickleball scoring is famously weird. Watch one point unfold — then lock it in with six quick scenarios. Level 1 · 4D Pickleball Academy.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FBBF24'/%3E%3Ctext x='50' y='70' font-family='Georgia,serif' font-style='italic' font-size='56' font-weight='400' fill='%230E1F38' text-anchor='middle'%3E1%3C/text%3E%3C/svg%3E">
 
+<!-- Font preconnect (saves ~150-300ms on first paint across devices) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <!-- Canonical design tokens (R17) -->
 <link rel="stylesheet" href="../4dp/tokens.css">
 
@@ -303,7 +307,13 @@ h1#screen-header {
     flex: 1; max-width: 36px; height: 5px; border-radius: 3px;
     border: none; padding: 0; background: var(--4dp-hairline-s);
     transition: all 0.4s var(--4dp-ease);
-    cursor: pointer; position: relative; overflow: hidden;
+    cursor: pointer; position: relative; overflow: visible;
+}
+/* Invisible 44px tap area for touch — doesn't change visual but makes
+   progress dots easily tappable on phones. */
+.pdot::before {
+    content: ''; position: absolute;
+    inset: -18px 0; /* vertical expand so the 5px strip has a ~40px tap zone */
 }
 .pdot.done   { background: color-mix(in srgb, var(--4dp-drive) 55%, transparent); }
 .pdot.active { background: var(--4dp-drive); box-shadow: 0 0 10px rgba(251,191,36,.6); }
@@ -746,8 +756,11 @@ h1#screen-header {
    AUDIO / MUTE TOGGLE
    ========================================================= */
 .mute-toggle {
-    position: fixed; top: 16px; right: 16px; z-index: 100;
-    width: 42px; height: 42px; border-radius: 50%;
+    position: fixed;
+    top: max(14px, env(safe-area-inset-top));
+    right: max(14px, env(safe-area-inset-right));
+    z-index: 100;
+    width: 44px; height: 44px; border-radius: 50%; /* 44px minimum touch target */
     background: rgba(8, 18, 37, 0.75);
     border: 1px solid var(--4dp-hairline-s);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -760,8 +773,12 @@ h1#screen-header {
 
 /* Back to 4dpickleball link */
 .home-link {
-    position: fixed; top: 16px; left: 16px; z-index: 100;
-    padding: 6px 14px; border-radius: var(--4dp-r-pill);
+    position: fixed;
+    top: max(14px, env(safe-area-inset-top));
+    left: max(14px, env(safe-area-inset-left));
+    z-index: 100;
+    min-height: 36px; padding: 8px 14px;
+    border-radius: var(--4dp-r-pill);
     background: rgba(8, 18, 37, 0.75);
     border: 1px solid var(--4dp-hairline-s);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -772,6 +789,12 @@ h1#screen-header {
     transition: all 0.2s;
 }
 .home-link:hover { background: var(--4dp-surface-2); color: var(--4dp-text); }
+/* On small phones the home-link + mute-toggle need to not crowd the eyebrow */
+@media (max-width: 440px) {
+    .home-link { font-size: 10px; padding: 6px 10px; min-height: 32px; }
+    .mute-toggle { width: 40px; height: 40px; }
+    .app { padding-top: max(54px, calc(env(safe-area-inset-top) + 54px)); }
+}
 
 /* Keyboard hints */
 .kb-hints {
@@ -952,22 +975,61 @@ h1#screen-header {
 .fdp-footer a { color: inherit; text-decoration: none; border-bottom: 1px dashed var(--4dp-hairline); }
 
 /* =========================================================
-   RESPONSIVE
+   RESPONSIVE — five tiers
+   Ultra-narrow phones · Phone · Tablet portrait · Laptop · Ultra-wide
+   Plus landscape-short-height rules.
    ========================================================= */
-@media (min-width: 600px) {
-    .app { max-width: 720px; padding: clamp(18px, 3vw, 28px); gap: 18px; }
+
+/* Ultra-narrow phones (< 360px) — iPhone SE 1st gen, older Android
+   Padding tuned so off-baseline players (-4% / 104%) stay inside the
+   deck area on every court (hero mini + main lesson). */
+@media (max-width: 360px) {
+    .app { padding: 12px; gap: 12px; }
+    .intro { padding: 16px 0 8px; gap: 16px; }
+    .hero-head h1 { font-size: clamp(26px, 6.6vw, 32px); line-height: 1.05; }
+    .word-row { gap: 8px; }
+    .word-sep { font-size: 13px; }
+    .mini-rally-wrap { padding: 20px 26px; } /* horizontal room for -4%/104% players */
+    .court-wrapper { padding: 20px 28px; }
+    .btn { min-height: 50px; font-size: 13px; }
+    .score-label { font-size: 8.5px; letter-spacing: 0.8px; }
+    .main-kicker .kicker-text { font-size: 9px; letter-spacing: 1.8px; }
+    h1#screen-header { font-size: clamp(20px, 5vw, 26px); }
+    .mini-scoreboard { gap: 6px; padding: 8px; }
+    .mini-sb .mv { font-size: 20px; }
+}
+
+/* Tablet portrait (600-1023px) — iPad portrait, bigger Android tablets */
+@media (min-width: 600px) and (max-width: 1023px) {
+    .app { max-width: 720px; padding: clamp(20px, 3vw, 32px); gap: 20px; }
+    .intro { gap: 24px; }
+    .hero-head h1 { font-size: clamp(44px, 6.2vw, 56px); }
+    .word-row { gap: 18px; }
+    .word-beat { font-size: clamp(17px, 2.8vw, 22px); }
+    .mini-rally-wrap { padding: clamp(28px, 4vw, 44px) clamp(40px, 6vw, 60px); }
     .scoreboard { grid-template-columns: 1fr 1fr 0.7fr; }
     .btn-answer { font-size: 16px; min-height: 56px; }
+    .court-wrapper { padding: clamp(32px, 4.5vw, 48px) clamp(40px, 5.5vw, 56px); }
+    .instruction { padding: 18px 22px; }
+    .step-text { font-size: clamp(15px, 2.2vw, 17px); }
+    .btn { min-height: 58px; font-size: 15px; }
+    .score-num { font-size: clamp(28px, 4.5vw, 34px); }
 }
 
-@media (max-height: 540px) and (orientation: landscape) {
-    .app { gap: 10px; padding: 12px; }
-    .court-wrapper { padding: 18px 24px; }
+/* Landscape short-height (phones/tablets on their side) */
+@media (max-height: 600px) and (orientation: landscape) {
+    .app { gap: 10px; padding: 10px; }
+    .intro { padding: 8px 0 4px; gap: 10px; }
+    .hero-head h1 { font-size: clamp(24px, 4.2vh, 36px); line-height: 1.0; }
+    .mini-rally-wrap { padding: 10px 24px; }
+    .court-wrapper { padding: 14px 22px; }
     .scoreboard { margin-top: 8px; padding: 8px; }
     .score-num { font-size: 22px; }
-    .btn { min-height: 46px; }
+    .btn { min-height: 44px; }
+    .mute-toggle, .home-link { top: max(8px, env(safe-area-inset-top)); }
 }
 
+/* Laptop / desktop two-column (1024+) */
 @media (min-width: 1024px) {
     .app { max-width: 1180px; padding: 36px; }
     #main-screen.active { display: grid !important; }
@@ -979,8 +1041,8 @@ h1#screen-header {
     .main-head { grid-column: 1 / -1; }
     .main-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
-        gap: 30px;
+        grid-template-columns: minmax(0, 1.5fr) minmax(340px, 1fr);
+        gap: 32px;
         align-items: start;
     }
     .main-left, .main-right {
@@ -995,22 +1057,34 @@ h1#screen-header {
         display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
     }
     #answer-options.multi .btn-answer { margin-bottom: 0; }
+    .hero-head h1 { font-size: clamp(48px, 6vw, 64px); }
+    .intro { padding: 32px 0 12px; }
 }
 
+/* Ultra-wide 1440+ */
 @media (min-width: 1440px) {
     .app { max-width: 1320px; }
+    .hero-head h1 { font-size: 72px; }
+    .mini-rally-wrap { max-width: 900px; margin-left: auto; margin-right: auto; }
 }
 
-@media (max-width: 360px) {
-    .app { padding: 12px; gap: 12px; }
-    .court-wrapper { padding: 20px 24px; }
-    .btn { min-height: 50px; }
-    .score-label { font-size: 8.5px; letter-spacing: 0.8px; }
+/* 2K+ monitors — keep the content readable, not stretched */
+@media (min-width: 1920px) {
+    .app { max-width: 1440px; }
 }
 
+/* Touch-device bump — ensures all tappable UI is 44px+ */
 @media (pointer: coarse) {
     .btn, .btn-answer, .control-btn, .replay-btn, .mute-toggle { min-height: 48px; }
-    .pdot { height: 8px; }
+    .pdot { height: 7px; }
+    /* Bigger courtesy-tap zone on kickoff button on phones */
+    .btn.btn-primary.pulse-btn { min-height: 64px; font-size: 15px; }
+}
+
+/* Reduced motion — kill extras */
+@media (prefers-reduced-motion: reduce) {
+    .pulse-btn { animation: none; }
+    .ambient-glow, .ball.idle { animation: none; }
 }
 </style>
 </head>
