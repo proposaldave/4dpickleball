@@ -315,11 +315,35 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   }
 }
 
-/* ── Arcade end-card (upgraded from report-card-style) ── */
-.ec-arcade{max-width:620px!important;padding:34px 36px!important;background:linear-gradient(180deg,rgba(27,64,121,.35),rgba(10,20,40,.85))!important;border:1px solid rgba(251,191,36,.35)!important;box-shadow:0 24px 100px rgba(0,0,0,.85), inset 0 0 80px rgba(251,191,36,.05)!important;}
-.ec-arcade-kicker{font-family:var(--4dp-font-data);font-size:14px;font-weight:900;letter-spacing:5px;text-transform:uppercase;text-align:center;margin-bottom:8px;color:#FB7185;animation:arcadeKick 2s ease-in-out infinite alternate;}
+/* ── Arcade end-card — STAGED CINEMATIC REVEAL ──
+   Every section starts hidden and fades/slides in when its stage class
+   is added to the card. Timing is sequenced in JS (showArcadeEnd) to
+   create a build-up that feels like a fighting-game rank screen. */
+.ec-arcade{max-width:640px!important;padding:34px 36px!important;background:linear-gradient(180deg,rgba(27,64,121,.35),rgba(10,20,40,.88))!important;border:1px solid rgba(251,191,36,.35)!important;box-shadow:0 24px 120px rgba(0,0,0,.92), inset 0 0 80px rgba(251,191,36,.05)!important;position:relative;overflow:hidden;}
+/* Shimmer sweep across the card when grade reveals — subtle but classy */
+.ec-arcade::before{content:'';position:absolute;top:-50%;left:-100%;width:60%;height:200%;background:linear-gradient(115deg,transparent 40%,rgba(251,191,36,.14) 50%,transparent 60%);pointer-events:none;transform:translateX(0);transition:transform 1.6s ease-in;}
+.ec-arcade.stage-grade::before{transform:translateX(350%);}
+.ec-arcade-kicker{font-family:var(--4dp-font-data);font-size:14px;font-weight:900;letter-spacing:5px;text-transform:uppercase;text-align:center;margin-bottom:8px;color:#FB7185;opacity:0;transform:translateY(-24px) scale(.8);}
+.stage-kicker .ec-arcade-kicker{animation:kickerSlam .7s cubic-bezier(.34,1.56,.64,1) forwards;}
 .ec-arcade-kicker.complete{color:#34D399;}
+@keyframes kickerSlam{
+  0%{opacity:0;transform:translateY(-40px) scale(.5);filter:blur(6px);}
+  60%{opacity:1;transform:translateY(6px) scale(1.15);filter:blur(0);}
+  100%{opacity:1;transform:translateY(0) scale(1);text-shadow:0 0 24px currentColor, 0 0 48px currentColor;}
+}
+.stage-kicker .ec-arcade-kicker{animation:kickerSlam .7s cubic-bezier(.34,1.56,.64,1) forwards, arcadeKick 2s ease-in-out infinite alternate .7s;}
 @keyframes arcadeKick{from{text-shadow:0 0 8px currentColor;}to{text-shadow:0 0 24px currentColor, 0 0 48px currentColor;}}
+/* Staged reveal — each section starts hidden, shows when stage class lands */
+.ec-score-wrap, .ec-level-badge, .ec-grade-row, .ec-breakdown, .ec-coach-box, .ec-progress, #ec-leaderboard, .ec-buttons-arcade, #ec-achievements{opacity:0;transform:translateY(14px);transition:opacity .5s ease-out,transform .55s cubic-bezier(.2,.8,.3,1.2);}
+.stage-score .ec-score-wrap{opacity:1;transform:translateY(0);}
+.stage-level .ec-level-badge{opacity:1;transform:translateY(0);}
+.stage-grade .ec-grade-row{opacity:1;transform:translateY(0);}
+.stage-stats .ec-breakdown{opacity:1;transform:translateY(0);}
+.stage-stats .ec-coach-box{opacity:1;transform:translateY(0);transition-delay:.15s;}
+.stage-achievements #ec-achievements{opacity:1;transform:translateY(0);}
+.stage-progress .ec-progress{opacity:1;transform:translateY(0);}
+.stage-leaderboard #ec-leaderboard{opacity:1;transform:translateY(0);}
+.stage-buttons .ec-buttons-arcade{opacity:1;transform:translateY(0);}
 .ec-score-wrap{text-align:center;margin:14px 0 20px;}
 .ec-score-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:4px;}
 .ec-score-big{font-family:var(--4dp-font-data);font-weight:900;font-size:clamp(64px,13vw,108px);letter-spacing:-2px;line-height:.9;color:#FBBF24;text-shadow:0 0 40px rgba(251,191,36,.55),0 0 80px rgba(251,191,36,.28);background:linear-gradient(180deg,#FDE68A,#F59E0B);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
@@ -331,7 +355,20 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 .ec-level-name{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:18px;color:var(--4dp-text);letter-spacing:-0.3px;}
 .ec-grade-row{display:flex;align-items:center;gap:22px;margin-bottom:14px;}
 .ec-grade-ring{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,rgba(251,191,36,.25),rgba(251,191,36,.05) 70%);border:3px solid var(--4dp-gold);box-shadow:0 0 60px rgba(251,191,36,.45),inset 0 0 40px rgba(251,191,36,.15);flex-shrink:0;}
-.ec-grade-ring #ec-grade{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:72px;line-height:1;letter-spacing:-3px;}
+.ec-grade-ring #ec-grade{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:72px;line-height:1;letter-spacing:-3px;display:inline-block;}
+/* Grade letter slams in with elastic scale when stage-grade lands */
+.stage-grade .ec-grade-ring{animation:ringSlam .8s cubic-bezier(.34,1.56,.64,1);}
+.stage-grade .ec-grade-ring #ec-grade{animation:gradeSlam .75s cubic-bezier(.34,1.56,.64,1);}
+@keyframes ringSlam{
+  0%{transform:scale(.2) rotate(-20deg);opacity:0;}
+  60%{transform:scale(1.2) rotate(6deg);opacity:1;}
+  100%{transform:scale(1) rotate(0);opacity:1;}
+}
+@keyframes gradeSlam{
+  0%{transform:scale(0);filter:blur(8px);}
+  50%{transform:scale(1.5);filter:blur(0);}
+  100%{transform:scale(1);}
+}
 .ec-stats-mini{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 .ec-stat-mini{background:rgba(245,243,238,.03);border:1px solid rgba(245,243,238,.08);border-radius:10px;padding:10px 8px;text-align:center;}
 .ec-stat-mini .l{display:block;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:4px;}
@@ -359,6 +396,22 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 .ec-progress-chart .bar.current{background:linear-gradient(180deg,#FDE68A,#F59E0B);box-shadow:0 0 14px rgba(251,191,36,.5);}
 .ec-progress-chart .bar::after{content:attr(data-score);position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);font-size:9px;color:var(--4dp-text-dim);font-family:var(--4dp-font-data);font-weight:700;white-space:nowrap;}
 .ec-progress-chart .bar.current::after{color:#FBBF24;font-weight:900;}
+/* ── Achievements / Badges (unlockable per-run) ── */
+#ec-achievements{display:none;margin:0 0 12px;padding:12px 14px;background:linear-gradient(90deg,rgba(251,191,36,.08),rgba(251,113,133,.08));border:1px solid rgba(251,191,36,.28);border-radius:12px;}
+#ec-achievements.on{display:block;}
+.ec-ach-head{font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;color:#FBBF24;margin-bottom:10px;text-align:center;}
+.ec-ach-list{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.ec-ach-badge{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.35);opacity:0;transform:scale(.5) rotate(-10deg);animation:achPop .5s cubic-bezier(.34,1.56,.64,1) forwards;}
+.ec-ach-badge .ec-ach-icon{font-size:18px;line-height:1;}
+.ec-ach-badge .ec-ach-name{font-family:var(--4dp-font-body);font-weight:800;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#FDE68A;}
+@keyframes achPop{
+  0%{opacity:0;transform:scale(.3) rotate(-15deg);}
+  60%{opacity:1;transform:scale(1.1) rotate(3deg);}
+  100%{opacity:1;transform:scale(1) rotate(0);}
+}
+/* Confetti canvas — overlays the end card on high grades only */
+#ec-confetti{position:absolute;inset:0;pointer-events:none;z-index:1;}
+
 .ec-buttons-arcade{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
 .ec-buttons-arcade button{padding:14px;border:0;border-radius:12px;font-family:var(--4dp-font-body);font-weight:800;font-size:13px;letter-spacing:1px;cursor:pointer;transition:all .2s;}
 .ec-buttons-arcade .ec-again{background:linear-gradient(90deg,#F59E0B,#FBBF24);color:#0A1628;box-shadow:0 6px 20px rgba(251,191,36,.35);}
@@ -644,7 +697,9 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <!-- End of session — ARCADE RESULTS (game-over OR training-complete) -->
 <div id="end-card">
-  <div class="ec-card ec-arcade" style="max-width:620px;">
+  <div class="ec-card ec-arcade" style="max-width:640px;">
+    <!-- Confetti canvas — only draws on high-grade wins -->
+    <canvas id="ec-confetti"></canvas>
     <!-- Dramatic kicker — "GAME OVER" or "TRAINING COMPLETE" -->
     <div class="ec-arcade-kicker" id="ec-arcade-kicker">GAME OVER</div>
     <!-- Big score with count-up animation -->
@@ -678,6 +733,11 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
     </div>
     <!-- Coach's note -->
     <div class="ec-coach-box"><span class="ec-coach-lbl">Coach</span><span id="ec-coach" class="ec-coach-txt">—</span></div>
+    <!-- Achievements / badges unlocked this run -->
+    <div id="ec-achievements">
+      <div class="ec-ach-head">🏅 Achievements unlocked</div>
+      <div class="ec-ach-list" id="ec-ach-list"></div>
+    </div>
     <!-- Personal progression — tiny chart of your last N runs -->
     <div class="ec-progress" id="ec-progress">
       <div class="ec-progress-head">Your last runs · improvement trend</div>
@@ -949,7 +1009,13 @@ const STATE = {
   // When hearts hit 0, the session ends → arcade game-over screen.
   hearts: 5,
   maxHearts: 7,
-  gameOver: false
+  gameOver: false,
+  // Achievement trackers — bumped during gameplay, checked at endSession
+  earlyReadCount: 0,      // EARLY READ timing bonus (OUT called before kitchen)
+  perfectBlockCount: 0,   // PERFECT BLOCK timing bonus (tight volley)
+  perfectStrokeCount: 0,  // PERFECT STROKE timing bonus (crisp groundstroke)
+  heartLostInRun: false,  // any miss happened
+  heartGainedInRun: false // any streak-reward earned back
 };
 
 // ── Three.js setup ──
@@ -2011,10 +2077,13 @@ function handleDecision(kind){
     const OPP_KITCHEN_Z = -7;
     if (kind === 'OUT' && ball.position.z < OPP_KITCHEN_Z) {
       timingBonus = 200; perfectReason = 'EARLY READ';
+      if (STATE.mode === 'GAME') STATE.earlyReadCount++;
     } else if (kind === 'SWING' && shot.kind === 'VOLLEY' && STATE.shotT >= 0.20 && STATE.shotT <= 0.40) {
       timingBonus = 200; perfectReason = 'PERFECT BLOCK';
+      if (STATE.mode === 'GAME') STATE.perfectBlockCount++;
     } else if (kind === 'SWING' && shot.kind === 'BOUNCE' && STATE.hasBounced && STATE.shotT >= 0.55 && STATE.shotT <= 0.70) {
       timingBonus = 200; perfectReason = 'PERFECT STROKE';
+      if (STATE.mode === 'GAME') STATE.perfectStrokeCount++;
     }
     const preStreak = STATE.streak;
     const mult = streakMultiplier(preStreak + 1);
@@ -2337,6 +2406,175 @@ function renderLeaderboard(container, rows, myEntry){
   });
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// ACHIEVEMENTS — unlockable badges per run
+// ═══════════════════════════════════════════════════════════════════
+// Every achievement has: icon, name, unlock-predicate(stats). checkAchievements
+// runs ALL predicates against the session stats and returns the unlocked list.
+// Badges pop into the end-card in sequence with a scale/rotate animation.
+const ACHIEVEMENTS = [
+  { id: 'firstBlood',  icon: '🎯', name: 'First Read',       check: (s) => s.historyLength === 1 && s.sessionCorrect >= 1 },
+  { id: 'streakMaster',icon: '🔥', name: 'Streak Master',    check: (s) => s.bestStreak >= 10 },
+  { id: 'streakPro',   icon: '⚡', name: 'Five-Streak',      check: (s) => s.bestStreak >= 5 && s.bestStreak < 10 },
+  { id: 'proRead',     icon: '🧠', name: 'Pro Read',         check: (s) => s.earlyReadCount >= 3 },
+  { id: 'perfectBlock',icon: '🛡️', name: 'Block Master',     check: (s) => s.perfectBlockCount >= 3 },
+  { id: 'perfectStroke',icon:'🏓', name: 'Groundstroke Guru',check: (s) => s.perfectStrokeCount >= 3 },
+  { id: 'tripleCrown', icon: '👑', name: 'Triple Crown',     check: (s) => s.earlyReadCount >= 1 && s.perfectBlockCount >= 1 && s.perfectStrokeCount >= 1 },
+  { id: 'comeback',    icon: '💖', name: 'Comeback Kid',     check: (s) => s.heartLostInRun && s.heartGainedInRun },
+  { id: 'untouchable', icon: '🛡️', name: 'Untouchable',      check: (s) => !s.heartLostInRun && s.sessionCorrect >= 5 },
+  { id: 'kitchen',     icon: '🏆', name: 'Kitchen Boss',     check: (s) => s.levelReached >= 7 },
+  { id: 'midcourt',    icon: '🎖️', name: 'Mid-Court Master', check: (s) => s.levelReached >= 4 && s.levelReached < 7 },
+  { id: 'elite',       icon: '💎', name: 'Elite (S)',        check: (s) => s.grade === 'S' },
+  { id: 'strong',      icon: '🏅', name: 'Strong (A)',       check: (s) => s.grade === 'A' },
+  { id: 'newPB',       icon: '🚀', name: 'NEW PERSONAL BEST',check: (s) => s.isPersonalBest && s.previousBest > 0 },
+  { id: 'complete',    icon: '🎉', name: 'Training Complete',check: (s) => s.completedAllLevels }
+];
+
+function checkAchievements(stats){
+  return ACHIEVEMENTS.filter(a => {
+    try { return a.check(stats); } catch(e) { return false; }
+  });
+}
+
+function renderAchievements(unlocked){
+  const wrap = document.getElementById('ec-achievements');
+  const list = document.getElementById('ec-ach-list');
+  if (!wrap || !list) return;
+  if (!unlocked.length) { wrap.classList.remove('on'); return; }
+  list.innerHTML = '';
+  unlocked.forEach((ach, i) => {
+    const badge = document.createElement('div');
+    badge.className = 'ec-ach-badge';
+    badge.style.animationDelay = (i * 0.12) + 's';
+    badge.innerHTML = `<span class="ec-ach-icon">${ach.icon}</span><span class="ec-ach-name">${ach.name}</span>`;
+    list.appendChild(badge);
+  });
+  wrap.classList.add('on');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONFETTI — physics-based particle burst on high grades
+// ═══════════════════════════════════════════════════════════════════
+function burstConfetti(colors){
+  const canvas = document.getElementById('ec-confetti');
+  if (!canvas) return;
+  const card = canvas.parentElement;
+  const rect = card.getBoundingClientRect();
+  canvas.width  = rect.width;
+  canvas.height = rect.height;
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  const palette = colors || ['#FDE68A', '#FBBF24', '#F59E0B', '#34D399', '#FB7185', '#2B8BFC'];
+  const count = 120;
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: canvas.width / 2,
+      y: canvas.height * 0.3,
+      vx: (Math.random() - 0.5) * 14,
+      vy: -Math.random() * 12 - 4,
+      g: 0.32 + Math.random() * 0.1,
+      rot: Math.random() * Math.PI * 2,
+      vr: (Math.random() - 0.5) * 0.3,
+      size: 4 + Math.random() * 8,
+      color: palette[Math.floor(Math.random() * palette.length)],
+      shape: Math.random() > 0.5 ? 'rect' : 'circ',
+      life: 1
+    });
+  }
+  let frame = 0;
+  const MAX_FRAMES = 240;  // ~4s at 60fps
+  function draw(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.vy += p.g;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.995;
+      p.rot += p.vr;
+      if (p.y > canvas.height + 20) p.life = 0;
+      if (p.life <= 0) return;
+      const fade = frame > MAX_FRAMES * 0.7 ? (1 - (frame - MAX_FRAMES * 0.7) / (MAX_FRAMES * 0.3)) : 1;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, fade);
+      ctx.fillStyle = p.color;
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size * 0.6);
+      } else {
+        ctx.beginPath(); ctx.arc(0, 0, p.size/2, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.restore();
+    });
+    frame++;
+    if (frame < MAX_FRAMES) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STAGED REVEAL — orchestrates the cinematic ending sequence
+// ═══════════════════════════════════════════════════════════════════
+function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+async function showArcadeEnd(data){
+  const card = document.getElementById('end-card');
+  const innerCard = card.querySelector('.ec-arcade');
+  // Clear any prior stage classes from previous runs
+  card.className = card.className.split(' ').filter(c => !c.startsWith('stage-')).join(' ');
+  if (innerCard) innerCard.className = innerCard.className.split(' ').filter(c => !c.startsWith('stage-')).join(' ');
+  card.classList.add('on');
+
+  // Phase 1 — kicker impact (GAME OVER / TRAINING COMPLETE)
+  await wait(120);
+  card.classList.add('stage-kicker');
+  if (innerCard) innerCard.classList.add('stage-kicker');
+
+  // Phase 2 — score count-up
+  await wait(600);
+  card.classList.add('stage-score');
+  const scoreEl = document.getElementById('ec-score-big');
+  if (scoreEl) animateCountUp(scoreEl, 0, data.score, 1400);
+
+  // Phase 3 — level badge slides in
+  await wait(700);
+  card.classList.add('stage-level');
+
+  // Phase 4 — grade slam + shimmer sweep + confetti for S/A
+  await wait(900);
+  card.classList.add('stage-grade');
+  if (innerCard) innerCard.classList.add('stage-grade');
+  if (data.grade === 'S' || data.grade === 'A' || data.isPersonalBest) {
+    setTimeout(() => burstConfetti(data.grade === 'S'
+      ? ['#FDE68A','#FBBF24','#F59E0B']
+      : ['#FBBF24','#34D399','#2B8BFC','#FDE68A']), 250);
+  }
+
+  // Phase 5 — stats bars fill + coach note appears
+  await wait(700);
+  card.classList.add('stage-stats');
+
+  // Phase 6 — achievements pop in
+  await wait(700);
+  if (data.achievements && data.achievements.length) {
+    renderAchievements(data.achievements);
+  }
+  card.classList.add('stage-achievements');
+
+  // Phase 7 — progression chart of last 10 runs
+  await wait(450);
+  card.classList.add('stage-progress');
+
+  // Phase 8 — leaderboard populates
+  await wait(450);
+  card.classList.add('stage-leaderboard');
+
+  // Phase 9 — action buttons appear
+  await wait(500);
+  card.classList.add('stage-buttons');
+}
+
 // Animated count-up for the big arcade score display. Uses requestAnimationFrame
 // so it's smooth even across frame-rate changes. Ease-out cubic for a nice "settles in" feel.
 function animateCountUp(el, from, to, durationMs){
@@ -2449,6 +2687,7 @@ function renderHearts(anim){
 function loseHeart(){
   if (STATE.mode !== 'GAME' || STATE.gameOver) return;
   STATE.hearts = Math.max(0, STATE.hearts - 1);
+  STATE.heartLostInRun = true;
   // Heart-break flash animation
   const flash = document.getElementById('heart-loss-flash');
   if (flash) {
@@ -2471,6 +2710,7 @@ function gainHeart(){
   if (STATE.mode !== 'GAME' || STATE.gameOver) return;
   if (STATE.hearts >= STATE.maxHearts) return;
   STATE.hearts++;
+  STATE.heartGainedInRun = true;
   renderHearts('gained');
 }
 
@@ -2620,9 +2860,10 @@ function endSession(){
     }
   }
 
-  // Big score — count-up animation for drama
+  // Big score — the count-up is triggered by showArcadeEnd at the right stage,
+  // not here. Reset to 0 so the animation starts fresh.
   const scoreEl = document.getElementById('ec-score-big');
-  if (scoreEl) animateCountUp(scoreEl, 0, STATE.sessionPoints, 1400);
+  if (scoreEl) scoreEl.textContent = '0';
 
   // Score delta vs previous personal best
   const deltaEl = document.getElementById('ec-score-delta');
@@ -2717,7 +2958,33 @@ function endSession(){
     }
     renderProgressChart();
     updateHiScoreHUD();
-    document.getElementById('end-card').classList.add('on');
+    // Compute achievement eligibility from session state + history
+    const historyLen = leaderboard.loadHistory().length;
+    const achStats = {
+      score: STATE.sessionPoints,
+      sessionCorrect: STATE.sessionCorrect,
+      bestStreak: STATE.bestStreak,
+      earlyReadCount: STATE.earlyReadCount,
+      perfectBlockCount: STATE.perfectBlockCount,
+      perfectStrokeCount: STATE.perfectStrokeCount,
+      heartLostInRun: STATE.heartLostInRun,
+      heartGainedInRun: STATE.heartGainedInRun,
+      levelReached: STATE.levelIdx + 1,
+      grade: grade,
+      isPersonalBest: isPersonalBest,
+      previousBest: prevBest,
+      historyLength: historyLen,
+      completedAllLevels: !STATE.gameOver && STATE.levelIdx >= LEVELS.length - 1
+    };
+    const unlocked = checkAchievements(achStats);
+    // Staged cinematic reveal (replaces the plain classList.add('on'))
+    showArcadeEnd({
+      score: STATE.sessionPoints,
+      grade: grade,
+      isPersonalBest: isPersonalBest,
+      previousBest: prevBest,
+      achievements: unlocked
+    });
   };
   // ALWAYS log to history (for improvement chart) even if the score isn't top-10
   if (candidate.score > 0 && !candidate._logged) {
@@ -2740,7 +3007,10 @@ window.restartSession = function(){
   STATE.streak = 0; STATE.bestStreak = 0; STATE.results = [];
   STATE.statsByKind = { OUT:{total:0,correct:0}, VOLLEY:{total:0,correct:0}, BOUNCE:{total:0,correct:0} };
   STATE.hearts = 5; STATE.gameOver = false;  // fresh arcade run
+  STATE.earlyReadCount = 0; STATE.perfectBlockCount = 0; STATE.perfectStrokeCount = 0;
+  STATE.heartLostInRun = false; STATE.heartGainedInRun = false;
   document.getElementById('end-card').classList.remove('on');
+  document.getElementById('end-card').className = document.getElementById('end-card').className.split(' ').filter(c => !c.startsWith('stage-')).join(' ');
   renderHearts();
   beginLevel();
 };
