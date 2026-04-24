@@ -924,6 +924,50 @@
             display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
             gap: 14px;
         }
+        /* ── LEVEL SELECT (Ben's feedback — direct jump to any level) ── */
+        .level-select-section{padding:32px 18px 20px;background:linear-gradient(180deg,rgba(10,22,40,0) 0%,rgba(15,30,55,.35) 100%);}
+        .ls-header{text-align:center;margin-bottom:18px;}
+        .ls-eyebrow{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#FBBF24;margin-bottom:6px;}
+        .ls-title{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:-1px;color:var(--warm);margin:0 0 6px;}
+        .ls-sub{font-size:13px;color:var(--warm-dim);margin:0;}
+        .level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 auto;max-width:640px;}
+        .lvl-btn{
+          display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+          padding:14px 10px;border-radius:14px;cursor:pointer;
+          background:linear-gradient(180deg,rgba(27,64,121,.25),rgba(10,20,40,.6));
+          border:1px solid rgba(245,243,238,.10);
+          font-family:'DM Sans',sans-serif;color:var(--warm);
+          transition:all .18s ease;position:relative;overflow:hidden;
+          -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+        }
+        .lvl-btn::before{content:'';position:absolute;inset:0;opacity:.12;pointer-events:none;}
+        .lvl-btn.lvl-row1::before{background:linear-gradient(135deg,#34D399,transparent);}
+        .lvl-btn.lvl-row2::before{background:linear-gradient(135deg,#FBBF24,transparent);}
+        .lvl-btn.lvl-row3::before{background:linear-gradient(135deg,#FB7185,transparent);}
+        .lvl-btn:hover{transform:translateY(-3px);border-color:rgba(251,191,36,.5);box-shadow:0 10px 28px rgba(251,191,36,.15);}
+        .lvl-btn:active{transform:translateY(-1px);}
+        .lvl-btn .lvl-num{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(30px,5vw,40px);line-height:.95;color:#FBBF24;}
+        .lvl-btn .lvl-speed{font-size:11px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--warm);margin-top:2px;}
+        .lvl-btn .lvl-pos{font-size:10px;font-weight:500;letter-spacing:.5px;color:var(--warm-dim);}
+        .lvl-btn.best{border-color:rgba(251,191,36,.6);}
+        .lvl-btn.best::after{content:'★';position:absolute;top:6px;right:8px;font-size:10px;color:#FBBF24;}
+        .ls-hint{margin-top:14px;text-align:center;font-size:12px;color:var(--warm-mute);min-height:1em;}
+        .ls-hint strong{color:#FBBF24;}
+        @media (max-width:640px){
+          .level-grid{gap:8px;}
+          .lvl-btn{padding:12px 6px;}
+          .lvl-btn .lvl-num{font-size:28px;}
+          .lvl-btn .lvl-speed{font-size:10px;letter-spacing:1px;}
+          .lvl-btn .lvl-pos{font-size:9px;}
+          .level-select-section{padding:24px 14px 14px;}
+          .ls-title{font-size:26px;}
+          .ls-sub{font-size:12px;}
+        }
+        @media (max-width:380px){
+          .lvl-btn{padding:10px 4px;}
+          .lvl-btn .lvl-num{font-size:24px;}
+        }
+
         .read-card{
             padding: 22px 20px 20px;
             border-radius: 14px;
@@ -1077,6 +1121,32 @@
                 <div class="hero-meta">
                     <span>Pre-training · 9 levels · 5 shots per level</span>
                 </div>
+            </div>
+        </section>
+
+        <!-- LEVEL SELECT — 3×3 grid of jump-to-level buttons (Ben 2026-04-22) -->
+        <section class="level-select-section">
+            <div class="lp-inner" style="max-width:720px;margin:0 auto;">
+                <div class="ls-header">
+                    <div class="ls-eyebrow">◆ Returning? Jump to any level</div>
+                    <h3 class="ls-title">Level select</h3>
+                    <p class="ls-sub">Skip pre-training. 9 levels = 3 opponent positions × 3 speeds.</p>
+                </div>
+                <div class="level-grid">
+                    <!-- Row 1: Opponent at baseline (deep) -->
+                    <button class="lvl-btn lvl-row1" onclick="jumpToLevel(1)"><span class="lvl-num">1</span><span class="lvl-speed">Warmup</span><span class="lvl-pos">Baseline</span></button>
+                    <button class="lvl-btn lvl-row1" onclick="jumpToLevel(2)"><span class="lvl-num">2</span><span class="lvl-speed">Game</span><span class="lvl-pos">Baseline</span></button>
+                    <button class="lvl-btn lvl-row1" onclick="jumpToLevel(3)"><span class="lvl-num">3</span><span class="lvl-speed">Tour</span><span class="lvl-pos">Baseline</span></button>
+                    <!-- Row 2: Mid-court -->
+                    <button class="lvl-btn lvl-row2" onclick="jumpToLevel(4)"><span class="lvl-num">4</span><span class="lvl-speed">Warmup</span><span class="lvl-pos">Mid-court</span></button>
+                    <button class="lvl-btn lvl-row2" onclick="jumpToLevel(5)"><span class="lvl-num">5</span><span class="lvl-speed">Game</span><span class="lvl-pos">Mid-court</span></button>
+                    <button class="lvl-btn lvl-row2" onclick="jumpToLevel(6)"><span class="lvl-num">6</span><span class="lvl-speed">Tour</span><span class="lvl-pos">Mid-court</span></button>
+                    <!-- Row 3: Kitchen (hardest) -->
+                    <button class="lvl-btn lvl-row3" onclick="jumpToLevel(7)"><span class="lvl-num">7</span><span class="lvl-speed">Warmup</span><span class="lvl-pos">Kitchen</span></button>
+                    <button class="lvl-btn lvl-row3" onclick="jumpToLevel(8)"><span class="lvl-num">8</span><span class="lvl-speed">Game</span><span class="lvl-pos">Kitchen</span></button>
+                    <button class="lvl-btn lvl-row3" onclick="jumpToLevel(9)"><span class="lvl-num">9</span><span class="lvl-speed">Tour</span><span class="lvl-pos">Kitchen</span></button>
+                </div>
+                <div class="ls-hint" id="ls-hint"></div>
             </div>
         </section>
 
@@ -2080,16 +2150,59 @@
             if (ev.repeat) return;
             if (ev.key >= '1' && ev.key <= '9') {
                 ev.preventDefault();
-                try { sessionStorage.setItem('requestedRound', ev.key); } catch(e) {}
-                // Jump straight into the game (skip the splash if it's up).
-                const splash = document.getElementById('pregame-splash');
-                if (splash && splash.classList.contains('on')) {
-                    if (typeof dismissPregame === 'function') dismissPregame();
-                } else if (typeof open3D === 'function') {
-                    open3D();
-                }
+                jumpToLevel(parseInt(ev.key, 10));
             }
         });
+
+        // Jump to a specific level — wired to the Level Select grid buttons.
+        // Sets requestedRound + practice_done + pregame_seen, then loads the
+        // game iframe immediately (skipping the landing pregame splash and
+        // the game's internal pre-training).
+        window.jumpToLevel = function(n){
+            try {
+                sessionStorage.setItem('requestedRound', String(n));
+                sessionStorage.setItem('practice_done', '1');
+                sessionStorage.setItem('pregame_seen', '1');
+            } catch(e) {}
+            // If splash is currently showing, dismiss it; otherwise go direct.
+            const splash = document.getElementById('pregame-splash');
+            if (splash && splash.classList.contains('on')) {
+                if (typeof dismissPregame === 'function') dismissPregame();
+            } else if (typeof _enterGame === 'function') {
+                _enterGame();
+            } else if (typeof open3D === 'function') {
+                open3D();
+            }
+        };
+
+        // Surface the player's per-level personal bests on the Level Select
+        // tiles. Reads outballs_history_v1 (set by game.html after each run)
+        // and marks the best level reached with a gold star + tooltip.
+        function decorateLevelGrid(){
+            try {
+                const history = JSON.parse(localStorage.getItem('outballs_history_v1') || '[]');
+                if (!history.length) return;
+                const bestLevelReached = history.reduce((m, r) => Math.max(m, r.level || 1), 1);
+                const bestScore = history.reduce((m, r) => Math.max(m, r.score || 0), 0);
+                document.querySelectorAll('.lvl-btn').forEach((btn, i) => {
+                    const lvl = i + 1;
+                    if (lvl === bestLevelReached) {
+                        btn.classList.add('best');
+                        btn.title = 'Your farthest — reached ' + bestLevelReached;
+                    }
+                });
+                const hint = document.getElementById('ls-hint');
+                if (hint && bestScore > 0) {
+                    hint.innerHTML = `Your best run: <strong>${bestScore.toLocaleString()} points</strong> · reached <strong>Level ${bestLevelReached}</strong>`;
+                }
+            } catch(e) { /* localStorage blocked or corrupt — skip */ }
+        }
+        // Run on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', decorateLevelGrid);
+        } else {
+            decorateLevelGrid();
+        }
         function open3D() {
             if (typeof THREE === 'undefined') { alert("3D mode requires an internet connection."); return; }
             // Always show the pregame splash before launching the game — the
