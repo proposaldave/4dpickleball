@@ -149,7 +149,36 @@ a:hover{text-decoration:underline;}
   max-width: 820px;
 }
 /* ═══════════════════════════════════════════════════════════════════
-   DOGMA-BUST BLOCK — the hero's rhetorical setup
+   HERO SUB + CTA (new minimal hero — dogma-bust moved into scenarios)
+   ═══════════════════════════════════════════════════════════════════ */
+.hero-sub {
+  font-family: var(--4dp-font-body);
+  font-size: clamp(17px, 2.2vw, 20px);
+  line-height: 1.45;
+  color: var(--4dp-text-dim);
+  max-width: 520px;
+  margin: 32px auto 36px;
+  text-align: center;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 32px;
+  background: var(--4dp-dink);
+  color: #fff;
+  border: none; border-radius: 999px;
+  font-family: var(--4dp-font-body); font-weight: 700;
+  font-size: 13px; letter-spacing: 1.6px; text-transform: uppercase;
+  text-decoration: none;
+  transition: transform .2s var(--4dp-ease), box-shadow .2s var(--4dp-ease);
+  box-shadow: 0 12px 38px rgba(43, 139, 252, 0.4);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.hero-cta:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(43, 139, 252, 0.55); text-decoration: none; }
+.hero-cta:active { transform: translateY(0); }
+.hero-cta svg { width: 14px; height: 14px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DOGMA-BUST BLOCK (legacy — kept for rollback, unused in new layout)
    ═══════════════════════════════════════════════════════════════════ */
 .dogma-bust {
   max-width: 620px; margin: 36px auto 0;
@@ -245,36 +274,42 @@ a:hover{text-decoration:underline;}
   background: var(--4dp-ink-deep);
 }
 
-.stage-nav {
+/* Progressive reveal: progress track (1 of 4, 2 of 4...) + next-button */
+.stage-progress {
   display: flex; align-items: center; justify-content: center;
-  gap: 18px; margin-top: 18px;
+  gap: 20px; margin-top: 22px; flex-wrap: wrap;
 }
-.stage-nav-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--4dp-surface);
-  border: 1px solid var(--4dp-hairline-s);
-  color: var(--4dp-text);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s var(--4dp-ease);
+.stage-prog-track {
+  display: flex; gap: 8px; align-items: center;
+  padding: 0;
 }
-.stage-nav-btn:hover { background: var(--4dp-surface-2); border-color: var(--4dp-dink); }
-.stage-nav-btn svg { width: 18px; height: 18px; }
-
-.stage-dots { display: flex; gap: 10px; }
-.stage-dot {
-  width: 10px; height: 10px; border-radius: 50%;
+.stage-prog-step {
+  width: 28px; height: 4px; border-radius: 2px;
   background: var(--4dp-hairline-s);
-  border: 0; padding: 0;
-  cursor: pointer;
-  transition: all .2s var(--4dp-ease);
+  transition: all .35s var(--4dp-ease);
 }
-.stage-dot:hover { background: var(--4dp-text-faint); }
-.stage-dot.active {
+.stage-prog-step.visited { background: var(--4dp-dink); opacity: .5; }
+.stage-prog-step.active  { background: var(--4dp-dink); opacity: 1; width: 56px; box-shadow: 0 0 12px var(--4dp-dink); }
+.stage-next-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 24px;
   background: var(--4dp-dink);
-  box-shadow: 0 0 12px var(--4dp-dink);
-  width: 28px; border-radius: 5px;
+  color: #fff;
+  border: none; border-radius: 999px;
+  font-family: var(--4dp-font-body); font-weight: 700;
+  font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .2s var(--4dp-ease), box-shadow .2s var(--4dp-ease);
+  box-shadow: 0 8px 28px rgba(43, 139, 252, 0.35);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
+.stage-next-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(43, 139, 252, 0.5); }
+.stage-next-btn:active { transform: translateY(0); }
+.stage-next-btn svg { width: 14px; height: 14px; }
+.stage-next-btn.done {
+  background: var(--4dp-drop); box-shadow: 0 8px 28px rgba(52, 211, 153, 0.35);
+}
+.stage-next-btn.done:hover { box-shadow: 0 12px 36px rgba(52, 211, 153, 0.5); }
 
 /* ═══════════════════════════════════════════════════════════════════
    SCENARIO CARDS — click to watch each in 3D above
@@ -1661,22 +1696,11 @@ a:hover{text-decoration:underline;}
   <div class="eyebrow"><span class="dot"></span>Partnership skill</div>
   <h1><em>Whose ball</em><br>is&nbsp;that?</h1>
 
-  <div class="dogma-bust">
-    <p class="dogma-line">
-      <em class="dg-rule">"Forehand takes the middle"</em>
-      <span class="dg-dash">—</span>
-      <span class="dg-verdict">sometimes.</span>
-    </p>
-    <p class="dogma-line">
-      <em class="dg-rule">"Respect the X"</em>
-      <span class="dg-dash">—</span>
-      <span class="dg-verdict">sometimes.</span>
-    </p>
-    <p class="dogma-punch">
-      Neither's wrong. Neither's always right.<br>
-      <em class="dg-thesis">Covering the middle is scenario recognition.</em>
-    </p>
-  </div>
+  <p class="hero-sub">Two old rules you've heard.<br>Four scenarios that break them both.</p>
+  <a class="hero-cta" href="#stage">
+    Start with the first
+    <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
 </section>
 
 <!-- ═══════════════════ 3D STAGE — scenario visualization in 3D ═══════════════════ -->
@@ -1689,75 +1713,34 @@ a:hover{text-decoration:underline;}
 
   <div class="stage-frame-wrap">
     <iframe id="stage-3d-frame"
-            src="/4dp/3d_module_template.html?embedded=1"
+            src="./cover-the-middle-3d.html?scenario=1"
             class="stage-3d-frame"
             loading="lazy"
             title="3D pickleball scenario — cover the middle"></iframe>
   </div>
 
-  <div class="stage-nav">
-    <button class="stage-nav-btn" id="stage-prev" aria-label="Previous scenario">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <div class="stage-dots" id="stage-dots" role="tablist">
-      <button class="stage-dot active" data-scen="1" aria-label="Scenario 1"></button>
-      <button class="stage-dot"        data-scen="2" aria-label="Scenario 2"></button>
-      <button class="stage-dot"        data-scen="3" aria-label="Scenario 3"></button>
-      <button class="stage-dot"        data-scen="4" aria-label="Scenario 4"></button>
+  <div class="stage-progress">
+    <div class="stage-prog-track" aria-hidden="true">
+      <span class="stage-prog-step active" data-scen="1"></span>
+      <span class="stage-prog-step"        data-scen="2"></span>
+      <span class="stage-prog-step"        data-scen="3"></span>
+      <span class="stage-prog-step"        data-scen="4"></span>
     </div>
-    <button class="stage-nav-btn" id="stage-next" aria-label="Next scenario">
+    <button class="stage-next-btn" id="stage-next">
+      <span id="stage-next-label">Next scenario</span>
       <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
   </div>
 </section>
 
-<!-- ═══════════════════ SCENARIO LIST — the four situations ═══════════════════ -->
-<section class="section scenarios" id="scenarios">
-  <div class="section-label">The four scenarios</div>
-  <h2 class="section-title">Same court. Four different answers.</h2>
-  <p class="section-lede">Click any one to watch it in 3D above. Each teaches a different rule — because "<em>who covers the middle</em>" has always been four questions, not one.</p>
-
+<!-- Scenario list removed — per click-through rule, scenarios are
+     discovered one at a time inside the stage. -->
+<section style="display:none" aria-hidden="true" hidden>
   <ol class="scen-list">
-    <li class="scen-card active" data-scen="1">
-      <div class="scen-num">01</div>
-      <div class="scen-body">
-        <div class="scen-kicker">START OF POINT</div>
-        <h3 class="scen-h">Player in front has the option.</h3>
-      </div>
-      <div class="scen-play" aria-label="Watch scenario 1 in 3D">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </li>
-    <li class="scen-card" data-scen="2">
-      <div class="scen-num">02</div>
-      <div class="scen-body">
-        <div class="scen-kicker">SOFT BALL · BOTH AT KITCHEN</div>
-        <h3 class="scen-h">Forehand takes the middle.</h3>
-      </div>
-      <div class="scen-play" aria-label="Watch scenario 2 in 3D">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </li>
-    <li class="scen-card" data-scen="3">
-      <div class="scen-num">03</div>
-      <div class="scen-body">
-        <div class="scen-kicker">HARD ATTACK · BOTH AT KITCHEN</div>
-        <h3 class="scen-h">Respect the X.</h3>
-      </div>
-      <div class="scen-play" aria-label="Watch scenario 3 in 3D">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </li>
-    <li class="scen-card" data-scen="4">
-      <div class="scen-num">04</div>
-      <div class="scen-body">
-        <div class="scen-kicker">RIGHTY ON THE LEFT</div>
-        <h3 class="scen-h">Sit on the forehand.</h3>
-      </div>
-      <div class="scen-play" aria-label="Watch scenario 4 in 3D">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </li>
+    <li class="scen-card" data-scen="1"></li>
+    <li class="scen-card" data-scen="2"></li>
+    <li class="scen-card" data-scen="3"></li>
+    <li class="scen-card" data-scen="4"></li>
   </ol>
 </section>
 
@@ -2284,21 +2267,20 @@ a:hover{text-decoration:underline;}
     }
   ];
 
-  const frame  = document.getElementById('stage-3d-frame');
+  const frame   = document.getElementById('stage-3d-frame');
   const eyebrow = document.getElementById('stage-eyebrow');
   const title   = document.getElementById('stage-title');
   const rule    = document.getElementById('stage-rule');
-  const dots    = document.querySelectorAll('.stage-dot');
-  const cards   = document.querySelectorAll('.scen-card');
-  const prev    = document.getElementById('stage-prev');
+  const steps   = document.querySelectorAll('.stage-prog-step');
   const next    = document.getElementById('stage-next');
+  const nextLabel = document.getElementById('stage-next-label');
   const stageEl = document.getElementById('stage');
+  const trainerEl = document.getElementById('trainer');
 
   let current = 1;
   let frameReady = false;
-  let pendingShot = null;
+  let pendingScen = null;
 
-  // Update all the UI surfaces for a scenario
   function activate(n, scrollToStage) {
     const sc = SCENARIOS[n - 1];
     if (!sc) return;
@@ -2309,93 +2291,82 @@ a:hover{text-decoration:underline;}
     title.textContent   = sc.title;
     rule.textContent    = sc.rule;
 
-    // Dots
-    dots.forEach(d => d.classList.toggle('active', +d.dataset.scen === n));
+    // Progress steps: mark all <= current as visited, current as active
+    steps.forEach(s => {
+      const num = +s.dataset.scen;
+      s.classList.toggle('active',  num === current);
+      s.classList.toggle('visited', num < current);
+    });
 
-    // Cards
-    cards.forEach(c => c.classList.toggle('active', +c.dataset.scen === n));
+    // Next button label — progressive language
+    const done = current >= SCENARIOS.length;
+    if (next) {
+      if (done) {
+        nextLabel.textContent = 'Now drill it';
+        next.classList.add('done');
+      } else {
+        nextLabel.textContent = `Scenario ${current + 1} →`;
+        next.classList.remove('done');
+      }
+    }
 
-    // 3D template — switch shot via postMessage
-    postShot(sc.shot);
+    // Talk to the dedicated 3D player
+    postScenario(current);
 
-    // Optional: scroll stage into view (only when user clicks a scenario card,
-    // not when the page first initializes)
     if (scrollToStage && stageEl) {
       const y = stageEl.getBoundingClientRect().top + window.pageYOffset - 24;
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   }
 
-  function postShot(shot) {
-    if (!frame || !shot) return;
-    if (!frameReady) {
-      pendingShot = shot;
-      return;
-    }
+  function postScenario(n) {
+    if (!frame) return;
+    if (!frameReady) { pendingScen = n; return; }
     try {
-      frame.contentWindow.postMessage({ type: '4dp:select-shot', shot: shot }, '*');
-    } catch (e) {
-      // Silent — iframe may not be ready yet
-    }
+      frame.contentWindow.postMessage({ type: '4dp:cm-scenario', scenario: n }, '*');
+    } catch (e) {}
   }
 
-  // When the iframe finishes loading, fire any pending shot
   if (frame) {
     frame.addEventListener('load', () => {
       frameReady = true;
-      if (pendingShot) {
-        postShot(pendingShot);
-        pendingShot = null;
-      } else {
-        // Default: play scenario 1's shot
-        postShot(SCENARIOS[0].shot);
-      }
+      const n = pendingScen || 1;
+      pendingScen = null;
+      postScenario(n);
     });
   }
 
-  // Wire scenario cards
-  cards.forEach(card => {
-    card.addEventListener('click', () => {
-      const n = +card.dataset.scen;
-      activate(n, /* scrollToStage */ true);
-    });
-    // Keyboard: Enter / Space
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('role', 'button');
-    card.addEventListener('keydown', (e) => {
-      if (e.code === 'Enter' || e.code === 'Space') {
-        e.preventDefault();
-        card.click();
-      }
-    });
-  });
-
-  // Wire dots
-  dots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      const n = +dot.dataset.scen;
-      activate(n, false);
-    });
-  });
-
-  // Prev / Next
-  if (prev) prev.addEventListener('click', () => {
-    activate(current > 1 ? current - 1 : SCENARIOS.length, false);
-  });
+  // Next-button: advance scenario, or on last scenario jump to the trainer
   if (next) next.addEventListener('click', () => {
-    activate(current < SCENARIOS.length ? current + 1 : 1, false);
+    if (current >= SCENARIOS.length) {
+      if (trainerEl) {
+        const y = trainerEl.getBoundingClientRect().top + window.pageYOffset - 24;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+      return;
+    }
+    activate(current + 1, true);
   });
 
-  // Keyboard arrow-keys advance/retreat when stage is in viewport
+  // Make the progress steps clickable (so users can re-watch a visited one)
+  steps.forEach(s => {
+    s.style.cursor = 'pointer';
+    s.addEventListener('click', () => {
+      const n = +s.dataset.scen;
+      // Only allow navigating to visited + current + next (no skip-ahead)
+      if (n <= current + 1) activate(n, false);
+    });
+  });
+
+  // Keyboard arrow-keys advance
   window.addEventListener('keydown', (e) => {
     if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
-    // Don't hijack keys if trainer modal is open
     if (document.getElementById('trainer-modal')?.classList.contains('on')) return;
-    if (e.code === 'ArrowLeft')  { e.preventDefault(); prev?.click(); }
-    if (e.code === 'ArrowRight') { e.preventDefault(); next?.click(); }
+    if (e.code === 'ArrowRight' && current < SCENARIOS.length) { e.preventDefault(); activate(current + 1, false); }
+    if (e.code === 'ArrowLeft'  && current > 1)               { e.preventDefault(); activate(current - 1, false); }
   });
 
-  // Initial activation (scenario 1 is default, iframe fires on load)
+  // Initial activation
   activate(1, false);
 
   // Debug hook

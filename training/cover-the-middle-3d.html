@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Cover the Middle · 3D Scenarios</title>
+<meta name="description" content="Four middle-coverage scenarios, visualized in 3D. Standalone scenario player iframed by cover-the-middle.html.">
+<link rel="stylesheet" href="../4dp/tokens.css">
+<style>
+  :root { color-scheme: dark; }
+  html, body {
+    margin: 0; height: 100%; overflow: hidden;
+    background: var(--4dp-ink);
+    font-family: var(--4dp-font-body);
+    color: var(--4dp-text);
+    -webkit-font-smoothing: antialiased;
+  }
+  body { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  #viewport { position: fixed; inset: 0; z-index: 0; }
+  #viewport canvas { display: block; width: 100%!important; height: 100%!important; }
+
+  /* Caption overlay — shows scenario context on top of the 3D */
+  .caption {
+    position: absolute;
+    left: 50%; bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 5;
+    padding: 10px 20px;
+    border-radius: 999px;
+    background: rgba(14, 31, 56, 0.86);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid color-mix(in srgb, var(--4dp-dink) 42%, transparent);
+    font-family: var(--4dp-font-display); font-style: italic;
+    font-size: 15px;
+    color: var(--4dp-text);
+    letter-spacing: -.1px;
+    white-space: nowrap;
+    max-width: 94vw;
+    overflow: hidden; text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity .4s var(--4dp-ease);
+    pointer-events: none;
+  }
+  .caption.on { opacity: 1; }
+  .caption .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    margin-right: 10px;
+    border-radius: 999px;
+    background: var(--4dp-dink-soft);
+    border: 1px solid color-mix(in srgb, var(--4dp-dink) 50%, transparent);
+    font-family: var(--4dp-font-body); font-style: normal; font-weight: 800;
+    font-size: 10px; letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--4dp-dink);
+    vertical-align: 2px;
+  }
+
+  /* Moment labels — 3D-tracked callouts for "YOU" and "partner" during a scene */
+  .moment {
+    position: absolute;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(14, 31, 56, 0.88);
+    border: 1px solid rgba(245, 243, 238, 0.2);
+    color: var(--4dp-text);
+    pointer-events: none;
+    z-index: 4;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .moment.on { opacity: 1; }
+  .moment.good { border-color: rgba(52, 211, 153, 0.6); color: var(--4dp-drop); }
+  .moment.warn { border-color: rgba(251, 113, 133, 0.6); color: #FB7185; }
+  .moment.info { border-color: rgba(43, 139, 252, 0.6); color: var(--4dp-dink); }
+
+  /* When embedded in an iframe, hide any page chrome — already minimal, but gate it */
+  .loading {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9;
+    background: var(--4dp-ink);
+    font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--4dp-text-faint);
+    transition: opacity .4s var(--4dp-ease);
+  }
+  .loading.gone { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div id="viewport"></div>
+
+<div class="caption" id="caption">
+  <span class="tag" id="capTag">SCENARIO 01</span>
+  <span id="capText">Setting up…</span>
+</div>
+
+<!-- 3D-tracked moment labels — positioned by JS as the scene evolves -->
+<div class="moment info" id="mYou">YOU</div>
+<div class="moment info" id="mPartner">PARTNER</div>
+<div class="moment warn" id="mBall">WIDE</div>
+
+<div class="loading" id="loading">loading…</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass }from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+// ═════════════════════════════════════════════════════════════════════
+// Cover-the-Middle · 3D Scenario Player (standalone, iframeable)
+//
+// Parent page selects a scenario via postMessage:
+//     frame.contentWindow.postMessage({type:'4dp:cm-scenario', scenario: 1..4}, '*');
+//
+// Or via URL param: ?scenario=N
+//
+// Each scenario is a looping choreographed animation illustrating ONE
+// middle-coverage rule. No interactivity — watch-only.
+// ═════════════════════════════════════════════════════════════════════
+
+const COURT = { W: 20, L: 44, KITCHEN: 7 };
+const BALL_R = 0.13;
+
+let scene, camera, renderer, composer;
+let ball, players = {};
+let raf = null;
+
+// ─── Textures ───────────────────────────────────────────
+function canvasTex(w, h, fn) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  fn(c.getContext('2d'));
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+function deckTex() {
+  return canvasTex(512, 512, ctx => {
+    const g = ctx.createLinearGradient(0, 0, 0, 512);
+    g.addColorStop(0, '#7A8290'); g.addColorStop(1, '#5E6878');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 1400; i++) {
+      ctx.fillStyle = `rgba(0,0,0,${Math.random() * .06})`;
+      ctx.fillRect(Math.random() * 512, Math.random() * 512, 1, 1);
+    }
+  });
+}
+function courtTex() {
+  return canvasTex(1024, 1024, ctx => {
+    const g = ctx.createRadialGradient(512, 512, 40, 512, 512, 680);
+    g.addColorStop(0, '#2D5FA8'); g.addColorStop(.7, '#234E8C'); g.addColorStop(1, '#1B3E72');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 1024, 1024);
+    const v = ctx.createRadialGradient(512, 512, 300, 512, 512, 720);
+    v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.28)');
+    ctx.fillStyle = v; ctx.fillRect(0, 0, 1024, 1024);
+  });
+}
+function kitchenTex() {
+  return canvasTex(512, 256, ctx => {
+    const g = ctx.createLinearGradient(0, 0, 0, 256);
+    g.addColorStop(0, '#6B0F1A'); g.addColorStop(1, '#52090F');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 256);
+  });
+}
+
+// ─── Court ──────────────────────────────────────────────
+function buildCourt() {
+  const g = new THREE.Group();
+  const deck = new THREE.Mesh(
+    new THREE.PlaneGeometry(COURT.W + 18, COURT.L + 18),
+    new THREE.MeshStandardMaterial({ map: deckTex(), roughness: .88, metalness: .02 })
+  );
+  deck.rotation.x = -Math.PI/2; deck.position.y = -0.02; deck.receiveShadow = true;
+  g.add(deck);
+
+  const surf = new THREE.Mesh(
+    new THREE.PlaneGeometry(COURT.W, COURT.L),
+    new THREE.MeshStandardMaterial({ map: courtTex(), roughness: .68, metalness: .05 })
+  );
+  surf.rotation.x = -Math.PI/2; surf.receiveShadow = true;
+  g.add(surf);
+
+  const kMat = new THREE.MeshStandardMaterial({ map: kitchenTex(), roughness: .7 });
+  for (const z of [COURT.KITCHEN/2, -COURT.KITCHEN/2]) {
+    const k = new THREE.Mesh(new THREE.PlaneGeometry(COURT.W, COURT.KITCHEN), kMat);
+    k.rotation.x = -Math.PI/2; k.position.set(0, 0.004, z);
+    g.add(k);
+  }
+
+  const lineMat = new THREE.MeshStandardMaterial({
+    color: 0xDEDBD0, emissive: 0xDEDBD0, emissiveIntensity: 0.02,
+    transparent: true, opacity: 0.9
+  });
+  const LINE = 0.18;
+  const addLine = (x, z, w, l) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, l), lineMat);
+    m.rotation.x = -Math.PI/2; m.position.set(x, 0.006, z);
+    g.add(m);
+  };
+  // Outer boundary
+  addLine(0,  COURT.L/2, COURT.W, LINE);
+  addLine(0, -COURT.L/2, COURT.W, LINE);
+  addLine( COURT.W/2, 0, LINE, COURT.L);
+  addLine(-COURT.W/2, 0, LINE, COURT.L);
+  // Kitchen lines
+  addLine(0,  COURT.KITCHEN, COURT.W, LINE);
+  addLine(0, -COURT.KITCHEN, COURT.W, LINE);
+  // Centerlines — each half, baseline → kitchen
+  addLine(0,  (COURT.L/2 + COURT.KITCHEN)/2, LINE, COURT.L/2 - COURT.KITCHEN);
+  addLine(0, -(COURT.L/2 + COURT.KITCHEN)/2, LINE, COURT.L/2 - COURT.KITCHEN);
+
+  // Net
+  const postMat = new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: .3, metalness: .8 });
+  for (const x of [-COURT.W/2 - 0.3, COURT.W/2 + 0.3]) {
+    const p = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 3.4, 12), postMat);
+    p.position.set(x, 1.7, 0);
+    g.add(p);
+  }
+  const netMat = new THREE.MeshStandardMaterial({ color: 0x0F2138, transparent: true, opacity: .72, side: THREE.DoubleSide, roughness: .9 });
+  const net = new THREE.Mesh(new THREE.PlaneGeometry(COURT.W + 0.6, 3.0, 24, 8), netMat);
+  net.position.set(0, 1.5, 0);
+  g.add(net);
+  const tape = new THREE.Mesh(new THREE.BoxGeometry(COURT.W + 0.6, 0.08, 0.08), lineMat);
+  tape.position.set(0, 3.0, 0);
+  g.add(tape);
+  return g;
+}
+
+// ─── Player (simple capsule + arm/paddle) ───────────────
+function buildPlayer({ jersey, shorts, hat }) {
+  const g = new THREE.Group();
+
+  const torso = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.42, 1.1, 6, 10),
+    new THREE.MeshStandardMaterial({ color: jersey, roughness: .6 })
+  );
+  torso.position.y = 3.3; torso.castShadow = true;
+  g.add(torso);
+
+  const sh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.42, 0.36, 0.6, 10),
+    new THREE.MeshStandardMaterial({ color: shorts, roughness: .7 })
+  );
+  sh.position.y = 2.25; sh.castShadow = true;
+  g.add(sh);
+
+  for (const sign of [-1, 1]) {
+    const leg = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.17, 0.17, 1.8, 8),
+      new THREE.MeshStandardMaterial({ color: 0x0F1524, roughness: .7 })
+    );
+    leg.position.set(sign * 0.2, 1.0, 0); leg.castShadow = true;
+    g.add(leg);
+    const shoe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.38, 0.2, 0.6),
+      new THREE.MeshStandardMaterial({ color: 0xF5F3EE, roughness: .7 })
+    );
+    shoe.position.set(sign * 0.2, 0.1, 0.05); shoe.castShadow = true;
+    g.add(shoe);
+  }
+
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 16, 12),
+    new THREE.MeshStandardMaterial({ color: 0xE8C4A0, roughness: .6 })
+  );
+  head.position.y = 4.3; head.castShadow = true;
+  g.add(head);
+  g.userData.head = head;
+
+  const hatMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.33, 0.3, 0.3, 12),
+    new THREE.MeshStandardMaterial({ color: hat, roughness: .5, emissive: hat, emissiveIntensity: 0.2 })
+  );
+  hatMesh.position.y = 4.6; hatMesh.castShadow = true;
+  g.add(hatMesh);
+
+  const brim = new THREE.Mesh(
+    new THREE.BoxGeometry(0.7, 0.04, 0.3),
+    new THREE.MeshStandardMaterial({ color: hat, roughness: .5 })
+  );
+  brim.position.set(0, 4.48, 0.22);
+  g.add(brim);
+
+  // Right arm + paddle
+  const armGroup = new THREE.Group();
+  armGroup.position.set(0.55, 3.2, 0);
+  const arm = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.12, 0.1, 1.0, 8),
+    new THREE.MeshStandardMaterial({ color: 0xE8C4A0, roughness: .6 })
+  );
+  arm.position.y = -0.5; arm.castShadow = true;
+  armGroup.add(arm);
+
+  const paddleGroup = new THREE.Group();
+  paddleGroup.position.set(0, -1.0, 0.2);
+  const paddle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.62, 0.78, 0.06),
+    new THREE.MeshStandardMaterial({ color: 0x12253E, roughness: .4, metalness: .2 })
+  );
+  paddleGroup.add(paddle);
+  const dot = new THREE.Mesh(
+    new THREE.CircleGeometry(0.12, 16),
+    new THREE.MeshStandardMaterial({ color: 0xF5F3EE, emissive: 0xF5F3EE, emissiveIntensity: .6 })
+  );
+  dot.position.set(0, 0.1, 0.032);
+  paddleGroup.add(dot);
+  const grip = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.07, 0.07, 0.45, 8),
+    new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness: .8 })
+  );
+  grip.position.y = 0.55;
+  paddleGroup.add(grip);
+  armGroup.add(paddleGroup);
+  g.add(armGroup);
+
+  g.userData.armGroup = armGroup;
+  g.userData.paddleGroup = paddleGroup;
+  g.userData.basePos = new THREE.Vector3();
+  g.userData.targetPos = new THREE.Vector3();
+
+  // Default ready pose
+  armGroup.rotation.x = -0.4;
+  paddleGroup.rotation.x = -0.2;
+
+  return g;
+}
+
+function applyReadyPose(p) {
+  const arm = p.userData.armGroup;
+  const pad = p.userData.paddleGroup;
+  if (Math.abs(p.position.z) < 10) {
+    arm.rotation.x = -0.55; arm.rotation.z = -0.3;
+    pad.rotation.x = -0.05; pad.rotation.z = -0.35;
+  } else {
+    arm.rotation.x = -0.2; arm.rotation.z = 0;
+    pad.rotation.x = -0.3; pad.rotation.z = 0.1;
+  }
+}
+
+function buildBall() {
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xC6FF00, emissive: 0xC6FF00, emissiveIntensity: 0.7,
+    roughness: 0.3
+  });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 16, 12), mat);
+  mesh.castShadow = true;
+  const shadow = new THREE.Mesh(
+    new THREE.CircleGeometry(BALL_R * 1.4, 16),
+    new THREE.MeshBasicMaterial({ color: 0x000, transparent: true, opacity: 0.45 })
+  );
+  shadow.rotation.x = -Math.PI/2; shadow.position.y = 0.01;
+  return { mesh, shadow };
+}
+
+// ─── Ball-trajectory trail (line rebuild every frame) ───
+let trailLine = null;
+const trailPoints = [];
+const TRAIL_MAX = 28;
+function addTrailPoint(x, y, z) {
+  trailPoints.push(new THREE.Vector3(x, y, z));
+  if (trailPoints.length > TRAIL_MAX) trailPoints.shift();
+  if (trailLine) scene.remove(trailLine);
+  if (trailPoints.length < 2) return;
+  const g = new THREE.BufferGeometry().setFromPoints(trailPoints);
+  const m = new THREE.LineBasicMaterial({ color: 0xC6FF00, transparent: true, opacity: 0.8 });
+  trailLine = new THREE.Line(g, m);
+  scene.add(trailLine);
+}
+function clearTrail() {
+  trailPoints.length = 0;
+  if (trailLine) { scene.remove(trailLine); trailLine = null; }
+}
+
+// ─── Init scene ─────────────────────────────────────────
+function init() {
+  const container = document.getElementById('viewport');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0A1628);
+  scene.fog = new THREE.Fog(0x0A1628, 50, 140);
+
+  const w = container.clientWidth, h = container.clientHeight;
+  camera = new THREE.PerspectiveCamera(50, w/h, 0.1, 200);
+  camera.position.set(0, 20, 36);
+  camera.lookAt(0, 2, 0);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+  renderer.setSize(w, h);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.12;
+  container.appendChild(renderer.domElement);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0x6688CC, 0.42));
+  const key = new THREE.DirectionalLight(0xFFF4DC, 1.1);
+  key.position.set(18, 28, 10);
+  key.castShadow = true;
+  key.shadow.mapSize.width = 1024; key.shadow.mapSize.height = 1024;
+  key.shadow.camera.left = -30; key.shadow.camera.right = 30;
+  key.shadow.camera.top = 30; key.shadow.camera.bottom = -30;
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0x5BA8FF, 0.45);
+  rim.position.set(-12, 18, -16);
+  scene.add(rim);
+
+  scene.add(buildCourt());
+
+  // Players:
+  //   farLeft  = opponent A (green hat)
+  //   farRight = opponent B (orange hat)
+  //   nearLeft = YOU (blue hat)
+  //   nearRight = PARTNER (yellow hat)
+  players.farLeft   = buildPlayer({ jersey: 0xA02020, shorts: 0x2A1010, hat: 0x4ADE80 });
+  players.farRight  = buildPlayer({ jersey: 0xA02020, shorts: 0x2A1010, hat: 0xFB923C });
+  players.nearLeft  = buildPlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0x2B8BFC });
+  players.nearRight = buildPlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0xFDE047 });
+  players.nearLeft.rotation.y  = Math.PI;
+  players.nearRight.rotation.y = Math.PI;
+  Object.values(players).forEach(p => scene.add(p));
+
+  const b = buildBall();
+  ball = b;
+  scene.add(b.mesh); scene.add(b.shadow);
+  ball.mesh.visible = false; ball.shadow.visible = false;
+
+  // Post-processing bloom — subtle
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.45, 0.8, 0.82));
+
+  window.addEventListener('resize', onResize);
+}
+
+function onResize() {
+  const container = document.getElementById('viewport');
+  const w = container.clientWidth, h = container.clientHeight;
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+  composer.setSize(w, h);
+}
+
+// ─── Physics helper — real-gravity arc ──────────────────
+function ballPos(from, to, apex, u) {
+  const x = from.x + (to.x - from.x) * u;
+  const z = from.z + (to.z - from.z) * u;
+  const linY = from.y + (to.y - from.y) * u;
+  const arcY = 4 * (apex - Math.max(from.y, to.y)) * u * (1 - u);
+  return new THREE.Vector3(x, Math.max(0.08, linY + arcY), z);
+}
+
+// ─── World→screen for moment labels ─────────────────────
+function project(v3) {
+  const container = document.getElementById('viewport');
+  const p = v3.clone().project(camera);
+  const x = (p.x + 1) / 2 * container.clientWidth;
+  const y = (-p.y + 1) / 2 * container.clientHeight;
+  return { x, y, inFront: p.z < 1 };
+}
+
+function positionMoment(el, worldPos, yOffset) {
+  if (!el) return;
+  const p = project(new THREE.Vector3(worldPos.x, (worldPos.y || 0) + (yOffset || 6.5), worldPos.z));
+  if (!p.inFront) { el.classList.remove('on'); return; }
+  el.style.left = p.x + 'px';
+  el.style.top  = p.y + 'px';
+}
+
+function hideMoments() {
+  ['mYou','mPartner','mBall'].forEach(id => document.getElementById(id).classList.remove('on'));
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// SCENARIOS — each is a looping sequence of "beats" (ball flights +
+// player movements), illustrating ONE middle-coverage teaching point.
+// ═════════════════════════════════════════════════════════════════════
+
+// Short helper to make a beat: {kind:'shot', from, to, apex, dur, hitter}
+// or {kind:'move', who, to, dur} (linear lerp)
+// or {kind:'hold', dur}
+
+const SCENARIOS = {
+  1: {
+    tag: 'SCENARIO 01 · START OF POINT',
+    caption: 'You\'re at the kitchen. Partner is still running up. <em>You cover the middle.</em>',
+    // Choreography:
+    //  - farLeft serves deep to nearRight (cross-court serve)
+    //  - nearRight returns serve (still at baseline); starts sprinting to kitchen
+    //  - farRight drives third shot through the MIDDLE
+    //  - YOU (nearLeft, already at kitchen) SHIFT TOWARD MIDDLE and block
+    camera: { pos: [14, 18, 22], look: [0, 2, 4] },
+    labels: { you: 'nearLeft', partner: 'nearRight' },
+    setup() {
+      players.farLeft.position.set(-5, 0, -22);
+      players.farRight.position.set(4, 0, -22);
+      players.nearLeft.position.set(-4, 0, 8);       // YOU at kitchen
+      players.nearRight.position.set(4, 0, 20);      // PARTNER at baseline, about to return
+      Object.values(players).forEach(applyReadyPose);
+    },
+    beats: [
+      // 1. Serve from farLeft toward nearRight baseline
+      { kind:'shot', from:[-5,2.0,-22], to:[4.2,0.2,19], apex:7, dur:1.1, hitter:'farLeft' },
+      // 2. Partner returns — ball goes back cross-court deep
+      { kind:'shot', from:[4.2,2.2,20], to:[-4,0.2,-19], apex:7.5, dur:1.1, hitter:'nearRight' },
+      // 3. Partner starts sprinting to kitchen (but won't get there in time)
+      { kind:'move', who:'nearRight', to:[4, 0, 16], dur:0.8 },
+      // 4. Third shot drive from farLeft THROUGH THE MIDDLE (aiming at seam)
+      { kind:'shot', from:[-4,2.3,-21], to:[-1, 0.8, 8.5], apex:3.8, dur:0.85, hitter:'farLeft', focus: true },
+      // 5. YOU slide toward middle
+      { kind:'move', who:'nearLeft', to:[-1.5, 0, 8], dur:0.35, parallel: true },
+      // 6. YOU block it — ball travels back toward far baseline
+      { kind:'shot', from:[-1.3, 1.2, 8.2], to:[-2, 0.2, -12], apex:2.8, dur:0.9, hitter:'nearLeft', caption:'Block. Reset. Protect partner.' },
+      // 7. Small pause before loop
+      { kind:'hold', dur:1.0 }
+    ]
+  },
+
+  2: {
+    tag: 'SCENARIO 02 · SOFT FLOATER · BOTH AT KITCHEN',
+    caption: 'High soft ball through the middle. <em>Forehand takes it.</em>',
+    // Choreography:
+    //  - All 4 at kitchen
+    //  - farLeft hits a SOFT HIGH floater through the middle
+    //  - PARTNER (nearRight) — whose forehand faces middle since they're a righty on the right side — STEPS IN and puts it away
+    //  - YOU (nearLeft) hold your line
+    camera: { pos: [15, 15, 20], look: [2, 2, 4] },
+    labels: { you: 'nearLeft', partner: 'nearRight' },
+    setup() {
+      players.farLeft.position.set(-4, 0, -8);
+      players.farRight.position.set(4, 0, -8);
+      players.nearLeft.position.set(-4, 0, 8);
+      players.nearRight.position.set(4, 0, 8);
+      Object.values(players).forEach(applyReadyPose);
+    },
+    beats: [
+      // 1. Warmup dink cross-court (to set context)
+      { kind:'shot', from:[-4,1.2,-8], to:[3.5,0.6,7.6], apex:3.2, dur:1.1, hitter:'farLeft' },
+      { kind:'shot', from:[4,1.2,8], to:[-3.5,0.6,-7.6], apex:3.2, dur:1.1, hitter:'nearRight' },
+      // 2. SOFT HIGH FLOATER through the MIDDLE
+      { kind:'shot', from:[-4,1.8,-8], to:[0.5,1.2,7.6], apex:5.0, dur:1.3, hitter:'farLeft', focus: true, caption:'High. Soft. Middle. Attackable.' },
+      // 3. PARTNER (nearRight) steps in with forehand
+      { kind:'move', who:'nearRight', to:[1.0, 0, 8], dur:0.55, parallel: true },
+      // 4. PARTNER puts it away — ball goes cross-court hard
+      { kind:'shot', from:[1.2, 2.6, 8], to:[-5, 0.2, -6], apex:3.3, dur:0.7, hitter:'nearRight', caption:'Forehand takes the middle. Dogma was right — here.' },
+      // 5. Partner recovers
+      { kind:'move', who:'nearRight', to:[4, 0, 8], dur:0.45, parallel: true },
+      { kind:'hold', dur:1.0 }
+    ]
+  },
+
+  3: {
+    tag: 'SCENARIO 03 · HARD ATTACK · BOTH AT KITCHEN',
+    caption: 'Hard attack through the middle. <em>Diagonal-from-hitter absorbs.</em>',
+    // Choreography:
+    //  - All 4 at kitchen
+    //  - farRIGHT attacks HARD through middle (speed-up)
+    //  - YOU (nearLEFT) are diagonal from farRight — ball's traveling TOWARD you
+    //  - You absorb / block it
+    //  - Partner covers line (small shift right)
+    camera: { pos: [-14, 15, 20], look: [0, 2, 4] },
+    labels: { you: 'nearLeft', partner: 'nearRight' },
+    setup() {
+      players.farLeft.position.set(-4, 0, -8);
+      players.farRight.position.set(4, 0, -8);
+      players.nearLeft.position.set(-4, 0, 8);
+      players.nearRight.position.set(4, 0, 8);
+      Object.values(players).forEach(applyReadyPose);
+    },
+    beats: [
+      // 1. Setup dink
+      { kind:'shot', from:[4,1.2,-8], to:[-3.5,0.6,7.6], apex:3.2, dur:1.1, hitter:'farRight' },
+      // 2. Near-left soft return
+      { kind:'shot', from:[-3.5,1.2,8], to:[3.5,0.6,-7.6], apex:3.0, dur:1.1, hitter:'nearLeft' },
+      // 3. FARRIGHT speeds up HARD through middle, angled toward nearLeft (diagonal X)
+      { kind:'shot', from:[4,2.2,-8], to:[-1.5,1.3,8], apex:3.1, dur:0.55, hitter:'farRight', focus: true, caption:'Speed-up. Through the middle. Fast.' },
+      // 4. YOU (nearLeft) absorb — small shift to middle
+      { kind:'move', who:'nearLeft', to:[-1.5, 0, 8], dur:0.3, parallel: true },
+      // 5. Partner covers line (small shift right)
+      { kind:'move', who:'nearRight', to:[6, 0, 8], dur:0.3, parallel: true },
+      // 6. Block — short redirect
+      { kind:'shot', from:[-1.2, 1.4, 8.1], to:[3, 0.3, -4], apex:2.6, dur:0.85, hitter:'nearLeft', caption:'Respect the X. Ball came to you — you took it.' },
+      // 7. Recover
+      { kind:'move', who:'nearLeft',  to:[-4, 0, 8], dur:0.45, parallel: true },
+      { kind:'move', who:'nearRight', to:[ 4, 0, 8], dur:0.45, parallel: true },
+      { kind:'hold', dur:1.0 }
+    ]
+  },
+
+  4: {
+    tag: 'SCENARIO 04 · RIGHTY ON THE LEFT · CROSS-COURT',
+    caption: 'Cross-court rally. <em>Camp on the forehand — let backhand speed-ups fly wide.</em>',
+    // Choreography:
+    //  - YOU (nearLeft, righty) dinking cross-court with farLEFT (also righty)
+    //  - Opponent tries a backhand SPEED-UP to your backhand (your left side)
+    //  - Ball flies WIDE past your sideline — you didn't move, geometry saved you
+    //  - Caption: "That's wide. You were sitting right."
+    camera: { pos: [12, 14, 18], look: [-3, 1.8, 3] },
+    labels: { you: 'nearLeft', partner: 'nearRight' },
+    setup() {
+      players.farLeft.position.set(-4, 0, -8);
+      players.farRight.position.set(4, 0, -8);
+      players.nearLeft.position.set(-4, 0, 8);       // YOU — camped slightly right, on forehand side
+      players.nearRight.position.set(4, 0, 8);
+      Object.values(players).forEach(applyReadyPose);
+    },
+    beats: [
+      // 1-3. Cross-court dink rally (you ↔ farLeft)
+      { kind:'shot', from:[-4,1.2,-8], to:[-3.8,0.6,7.4], apex:3.2, dur:1.1, hitter:'farLeft' },
+      { kind:'shot', from:[-3.8,1.2,8], to:[-4,0.6,-7.4], apex:3.0, dur:1.0, hitter:'nearLeft' },
+      { kind:'shot', from:[-4,1.2,-8], to:[-3.5,0.6,7.4], apex:2.9, dur:1.0, hitter:'farLeft' },
+      // 4. farLeft tries BACKHAND SPEED-UP toward YOUR LEFT sideline (your backhand)
+      //    Ball flies WIDE — lands past your sideline (x ≈ -11, outside the court)
+      { kind:'shot', from:[-4,2.4,-8], to:[-11,0.3,8.5], apex:3.5, dur:0.55, hitter:'farLeft', focus: true, caption:'Backhand speed-up — wide.', ballGoesWide: true },
+      // 5. YOU don't move (camped on forehand). Ball sails past you.
+      { kind:'hold', dur:0.9 },
+      // 6. Show "WIDE" label briefly
+      { kind:'shot', from:[-11,0.3,8.5], to:[-14,0.2,12], apex:0.8, dur:0.5, hitter:null, caption:'You were sitting right. Let it fly.' },
+      { kind:'hold', dur:0.8 }
+    ]
+  }
+};
+
+// ═════════════════════════════════════════════════════════════════════
+// PLAYBACK ENGINE
+// ═════════════════════════════════════════════════════════════════════
+
+const PLAY = {
+  currentScenario: 1,
+  beatIdx: 0,
+  beatT: 0,
+  inBeat: null,
+  running: false,
+  lastT: 0,
+  // For parallel moves + main beat
+  parallelMoves: [],
+  pausedAfterShot: 0,
+  currentBall: null // {from, to, apex, dur, startT}
+};
+
+function loadScenario(n) {
+  const sc = SCENARIOS[n];
+  if (!sc) return;
+  PLAY.currentScenario = n;
+  PLAY.beatIdx = 0;
+  PLAY.beatT = 0;
+  PLAY.inBeat = null;
+  PLAY.parallelMoves = [];
+  PLAY.currentBall = null;
+  clearTrail();
+  ball.mesh.visible = false; ball.shadow.visible = false;
+  hideMoments();
+
+  sc.setup();
+  if (sc.camera) {
+    camera.position.set(...sc.camera.pos);
+    camera.lookAt(...sc.camera.look);
+  }
+
+  // Caption
+  const capEl = document.getElementById('caption');
+  const capTag = document.getElementById('capTag');
+  const capText = document.getElementById('capText');
+  capTag.textContent = sc.tag;
+  capText.innerHTML = sc.caption;
+  capEl.classList.add('on');
+}
+
+function startBeat() {
+  const sc = SCENARIOS[PLAY.currentScenario];
+  if (!sc) return;
+  if (PLAY.beatIdx >= sc.beats.length) {
+    // End of scenario — restart loop
+    PLAY.beatIdx = 0;
+    clearTrail();
+  }
+  let beat = sc.beats[PLAY.beatIdx];
+
+  // If this beat is 'parallel', kick it off alongside the main beat
+  while (beat && beat.parallel) {
+    if (beat.kind === 'move') {
+      const p = players[beat.who];
+      PLAY.parallelMoves.push({
+        player: p,
+        from: p.position.clone(),
+        to: new THREE.Vector3(...beat.to),
+        dur: beat.dur,
+        t: 0
+      });
+    }
+    PLAY.beatIdx++;
+    beat = sc.beats[PLAY.beatIdx];
+  }
+
+  if (!beat) {
+    PLAY.beatIdx = 0;
+    return;
+  }
+
+  PLAY.inBeat = beat;
+  PLAY.beatT = 0;
+
+  if (beat.kind === 'shot') {
+    PLAY.currentBall = {
+      from: new THREE.Vector3(...beat.from),
+      to:   new THREE.Vector3(...beat.to),
+      apex: beat.apex || 3,
+      dur:  beat.dur || 1,
+      hitter: beat.hitter
+    };
+    ball.mesh.visible = true;
+    ball.shadow.visible = true;
+    ball.mesh.position.copy(PLAY.currentBall.from);
+    ball.shadow.position.set(PLAY.currentBall.from.x, 0.01, PLAY.currentBall.from.z);
+    if (beat.caption) {
+      document.getElementById('capText').innerHTML = beat.caption;
+    }
+    if (beat.ballGoesWide) {
+      const m = document.getElementById('mBall');
+      m.textContent = 'WIDE';
+      m.classList.add('on', 'warn');
+    } else {
+      document.getElementById('mBall').classList.remove('on');
+    }
+  } else if (beat.kind === 'move') {
+    PLAY.parallelMoves.push({
+      player: players[beat.who],
+      from: players[beat.who].position.clone(),
+      to: new THREE.Vector3(...beat.to),
+      dur: beat.dur,
+      t: 0
+    });
+  }
+  // 'hold' — just wait
+}
+
+function advance(dt) {
+  const sc = SCENARIOS[PLAY.currentScenario];
+  if (!sc) return;
+  if (!PLAY.inBeat) { startBeat(); if (!PLAY.inBeat) return; }
+  PLAY.beatT += dt;
+
+  // Run parallel moves
+  for (let i = PLAY.parallelMoves.length - 1; i >= 0; i--) {
+    const m = PLAY.parallelMoves[i];
+    m.t += dt;
+    const u = Math.min(1, m.t / m.dur);
+    m.player.position.lerpVectors(m.from, m.to, u);
+    if (u >= 1) PLAY.parallelMoves.splice(i, 1);
+  }
+
+  // Current beat
+  const beat = PLAY.inBeat;
+  const beatFrac = PLAY.beatT / (beat.dur || 1);
+
+  if (beat.kind === 'shot') {
+    const u = Math.min(1, beatFrac);
+    const p = ballPos(PLAY.currentBall.from, PLAY.currentBall.to, PLAY.currentBall.apex, u);
+    ball.mesh.position.copy(p);
+    ball.shadow.position.set(p.x, 0.01, p.z);
+    const hF = Math.max(0, 1 - p.y / 4);
+    ball.shadow.scale.setScalar(1 + hF * 0.3);
+    ball.shadow.material.opacity = 0.45 * (1 - Math.min(1, p.y / 6));
+    // Trail
+    addTrailPoint(p.x, Math.max(0.3, p.y), p.z);
+    if (u >= 1) {
+      // Beat done
+      PLAY.beatIdx++;
+      PLAY.inBeat = null;
+      // Brief inter-beat pause, then start next
+      setTimeout(() => {
+        if (PLAY.running && PLAY.currentScenario === PLAY.currentScenario) startBeat();
+      }, 20);
+    }
+  } else if (beat.kind === 'move') {
+    const u = Math.min(1, beatFrac);
+    // Non-parallel move — main beat
+    if (!beat.parallel) {
+      const p = players[beat.who];
+      if (!p.userData._mvStart) { p.userData._mvStart = p.position.clone(); }
+      p.position.lerpVectors(p.userData._mvStart, new THREE.Vector3(...beat.to), u);
+      if (u >= 1) {
+        p.userData._mvStart = null;
+        PLAY.beatIdx++;
+        PLAY.inBeat = null;
+        setTimeout(() => { if (PLAY.running) startBeat(); }, 20);
+      }
+    }
+  } else if (beat.kind === 'hold') {
+    if (beatFrac >= 1) {
+      PLAY.beatIdx++;
+      PLAY.inBeat = null;
+      setTimeout(() => { if (PLAY.running) startBeat(); }, 20);
+    }
+  }
+
+  // Update label positions (YOU, PARTNER) — follow players
+  const labels = sc.labels || {};
+  if (labels.you) {
+    const youP = players[labels.you];
+    positionMoment(document.getElementById('mYou'), youP.position, 6.8);
+    document.getElementById('mYou').classList.add('on');
+    document.getElementById('mYou').textContent = 'YOU';
+  }
+  if (labels.partner) {
+    const partnerP = players[labels.partner];
+    positionMoment(document.getElementById('mPartner'), partnerP.position, 6.8);
+    document.getElementById('mPartner').classList.add('on');
+    document.getElementById('mPartner').textContent = 'PARTNER';
+  }
+  // Ball WIDE label tracks ball when active
+  const mBall = document.getElementById('mBall');
+  if (mBall.classList.contains('on')) {
+    positionMoment(mBall, ball.mesh.position, 1.0);
+  }
+
+  // Head tracking for all players
+  Object.values(players).forEach(p => {
+    const head = p.userData.head;
+    if (!head) return;
+    const dx = ball.mesh.position.x - p.position.x;
+    const dz = ball.mesh.position.z - p.position.z;
+    const yaw = Math.atan2(dx, (p.rotation.y > 1 ? -dz : dz));
+    const targetYaw = Math.max(-0.85, Math.min(0.85, yaw));
+    head.rotation.y += (targetYaw - head.rotation.y) * 0.2;
+  });
+}
+
+function animate() {
+  raf = requestAnimationFrame(animate);
+  const now = performance.now() / 1000;
+  const dt = Math.min(0.05, now - (PLAY.lastT || now));
+  PLAY.lastT = now;
+  if (PLAY.running) advance(dt);
+  composer.render();
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// postMessage + URL API
+// ═════════════════════════════════════════════════════════════════════
+
+window.addEventListener('message', (e) => {
+  if (!e.data || typeof e.data !== 'object') return;
+  if (e.data.type === '4dp:cm-scenario') {
+    const n = +e.data.scenario;
+    if (SCENARIOS[n]) {
+      loadScenario(n);
+      PLAY.running = true;
+    }
+  } else if (e.data.type === '4dp:select-shot') {
+    // Backwards-compat: map shot names to scenario numbers if anyone still posts them
+    const map = { defend: 1, dink: 2, drop: 4 };
+    const n = map[e.data.shot] || 1;
+    loadScenario(n);
+    PLAY.running = true;
+  }
+});
+
+// Init
+init();
+loadScenario(+(new URLSearchParams(location.search).get('scenario') || 1));
+PLAY.running = true;
+animate();
+
+// Hide loader
+setTimeout(() => document.getElementById('loading').classList.add('gone'), 300);
+
+// Notify parent we're ready
+try {
+  window.parent.postMessage({ type: '4dp:cm-ready' }, '*');
+} catch(e) {}
+
+// Debug hook
+window.__cm3d = { SCENARIOS, PLAY, loadScenario, players, ball };
+</script>
+
+</body>
+</html>
