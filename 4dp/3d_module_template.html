@@ -1946,11 +1946,36 @@ function fireSegmentStartFX(dimKey, segIdx) {
 }
 
 // ═════ TRAJECTORY ═════
+// Pickleball net: 36" at sidelines, 34" at center. Use 3.0 ft + ~1.8" margin
+// so the ball passes visibly ABOVE the net cloth instead of through it.
+const NET_HEIGHT = 3.0;
+const NET_MIN_CLEARANCE = 3.15;
+
 function arcAt(from, to, apex, t) {
   const x = from[0] + (to[0] - from[0]) * t;
   const z = from[2] + (to[2] - from[2]) * t;
   const baseY = from[1] + (to[1] - from[1]) * t;
-  const apexOffset = apex - (from[1] + to[1]) / 2;
+  let apexOffset = apex - (from[1] + to[1]) / 2;
+
+  // ── NET CLEARANCE GUARANTEE ──
+  // The legacy parabola peaks at parametric t=0.5, but the net crossing is at
+  // t = -from.z / (to.z - from.z). For asymmetric shots (e.g. dink from kitchen
+  // to deep cone) those don't coincide, so the ball can dip BELOW the net height
+  // when crossing z=0 even though the apex value is well above 3 ft.
+  // Fix: if the legacy parabola would put the ball under NET_MIN_CLEARANCE at the
+  // net crossing, bump apexOffset just enough to clear. Preserves arc shape; ball
+  // never tunnels through the net.
+  if (from[2] * to[2] < 0 && Math.abs(to[2] - from[2]) > 0.001) {
+    const tNet = -from[2] / (to[2] - from[2]);
+    if (tNet > 0.05 && tNet < 0.95) {
+      const baseYatNet = from[1] + (to[1] - from[1]) * tNet;
+      const yLegacyAtNet = baseYatNet + 4 * apexOffset * tNet * (1 - tNet);
+      if (yLegacyAtNet < NET_MIN_CLEARANCE) {
+        apexOffset = (NET_MIN_CLEARANCE - baseYatNet) / (4 * tNet * (1 - tNet));
+      }
+    }
+  }
+
   const y = baseY + 4 * apexOffset * t * (1 - t);
   return new THREE.Vector3(x, y, z);
 }
