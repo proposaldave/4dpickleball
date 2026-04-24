@@ -295,6 +295,77 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   .bottom-bar{padding:14px 16px max(20px, env(safe-area-inset-bottom));}
 }
 
+/* ── Arcade end-card (upgraded from report-card-style) ── */
+.ec-arcade{max-width:620px!important;padding:34px 36px!important;background:linear-gradient(180deg,rgba(27,64,121,.35),rgba(10,20,40,.85))!important;border:1px solid rgba(251,191,36,.35)!important;box-shadow:0 24px 100px rgba(0,0,0,.85), inset 0 0 80px rgba(251,191,36,.05)!important;}
+.ec-arcade-kicker{font-family:var(--4dp-font-data);font-size:14px;font-weight:900;letter-spacing:5px;text-transform:uppercase;text-align:center;margin-bottom:8px;color:#FB7185;animation:arcadeKick 2s ease-in-out infinite alternate;}
+.ec-arcade-kicker.complete{color:#34D399;}
+@keyframes arcadeKick{from{text-shadow:0 0 8px currentColor;}to{text-shadow:0 0 24px currentColor, 0 0 48px currentColor;}}
+.ec-score-wrap{text-align:center;margin:14px 0 20px;}
+.ec-score-label{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:4px;}
+.ec-score-big{font-family:var(--4dp-font-data);font-weight:900;font-size:clamp(64px,13vw,108px);letter-spacing:-2px;line-height:.9;color:#FBBF24;text-shadow:0 0 40px rgba(251,191,36,.55),0 0 80px rgba(251,191,36,.28);background:linear-gradient(180deg,#FDE68A,#F59E0B);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+.ec-score-delta{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text-dim);margin-top:6px;min-height:1em;}
+.ec-score-delta.up{color:#34D399;}
+.ec-score-delta.pb{color:#FBBF24;font-size:14px;letter-spacing:2.5px;}
+.ec-level-badge{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 18px;padding:10px 20px;border:1px solid rgba(251,191,36,.3);border-radius:999px;background:rgba(251,191,36,.08);}
+.ec-level-lbl{font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--4dp-text-mute);}
+.ec-level-name{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:18px;color:var(--4dp-text);letter-spacing:-0.3px;}
+.ec-grade-row{display:flex;align-items:center;gap:22px;margin-bottom:14px;}
+.ec-grade-ring{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,rgba(251,191,36,.25),rgba(251,191,36,.05) 70%);border:3px solid var(--4dp-gold);box-shadow:0 0 60px rgba(251,191,36,.45),inset 0 0 40px rgba(251,191,36,.15);flex-shrink:0;}
+.ec-grade-ring #ec-grade{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:72px;line-height:1;letter-spacing:-3px;}
+.ec-stats-mini{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.ec-stat-mini{background:rgba(245,243,238,.03);border:1px solid rgba(245,243,238,.08);border-radius:10px;padding:10px 8px;text-align:center;}
+.ec-stat-mini .l{display:block;font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:4px;}
+.ec-stat-mini .v{font-family:var(--4dp-font-data);font-weight:800;font-size:18px;color:var(--4dp-text);}
+.ec-breakdown{margin:14px 0 12px;padding:12px 14px;background:rgba(245,243,238,.03);border:1px solid rgba(245,243,238,.08);border-radius:12px;}
+.ec-breakdown-head{font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:8px;}
+.ec-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.ec-bar-row:last-child{margin-bottom:0;}
+.ec-bar-lbl{flex:0 0 60px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;}
+.ec-bar{flex:1;height:8px;background:rgba(245,243,238,.07);border-radius:6px;overflow:hidden;}
+.ec-bar > div{height:100%;width:0%;border-radius:6px;transition:width 1s ease;}
+#ec-bar-out{background:linear-gradient(90deg,#FB7185,#FBBF24);}
+#ec-bar-volley{background:linear-gradient(90deg,#FBBF24,#34D399);}
+#ec-bar-bounce{background:linear-gradient(90deg,#34D399,#2B8BFC);}
+.ec-bar-stat{flex:0 0 44px;text-align:right;font-family:var(--4dp-font-data);font-weight:700;font-size:12px;color:var(--4dp-text);}
+.ec-coach-box{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding:10px 14px;background:rgba(251,191,36,.06);border-left:3px solid rgba(251,191,36,.45);border-radius:6px;}
+.ec-coach-lbl{flex:0 0 auto;font-size:9px;font-weight:900;letter-spacing:2px;text-transform:uppercase;color:#FBBF24;}
+.ec-coach-txt{flex:1;font-family:var(--4dp-font-display);font-style:italic;font-size:14px;color:var(--4dp-text);line-height:1.35;}
+/* Personal progression mini-chart */
+.ec-progress{margin:0 0 12px;padding:10px 14px;background:rgba(245,243,238,.03);border:1px solid rgba(245,243,238,.08);border-radius:12px;display:none;}
+.ec-progress.on{display:block;}
+.ec-progress-head{font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:8px;}
+.ec-progress-chart{display:flex;align-items:flex-end;gap:4px;height:44px;}
+.ec-progress-chart .bar{flex:1;min-width:8px;background:linear-gradient(180deg,#34D399,#2B8BFC);border-radius:3px 3px 0 0;position:relative;transition:height .8s ease;min-height:4px;}
+.ec-progress-chart .bar.current{background:linear-gradient(180deg,#FDE68A,#F59E0B);box-shadow:0 0 14px rgba(251,191,36,.5);}
+.ec-progress-chart .bar::after{content:attr(data-score);position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);font-size:9px;color:var(--4dp-text-dim);font-family:var(--4dp-font-data);font-weight:700;white-space:nowrap;}
+.ec-progress-chart .bar.current::after{color:#FBBF24;font-weight:900;}
+.ec-buttons-arcade{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.ec-buttons-arcade button{padding:14px;border:0;border-radius:12px;font-family:var(--4dp-font-body);font-weight:800;font-size:13px;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+.ec-buttons-arcade .ec-again{background:linear-gradient(90deg,#F59E0B,#FBBF24);color:#0A1628;box-shadow:0 6px 20px rgba(251,191,36,.35);}
+.ec-buttons-arcade .ec-again:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(251,191,36,.5);}
+.ec-buttons-arcade .ec-share{background:rgba(43,139,252,.15);color:var(--4dp-text);border:1px solid rgba(43,139,252,.4);}
+.ec-buttons-arcade .ec-share:hover{background:rgba(43,139,252,.25);}
+@media (max-width:640px){
+  .ec-arcade{padding:22px 20px!important;}
+  .ec-grade-row{flex-direction:column;gap:14px;}
+  .ec-stats-mini{width:100%;}
+  .ec-arcade-kicker{font-size:11px;letter-spacing:3px;}
+}
+
+/* ── Hearts / Lives HUD (arcade-style, center-top) ── */
+#hearts-hud{position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:94;display:none;gap:4px;padding:8px 14px;background:rgba(10,22,40,.78);backdrop-filter:blur(10px);border:1px solid rgba(251,113,133,.35);border-radius:999px;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,.35);}
+#hearts-hud.on{display:flex;}
+#hearts-hud .heart{font-size:18px;line-height:1;transition:all .35s var(--4dp-ease);filter:drop-shadow(0 0 8px rgba(251,113,133,.5));}
+#hearts-hud .heart.lost{opacity:.18;filter:grayscale(1) saturate(0);transform:scale(.85);}
+#hearts-hud .heart.gained{animation:heartGain .6s ease-out;}
+#hearts-hud .heart.warning{animation:heartWarn .7s ease-in-out infinite;}
+@keyframes heartGain{0%{transform:scale(.2);opacity:0;}50%{transform:scale(1.6);filter:drop-shadow(0 0 22px #FDE68A);}100%{transform:scale(1);opacity:1;}}
+@keyframes heartWarn{0%,100%{transform:scale(1);filter:drop-shadow(0 0 8px rgba(251,113,133,.5));}50%{transform:scale(1.2);filter:drop-shadow(0 0 18px rgba(251,113,133,1));}}
+/* Heart-lost flash — big heartbreak overlay on the viewport */
+#heart-loss-flash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:150;font-size:clamp(80px,14vw,140px);line-height:1;pointer-events:none;opacity:0;text-shadow:0 0 60px rgba(251,113,133,.8);}
+#heart-loss-flash.on{animation:heartBreak 1s ease-out;}
+@keyframes heartBreak{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-10deg);}25%{opacity:1;transform:translate(-50%,-50%) scale(1.3) rotate(8deg);}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(0);}}
+
 /* ── Arcade leaderboard ── */
 #hi-score{position:fixed;top:18px;right:24px;z-index:12;padding:6px 14px;border-radius:999px;background:rgba(10,22,40,.8);backdrop-filter:blur(8px);border:1px solid rgba(251,191,36,.3);font-family:var(--4dp-font-data);font-weight:800;font-size:11px;letter-spacing:1.5px;color:#FBBF24;display:none;pointer-events:none;}
 #hi-score.on{display:block;}
@@ -355,6 +426,12 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <!-- HI-SCORE HUD pill — shows current session best vs all-time personal best -->
 <div id="hi-score"><span class="lbl">HI</span><span id="hi-score-val">0</span></div>
+
+<!-- Hearts / Lives HUD — shown during real game only (not pre-training) -->
+<div id="hearts-hud" aria-label="Lives remaining"></div>
+
+<!-- Heart-loss flash overlay — animated broken heart when you miss -->
+<div id="heart-loss-flash">💔</div>
 <div id="hit-flash"></div>
 <div id="float-points"></div>
 <div id="streak-banner">
@@ -440,6 +517,11 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 <!-- Pregame splash -->
 <div id="pregame">
   <div class="pg-card">
+    <!-- Challenge banner — shown when friend shares a ?challenge= link -->
+    <div id="pg-challenge" style="display:none;margin-bottom:16px;padding:14px 16px;background:linear-gradient(90deg,rgba(251,113,133,.15),rgba(251,191,36,.2));border:1px solid rgba(251,191,36,.4);border-radius:12px;text-align:center;">
+      <div style="font-size:10px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:#FB7185;margin-bottom:4px;">🎯 Challenge</div>
+      <div id="pg-challenge-text" style="font-size:14px;color:var(--4dp-text);line-height:1.4;"></div>
+    </div>
     <div class="pg-eyebrow">Before you start</div>
     <h2 class="pg-h">Two keys. One decision.</h2>
     <div class="pg-key">
@@ -516,52 +598,56 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   </div>
 </div>
 
-<!-- End of session — REPORT CARD -->
+<!-- End of session — ARCADE RESULTS (game-over OR training-complete) -->
 <div id="end-card">
-  <div class="ec-card" style="max-width:560px;">
-    <div class="ec-kicker">Training complete · Report card</div>
-    <!-- Grade letter in a big circle -->
-    <div id="ec-grade-wrap" style="display:flex;align-items:center;justify-content:center;gap:24px;margin:4px 0 14px;">
-      <div id="ec-grade-ring" style="width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,rgba(251,191,36,.25),rgba(251,191,36,.05) 70%);border:3px solid var(--4dp-gold);box-shadow:0 0 60px rgba(251,191,36,.45),inset 0 0 40px rgba(251,191,36,.15);">
-        <span id="ec-grade" style="font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:88px;line-height:1;color:var(--4dp-gold);letter-spacing:-3px;">—</span>
+  <div class="ec-card ec-arcade" style="max-width:620px;">
+    <!-- Dramatic kicker — "GAME OVER" or "TRAINING COMPLETE" -->
+    <div class="ec-arcade-kicker" id="ec-arcade-kicker">GAME OVER</div>
+    <!-- Big score with count-up animation -->
+    <div class="ec-score-wrap">
+      <div class="ec-score-label">Final Score</div>
+      <div class="ec-score-big" id="ec-score-big">0</div>
+      <div class="ec-score-delta" id="ec-score-delta"></div>
+    </div>
+    <!-- Level reached — badge style -->
+    <div class="ec-level-badge">
+      <span class="ec-level-lbl">Reached</span>
+      <span class="ec-level-name" id="ec-level-name">Level 1 · Warmup Speed</span>
+    </div>
+    <!-- Grade + stats row -->
+    <div class="ec-grade-row">
+      <div id="ec-grade-ring" class="ec-grade-ring">
+        <span id="ec-grade">—</span>
       </div>
-      <div style="text-align:left;">
-        <div class="ec-big" style="font-size:clamp(44px,8vw,68px);margin-bottom:0;"><span id="ec-correct">0</span><span class="slash">/<span id="ec-total">45</span></span></div>
-        <div class="ec-pct" id="ec-pct" style="margin-bottom:0;">0% · Keep training</div>
+      <div class="ec-stats-mini">
+        <div class="ec-stat-mini"><span class="l">Correct</span><span class="v"><span id="ec-correct">0</span>/<span id="ec-total">45</span></span></div>
+        <div class="ec-stat-mini"><span class="l">Best streak</span><span class="v" id="ec-streak">0</span></div>
+        <div class="ec-stat-mini"><span class="l">Hearts left</span><span class="v" id="ec-hearts">0</span></div>
       </div>
     </div>
     <!-- Per-shot-type breakdown -->
-    <div style="margin:18px 0 10px;padding:14px 16px;background:rgba(245,243,238,.03);border:1px solid rgba(245,243,238,.08);border-radius:14px;">
-      <div style="font-size:10px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--4dp-text-mute);margin-bottom:10px;">Shot-type accuracy</div>
-      <div class="ec-bar-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div style="flex:0 0 70px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#FB7185;">Out</div>
-        <div class="ec-bar" style="flex:1;height:9px;background:rgba(245,243,238,.07);border-radius:6px;overflow:hidden;"><div id="ec-bar-out" style="height:100%;width:0%;background:linear-gradient(90deg,#FB7185,#FBBF24);border-radius:6px;transition:width .8s ease;"></div></div>
-        <div id="ec-stat-out" style="flex:0 0 54px;text-align:right;font-family:var(--4dp-font-data);font-weight:700;font-size:13px;color:var(--4dp-text);">0/0</div>
-      </div>
-      <div class="ec-bar-row" style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div style="flex:0 0 70px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#FBBF24;">Volley</div>
-        <div class="ec-bar" style="flex:1;height:9px;background:rgba(245,243,238,.07);border-radius:6px;overflow:hidden;"><div id="ec-bar-volley" style="height:100%;width:0%;background:linear-gradient(90deg,#FBBF24,#34D399);border-radius:6px;transition:width .8s ease;"></div></div>
-        <div id="ec-stat-volley" style="flex:0 0 54px;text-align:right;font-family:var(--4dp-font-data);font-weight:700;font-size:13px;color:var(--4dp-text);">0/0</div>
-      </div>
-      <div class="ec-bar-row" style="display:flex;align-items:center;gap:10px;">
-        <div style="flex:0 0 70px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#34D399;">Bounce</div>
-        <div class="ec-bar" style="flex:1;height:9px;background:rgba(245,243,238,.07);border-radius:6px;overflow:hidden;"><div id="ec-bar-bounce" style="height:100%;width:0%;background:linear-gradient(90deg,#34D399,#2B8BFC);border-radius:6px;transition:width .8s ease;"></div></div>
-        <div id="ec-stat-bounce" style="flex:0 0 54px;text-align:right;font-family:var(--4dp-font-data);font-weight:700;font-size:13px;color:var(--4dp-text);">0/0</div>
-      </div>
+    <div class="ec-breakdown">
+      <div class="ec-breakdown-head">Shot-type accuracy</div>
+      <div class="ec-bar-row"><div class="ec-bar-lbl" style="color:#FB7185;">Out</div><div class="ec-bar"><div id="ec-bar-out"></div></div><div id="ec-stat-out" class="ec-bar-stat">0/0</div></div>
+      <div class="ec-bar-row"><div class="ec-bar-lbl" style="color:#FBBF24;">Volley</div><div class="ec-bar"><div id="ec-bar-volley"></div></div><div id="ec-stat-volley" class="ec-bar-stat">0/0</div></div>
+      <div class="ec-bar-row"><div class="ec-bar-lbl" style="color:#34D399;">Bounce</div><div class="ec-bar"><div id="ec-bar-bounce"></div></div><div id="ec-stat-bounce" class="ec-bar-stat">0/0</div></div>
     </div>
-    <!-- Level + streak + points stat rows -->
-    <div class="ec-stat-row"><span class="l">Reached level</span><span class="v" id="ec-level">—</span></div>
-    <div class="ec-stat-row"><span class="l">Best streak</span><span class="v" id="ec-streak">0</span></div>
-    <div class="ec-stat-row"><span class="l">Points</span><span class="v" id="ec-points">0</span></div>
-    <div class="ec-stat-row" style="border:0;margin-bottom:6px;"><span class="l">Coach's note</span><span class="v" id="ec-coach" style="font-family:var(--4dp-font-display);font-style:italic;font-weight:400;text-align:right;max-width:62%;font-size:14px;">—</span></div>
-    <!-- Leaderboard (always rendered after end session — shows top scores + where you land) -->
+    <!-- Coach's note -->
+    <div class="ec-coach-box"><span class="ec-coach-lbl">Coach</span><span id="ec-coach" class="ec-coach-txt">—</span></div>
+    <!-- Personal progression — tiny chart of your last N runs -->
+    <div class="ec-progress" id="ec-progress">
+      <div class="ec-progress-head">Your last runs · improvement trend</div>
+      <div class="ec-progress-chart" id="ec-progress-chart"></div>
+    </div>
+    <!-- Leaderboard (top 10, your run highlighted) -->
     <div class="lb-wrap" id="ec-leaderboard">
       <div class="lb-head">🏆 Leaderboard · Top 10</div>
       <div id="lb-rows"></div>
     </div>
-    <div class="ec-buttons">
-      <button class="ec-again" onclick="restartSession()">Play again</button>
-      <button class="ec-share" onclick="shareResult()">📋 Share report</button>
+    <!-- Action buttons -->
+    <div class="ec-buttons ec-buttons-arcade">
+      <button class="ec-again" onclick="restartSession()">▶ Play again</button>
+      <button class="ec-share" onclick="shareChallenge()">📤 Challenge a friend</button>
     </div>
   </div>
 </div>
@@ -813,7 +899,13 @@ const STATE = {
   practiceTrial: 0,       // 0..drill.shots-1
   practiceCorrect: 0,     // tally within current drill
   forceShotKind: null,    // when set, chooseShotKind returns this instead of rolling
-  practiceSpeedMult: null // when set, overrides level speed (for practice mode)
+  practiceSpeedMult: null, // when set, overrides level speed (for practice mode)
+  // Lives / hearts system (arcade-style — you can actually LOSE now).
+  // Starts at 5, -1 per miss, +1 per 5-correct-streak, capped at 7.
+  // When hearts hit 0, the session ends → arcade game-over screen.
+  hearts: 5,
+  maxHearts: 7,
+  gameOver: false
 };
 
 // ── Three.js setup ──
@@ -1482,6 +1574,11 @@ function beginLevel(){
   STATE.trial = 0;
   STATE.lastTwoShotKinds = [];  // reset so the no-3-in-a-row rule starts fresh per level
   STATE.outsThisRound = 0;       // reset OUT-count for the min-2-OUT-per-round rule
+  // If this is level 0 and hearts haven't been initialized (pre-training
+  // completed + transitioned to GAME mode), start the arcade lives count.
+  if (STATE.mode === 'GAME' && STATE.levelIdx === 0 && STATE.hearts === 5 && !STATE.gameOver) {
+    renderHearts();  // ensure HUD is shown from first real-game level
+  }
   buildDots();
   setLevelHUD();
   // Move the red attacker to match the level's opponent position. L1 starts
@@ -1879,6 +1976,10 @@ function handleDecision(kind){
     spawnBurst(ball.position.clone(), PICKLEBALL_GREEN);
     flashHit();
     spawnFloatingPoints(ball.position.clone(), earned, STATE.streak >= 3);
+    // Heart bonus — every 5-in-a-row correct earns a heart back (max 7)
+    if (STATE.mode === 'GAME' && STATE.streak > 0 && STATE.streak % 5 === 0) {
+      gainHeart();
+    }
     // When the player successfully HITS (volley or groundstroke), reverse
     // the ball's direction so it visibly flies back toward the opponent —
     // simulates a clean return. Only runs on correct SWING; wrong decisions
@@ -1888,6 +1989,8 @@ function handleDecision(kind){
     animateDefenderHit();
   } else {
     STATE.streak = 0;
+    // Miss costs a heart in main game. Hearts = 0 triggers game-over.
+    if (STATE.mode === 'GAME') loseHeart();
     // Too-early swing — show contact + ball spraying wide right (out by the
     // sideline). Visualizes the mis-hit you'd produce by swinging before
     // the ball even reaches your half.
@@ -1909,8 +2012,9 @@ function handleDecision(kind){
   updateStreakDisplay();
   showVerdict(correct, tooLate ? 'TOO_LATE' : tooEarlySwing ? 'TOO_EARLY' : kind, shot);
   STATE.trial++;
-  // Let flight + verdict finish
-  setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+  // Let flight + verdict finish. Skip next trial if game-over was triggered
+  // by the last heart being lost (endSession overlay takes over).
+  setTimeout(() => { if (!STATE.gameOver) { ball.visible = false; clearTrail(); nextTrial(); } }, 1600);
 }
 
 // Mis-hit deflection — ball sprays WIDE RIGHT past the sideline (court x
@@ -2041,9 +2145,11 @@ function showVerdict(correct, kind, shot){
 //   4. Uncomment the fetch() call in remoteLeaderboard.fetch/submit.
 // ═══════════════════════════════════════════════════════════════════
 const LB_STORAGE_KEY    = 'outballs_leaderboard_v1';
+const LB_HISTORY_KEY    = 'outballs_history_v1';   // every run ever, for improvement trend
 const LB_LAST_NAME_KEY  = 'outballs_last_name';
 const LB_HISCORE_KEY    = 'outballs_personal_best';
 const LB_MAX_ROWS       = 10;
+const LB_MAX_HISTORY    = 50;
 const REMOTE_API        = null; // e.g. 'https://your-project.firebaseio.com/outballs_scores.json'
 
 const leaderboard = {
@@ -2076,6 +2182,31 @@ const leaderboard = {
   setLastName(name){
     try { localStorage.setItem(LB_LAST_NAME_KEY, name); } catch(e){}
   },
+  // Full history — every run ever, used for the improvement trend chart.
+  loadHistory(){
+    try {
+      const raw = localStorage.getItem(LB_HISTORY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  },
+  pushHistory(entry){
+    const h = this.loadHistory();
+    h.push(entry);
+    const trimmed = h.slice(-LB_MAX_HISTORY);
+    try { localStorage.setItem(LB_HISTORY_KEY, JSON.stringify(trimmed)); } catch(e){}
+    return trimmed;
+  },
+  previousBest(){
+    const h = this.loadHistory();
+    if (h.length < 2) return 0;
+    // Best score EXCLUDING the most recent entry
+    return h.slice(0, -1).reduce((m, r) => Math.max(m, r.score || 0), 0);
+  },
+  // Most recent N entries for the trend chart. Oldest first.
+  recent(n){
+    const h = this.loadHistory();
+    return h.slice(Math.max(0, h.length - n));
+  },
   // Returns rank (1-indexed) the score would earn, or null if below top N.
   rankFor(score){
     const rows = this.getCombined();
@@ -2092,6 +2223,8 @@ const leaderboard = {
   },
   async submit(entry){
     const rows = this.addLocal(entry);
+    // NOTE: history push is handled by endSession.finalize() so skipped/
+    // didn't-make-top-10 runs still log. Don't double-push here.
     // Remote sync — fires if REMOTE_API is configured. Never blocks; any
     // failure is silently swallowed (local always wins for UX).
     if (REMOTE_API) {
@@ -2108,6 +2241,32 @@ const leaderboard = {
     return rows;
   }
 };
+
+// ── Challenge URL codec ──
+// Encodes a score entry into a URL query string that friends can click:
+// "https://4dpickleball.com/outballs/?challenge=DAV:12450:L5:A"
+// Parts: initials, score, level reached, grade. Decoded at page-load to
+// display a "beat {NAME}'s score" banner before the game starts.
+function encodeChallenge(entry){
+  const parts = [
+    (entry.name || '?').slice(0, 8),
+    entry.score || 0,
+    'L' + (entry.level || 1),
+    entry.grade || '-'
+  ];
+  return parts.join(':');
+}
+function decodeChallenge(s){
+  if (!s) return null;
+  const p = s.split(':');
+  if (p.length < 2) return null;
+  return {
+    name: p[0],
+    score: parseInt(p[1], 10) || 0,
+    level: parseInt((p[2] || 'L1').replace(/^L/, ''), 10) || 1,
+    grade: p[3] || '-'
+  };
+}
 
 // Render top-N leaderboard rows into a container. Highlights `myEntry` row.
 function renderLeaderboard(container, rows, myEntry){
@@ -2129,6 +2288,75 @@ function renderLeaderboard(container, rows, myEntry){
   });
 }
 
+// Animated count-up for the big arcade score display. Uses requestAnimationFrame
+// so it's smooth even across frame-rate changes. Ease-out cubic for a nice "settles in" feel.
+function animateCountUp(el, from, to, durationMs){
+  if (!el) return;
+  const start = performance.now();
+  const diff = to - from;
+  function tick(now){
+    const t = Math.min(1, (now - start) / durationMs);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const current = Math.round(from + diff * eased);
+    el.textContent = current.toLocaleString();
+    if (t < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Renders the "your last runs" bar chart in the end-card. Shows up to the
+// last 10 runs with the most-recent bar highlighted in gold. Each bar's
+// score appears above it. Hidden if fewer than 2 runs logged.
+function renderProgressChart(){
+  const chart = document.getElementById('ec-progress-chart');
+  const wrap = document.getElementById('ec-progress');
+  if (!chart || !wrap) return;
+  const runs = leaderboard.recent(10);
+  if (runs.length < 2) {
+    wrap.classList.remove('on');
+    return;
+  }
+  wrap.classList.add('on');
+  chart.innerHTML = '';
+  const maxScore = Math.max(1, ...runs.map(r => r.score || 0));
+  runs.forEach((r, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (i === runs.length - 1 ? ' current' : '');
+    const pct = Math.max(8, ((r.score || 0) / maxScore) * 100);
+    bar.style.height = pct + '%';
+    bar.setAttribute('data-score', (r.score || 0).toLocaleString());
+    chart.appendChild(bar);
+  });
+}
+
+// Share a challenge URL — "beat my score!" social hook. Builds a URL that
+// encodes (name, score, level, grade) in a query param; friends who click
+// it see a "DAV scored 12,450 — can you beat them?" banner on page-load.
+window.shareChallenge = function(){
+  // Latest history entry is our current run
+  const h = leaderboard.loadHistory();
+  const me = h.length > 0 ? h[h.length - 1] : null;
+  if (!me || !me.score) {
+    if (typeof shareResult === 'function') shareResult();
+    return;
+  }
+  const base = (window.top || window).location.href.split('?')[0].split('#')[0];
+  const challengeParam = encodeChallenge(me);
+  const url = base + '?challenge=' + encodeURIComponent(challengeParam);
+  const text = `🎯 I scored ${(me.score || 0).toLocaleString()} on 4D Pickleball Out-Balls — reached Level ${me.level} · Grade ${me.grade}.\n\nThink you can beat me?\n${url}`;
+  if (navigator.share) {
+    navigator.share({ title: '4D Pickleball · Out Balls', text, url }).catch(() => {
+      navigator.clipboard && navigator.clipboard.writeText(text);
+    });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Challenge link copied! Paste it in a text/email to your friends.');
+    });
+  } else {
+    prompt('Copy this challenge link:', text);
+  }
+};
+
 // HI-SCORE HUD — displayed top-right during gameplay. Hydrated on startGame.
 function updateHiScoreHUD(){
   const hud = document.getElementById('hi-score');
@@ -2141,6 +2369,71 @@ function updateHiScoreHUD(){
   } else {
     hud.classList.remove('on');
   }
+}
+
+// ── Hearts / Lives HUD management ──
+// Shows only during main game (not pre-training). Renders one heart per
+// current life, plus faded "lost" hearts up to maxHearts so the player
+// sees their damage history visually. Last heart pulses red as a warning.
+function renderHearts(anim){
+  const hud = document.getElementById('hearts-hud');
+  if (!hud) return;
+  if (STATE.mode !== 'GAME') { hud.classList.remove('on'); return; }
+  hud.classList.add('on');
+  hud.innerHTML = '';
+  const total = Math.max(STATE.hearts, STATE.maxHearts >= 5 ? 5 : STATE.maxHearts);
+  const lowWarn = STATE.hearts === 1;
+  for (let i = 0; i < Math.max(total, STATE.hearts); i++) {
+    const span = document.createElement('span');
+    span.className = 'heart';
+    if (i >= STATE.hearts) span.classList.add('lost');
+    else if (i === STATE.hearts - 1 && lowWarn) span.classList.add('warning');
+    if (anim === 'gained' && i === STATE.hearts - 1) span.classList.add('gained');
+    span.textContent = '♥';
+    span.style.color = i < STATE.hearts ? '#FB7185' : '#4A5462';
+    hud.appendChild(span);
+  }
+}
+
+// Call when the player gets a decision WRONG. Decrements hearts, plays
+// the heartbreak flash, and triggers game-over if it hits zero.
+function loseHeart(){
+  if (STATE.mode !== 'GAME' || STATE.gameOver) return;
+  STATE.hearts = Math.max(0, STATE.hearts - 1);
+  // Heart-break flash animation
+  const flash = document.getElementById('heart-loss-flash');
+  if (flash) {
+    flash.classList.remove('on');
+    void flash.offsetWidth; // restart animation
+    flash.classList.add('on');
+    setTimeout(() => flash.classList.remove('on'), 1000);
+  }
+  renderHearts();
+  if (STATE.hearts <= 0) {
+    STATE.gameOver = true;
+    // Delay a moment so the verdict + heartbreak flash are visible before
+    // the game-over card takes over the screen.
+    setTimeout(() => triggerGameOver(), 1400);
+  }
+}
+
+// Call when the player earns a heart back (streak reward). Animated gain.
+function gainHeart(){
+  if (STATE.mode !== 'GAME' || STATE.gameOver) return;
+  if (STATE.hearts >= STATE.maxHearts) return;
+  STATE.hearts++;
+  renderHearts('gained');
+}
+
+// Called when hearts reach 0. Locks gameplay + shows the arcade ending
+// with the player's stats and the leaderboard hook.
+function triggerGameOver(){
+  // Halt any pending trial transitions
+  STATE.canInput = false;
+  STATE.phase = 'TRANSITION';
+  ball.visible = false; clearTrail();
+  // End session with current stats (whatever they got to)
+  endSession();
 }
 
 // ── Arcade name-entry UI ──
@@ -2240,8 +2533,12 @@ function wireNameEntryControls(){
 
 // ── End session — REPORT CARD ──
 function endSession(){
-  const total = LEVELS.length * SHOTS_PER_LEVEL;
-  const pct = Math.round(STATE.sessionCorrect / total * 100);
+  // Use balls PLAYED (not 45) as the denominator so grade reflects actual
+  // performance. Game-over after 10 balls scoring 7 = 70% = B grade, not
+  // 7/45 = 15% F. Completion still caps at 45.
+  const ballsPlayed = STATE.results.length || 1;
+  const total = STATE.gameOver ? ballsPlayed : (LEVELS.length * SHOTS_PER_LEVEL);
+  const pct = Math.round(STATE.sessionCorrect / ballsPlayed * 100);
   // Grade letter — S (elite), A (great), B (solid), C (developing), D (keep training)
   const grade =
     pct >= 93 ? 'S' :
@@ -2261,9 +2558,53 @@ function endSession(){
     F: "Back to L1 — don't swing at every ball. Release the bangers."
   }[grade];
 
+  // Arcade kicker — "GAME OVER" when hearts ran out, "TRAINING COMPLETE" when
+  // the player finished all 9 levels (reached the end gracefully).
+  const kickerEl = document.getElementById('ec-arcade-kicker');
+  if (kickerEl) {
+    if (STATE.gameOver) {
+      kickerEl.textContent = 'GAME OVER';
+      kickerEl.classList.remove('complete');
+    } else {
+      kickerEl.textContent = '★ TRAINING COMPLETE ★';
+      kickerEl.classList.add('complete');
+    }
+  }
+
+  // Big score — count-up animation for drama
+  const scoreEl = document.getElementById('ec-score-big');
+  if (scoreEl) animateCountUp(scoreEl, 0, STATE.sessionPoints, 1400);
+
+  // Score delta vs previous personal best
+  const deltaEl = document.getElementById('ec-score-delta');
+  const prevBest = leaderboard.previousBest();
+  const isNewPB = STATE.sessionPoints > leaderboard.getPersonalBest();
+  if (deltaEl) {
+    if (isNewPB && prevBest > 0) {
+      deltaEl.className = 'ec-score-delta pb';
+      deltaEl.textContent = `★ NEW PERSONAL BEST · +${(STATE.sessionPoints - prevBest).toLocaleString()} ★`;
+    } else if (prevBest > 0 && STATE.sessionPoints > prevBest) {
+      deltaEl.className = 'ec-score-delta up';
+      deltaEl.textContent = `+${(STATE.sessionPoints - prevBest).toLocaleString()} from your last best`;
+    } else if (prevBest > 0) {
+      deltaEl.className = 'ec-score-delta';
+      deltaEl.textContent = `Your best: ${prevBest.toLocaleString()}`;
+    } else if (STATE.sessionPoints > 0) {
+      deltaEl.className = 'ec-score-delta pb';
+      deltaEl.textContent = '★ YOUR FIRST SCORE ★';
+    } else {
+      deltaEl.className = 'ec-score-delta';
+      deltaEl.textContent = '';
+    }
+  }
+
+  // Level reached — formatted badge
+  const lvlNameEl = document.getElementById('ec-level-name');
+  const reachedLvl = LEVELS[Math.min(STATE.levelIdx, LEVELS.length-1)];
+  if (lvlNameEl) lvlNameEl.textContent = 'Level ' + reachedLvl.num + ' · ' + reachedLvl.name;
+
   document.getElementById('ec-correct').textContent = STATE.sessionCorrect;
   document.getElementById('ec-total').textContent = total;
-  document.getElementById('ec-pct').textContent = pct >= 85 ? `${pct}% · Pro read` : pct >= 70 ? `${pct}% · Strong` : pct >= 50 ? `${pct}% · Developing` : `${pct}% · Keep training`;
 
   const gradeEl = document.getElementById('ec-grade');
   const ringEl = document.getElementById('ec-grade-ring');
@@ -2281,16 +2622,15 @@ function endSession(){
     const p = s.total > 0 ? Math.round(s.correct / s.total * 100) : 0;
     const bar = document.getElementById(elId);
     const stat = document.getElementById(statId);
-    if (bar) setTimeout(() => { bar.style.width = p + '%'; }, 220);
+    if (bar) setTimeout(() => { bar.style.width = p + '%'; }, 420);
     if (stat) stat.textContent = s.correct + '/' + s.total;
   }
   setBar('OUT',    'ec-bar-out',    'ec-stat-out');
   setBar('VOLLEY', 'ec-bar-volley', 'ec-stat-volley');
   setBar('BOUNCE', 'ec-bar-bounce', 'ec-stat-bounce');
 
-  document.getElementById('ec-level').textContent = LEVELS[Math.min(STATE.levelIdx, LEVELS.length-1)].name;
   document.getElementById('ec-streak').textContent = STATE.bestStreak;
-  document.getElementById('ec-points').textContent = STATE.sessionPoints.toLocaleString();
+  document.getElementById('ec-hearts').textContent = STATE.hearts + '/' + STATE.maxHearts;
   const coachEl = document.getElementById('ec-coach');
   if (coachEl) coachEl.textContent = coachNote;
 
@@ -2307,7 +2647,8 @@ function endSession(){
     correct: STATE.sessionCorrect,
     total: total,
     streak: STATE.bestStreak,
-    level: STATE.levelIdx + 1
+    level: STATE.levelIdx + 1,
+    gameOver: STATE.gameOver
   };
   const rank = leaderboard.rankFor(candidate.score);
   const isPersonalBest = candidate.score > leaderboard.getPersonalBest();
@@ -2315,8 +2656,6 @@ function endSession(){
     // Render leaderboard (always — even if skip, they see the standings)
     const rows = leaderboard.getCombined();
     if (candidate._isMe) {
-      // Mark ALL rows whose (name,score) match this candidate (most recent top).
-      // rankFor-based approach: find first row with matching score+name and mark it.
       const marked = rows.slice();
       for (const r of marked) {
         if (r.score === candidate.score && r.name === candidate.name && !r._marked) {
@@ -2327,9 +2666,16 @@ function endSession(){
     } else {
       renderLeaderboard(document.getElementById('lb-rows'), rows, null);
     }
+    renderProgressChart();
     updateHiScoreHUD();
     document.getElementById('end-card').classList.add('on');
   };
+  // ALWAYS log to history (for improvement chart) even if the score isn't top-10
+  if (candidate.score > 0 && !candidate._logged) {
+    leaderboard.pushHistory(candidate);
+    if (candidate.score > leaderboard.getPersonalBest()) leaderboard.setPersonalBest(candidate.score);
+    candidate._logged = true;
+  }
   // Only show name entry if the score earns a rank (or would set a new PB > 0).
   // Skip if score is 0 (nothing worth saving).
   if (candidate.score > 0 && (rank !== null || isPersonalBest)) {
@@ -2344,7 +2690,9 @@ window.restartSession = function(){
   STATE.levelIdx = 0; STATE.trial = 0; STATE.sessionCorrect = 0; STATE.sessionPoints = 0;
   STATE.streak = 0; STATE.bestStreak = 0; STATE.results = [];
   STATE.statsByKind = { OUT:{total:0,correct:0}, VOLLEY:{total:0,correct:0}, BOUNCE:{total:0,correct:0} };
+  STATE.hearts = 5; STATE.gameOver = false;  // fresh arcade run
   document.getElementById('end-card').classList.remove('on');
+  renderHearts();
   beginLevel();
 };
 window.shareResult = function(){
@@ -2640,9 +2988,10 @@ function animate(){
           STATE.statsByKind[s.kind].total++;
         }
         STATE.streak = 0;
+        loseHeart();  // arcade: miss costs a life
         updateDot(STATE.trial, false);
         STATE.trial++;
-        setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+        setTimeout(() => { if (!STATE.gameOver) { ball.visible = false; clearTrail(); nextTrial(); } }, 1600);
       }
     }
     // End of flight: if no decision made, figure out why it was a miss.
@@ -2662,9 +3011,10 @@ function animate(){
             STATE.statsByKind[shot.kind].total++;
           }
           STATE.streak = 0;
+          loseHeart();
           updateDot(STATE.trial, false);
           STATE.trial++;
-          setTimeout(() => { ball.visible = false; clearTrail(); nextTrial(); }, 1600);
+          setTimeout(() => { if (!STATE.gameOver) { ball.visible = false; clearTrail(); nextTrial(); } }, 1600);
         }
       }
     }
@@ -2755,6 +3105,26 @@ function startGame(){
   // Arcade leaderboard: wire name-entry controls + show HI-SCORE if any
   try { wireNameEntryControls(); } catch(e){}
   updateHiScoreHUD();
+  // Challenge URL: if a friend shared "?challenge=DAV:12450:L5:A", show a
+  // challenge banner on the pregame splash so the player sees what to beat.
+  try {
+    let search = '';
+    try { search = (window.top && window.top !== window) ? window.top.location.search : window.location.search; }
+    catch(e) { search = window.location.search; }
+    const params = new URLSearchParams(search);
+    const ch = params.get('challenge');
+    if (ch) {
+      const decoded = decodeChallenge(ch);
+      if (decoded && decoded.score > 0) {
+        const banner = document.getElementById('pg-challenge');
+        const txt = document.getElementById('pg-challenge-text');
+        if (banner && txt) {
+          txt.innerHTML = `<strong>${decoded.name}</strong> scored <strong style="color:#FBBF24;">${decoded.score.toLocaleString()}</strong> — reached Level ${decoded.level} · Grade ${decoded.grade}.<br>Can you beat them?`;
+          banner.style.display = 'block';
+        }
+      }
+    }
+  } catch(e) { /* URL parse guard — fall through silently */ }
   animate();
   // Flow rules:
   //   - requestedRound (landing page 1-9 keypress) → skip practice, jump to level

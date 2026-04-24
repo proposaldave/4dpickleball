@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#0A1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link rel="dns-prefetch" href="https://unpkg.com">
 <!-- NOTE: NO modulepreload here. modulepreload initiates the module graph
@@ -16,8 +19,15 @@
 <link rel="stylesheet" href="/4dp/tokens.css">
 <style>
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--4dp-ink); }
-  body { font-family: var(--4dp-font-body); color: var(--4dp-text); -webkit-font-smoothing: antialiased; }
-  #viewport { position: fixed; inset: 0; z-index: 0; }
+  body {
+    font-family: var(--4dp-font-body); color: var(--4dp-text); -webkit-font-smoothing: antialiased;
+    /* Block iOS text-size adjust + double-tap zoom; allow scroll only inside scrollable elements (none here) */
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+  /* Make every interactive UI element snappy on touch (no 300ms double-tap delay, no accidental selection) */
+  button, .brand-pill, .shot-chip, .ctrl-btn { touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+  #viewport { position: fixed; inset: 0; z-index: 0; touch-action: none; /* let OrbitControls own gestures inside the canvas */ }
   #viewport canvas { display: block; width: 100% !important; height: 100% !important; }
 
   /* Vignette for cinematic feel */
@@ -1124,16 +1134,15 @@ scene.add(courtGroup);
 //   ORANGE · Drill 3: just inside the kitchen lines, both sides (volley dink drill)
 const coneGroup = new THREE.Group();
 const DRILL_SPOTS = [
-  { x:  9,  z: -6,   color: 0xEF4444, name: 'red'    },  // Drill 1 cross-court T
-  { x:  0,  z: -8.5, color: 0xFBBF24, name: 'yellow' },  // Drill 2 middle deep
-  { x: -5,  z: -6,   color: 0xFB923C, name: 'orange' },  // Drill 3 far-side volley target
-  { x: -5,  z:  6,   color: 0xFB923C, name: 'orange' }   // Drill 3 near-side volley target
+  { x:  9,  z: -6,   color: 0xEF4444, name: 'red'    },  // Drill 1 cross-court T (Dave-marked)
+  { x:  0,  z: -8.5, color: 0xFBBF24, name: 'yellow' }   // Drill 2 middle deep (Dave-marked)
+  // Drill 3 orange cones: waiting for Dave to mark exact positions — do not guess.
 ];
 
 function makeFlatTarget(x, z, color) {
   // Flat plastic agility-cone disc — no height, so players can step on it.
   const disc = new THREE.Mesh(
-    new THREE.CircleGeometry(1.0, 40),
+    new THREE.CircleGeometry(0.65, 40),
     new THREE.MeshStandardMaterial({
       color, roughness: 0.55, metalness: 0.02,
       emissive: color, emissiveIntensity: 0.3,

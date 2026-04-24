@@ -149,9 +149,263 @@ a:hover{text-decoration:underline;}
   max-width: 820px;
 }
 /* ═══════════════════════════════════════════════════════════════════
+   DOGMA-BUST BLOCK — the hero's rhetorical setup
+   ═══════════════════════════════════════════════════════════════════ */
+.dogma-bust {
+  max-width: 620px; margin: 36px auto 0;
+  text-align: left;
+  padding: 24px 28px;
+  background: rgba(14, 31, 56, 0.45);
+  border: 1px solid var(--4dp-hairline);
+  border-radius: var(--4dp-r-lg);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.32);
+}
+@media (max-width: 560px) { .dogma-bust { padding: 18px 20px; } }
+.dogma-line {
+  font-family: var(--4dp-font-body);
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.5; color: var(--4dp-text-dim);
+  margin: 0 0 10px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 16px; flex-wrap: wrap;
+}
+.dogma-line em {
+  font-family: var(--4dp-font-display); font-style: italic;
+  color: var(--4dp-text);
+  font-size: 1.14em;
+  letter-spacing: -.2px;
+}
+.dogma-line .verdict {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: 1.22em;
+  color: var(--gnr-gold);
+  white-space: nowrap;
+}
+.dogma-punch {
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(19px, 2.4vw, 23px);
+  line-height: 1.35; color: var(--4dp-text);
+  margin: 18px 0 0;
+  padding-top: 16px; border-top: 1px solid var(--4dp-hairline);
+  letter-spacing: -.2px;
+}
+.dogma-punch em { color: var(--4dp-dink); font-style: italic; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   3D STAGE — iframe the canonical 3D module template, drive via postMessage
+   ═══════════════════════════════════════════════════════════════════ */
+.stage-3d {
+  max-width: 1020px; margin: 72px auto 32px;
+  padding: 0 0;
+}
+.stage-header {
+  text-align: center;
+  padding: 0 24px 24px;
+}
+.stage-eyebrow {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 11px; letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--4dp-dink);
+  margin-bottom: 10px;
+}
+.stage-title {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.05; letter-spacing: -1px;
+  color: var(--4dp-text);
+  margin: 0 0 14px;
+}
+.stage-rule-pill {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: var(--4dp-dink-soft);
+  border: 1px solid color-mix(in srgb, var(--4dp-dink) 42%, transparent);
+  color: var(--4dp-dink);
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(15px, 1.9vw, 18px);
+  letter-spacing: -.1px;
+}
+
+.stage-frame-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: var(--4dp-ink-deep);
+  border: 1px solid var(--4dp-hairline-s);
+  border-radius: var(--4dp-r-lg);
+  overflow: hidden;
+  box-shadow: 0 32px 96px rgba(0, 0, 0, 0.55),
+              0 0 0 1px color-mix(in srgb, var(--4dp-dink) 14%, transparent);
+}
+.stage-3d-frame {
+  width: 100%; height: 100%;
+  border: 0; display: block;
+  background: var(--4dp-ink-deep);
+}
+
+.stage-nav {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px; margin-top: 18px;
+}
+.stage-nav-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--4dp-surface);
+  border: 1px solid var(--4dp-hairline-s);
+  color: var(--4dp-text);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s var(--4dp-ease);
+}
+.stage-nav-btn:hover { background: var(--4dp-surface-2); border-color: var(--4dp-dink); }
+.stage-nav-btn svg { width: 18px; height: 18px; }
+
+.stage-dots { display: flex; gap: 10px; }
+.stage-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--4dp-hairline-s);
+  border: 0; padding: 0;
+  cursor: pointer;
+  transition: all .2s var(--4dp-ease);
+}
+.stage-dot:hover { background: var(--4dp-text-faint); }
+.stage-dot.active {
+  background: var(--4dp-dink);
+  box-shadow: 0 0 12px var(--4dp-dink);
+  width: 28px; border-radius: 5px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCENARIO CARDS — click to watch each in 3D above
+   ═══════════════════════════════════════════════════════════════════ */
+.scen-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column;
+  gap: 14px;
+}
+.scen-card {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 22px; align-items: center;
+  padding: 26px 28px;
+  background: var(--4dp-surface);
+  border: 1px solid var(--4dp-hairline);
+  border-radius: var(--4dp-r-lg);
+  cursor: pointer;
+  transition: all .3s var(--4dp-ease);
+  position: relative;
+  overflow: hidden;
+}
+@media (max-width: 720px) {
+  .scen-card { grid-template-columns: 44px 1fr; gap: 14px; padding: 20px 18px; }
+  .scen-card .scen-play { grid-column: 1 / -1; justify-self: flex-end; }
+}
+.scen-card:hover {
+  border-color: color-mix(in srgb, var(--4dp-dink) 42%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+}
+.scen-card.active {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--4dp-dink) 8%, var(--4dp-surface)) 0%, var(--4dp-surface) 100%);
+  border-color: var(--4dp-dink);
+  box-shadow: 0 0 0 1px var(--4dp-dink), 0 20px 60px rgba(43, 139, 252, 0.22);
+}
+.scen-card::before {
+  content: ''; position: absolute;
+  left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--4dp-dink);
+  opacity: 0;
+  transition: opacity .3s var(--4dp-ease);
+}
+.scen-card.active::before { opacity: 1; }
+
+.scen-num {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: clamp(22px, 3vw, 32px);
+  color: var(--4dp-dink);
+  letter-spacing: -.5px;
+  align-self: flex-start;
+  padding-top: 4px;
+}
+.scen-card:not(.active) .scen-num { color: var(--4dp-text-faint); }
+
+.scen-body { min-width: 0; }
+.scen-kicker {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 10px; letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: var(--4dp-text-faint);
+  margin-bottom: 8px;
+}
+.scen-card.active .scen-kicker { color: var(--4dp-dink); }
+.scen-h {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(22px, 2.8vw, 30px);
+  line-height: 1.08; letter-spacing: -.6px;
+  color: var(--4dp-text);
+  margin: 0 0 10px;
+}
+.scen-rule {
+  font-size: 15px; font-weight: 600;
+  color: var(--4dp-text-dim);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+.scen-rule em {
+  font-family: var(--4dp-font-display); font-style: italic;
+  color: var(--4dp-text);
+  font-weight: 400;
+  font-size: 1.05em;
+}
+.scen-why {
+  font-size: 14px; color: var(--4dp-text-dim);
+  line-height: 1.55;
+  margin: 0 0 12px;
+  max-width: 620px;
+}
+.scen-why strong { color: var(--4dp-text); font-weight: 600; }
+.scen-chip {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(245, 243, 238, 0.05);
+  border: 1px solid var(--4dp-hairline);
+  font-family: var(--4dp-font-data); font-weight: 600;
+  font-size: 11px; letter-spacing: .5px;
+  color: var(--4dp-text-mute);
+}
+.scen-chip.chip-green {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: var(--4dp-drop);
+}
+.scen-play {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--4dp-dink-soft);
+  border: 1px solid color-mix(in srgb, var(--4dp-dink) 32%, transparent);
+  color: var(--4dp-dink);
+  font-weight: 700; font-size: 11px; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all .25s var(--4dp-ease);
+}
+.scen-play svg { width: 12px; height: 12px; }
+.scen-card:hover .scen-play {
+  background: var(--4dp-dink);
+  color: #fff;
+}
+.scen-card.active .scen-play {
+  background: var(--4dp-dink);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(43, 139, 252, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    CANONICAL 2D COURT (from 06_ACADEMY/4dp/court_2d.html)
-   Drop-in block. Geometry locked to real pickleball (44/20 aspect).
-   Centerlines, kitchens, net — all via CSS-positioned divs.
+   Kept in stylesheet for any legacy diagrams (hidden sections).
    ═══════════════════════════════════════════════════════════════════ */
 .fdp-court {
   width: 100%;
@@ -254,51 +508,85 @@ a:hover{text-decoration:underline;}
   margin: 24px auto 32px;
 }
 
-/* Ball: starts at far-orange paddle (left:31.5%, top:75%),
-   arcs through the middle seam of the near side (left:~58%, top:50%),
-   exits past near-baseline off the right edge.
-   6s loop with a hold at the decision moment so "whose ball?" lands. */
+/* Ball: STRAIGHT LINE from orange (far-bottom) diagonally through the seam
+   to past the near-right baseline. Linear timing = constant velocity.
+   In top-down view a real shot reads as a straight line — no arcs, no bobbing. */
 @keyframes hvBall {
-  0%   { left: 31.5%; top: 75%; opacity: 0; }
-  8%   { opacity: 1; }
-  /* deliver ball into the seam */
-  40%  { left: 58%;   top: 55%; opacity: 1; }
-  /* hold in the decision zone */
-  52%  { left: 62%;   top: 50%; opacity: 1; }
-  /* ball escapes past both near players */
-  88%  { left: 102%;  top: 50%; opacity: 1; }
-  94%  { opacity: 0; }
-  100% { left: 102%;  top: 50%; opacity: 0; }
+  /* start: at far-orange player's paddle */
+  0%      { left: 31.5%; top: 75%; opacity: 0; }
+  2%      { opacity: 1; }
+  /* linear travel from (31.5%, 75%) to (104%, 40%) — a single straight segment */
+  85%     { left: 104%;  top: 40%; opacity: 1; }
+  92%     { opacity: 0; }
+  100%    { left: 104%;  top: 40%; opacity: 0; }
 }
 .hv-ball {
-  animation: hvBall 5.6s cubic-bezier(.4, 0, .7, 1) infinite;
+  animation: hvBall 4.4s linear infinite;
   will-change: left, top, opacity;
 }
 
-/* Near team hesitates: subtle shift toward the middle but neither commits */
+/* Orange hitter pulses when the ball leaves the paddle (first 3% of cycle) */
+@keyframes hvHit {
+  0%      { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+  3%      { transform: translate(-50%, -50%) scale(1.25); filter: brightness(1.6); }
+  10%     { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+  100%    { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+}
+.fdp-player.hv-pl:nth-of-type(2) {
+  animation: hvHit 4.4s linear infinite;
+  will-change: transform;
+}
+
+/* Near team hesitation: SHARP twitches, not glides.
+   Players stay still until ball nears the seam (~42%), then snap a small
+   step toward the middle, hold (frozen), then snap back to ready.
+   Sub-100ms transitions read as "starting to go, froze, recovered" — not gliding. */
 @keyframes hvHesLeft {
-  0%,   32%, 100% { transform: translate(-50%, -50%); }
-  45%,  55%       { transform: translate(calc(-50% - 8px), calc(-50% + 6px)); }
-  70%             { transform: translate(calc(-50% - 3px), calc(-50% + 3px)); }
+  /* still — ready pose */
+  0%, 42%  { transform: translate(-50%, -50%); }
+  /* SNAP toward middle (instant shift, 2% of cycle = ~88ms) */
+  44%, 70% { transform: translate(calc(-50% - 7px), calc(-50% + 5px)); }
+  /* SNAP back to ready */
+  72%, 100%{ transform: translate(-50%, -50%); }
 }
 @keyframes hvHesRight {
-  0%,   32%, 100% { transform: translate(-50%, -50%); }
-  45%,  55%       { transform: translate(calc(-50% - 8px), calc(-50% - 6px)); }
-  70%             { transform: translate(calc(-50% - 3px), calc(-50% - 3px)); }
+  0%, 42%  { transform: translate(-50%, -50%); }
+  44%, 70% { transform: translate(calc(-50% - 7px), calc(-50% - 5px)); }
+  72%, 100%{ transform: translate(-50%, -50%); }
 }
-.hv-nL { animation: hvHesLeft  5.6s cubic-bezier(.4, 0, .7, 1) infinite; }
-.hv-nR { animation: hvHesRight 5.6s cubic-bezier(.4, 0, .7, 1) infinite; }
+.hv-nL { animation: hvHesLeft  4.4s linear infinite; }
+.hv-nR { animation: hvHesRight 4.4s linear infinite; }
 
-/* "whose ball?" pill — appears at the decision moment */
+/* Faint trajectory line — visible ball path, dashed, low opacity.
+   SVG overlay uses the same 0-100 coordinate convention as the animation. */
+.hv-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0;
+  animation: hvTrail 4.4s linear infinite;
+}
+@keyframes hvTrail {
+  0%, 10%  { opacity: 0; }
+  25%      { opacity: .28; }
+  80%      { opacity: .28; }
+  92%, 100%{ opacity: 0; }
+}
+
+/* "whose ball?" pill — appears exactly when ball enters the seam between Y and P.
+   Positioned at the decision zone (near-side, between the two near players). */
 .hv-q-pill {
   position: absolute;
-  left: 68%;
-  top: 28%;
+  left: 72%;
+  top: 30%;
   transform: translate(-50%, -50%);
   padding: 6px 14px;
   border-radius: 999px;
-  background: rgba(14, 31, 56, 0.88);
-  border: 1px solid color-mix(in srgb, var(--4dp-dink) 50%, transparent);
+  background: rgba(14, 31, 56, 0.92);
+  border: 1px solid color-mix(in srgb, var(--4dp-dink) 55%, transparent);
   font-family: var(--4dp-font-display); font-style: italic;
   font-size: clamp(13px, 1.8vw, 16px);
   color: var(--4dp-text);
@@ -306,19 +594,22 @@ a:hover{text-decoration:underline;}
   pointer-events: none;
   white-space: nowrap;
   opacity: 0;
-  animation: hvQ 5.6s cubic-bezier(.4, 0, .7, 1) infinite;
+  animation: hvQ 4.4s linear infinite;
+  box-shadow: 0 4px 18px rgba(0,0,0,.4);
 }
 @keyframes hvQ {
-  0%, 34%  { opacity: 0; transform: translate(-50%, calc(-50% + 6px)); }
-  42%      { opacity: 1; transform: translate(-50%, -50%); }
-  80%      { opacity: 1; transform: translate(-50%, -50%); }
-  90%, 100%{ opacity: 0; transform: translate(-50%, calc(-50% - 4px)); }
+  0%, 38%  { opacity: 0; transform: translate(-50%, calc(-50% + 6px)); }
+  44%      { opacity: 1; transform: translate(-50%, -50%); }
+  78%      { opacity: 1; transform: translate(-50%, -50%); }
+  86%, 100%{ opacity: 0; transform: translate(-50%, calc(-50% - 4px)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hv-ball, .hv-nL, .hv-nR, .hv-q-pill { animation: none; }
-  .hv-ball { left: 62%; top: 50%; opacity: 1; }
+  .hv-ball, .hv-nL, .hv-nR, .hv-q-pill, .hv-trail,
+  .fdp-player.hv-pl:nth-of-type(2) { animation: none; }
+  .hv-ball { left: 68%; top: 52%; opacity: 1; }
   .hv-q-pill { opacity: 1; }
+  .hv-trail { opacity: .28; }
 }
 .hero .sub {
   font-size: 17px; color: var(--4dp-text-dim);
@@ -1140,15 +1431,136 @@ a:hover{text-decoration:underline;}
 .sources .tail .parent { color: var(--gnr-gold); font-weight: 400; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — laptop · tablet · smartphone
+   All components sized via clamp() + aspect-ratio; breakpoints for
+   layout shifts only.
    ═══════════════════════════════════════════════════════════════════ */
-@media (max-width: 640px) {
-  .hero { padding: 48px 0 32px; }
-  .section { margin: 60px auto; }
+
+/* TABLET (portrait) and smaller */
+@media (max-width: 900px) {
+  .stage-3d { margin: 56px auto 24px; }
+  .stage-header { padding: 0 20px 20px; }
+  .stage-frame-wrap { aspect-ratio: 16 / 11; }
+}
+
+/* SMALL TABLET / LARGE PHONE */
+@media (max-width: 720px) {
+  .hero { padding: 48px 0 28px; }
+  .section { margin: 56px auto; }
   .wrap { padding: 0 18px; }
-  .geom { padding: 26px 22px; }
-  .trainer-launch { padding: 36px 24px; }
-  .up-next { padding: 32px 22px; }
+  .trainer-launch { padding: 32px 22px; }
+  .up-next { padding: 30px 20px; }
+  .stage-frame-wrap { aspect-ratio: 4 / 3; }
+  .stage-rule-pill { padding: 9px 16px; font-size: 14px; }
+  .dogma-bust { margin: 24px auto 0; }
+  .dogma-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+  .dogma-line .verdict { font-size: 1.4em; }
+  .dogma-punch { font-size: 18px; margin-top: 14px; padding-top: 14px; }
+}
+
+/* PHONE */
+@media (max-width: 520px) {
+  .hero { padding: 40px 0 20px; }
+  .hero h1 { font-size: clamp(44px, 11vw, 72px); letter-spacing: -1.5px; }
+  .section { margin: 44px auto; }
+  .wrap { padding: 0 14px; }
+  .stage-3d { margin: 40px auto 20px; }
+  .stage-header { padding: 0 12px 16px; }
+  .stage-title { font-size: 22px; }
+  .stage-rule-pill { padding: 8px 14px; font-size: 13px; line-height: 1.4; text-align: center; }
+  .stage-eyebrow { font-size: 10px; letter-spacing: 2px; }
+  .stage-frame-wrap { aspect-ratio: 5 / 4; border-radius: var(--4dp-r-md); }
+  .stage-nav { gap: 12px; margin-top: 14px; }
+  .stage-nav-btn { width: 36px; height: 36px; }
+  .stage-dot { width: 8px; height: 8px; }
+  .stage-dot.active { width: 22px; }
+
+  .scen-card {
+    grid-template-columns: 40px 1fr;
+    gap: 12px;
+    padding: 18px 16px;
+    border-radius: var(--4dp-r-md);
+  }
+  .scen-num { font-size: 22px; padding-top: 2px; }
+  .scen-h { font-size: 19px; letter-spacing: -.3px; }
+  .scen-rule { font-size: 13.5px; }
+  .scen-why { font-size: 13px; }
+  .scen-chip { font-size: 10px; padding: 4px 10px; }
+  .scen-play {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    justify-content: center;
+    margin-top: 6px;
+  }
+
+  .section-title { font-size: 26px; letter-spacing: -.5px; }
+  .section-lede { font-size: 14px; margin-bottom: 24px; }
+  .section-label { font-size: 10px; letter-spacing: 2px; }
+
+  .comms { padding: 22px 18px; }
+  .rules-rundown li { padding: 14px 0; gap: 10px; }
+  .rr-num { min-width: 20px; font-size: 10px; }
+  .rr-rule { font-size: 17px; }
+
+  .up-next { padding: 28px 16px; border-radius: var(--4dp-r-md); }
+  .up-next h3 { font-size: 24px; letter-spacing: -.4px; }
+  .up-next .cta { font-size: 11px; padding: 12px 22px; }
+
+  .trainer-launch { padding: 28px 18px; border-radius: var(--4dp-r-md); }
+  .trainer-launch h3 { font-size: 26px; letter-spacing: -.5px; }
+}
+
+/* LARGE LAPTOP+ */
+@media (min-width: 1200px) {
+  .stage-3d { max-width: 1100px; }
+  .stage-frame-wrap { aspect-ratio: 16 / 9; }
+}
+
+/* TRAINER MODAL mobile */
+@media (max-width: 640px) {
+  .tr-topbar { padding: 12px 16px; }
+  .tr-brand strong { font-size: 11px; }
+  .tr-close { width: 34px; height: 34px; font-size: 16px; }
+  .tr-score { top: 56px; right: 12px; padding: 10px 14px; min-width: 100px; }
+  .tr-score .val { font-size: 24px; }
+  .tr-prompt { top: 70px; padding: 12px 18px; max-width: calc(100vw - 24px); }
+  .tr-prompt h4 { font-size: 18px; }
+  .tr-prompt .sub { font-size: 11px; }
+  .tr-verdict .big { font-size: 44px; }
+  .tr-bottom { padding: 12px 14px 18px; gap: 8px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .tr-gate { padding: 10px 12px; }
+  .tr-gate .name { font-size: 17px; }
+  .tr-gate .hint { font-size: 10px; }
+  .tr-pg-card { padding: 26px 22px; }
+  .tr-pg-h { font-size: 26px; }
+  .tr-pg-row kbd { min-width: 76px; padding: 9px 11px; font-size: 10px; }
+  .tr-pg-text .kname { font-size: 12px; }
+  .tr-pg-text .kdesc { font-size: 12px; }
+  .tr-pg-go { padding: 14px; font-size: 14px; }
+  .tr-end-card { padding: 26px 22px; }
+  .tr-end-score { font-size: 60px; }
+  .tr-end-pct { font-size: 12px; }
+}
+
+/* TOUCH POLISH — prevent tap-highlight, iOS quirks */
+.scen-card, .stage-nav-btn, .stage-dot, .tr-gate, .cta, .pg-go, .tr-pg-go {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Prefer horizontal layout on landscape phones */
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .hero { padding: 28px 0 16px; }
+  .hero h1 { font-size: clamp(36px, 6vw, 56px); }
+  .dogma-bust { margin: 18px auto 0; padding: 16px 20px; }
+  .dogma-line { margin-bottom: 6px; }
+  .dogma-punch { margin-top: 10px; padding-top: 10px; font-size: 15px; }
+  .stage-frame-wrap { aspect-ratio: 16 / 9; max-height: 70vh; }
 }
 
 /* Reduce motion */
@@ -1170,88 +1582,101 @@ a:hover{text-decoration:underline;}
 
 <!-- ═══════════════════ HERO ═══════════════════ -->
 <section class="hero">
-  <div class="eyebrow"><span class="dot"></span>Kitchen line · Partnership skill</div>
-  <h1>Whose ball<br>is&nbsp;that?</h1>
+  <div class="eyebrow"><span class="dot"></span>Partnership skill</div>
+  <h1><em>Whose ball</em><br>is&nbsp;that?</h1>
 
-  <!-- HERO VIZ — canonical 2D court from 06_ACADEMY/4dp/court_2d.html
-       CSS-positioned divs (not SVG). Proper centerlines. R19 palette via tokens.css. -->
-  <div class="hero-viz">
-    <div class="fdp-court">
-      <div class="fdp-court-surface">
-        <div class="fdp-kitchen fdp-kitchen-left"></div>
-        <div class="fdp-kitchen fdp-kitchen-right"></div>
-        <div class="fdp-kline  fdp-kline-left"></div>
-        <div class="fdp-kline  fdp-kline-right"></div>
-        <div class="fdp-net"></div>
-        <div class="fdp-center fdp-center-left"></div>
-        <div class="fdp-center fdp-center-right"></div>
+  <div class="dogma-bust">
+    <p class="dogma-line">Heard <em>"forehand takes the middle"</em>?<span class="verdict">Sometimes.</span></p>
+    <p class="dogma-line">Heard <em>"respect the X"</em>?<span class="verdict">Sometimes.</span></p>
+    <p class="dogma-punch">Covering the middle isn't one rule. It's <em>scenario recognition.</em></p>
+  </div>
+</section>
 
-        <!-- Far team (left side) — steady at kitchen line -->
-        <div class="fdp-player hv-pl" data-hat="green"  style="left:31.5%;top:25%;">O</div>
-        <div class="fdp-player hv-pl" data-hat="orange" style="left:31.5%;top:75%;">O</div>
+<!-- ═══════════════════ 3D STAGE — scenario visualization in 3D ═══════════════════ -->
+<section class="stage-3d" id="stage">
+  <div class="stage-header">
+    <div class="stage-eyebrow" id="stage-eyebrow">SCENARIO 01 / 04 · START OF POINT</div>
+    <h2 class="stage-title" id="stage-title">Player in front has the option.</h2>
+    <div class="stage-rule-pill" id="stage-rule">NVZ-player takes the third-shot middle. Partner's still running.</div>
+  </div>
 
-        <!-- Near team (right side) — BOTH HESITATE when ball comes through middle -->
-        <div class="fdp-player hv-near hv-nL" data-hat="blue"   style="left:68.5%;top:25%;">Y</div>
-        <div class="fdp-player hv-near hv-nR" data-hat="yellow" style="left:68.5%;top:75%;">P</div>
+  <div class="stage-frame-wrap">
+    <iframe id="stage-3d-frame"
+            src="/4dp/3d_module_template.html?embedded=1"
+            class="stage-3d-frame"
+            loading="lazy"
+            title="3D pickleball scenario — cover the middle"></iframe>
+  </div>
 
-        <!-- Ball — animates through the seam -->
-        <div class="fdp-ball hv-ball" style="left:31.5%;top:75%;"></div>
-
-        <!-- "whose ball?" pill — appears mid-flight -->
-        <div class="hv-q-pill">whose ball?</div>
-      </div>
+  <div class="stage-nav">
+    <button class="stage-nav-btn" id="stage-prev" aria-label="Previous scenario">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="stage-dots" id="stage-dots" role="tablist">
+      <button class="stage-dot active" data-scen="1" aria-label="Scenario 1"></button>
+      <button class="stage-dot"        data-scen="2" aria-label="Scenario 2"></button>
+      <button class="stage-dot"        data-scen="3" aria-label="Scenario 3"></button>
+      <button class="stage-dot"        data-scen="4" aria-label="Scenario 4"></button>
     </div>
+    <button class="stage-nav-btn" id="stage-next" aria-label="Next scenario">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
   </div>
-
-  <p class="sub">Your team loses points through the middle. <em>These are the four places yours breaks</em> — and how to own every one.</p>
 </section>
 
-<!-- ═══════════════════ PHYSICS (collapsed to one line) ═══════════════════ -->
-<section class="section" id="why" style="margin-top:60px;margin-bottom:56px;">
-  <div class="physics-line">
-    <span class="pl-stat">Lowest net</span>
-    <span class="pl-dot">·</span>
-    <span class="pl-stat">No sideline</span>
-    <span class="pl-dot">·</span>
-    <span class="pl-stat">Longest court</span>
-  </div>
-  <p class="physics-sub">Three flaws push every high-percentage shot through the middle.</p>
-</section>
+<!-- ═══════════════════ SCENARIO LIST — the four situations ═══════════════════ -->
+<section class="section scenarios" id="scenarios">
+  <div class="section-label">The four scenarios</div>
+  <h2 class="section-title">Same court. Four different answers.</h2>
+  <p class="section-lede">Click any one to watch it in 3D above. Each teaches a different rule — because "<em>who covers the middle</em>" has always been four questions, not one.</p>
 
-<!-- ═══════════════════ RULES RUNDOWN ═══════════════════ -->
-<section class="section" id="rules" style="margin-top:48px;">
-  <div class="section-label">The rules</div>
-  <h2 class="section-title">Your middle breaks four ways.</h2>
-  <p class="section-lede"><em>Forehand takes the middle</em> is a lie. Here are the four moments — and the one-line rule for each. The trainer drills them live.</p>
+  <ol class="scen-list">
+    <li class="scen-card active" data-scen="1">
+      <div class="scen-num">01</div>
+      <div class="scen-body">
+        <div class="scen-kicker">START OF POINT</div>
+        <h3 class="scen-h">Player in front has the option.</h3>
+        <div class="scen-rule">NVZ-player takes it. Block or reset.</div>
+        <p class="scen-why">Serve, return, third-shot drive through the middle. Your partner returned and is still <strong>running up</strong> from the baseline. By the time they reach the line, the ball is at their shins. You're already there — slide, block, protect.</p>
+        <div class="scen-chip">Forehand rule doesn't apply · backhand block is fine</div>
+      </div>
+      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </li>
 
-  <ol class="rules-rundown">
-    <li>
-      <div class="rr-num">01</div>
-      <div class="rr-body">
-        <div class="rr-name">Third shot drives through · partner still running</div>
-        <div class="rr-rule">NVZ-player takes it. Block or reset.</div>
+    <li class="scen-card" data-scen="2">
+      <div class="scen-num">02</div>
+      <div class="scen-body">
+        <div class="scen-kicker">BOTH AT KITCHEN · SOFT BALL</div>
+        <h3 class="scen-h">High, soft floater through the middle.</h3>
+        <div class="scen-rule"><em>"Forehand takes the middle"</em> — here it's true.</div>
+        <p class="scen-why">Soft balls give time. Whichever forehand is closer has <strong>reach, angle, and power</strong>. This is the scenario the old dogma was built for. Call "mine" early, put it away.</p>
+        <div class="scen-chip chip-green">The dogma works · when the ball gives you time</div>
       </div>
+      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </li>
-    <li>
-      <div class="rr-num">02</div>
-      <div class="rr-body">
-        <div class="rr-name">Both teams at the kitchen</div>
-        <div class="rr-rule">Diagonal from hitter takes middle. Partner covers line.</div>
+
+    <li class="scen-card" data-scen="3">
+      <div class="scen-num">03</div>
+      <div class="scen-body">
+        <div class="scen-kicker">BOTH AT KITCHEN · HARD ATTACK</div>
+        <h3 class="scen-h">Tough attack through the middle.</h3>
+        <div class="scen-rule"><em>"Respect the X"</em> — here it's true.</div>
+        <p class="scen-why">Fast balls don't wait for the forehand to arrive. The player <strong>diagonally cross-court from the hitter</strong> is the only one the ball's traveling toward. Their paddle's already pointed at it. Partner covers the line; you anticipate and absorb.</p>
+        <div class="scen-chip chip-green">The X rule works · when the ball doesn't give you time</div>
       </div>
+      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </li>
-    <li>
-      <div class="rr-num">03</div>
-      <div class="rr-body">
-        <div class="rr-name">Cross-court dink rally</div>
-        <div class="rr-rule">Rally partner sits on forehand. Home partner stays home.</div>
+
+    <li class="scen-card" data-scen="4">
+      <div class="scen-num">04</div>
+      <div class="scen-body">
+        <div class="scen-kicker">RIGHT-HANDER ON THE LEFT</div>
+        <h3 class="scen-h">Cross-court rally. Pre-load forehand.</h3>
+        <div class="scen-rule">Camp paddle on the forehand. Let backhand speed-ups fly.</div>
+        <p class="scen-why">You're a righty on the left side. Opponent cross-court can't hit a backhand speed-up that stays in — the geometry pushes it wide. So <strong>ignore the backhand lane</strong>. Keep your paddle pre-loaded on the forehand side. Clean, offensive, no scramble.</p>
+        <div class="scen-chip">Coach Phil &amp; Simone Jardim · "sit on your forehand"</div>
       </div>
-    </li>
-    <li>
-      <div class="rr-num">04</div>
-      <div class="rr-body">
-        <div class="rr-name">Partner pulled wide</div>
-        <div class="rr-rule">Shift hard to middle. Own the seam.</div>
-      </div>
+      <div class="scen-play"><span>Watch in 3D</span><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     </li>
   </ol>
 </section>
@@ -1709,6 +2134,167 @@ a:hover{text-decoration:underline;}
 </script>
 
 <script>
+/* ═══════════════════════════════════════════════════════════════════
+   SCENARIO SWITCHER — drives the 3D stage iframe via postMessage
+   ═══════════════════════════════════════════════════════════════════ */
+(function() {
+  'use strict';
+
+  // Scenario data: copy that updates the stage header, plus the 3D template's
+  // shot key that best fits each teaching moment.
+  const SCENARIOS = [
+    {
+      n: 1,
+      eyebrow: 'SCENARIO 01 / 04 · START OF POINT',
+      title: 'Player in front has the option.',
+      rule: "NVZ-player takes the third-shot middle. Partner's still running.",
+      // shot=defend → 2D rally: serve/return/third-drive/baby-block
+      shot: 'defend'
+    },
+    {
+      n: 2,
+      eyebrow: 'SCENARIO 02 / 04 · SOFT BALL AT KITCHEN',
+      title: 'High soft floater? Forehand takes the middle.',
+      rule: '"Forehand takes the middle" — here the old rule is right.',
+      // shot=dink → 4D kitchen offense, soft balls, forehand patterns
+      shot: 'dink'
+    },
+    {
+      n: 3,
+      eyebrow: 'SCENARIO 03 / 04 · HARD ATTACK AT KITCHEN',
+      title: 'Hard attack? Respect the X.',
+      rule: 'Diagonal-from-hitter anticipates. Ball travels toward you, away from partner.',
+      // shot=dink with speedup emphasis
+      shot: 'dink'
+    },
+    {
+      n: 4,
+      eyebrow: 'SCENARIO 04 / 04 · RIGHTY ON THE LEFT',
+      title: 'Cross-court rally. Sit on the forehand.',
+      rule: 'Backhand speed-up goes wide — let it. Camp paddle on the forehand.',
+      // shot=drop → 3D rally, cross-court dink patterns
+      shot: 'drop'
+    }
+  ];
+
+  const frame  = document.getElementById('stage-3d-frame');
+  const eyebrow = document.getElementById('stage-eyebrow');
+  const title   = document.getElementById('stage-title');
+  const rule    = document.getElementById('stage-rule');
+  const dots    = document.querySelectorAll('.stage-dot');
+  const cards   = document.querySelectorAll('.scen-card');
+  const prev    = document.getElementById('stage-prev');
+  const next    = document.getElementById('stage-next');
+  const stageEl = document.getElementById('stage');
+
+  let current = 1;
+  let frameReady = false;
+  let pendingShot = null;
+
+  // Update all the UI surfaces for a scenario
+  function activate(n, scrollToStage) {
+    const sc = SCENARIOS[n - 1];
+    if (!sc) return;
+    current = n;
+
+    // Header
+    eyebrow.textContent = sc.eyebrow;
+    title.textContent   = sc.title;
+    rule.textContent    = sc.rule;
+
+    // Dots
+    dots.forEach(d => d.classList.toggle('active', +d.dataset.scen === n));
+
+    // Cards
+    cards.forEach(c => c.classList.toggle('active', +c.dataset.scen === n));
+
+    // 3D template — switch shot via postMessage
+    postShot(sc.shot);
+
+    // Optional: scroll stage into view (only when user clicks a scenario card,
+    // not when the page first initializes)
+    if (scrollToStage && stageEl) {
+      const y = stageEl.getBoundingClientRect().top + window.pageYOffset - 24;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }
+
+  function postShot(shot) {
+    if (!frame || !shot) return;
+    if (!frameReady) {
+      pendingShot = shot;
+      return;
+    }
+    try {
+      frame.contentWindow.postMessage({ type: '4dp:select-shot', shot: shot }, '*');
+    } catch (e) {
+      // Silent — iframe may not be ready yet
+    }
+  }
+
+  // When the iframe finishes loading, fire any pending shot
+  if (frame) {
+    frame.addEventListener('load', () => {
+      frameReady = true;
+      if (pendingShot) {
+        postShot(pendingShot);
+        pendingShot = null;
+      } else {
+        // Default: play scenario 1's shot
+        postShot(SCENARIOS[0].shot);
+      }
+    });
+  }
+
+  // Wire scenario cards
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const n = +card.dataset.scen;
+      activate(n, /* scrollToStage */ true);
+    });
+    // Keyboard: Enter / Space
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.addEventListener('keydown', (e) => {
+      if (e.code === 'Enter' || e.code === 'Space') {
+        e.preventDefault();
+        card.click();
+      }
+    });
+  });
+
+  // Wire dots
+  dots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      const n = +dot.dataset.scen;
+      activate(n, false);
+    });
+  });
+
+  // Prev / Next
+  if (prev) prev.addEventListener('click', () => {
+    activate(current > 1 ? current - 1 : SCENARIOS.length, false);
+  });
+  if (next) next.addEventListener('click', () => {
+    activate(current < SCENARIOS.length ? current + 1 : 1, false);
+  });
+
+  // Keyboard arrow-keys advance/retreat when stage is in viewport
+  window.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    // Don't hijack keys if trainer modal is open
+    if (document.getElementById('trainer-modal')?.classList.contains('on')) return;
+    if (e.code === 'ArrowLeft')  { e.preventDefault(); prev?.click(); }
+    if (e.code === 'ArrowRight') { e.preventDefault(); next?.click(); }
+  });
+
+  // Initial activation (scenario 1 is default, iframe fires on load)
+  activate(1, false);
+
+  // Debug hook
+  window.__coverMiddleStage = { activate, SCENARIOS, current: () => current };
+})();
+
 /* ═══════════════════════════════════════════════════════════════════
    RULE TABS + TOP-DOWN SVG DIAGRAMS
    Each diagram draws a top-down NEPC-aesthetic court with players,
