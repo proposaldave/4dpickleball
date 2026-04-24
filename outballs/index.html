@@ -1049,52 +1049,72 @@
         <!-- HERO -->
         <section class="hero-section">
             <canvas id="hero-backdrop"></canvas>
-            <!-- Iconic SVG paddle + ball — the pickleball visual anchor (no logo required) -->
+            <!-- Iconic SVG paddle + ball — redesigned 2026-04-23 per Ben Herrick
+                 feedback. Cleaner premium-paddle aesthetic: black overgrip (no
+                 red band), subtle carbon-look face pattern, neon green ball
+                 matching game.html's PICKLEBALL_GREEN (#39FF14). -->
             <svg class="hero-paddle-art" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
                     <radialGradient id="ballGrad" cx="40%" cy="40%" r="60%">
-                        <stop offset="0%" stop-color="#ffffb0"/>
-                        <stop offset="50%" stop-color="#DAFF00"/>
-                        <stop offset="100%" stop-color="#7a9a00"/>
+                        <stop offset="0%" stop-color="#d7ffc2"/>
+                        <stop offset="45%" stop-color="#39FF14"/>
+                        <stop offset="100%" stop-color="#1a8800"/>
                     </radialGradient>
                     <radialGradient id="ballGlow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="rgba(218,255,0,0.55)"/>
-                        <stop offset="60%" stop-color="rgba(218,255,0,0.14)"/>
-                        <stop offset="100%" stop-color="rgba(218,255,0,0)"/>
+                        <stop offset="0%" stop-color="rgba(57,255,20,0.55)"/>
+                        <stop offset="60%" stop-color="rgba(57,255,20,0.14)"/>
+                        <stop offset="100%" stop-color="rgba(57,255,20,0)"/>
                     </radialGradient>
                     <linearGradient id="paddleFace" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#2a5aa0"/>
-                        <stop offset="50%" stop-color="#1B4079"/>
-                        <stop offset="100%" stop-color="#0d2040"/>
+                        <stop offset="0%" stop-color="#3B6CC5"/>
+                        <stop offset="45%" stop-color="#1B4079"/>
+                        <stop offset="100%" stop-color="#0a1A2F"/>
                     </linearGradient>
                     <linearGradient id="edgeGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#000"/>
-                        <stop offset="100%" stop-color="#1a1a1a"/>
+                        <stop offset="0%" stop-color="#141822"/>
+                        <stop offset="100%" stop-color="#000"/>
                     </linearGradient>
+                    <linearGradient id="gripGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#1a1f2e"/>
+                        <stop offset="50%" stop-color="#0d1018"/>
+                        <stop offset="100%" stop-color="#05070c"/>
+                    </linearGradient>
+                    <!-- Carbon-fiber-style pattern overlay on the face -->
+                    <pattern id="carbonPattern" width="6" height="6" patternUnits="userSpaceOnUse">
+                        <rect width="6" height="6" fill="rgba(255,255,255,0)"/>
+                        <rect width="3" height="3" fill="rgba(255,255,255,0.018)"/>
+                        <rect x="3" y="3" width="3" height="3" fill="rgba(255,255,255,0.018)"/>
+                    </pattern>
                 </defs>
-                <!-- Paddle face (elongated widebody shape) -->
+                <!-- Paddle edge guard (elongated widebody shape) -->
                 <rect x="40" y="40" width="220" height="260" rx="24" ry="24" fill="url(#edgeGrad)"/>
+                <!-- Paddle face -->
                 <rect x="52" y="52" width="196" height="236" rx="18" ry="18" fill="url(#paddleFace)"/>
-                <!-- Face highlight -->
-                <rect x="62" y="60" width="40" height="220" rx="12" ry="12" fill="rgba(255,255,255,0.08)"/>
-                <!-- Throat (transition from face to handle) -->
-                <path d="M 120 300 L 180 300 L 170 320 L 130 320 Z" fill="url(#edgeGrad)"/>
-                <!-- Handle -->
-                <rect x="132" y="318" width="36" height="86" rx="6" ry="6" fill="#0A1A2F"/>
-                <!-- Grip wrap (red band) -->
-                <rect x="128" y="330" width="44" height="58" rx="3" ry="3" fill="#C8102E"/>
-                <!-- Grip texture lines -->
-                <g stroke="rgba(0,0,0,0.3)" stroke-width="1">
-                    <line x1="128" y1="342" x2="172" y2="342"/>
-                    <line x1="128" y1="354" x2="172" y2="354"/>
-                    <line x1="128" y1="366" x2="172" y2="366"/>
-                    <line x1="128" y1="378" x2="172" y2="378"/>
+                <!-- Carbon pattern overlay -->
+                <rect x="52" y="52" width="196" height="236" rx="18" ry="18" fill="url(#carbonPattern)"/>
+                <!-- Face highlight (subtle left edge sheen) -->
+                <rect x="62" y="60" width="26" height="220" rx="10" ry="10" fill="rgba(255,255,255,0.06)"/>
+                <!-- Throat (tapered transition from face to handle) -->
+                <path d="M 118 300 L 182 300 L 170 320 L 130 320 Z" fill="url(#edgeGrad)"/>
+                <!-- Handle shaft -->
+                <rect x="134" y="318" width="32" height="92" rx="5" ry="5" fill="#0A0F18"/>
+                <!-- Overgrip (tournament-spec black wrap) -->
+                <rect x="128" y="326" width="44" height="66" rx="3" ry="3" fill="url(#gripGrad)"/>
+                <!-- Overgrip spiral lines — classic diagonal wrap pattern -->
+                <g stroke="rgba(255,255,255,0.08)" stroke-width="1" fill="none">
+                    <line x1="128" y1="334" x2="172" y2="340"/>
+                    <line x1="128" y1="346" x2="172" y2="352"/>
+                    <line x1="128" y1="358" x2="172" y2="364"/>
+                    <line x1="128" y1="370" x2="172" y2="376"/>
+                    <line x1="128" y1="382" x2="172" y2="388"/>
                 </g>
+                <!-- Overgrip highlight (subtle sheen along one edge) -->
+                <rect x="128" y="326" width="5" height="66" rx="2" fill="rgba(255,255,255,0.08)"/>
                 <!-- Handle butt cap -->
-                <rect x="128" y="396" width="44" height="8" rx="2" ry="2" fill="#000"/>
+                <rect x="126" y="396" width="48" height="10" rx="3" ry="3" fill="#0A0F18" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
                 <!-- Ball glow -->
                 <circle cx="230" cy="90" r="80" fill="url(#ballGlow)"/>
-                <!-- Ball -->
+                <!-- Ball (neon green to match gameplay) -->
                 <circle cx="230" cy="90" r="34" fill="url(#ballGrad)"/>
                 <!-- Ball holes -->
                 <g fill="#1a1a1a">
@@ -1105,7 +1125,7 @@
                     <circle cx="240" cy="102" r="2.2"/>
                 </g>
                 <!-- Ball highlight -->
-                <ellipse cx="218" cy="78" rx="8" ry="4" fill="rgba(255,255,255,0.55)" transform="rotate(-25 218 78)"/>
+                <ellipse cx="218" cy="78" rx="8" ry="4" fill="rgba(255,255,255,0.6)" transform="rotate(-25 218 78)"/>
             </svg>
             <div class="hero-inner">
                 <div class="hero-kicker">4D Pickleball · Out-Balls Training Module</div>
@@ -1154,11 +1174,11 @@
         <section style="padding:18px 18px 8px;">
             <div class="lp-inner" style="max-width:1100px;margin:0 auto;">
                 <div class="reads-cards">
-                    <div class="read-card read-card-fast">
+                    <div class="read-card read-card-slow">
                         <div class="rc-num">1</div>
-                        <div class="rc-speed">MAX SPEED</div>
-                        <div class="rc-outcome">OUT</div>
-                        <div class="rc-action">Let it go</div>
+                        <div class="rc-speed">SLOW SPEED</div>
+                        <div class="rc-outcome">BOUNCE</div>
+                        <div class="rc-action">Groundstroke</div>
                     </div>
                     <div class="read-card read-card-mid">
                         <div class="rc-num">2</div>
@@ -1166,11 +1186,11 @@
                         <div class="rc-outcome">VOLLEY</div>
                         <div class="rc-action">Out of the air</div>
                     </div>
-                    <div class="read-card read-card-slow">
+                    <div class="read-card read-card-fast">
                         <div class="rc-num">3</div>
-                        <div class="rc-speed">SLOW SPEED</div>
-                        <div class="rc-outcome">BOUNCE</div>
-                        <div class="rc-action">Groundstroke</div>
+                        <div class="rc-speed">MAX SPEED</div>
+                        <div class="rc-outcome">OUT</div>
+                        <div class="rc-action">Let it go</div>
                     </div>
                 </div>
             </div>
