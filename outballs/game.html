@@ -491,7 +491,7 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   </div>
   <div class="hud-right-group">
     <button class="cam-btn" id="btn-cam-lock" title="Unlock camera (drag with mouse)">🔒</button>
-    <button class="cam-btn" id="btn-camera" title="Cycle camera view">Camera</button>
+    <button class="cam-btn" id="btn-camera" title="Change camera view — click to cycle">🎥 Change View</button>
     <div class="hud-right">
       <div class="lbl">Score</div>
       <div class="score" id="score-val">0</div>
@@ -977,7 +977,12 @@ const camera = new THREE.PerspectiveCamera(45, vp.clientWidth / vp.clientHeight,
 // "Net view" is the low-and-level broadcast shot with both players framed.
 const CAM_PRESETS = [
   { name:'Sideline',      pos:[38,  8,    12],   look:[0, 3, 0]    },
-  { name:'First person',  pos:[5,   3.75, 8],    look:[5, 3, -22], hidesDefender:true },
+  // First-person moved BACK from z=8 (at player's head, net felt too close
+  // per Ben 2026-04-22) to z=14 — 6 units behind the player's head at
+  // slightly elevated y for a proper "over-the-shoulder" viewpoint. The
+  // defender model stays VISIBLE (hidesDefender removed) so you see the
+  // back of the player in frame, which reads as first-person POV.
+  { name:'Behind player', pos:[5,   4.4,  14],   look:[5, 2.6, -22] },
   { name:'Net view',      pos:[45,  3,   -7],    look:[0, 2.5, -7] },  // wide side-on, z-centered so BOTH players are visible
   { name:'Birds-eye',     pos:[0,   44,   0.01], look:[0, 0, 0]    }
 ];
@@ -1058,7 +1063,7 @@ function applyCameraPreset(idx, instant = false){
   // occlude the shot. Every other preset shows them.
   if (typeof defender !== 'undefined') defender.visible = !preset.hidesDefender;
   const btn = document.getElementById('btn-camera');
-  if (btn) btn.textContent = 'Cam · ' + preset.name;
+  if (btn) btn.innerHTML = '🎥 ' + preset.name + ' <span style="opacity:.55;margin-left:4px;">↻</span>';
 }
 document.getElementById('btn-camera').addEventListener('click', cycleCamera);
 
