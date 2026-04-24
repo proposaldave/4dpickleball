@@ -443,6 +443,22 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 /* Loading */
 #loading{position:fixed;inset:0;z-index:300;background:var(--4dp-ink);display:flex;align-items:center;justify-content:center;color:var(--4dp-text);font-family:var(--4dp-font-display);font-style:italic;font-size:30px;transition:opacity .5s ease;}
 #loading.gone{opacity:0;pointer-events:none;visibility:hidden;}
+
+/* ──── Cross-device UX hardening (audit 2026-04-23) ──── */
+/* iOS Safari URL bar bounce: prefer dvh over vh so bottom-bar never gets covered */
+@supports (height: 100dvh){
+  html, body{min-height:100dvh}
+}
+/* P2: hi-score moved out of top-right corner to avoid HUD overlap */
+#hi-score{top:12px !important; right:auto !important; left:50% !important; transform:translateX(-50%) !important}
+/* P2: hide the long gate hint on small tablets where it crams */
+@media(max-width:640px){
+  .gate-hint{display:none !important}
+}
+/* P2: make .round line legible on mobile */
+@media(max-width:480px){
+  .hud-right .round{font-size:12px !important; color:var(--4dp-text) !important}
+}
 </style>
 </head>
 <body>
@@ -3211,5 +3227,40 @@ if (document.readyState === 'complete') {
 }
 </script>
 
+
+<script>
+// ──── Touch label rewrite shim (audit 2026-04-23) ────
+// Coarse pointer (phone/tablet) → rewrite mouse-centric copy to touch language.
+// Runs once on load; safe to re-run.
+(function(){
+  if (!window.matchMedia || !matchMedia('(pointer:coarse)').matches) return;
+  var swaps = [
+    [/RIGHT MOUSE/g, 'TAP'],
+    [/LEFT MOUSE/g, 'TAP & HOLD'],
+    [/right mouse/g, 'tap'],
+    [/left mouse/g, 'tap & hold'],
+    [/RIGHT-CLICK/g, 'TAP'],
+    [/right-click/g, 'tap'],
+  ];
+  function rewrite(el){
+    if (!el) return;
+    el.childNodes.forEach(function(n){
+      if (n.nodeType === 3) {
+        var v = n.nodeValue;
+        swaps.forEach(function(s){ v = v.replace(s[0], s[1]); });
+        if (v !== n.nodeValue) n.nodeValue = v;
+      } else if (n.nodeType === 1 && n.tagName !== 'SCRIPT' && n.tagName !== 'STYLE') {
+        rewrite(n);
+      }
+    });
+  }
+  function run(){ rewrite(document.body); }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else { run(); }
+  // Re-run after a short delay in case dynamic copy was injected
+  setTimeout(run, 800);
+})();
+</script>
 </body>
 </html>
