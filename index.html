@@ -168,7 +168,11 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hero-chart figcaption{
   text-align:center;font-family:var(--font-body);
   font-size:clamp(13px,1.6vw,16px);color:var(--warm-dim);
-  margin-top:10px;font-style:italic;line-height:1.4;
+  margin-top:10px;font-style:italic;line-height:1.5;
+  max-width:600px;margin-left:auto;margin-right:auto;
+}
+.hero-chart figcaption strong{
+  color:var(--warm);font-weight:700;font-style:normal;
 }
 /* SVG text */
 .hc-num{
@@ -1021,7 +1025,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <!-- Y-axis label -->
         <text class="hc-axis-y" x="38" y="135" text-anchor="middle" transform="rotate(-90 38 135)" fill="rgba(245,243,238,.5)">SHOTS / RALLY</text>
       </svg>
-      <figcaption>Rallies grow as you add dimensions.</figcaption>
+      <figcaption>Rallies lengthen as you add dimensions. <strong>That's peak social pickleball.</strong></figcaption>
     </figure>
 
     <div class="fd-row">
