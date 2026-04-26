@@ -67,6 +67,19 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 /* ── HERO ── */
 .hero{text-align:center;padding:48px 0 40px;position:relative}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
+.fd-row{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:16px;margin:36px 0 8px;flex-wrap:wrap;
+}
+/* Each pair (Drive→Defend, Drop→Dink) stays together as a single unit and never breaks across lines */
+.fd-pair{
+  display:inline-flex;align-items:center;gap:16px;flex-wrap:nowrap;
+}
+/* On phone, force the layout into 2 rows: pair / connector / pair → pair-on-row1, pair-on-row2 (connector hidden so it doesn't dangle) */
+@media (max-width:620px){
+  .fd-row .fd-arrow.fa-2{display:none}
+  .fd-pair{flex-basis:100%;justify-content:center}
+}
 .fd-word{
   font-size:clamp(28px,4.5vw,48px);font-weight:900;letter-spacing:-1.2px;
   color:var(--fd-c);text-shadow:0 0 28px color-mix(in srgb,var(--fd-c) 35%,transparent);
@@ -761,14 +774,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <h1>Anyone can learn<br>to play 4D Pickleball.</h1>
 
-    <div style="display:inline-flex;align-items:center;justify-content:center;gap:16px;margin:36px 0 8px;flex-wrap:wrap">
-      <span class="fd-word fw-1" style="--fd-c:#FBBF24">Drive</span>
-      <span class="fd-arrow fa-1" style="--fa-c:#F472B6">→</span>
-      <span class="fd-word fw-2" style="--fd-c:#F472B6">Defend</span>
+    <div class="fd-row">
+      <div class="fd-pair">
+        <span class="fd-word fw-1" style="--fd-c:#FBBF24">Drive</span>
+        <span class="fd-arrow fa-1" style="--fa-c:#F472B6">→</span>
+        <span class="fd-word fw-2" style="--fd-c:#F472B6">Defend</span>
+      </div>
       <span class="fd-arrow fa-2" style="--fa-c:#34D399">→</span>
-      <span class="fd-word fw-3" style="--fd-c:#34D399">Drop</span>
-      <span class="fd-arrow fa-3" style="--fa-c:#2B8BFC">→</span>
-      <span class="fd-word fw-4" style="--fd-c:#2B8BFC">Dink</span>
+      <div class="fd-pair">
+        <span class="fd-word fw-3" style="--fd-c:#34D399">Drop</span>
+        <span class="fd-arrow fa-3" style="--fa-c:#2B8BFC">→</span>
+        <span class="fd-word fw-4" style="--fd-c:#2B8BFC">Dink</span>
+      </div>
     </div>
 
   </div>
@@ -784,7 +801,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         </div>
         <iframe
           id="dim-iframe"
-          src="4dp/3d_module_template.html?embedded=1&v=1776726173"
+          src="../4dp/3d_module_template.html?embedded=1&v=1776726173"
           title="4D Pickleball cinematic 3D module"
           loading="eager"
           fetchpriority="low"
