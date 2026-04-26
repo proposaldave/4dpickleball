@@ -306,9 +306,13 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow{filter:blur(3px)}
 .hc-peak-glow-1{opacity:.30}
 .hc-peak-glow-2{opacity:.12}
-.hc-peak-pole{stroke-linecap:round}
-/* Subtle white drop-shadow for separation from dark BG (was gold to match yellow flag) */
-.hc-peak-flag{filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+/* Peak emblem (replaced flag) — a celebration sparkle-burst above d4.
+   Central white star + 4 small dimension-colored confetti dots scattered. */
+.hc-burst-star{
+  filter:drop-shadow(0 0 8px rgba(255,255,255,.7));
+  transform-origin:720px 14px;
+}
+.hc-burst-dot{filter:drop-shadow(0 0 3px currentColor)}
 .hc-axis-r{
   font-family:var(--font-body);font-weight:800;font-size:11px;letter-spacing:2.5px;
   opacity:.85;
@@ -344,19 +348,27 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow{opacity:0;animation:hcFade 0.7s ease 2.9s forwards}
 .hc-peak-glow-1{animation-delay:2.9s}
 .hc-peak-glow-2{animation-delay:2.9s}
-.hc-peak-pole{opacity:0;animation:hcFade 0.6s ease 3.0s forwards}
-.hc-peak-flag{opacity:0;animation:hcFlagPlant 0.7s cubic-bezier(.34,1.56,.64,1) 3.2s forwards;transform-origin:720px 11px}
+/* Burst lands AFTER d4 dot pops (d4 = 2.7s) — full group fades in, star pulses gently */
+.hc-peak-burst{opacity:0;animation:hcFade 0.7s cubic-bezier(.34,1.56,.64,1) 3.0s forwards}
+.hc-burst-star{
+  animation:hcSparkleAppear 0.7s cubic-bezier(.34,1.56,.64,1) 3.0s both,
+            hcSparklePulse 2.6s ease-in-out 4s infinite;
+}
 @keyframes hcFade{to{opacity:1}}
-@keyframes hcFlagPlant{
-  0%{opacity:0;transform:scale(.4) rotate(-30deg)}
-  100%{opacity:1;transform:scale(1) rotate(0deg)}
+@keyframes hcSparkleAppear{
+  0%{transform:scale(0) rotate(-90deg)}
+  100%{transform:scale(1) rotate(0deg)}
+}
+@keyframes hcSparklePulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.18)}
 }
 
 @media(prefers-reduced-motion:reduce){
   .hc-line{stroke-dashoffset:0;animation:none}
   .hc-area, .hc-dot, .hc-labels-top text, .hc-labels-bot text,
   .hc-axis-y, .hc-axis-y-arrow, .hc-curve-label, .hc-peak-glow,
-  .hc-peak-pole, .hc-peak-flag{
+  .hc-peak-burst, .hc-burst-star, .hc-burst-dot{
     opacity:1;animation:none;transform:none;
   }
 }
@@ -1144,19 +1156,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
             <stop offset="0%" stop-color="#2B8BFC" stop-opacity="0.22"/>
             <stop offset="100%" stop-color="#2B8BFC" stop-opacity="0"/>
           </linearGradient>
-          <!-- Championship pennant gradient: 4 sharp color bands representing each
-               dimension conquered (yellow=1D, pink=2D, green=3D, blue=4D).
-               Sharp stops create crisp stripe boundaries instead of a soft fade. -->
-          <linearGradient id="hcFlagGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#FBBF24"/>
-            <stop offset="25%" stop-color="#FBBF24"/>
-            <stop offset="25%" stop-color="#F472B6"/>
-            <stop offset="50%" stop-color="#F472B6"/>
-            <stop offset="50%" stop-color="#34D399"/>
-            <stop offset="75%" stop-color="#34D399"/>
-            <stop offset="75%" stop-color="#2B8BFC"/>
-            <stop offset="100%" stop-color="#2B8BFC"/>
-          </linearGradient>
+          <!-- Flag gradient removed: peak emblem is now a sparkle-burst with 4 small
+               dimension-colored confetti dots, not a striped flag (which read as pride flag). -->
         </defs>
         <!-- Baseline grid -->
         <line x1="80" y1="230" x2="720" y2="230" stroke="rgba(245,243,238,.12)" stroke-dasharray="3 6"/>
@@ -1225,12 +1226,17 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
              italic, dimmed, rotated -15deg parallel to the curve's slope. -->
         <text class="hc-curve-label" x="385" y="208" text-anchor="middle" transform="rotate(-15 385 208)">Rally length</text>
 
-        <!-- Peak emblem at d4: pole rises from dot; 4-band pennant flies right with
-             yellow/pink/green/blue stripes — one for each dimension conquered.
-             Notched right edge gives the flag-shape silhouette. -->
-        <line class="hc-peak-pole" x1="720" y1="31" x2="720" y2="3" stroke="#94A3B8" stroke-width="1.6"/>
-        <!-- Notched pennant: rectangular body with V-cut on the right edge -->
-        <path class="hc-peak-flag" d="M 720 3 L 749 3 L 743 11 L 749 19 L 720 19 Z" fill="url(#hcFlagGrad)"/>
+        <!-- Peak emblem at d4: celebration sparkle-burst above the dot.
+             Central white 4-point star + 4 small confetti dots in dimension colors
+             (yellow/pink/green/blue) scattered around it. Reads as "celebration"
+             not as a striped flag. The star pulses gently after landing. -->
+        <g class="hc-peak-burst">
+          <path class="hc-burst-star" d="M 720 5 L 722.4 11.6 L 729 14 L 722.4 16.4 L 720 23 L 717.6 16.4 L 711 14 L 717.6 11.6 Z" fill="#FFFFFF"/>
+          <circle class="hc-burst-dot bd-1" cx="708" cy="8" r="1.4" fill="#FBBF24"/>
+          <circle class="hc-burst-dot bd-2" cx="733" cy="9" r="1.4" fill="#F472B6"/>
+          <circle class="hc-burst-dot bd-3" cx="706" cy="22" r="1.4" fill="#34D399"/>
+          <circle class="hc-burst-dot bd-4" cx="734" cy="22" r="1.4" fill="#2B8BFC"/>
+        </g>
       </svg>
     </figure>
 
