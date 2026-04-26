@@ -651,15 +651,24 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .phil-callout{font-size:14px}
 }
 
-/* ── Animation section header — "Where are you on your journey to 4D?" ── */
+/* ── Animation section header — "Your journey to 4D" + rally-length subtitle ── */
 .anim-header{
   font-family:var(--font-display);font-style:italic;font-weight:400;
   font-size:clamp(22px,3vw,32px);line-height:1.15;letter-spacing:-.5px;
   text-align:center;color:var(--warm);
-  margin:0 auto 22px;max-width:680px;
+  margin:0 auto 8px;max-width:680px;
 }
+.anim-sub{
+  text-align:center;font-family:var(--font-body);
+  font-size:clamp(13px,1.5vw,15px);color:var(--warm-dim);
+  margin:0 auto 22px;max-width:760px;line-height:1.5;
+}
+.anim-sub .rs-num{font-weight:800;font-style:italic;font-family:var(--font-display);font-size:1.18em;letter-spacing:-.3px}
+.anim-sub .rs-arrow{color:var(--warm-mute);margin:0 4px;font-weight:700}
 @media(max-width:620px){
-  .anim-header{font-size:clamp(18px,5vw,22px);margin-bottom:16px;letter-spacing:-.2px}
+  .anim-header{font-size:clamp(18px,5vw,22px);margin-bottom:6px;letter-spacing:-.2px}
+  .anim-sub{font-size:13px;margin-bottom:16px}
+  .anim-sub .rs-arrow{margin:0 2px}
 }
 
 /* ── Dimension info panel (side of iframe) ── */
@@ -728,6 +737,13 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .dim-chip[data-shot="defend"]{--dc:#F472B6}
 .dim-chip[data-shot="drop"]  {--dc:#34D399}
 .dim-chip[data-shot="dink"]  {--dc:#2B8BFC}
+/* Rally length stat — bottom of each chip, color-coded to dimension */
+.dc-rally{
+  font-family:var(--font-body);font-size:11px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;
+  color:var(--dc,#FBBF24);margin-top:6px;opacity:.92;
+}
+.dim-chip[data-shot="dink"] .dc-rally{font-weight:800;letter-spacing:.3px}
 .dim-chip .dc-num{
   font-weight:700;font-size:10px;letter-spacing:2px;
   color:var(--dc);text-transform:uppercase;
@@ -896,6 +912,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
        + side info panel (parent-rendered, synced via postMessage from the iframe) -->
   <section style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
     <h2 class="anim-header">Your journey to 4D</h2>
+    <p class="anim-sub">Rallies grow from <span class="rs-num" style="color:#FBBF24">~3 shots</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#F472B6">~5</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#34D399">~8</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#2B8BFC">15+ shots</span> as you add dimensions.</p>
     <div class="dim-layout">
       <div class="dim-frame">
         <div class="touch-ctrls" aria-label="Touch controls">
@@ -915,18 +932,22 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <button class="dim-chip active" data-shot="drive"  role="tab" aria-selected="true">
             <span class="dc-num">1D · Drive</span>
             <span class="dc-name">Ball Striking</span>
+            <span class="dc-rally">~3 shots / rally</span>
           </button>
           <button class="dim-chip" data-shot="defend" role="tab" aria-selected="false">
             <span class="dc-num">2D · Defend</span>
             <span class="dc-name">Baby Block</span>
+            <span class="dc-rally">~5 shots / rally</span>
           </button>
           <button class="dim-chip" data-shot="drop"   role="tab" aria-selected="false">
             <span class="dc-num">3D · Drop</span>
             <span class="dc-name">Under the Ball</span>
+            <span class="dc-rally">~8 shots / rally</span>
           </button>
           <button class="dim-chip" data-shot="dink"   role="tab" aria-selected="false">
             <span class="dc-num">4D · Dink</span>
             <span class="dc-name">Generating Kitchen Offense</span>
+            <span class="dc-rally">15+ shots / rally</span>
           </button>
         </div>
 
@@ -977,7 +998,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <li>Tournaments, DUPR, leagues, written scores.</li>
           <li>Target the weaker player. Ice them out.</li>
           <li>Wins get rewarded. Losses get punished.</li>
-          <li>Promotes 1D banger pickleball — short, fast points.</li>
+          <li>Tends toward shorter, simpler 1D points.</li>
         </ul>
       </div>
       <div class="phil-col phil-social">
@@ -990,7 +1011,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <li>Scores don't get written down.</li>
           <li>The point is the point.</li>
           <li>Be the player others want on their court.</li>
-          <li>Promotes 4D pickleball — long rallies, fun points, real community.</li>
+          <li>Tends toward longer 4D rallies — fun points, real community.</li>
         </ul>
         <div class="phil-callout">
           <strong>4D Pickleball is for the 85%.</strong>
