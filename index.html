@@ -105,6 +105,20 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 /* Scroll cue pinned to bottom of hero — main content stays top-aligned */
 .hero .scroll-cue{margin-top:auto}
+
+/* Full-viewport section template — sections 2 & 3 (animation, philosophy).
+   Each fills 100dvh so the next section can't peek above the fold. Content
+   centers vertically (justify-content); scroll cue auto-margins to the bottom. */
+.section-full{
+  min-height:calc(100vh - 32px);
+  min-height:calc(100dvh - 32px);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:48px 24px;box-sizing:border-box;
+  margin:0 auto !important;
+}
+.section-full > *{width:100%;max-width:1360px}
+.section-full .scroll-cue{margin-top:auto;width:auto;max-width:none}
+@media(max-width:620px){.section-full{padding:32px 16px}}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
 /* "The Progression" caption UNDER the wordmark — labels the four-word sequence as the named progression after the visual lands */
 .fd-eyebrow{
@@ -1144,7 +1158,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
   <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
        + side info panel (parent-rendered, synced via postMessage from the iframe) -->
-  <section class="reveal-section" style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
+  <section class="reveal-section section-full">
     <h2 class="anim-header">Our 4D journey</h2>
     <div class="dim-layout">
       <div class="dim-frame">
@@ -1165,22 +1179,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <button class="dim-chip active" data-shot="drive"  role="tab" aria-selected="true">
             <span class="dc-num">1D · Drive</span>
             <span class="dc-name">Ball Striking</span>
-            <span class="dc-rally">5 shots / rally</span>
           </button>
           <button class="dim-chip" data-shot="defend" role="tab" aria-selected="false">
             <span class="dc-num">2D · Defend</span>
             <span class="dc-name">Baby Block</span>
-            <span class="dc-rally">8 shots / rally</span>
           </button>
           <button class="dim-chip" data-shot="drop"   role="tab" aria-selected="false">
             <span class="dc-num">3D · Drop</span>
             <span class="dc-name">Under the Ball</span>
-            <span class="dc-rally">12 shots / rally</span>
           </button>
           <button class="dim-chip" data-shot="dink"   role="tab" aria-selected="false">
             <span class="dc-num">4D · Dink</span>
             <span class="dc-name">Generating Kitchen Offense</span>
-            <span class="dc-rally">20+ shots / rally</span>
           </button>
         </div>
 
@@ -1198,9 +1208,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
               <span class="zd-chip zd-chip-link">Anticipation&nbsp;↓</span>
               <span class="zd-chip">Ready Position</span>
             </div>
+            <div class="zd-ctas-label">Open a module ↓</div>
             <div class="zd-ctas">
-              <a href="/scoring/" class="zd-cta">Beginner Scoring &amp; Positioning</a>
-              <a href="/outballs/" class="zd-cta">Train Out Balls</a>
+              <a href="/scoring/" class="zd-cta">
+                <span class="zd-cta-tag">Module · 0D</span>
+                <span class="zd-cta-name">Beginner Scoring &amp; Positioning</span>
+                <span class="zd-cta-arrow">→</span>
+              </a>
+              <a href="/outballs/" class="zd-cta">
+                <span class="zd-cta-tag">Module · 0D</span>
+                <span class="zd-cta-name">Train Out Balls</span>
+                <span class="zd-cta-arrow">→</span>
+              </a>
             </div>
           </div>
         </div>
@@ -1223,7 +1242,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   </section>
 
   <!-- ── PHILOSOPHY: Two kinds of pickleball ── -->
-  <section class="philosophy reveal-section">
+  <section class="philosophy reveal-section section-full">
     <h2 class="phil-header">Two kinds of pickleball.</h2>
     <p class="phil-lede">Both are amazing. They're not the same.</p>
 
@@ -1238,7 +1257,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <li>Tournaments, DUPR, leagues, written scores.</li>
           <li>Win and get rewarded. Lose and you're punished.</li>
           <li>Ice out the weaker player.</li>
-          <li>Most amateurs play short-rally-style.</li>
+          <li>Most amateurs focus more on short-rally-style.</li>
         </ul>
       </div>
       <div class="phil-col phil-social">
@@ -1249,7 +1268,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         </div>
         <ul>
           <li>Scores aren't written down.</li>
-          <li>The value is in the rally, the people, and how you <em>feel</em>.</li>
+          <li>The experience is in the rally, the people, and how you <em>feel</em>.</li>
           <li>Peak social pickleball is when you have all 4 dimensions.</li>
         </ul>
         <div class="phil-callout">
