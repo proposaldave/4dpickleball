@@ -602,10 +602,26 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .phil-col.phil-social{border-top:3px solid #2B8BFC}
 .phil-tag{
   font-family:var(--font-body);font-size:11px;font-weight:800;
-  letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px;
+  letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px;
 }
 .phil-comp .phil-tag{color:#FBBF24}
 .phil-social .phil-tag{color:#2B8BFC}
+/* Big stat number + small explainer (lives just under the column tag) */
+.phil-stat{display:flex;align-items:baseline;gap:10px;margin-bottom:18px}
+.phil-stat-num{
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:clamp(40px,5vw,56px);line-height:1;letter-spacing:-1.5px;
+}
+.phil-comp .phil-stat-num{color:#FBBF24}
+.phil-social .phil-stat-num{color:#2B8BFC}
+.phil-stat-label{
+  font-size:13px;color:var(--warm-dim);font-style:italic;
+  font-family:var(--font-body);
+}
+@media(max-width:620px){
+  .phil-stat-num{font-size:clamp(34px,9vw,42px);letter-spacing:-1px}
+  .phil-stat-label{font-size:12px}
+}
 .phil-col ul{list-style:none;padding:0;margin:0}
 .phil-col li{
   font-size:16px;color:var(--warm);line-height:1.5;
@@ -952,7 +968,11 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <div class="phil-grid">
       <div class="phil-col phil-comp">
-        <div class="phil-tag">15% — Competitive</div>
+        <div class="phil-tag">Competitive</div>
+        <div class="phil-stat">
+          <span class="phil-stat-num">15%</span>
+          <span class="phil-stat-label">of all pickleball</span>
+        </div>
         <ul>
           <li>Tournaments, DUPR, leagues, written scores.</li>
           <li>Target the weaker player. Ice them out.</li>
@@ -961,7 +981,11 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         </ul>
       </div>
       <div class="phil-col phil-social">
-        <div class="phil-tag">85% — Social</div>
+        <div class="phil-tag">Social</div>
+        <div class="phil-stat">
+          <span class="phil-stat-num">85%</span>
+          <span class="phil-stat-label">of all pickleball</span>
+        </div>
         <ul>
           <li>Scores don't get written down.</li>
           <li>The point is the point.</li>
