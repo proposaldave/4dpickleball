@@ -157,16 +157,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .fd-row .fd-word, .fd-row .fd-arrow{
   position:absolute;
   top:50%;
+  margin:0;
+  /* Resting transform centers the box on its left:%; animations override during their run */
+  transform:translate(-50%,-50%);
   /* translate(-50%,-50%) is composed into each animation's transform */
 }
-/* Equal-width word boxes — each word is centered inside a 6.4ch container so
-   "Drive", "Defend", "Drop", "Dink" all occupy the same visual width regardless
-   of character count. This makes arrow midpoints land at visually-even gaps
-   between words. Without this, "Defend" being widest crowded the adjacent arrows. */
+/* FIXED-width word boxes — every .fd-word is EXACTLY 7ch wide, regardless of
+   character count. This is the only way to guarantee even gaps to the arrows.
+   Earlier attempts with min-width let "Defend" overflow past the others. */
 .fd-row .fd-word{
   display:inline-block;
   text-align:center;
-  min-width:6.4ch;
+  width:7ch;
 }
 .fd-row .fd-word.fw-1{ left:calc(20px + (100% - 40px) * 0.10) }
 .fd-row .fd-word.fw-2{ left:calc(20px + (100% - 40px) * 0.36667) }
@@ -306,13 +308,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow{filter:blur(3px)}
 .hc-peak-glow-1{opacity:.30}
 .hc-peak-glow-2{opacity:.12}
-/* Peak emblem (replaced flag) — a celebration sparkle-burst above d4.
-   Central white star + 4 small dimension-colored confetti dots scattered. */
-.hc-burst-star{
-  filter:drop-shadow(0 0 8px rgba(255,255,255,.7));
-  transform-origin:720px 14px;
-}
-.hc-burst-dot{filter:drop-shadow(0 0 3px currentColor)}
+/* Peak emblem — solid 4D-blue swallowtail flag with white ◆ brand mark on it.
+   Reads as "the 4D Pickleball flag planted at the summit." Single-color so it
+   doesn't read as pride flag (which a multi-band gradient did). */
+.hc-peak-pole{stroke-linecap:round}
+.hc-peak-flag{filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+.hc-peak-flag-mark{letter-spacing:0}
 .hc-axis-r{
   font-family:var(--font-body);font-weight:800;font-size:11px;letter-spacing:2.5px;
   opacity:.85;
@@ -348,27 +349,21 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow{opacity:0;animation:hcFade 0.7s ease 2.9s forwards}
 .hc-peak-glow-1{animation-delay:2.9s}
 .hc-peak-glow-2{animation-delay:2.9s}
-/* Burst lands AFTER d4 dot pops (d4 = 2.7s) — full group fades in, star pulses gently */
-.hc-peak-burst{opacity:0;animation:hcFade 0.7s cubic-bezier(.34,1.56,.64,1) 3.0s forwards}
-.hc-burst-star{
-  animation:hcSparkleAppear 0.7s cubic-bezier(.34,1.56,.64,1) 3.0s both,
-            hcSparklePulse 2.6s ease-in-out 4s infinite;
-}
+/* Flag lands AFTER d4 dot pops (d4 = 2.7s): pole fades in, then flag plants with bounce */
+.hc-peak-pole{opacity:0;animation:hcFade 0.6s ease 3.0s forwards}
+.hc-peak-flag{opacity:0;animation:hcFlagPlant 0.7s cubic-bezier(.34,1.56,.64,1) 3.2s forwards;transform-origin:720px 11px}
+.hc-peak-flag-mark{opacity:0;animation:hcFade 0.5s ease 3.7s forwards}
 @keyframes hcFade{to{opacity:1}}
-@keyframes hcSparkleAppear{
-  0%{transform:scale(0) rotate(-90deg)}
-  100%{transform:scale(1) rotate(0deg)}
-}
-@keyframes hcSparklePulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.18)}
+@keyframes hcFlagPlant{
+  0%{opacity:0;transform:scale(.4) rotate(-30deg)}
+  100%{opacity:1;transform:scale(1) rotate(0deg)}
 }
 
 @media(prefers-reduced-motion:reduce){
   .hc-line{stroke-dashoffset:0;animation:none}
   .hc-area, .hc-dot, .hc-labels-top text, .hc-labels-bot text,
   .hc-axis-y, .hc-axis-y-arrow, .hc-curve-label, .hc-peak-glow,
-  .hc-peak-burst, .hc-burst-star, .hc-burst-dot{
+  .hc-peak-pole, .hc-peak-flag, .hc-peak-flag-mark{
     opacity:1;animation:none;transform:none;
   }
 }
@@ -1156,8 +1151,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
             <stop offset="0%" stop-color="#2B8BFC" stop-opacity="0.22"/>
             <stop offset="100%" stop-color="#2B8BFC" stop-opacity="0"/>
           </linearGradient>
-          <!-- Flag gradient removed: peak emblem is now a sparkle-burst with 4 small
-               dimension-colored confetti dots, not a striped flag (which read as pride flag). -->
+          <!-- Solid 4D-blue flag gradient — light blue at top, deeper 4D blue at bottom,
+               for a subtle satin sheen. Single-color so it doesn't read as pride flag. -->
+          <linearGradient id="hcFlagGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#60A5FA"/>
+            <stop offset="100%" stop-color="#2B8BFC"/>
+          </linearGradient>
         </defs>
         <!-- Baseline grid -->
         <line x1="80" y1="230" x2="720" y2="230" stroke="rgba(245,243,238,.12)" stroke-dasharray="3 6"/>
@@ -1226,17 +1225,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
              italic, dimmed, rotated -15deg parallel to the curve's slope. -->
         <text class="hc-curve-label" x="385" y="208" text-anchor="middle" transform="rotate(-15 385 208)">Rally length</text>
 
-        <!-- Peak emblem at d4: celebration sparkle-burst above the dot.
-             Central white 4-point star + 4 small confetti dots in dimension colors
-             (yellow/pink/green/blue) scattered around it. Reads as "celebration"
-             not as a striped flag. The star pulses gently after landing. -->
-        <g class="hc-peak-burst">
-          <path class="hc-burst-star" d="M 720 5 L 722.4 11.6 L 729 14 L 722.4 16.4 L 720 23 L 717.6 16.4 L 711 14 L 717.6 11.6 Z" fill="#FFFFFF"/>
-          <circle class="hc-burst-dot bd-1" cx="708" cy="8" r="1.4" fill="#FBBF24"/>
-          <circle class="hc-burst-dot bd-2" cx="733" cy="9" r="1.4" fill="#F472B6"/>
-          <circle class="hc-burst-dot bd-3" cx="706" cy="22" r="1.4" fill="#34D399"/>
-          <circle class="hc-burst-dot bd-4" cx="734" cy="22" r="1.4" fill="#2B8BFC"/>
-        </g>
+        <!-- Peak emblem at d4: silver pole + solid 4D-blue swallowtail flag with the
+             brand ◆ stamped in white. Single-color so it doesn't read as pride flag.
+             Pole rises from top of dot; flag flies right with a V-notch trailing edge. -->
+        <line class="hc-peak-pole" x1="720" y1="31" x2="720" y2="3" stroke="#94A3B8" stroke-width="1.6"/>
+        <path class="hc-peak-flag" d="M 720 3 L 744 3 L 740 11 L 744 19 L 720 19 Z" fill="url(#hcFlagGrad)"/>
+        <text class="hc-peak-flag-mark" x="730" y="11" text-anchor="middle" dominant-baseline="central" font-family="var(--font-body)" font-weight="900" font-size="10" fill="#FFFFFF">◆</text>
       </svg>
     </figure>
 
