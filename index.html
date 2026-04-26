@@ -592,7 +592,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   text-align:center;font-size:18px;color:var(--warm-dim);
   margin:0 0 38px;font-family:var(--font-body);font-style:italic;line-height:1.5;
 }
-.phil-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
+.phil-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:0}
 @media(max-width:760px){.phil-grid{grid-template-columns:1fr;gap:14px}}
 .phil-col{
   background:rgba(10,22,40,.72);border:1px solid rgba(245,243,238,.08);
@@ -619,18 +619,20 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .phil-comp li::before{background:#FBBF24}
 .phil-social li::before{background:#2B8BFC}
-.phil-close{
-  text-align:center;font-size:18px;color:var(--warm);
-  max-width:720px;margin:24px auto 0;line-height:1.6;
+/* In-card callout — lives at the bottom of the SOCIAL column to anchor the whole section */
+.phil-callout{
+  margin-top:18px;padding-top:18px;
+  border-top:1px solid rgba(43,139,252,.22);
+  font-size:15px;line-height:1.55;color:var(--warm);
   font-family:var(--font-body);
 }
-.phil-close strong{color:var(--warm);font-weight:700}
+.phil-callout strong{color:#2B8BFC;font-weight:700;display:block;margin-bottom:6px;font-size:16px}
 @media(max-width:620px){
   .philosophy{margin:50px auto 30px}
   .phil-lede{font-size:16px;margin-bottom:28px}
   .phil-col{padding:22px 20px}
   .phil-col li{font-size:15px}
-  .phil-close{font-size:16px}
+  .phil-callout{font-size:14px}
 }
 
 /* ── Animation section header — "Where are you on your journey to 4D?" ── */
@@ -966,13 +968,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <li>Be the player others want on their court.</li>
           <li>Promotes 4D pickleball — long rallies, fun points, real community.</li>
         </ul>
+        <div class="phil-callout">
+          <strong>4D Pickleball is for the 85%.</strong>
+          The progression turns 1D banger games into 4D rallies — the kind people want more of. Not caring so much about the W or the L. Caring about the point you just played together.
+        </div>
       </div>
     </div>
-
-    <p class="phil-close">
-      <strong>4D Pickleball is for the 85%.</strong>
-      The progression turns 1D banger games into 4D rallies — the kind people want more of. Not caring so much about the W or the L. Caring about the point you just played together.
-    </p>
   </section>
 
 </div><!-- /page-pyramid -->
