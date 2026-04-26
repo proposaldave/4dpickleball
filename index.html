@@ -1155,7 +1155,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <div class="fd-eyebrow">The Progression</div>
 
-    <button class="scroll-cue" type="button" aria-label="Scroll down to see your 4D journey">
+    <button class="scroll-cue" type="button" data-scroll-target=".philosophy" aria-label="Continue to: Two kinds of pickleball">
       <span class="scroll-cue-label">Continue</span>
       <svg class="scroll-cue-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M7 7l5 5 5-5M7 13l5 5 5-5"/>
@@ -1164,9 +1164,57 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
   </div>
 
-  <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
-       + side info panel (parent-rendered, synced via postMessage from the iframe) -->
-  <section class="reveal-section section-full">
+  <!-- ── SECTION 2 — THE WHY: Two kinds of pickleball (thesis unpacked).
+       Moved here from the bottom of the page so the visitor learns WHY 4D matters
+       (85% social pickleball, long rallies = more fun) BEFORE exploring the dimensions. -->
+  <section class="philosophy reveal-section section-full">
+    <h2 class="phil-header">Two kinds of pickleball.</h2>
+    <p class="phil-lede">Both are amazing. They're not the same.</p>
+
+    <div class="phil-grid">
+      <div class="phil-col phil-comp">
+        <div class="phil-tag">Competitive</div>
+        <div class="phil-stat">
+          <span class="phil-stat-num">15%</span>
+          <span class="phil-stat-label">of all pickleball</span>
+        </div>
+        <ul>
+          <li>Tournaments, DUPR, leagues, written scores.</li>
+          <li>Win and get rewarded. Lose and you're punished.</li>
+          <li>Ice out the weaker player.</li>
+          <li>Most amateurs focus more on short-rally-style.</li>
+        </ul>
+      </div>
+      <div class="phil-col phil-social">
+        <div class="phil-tag">Social</div>
+        <div class="phil-stat">
+          <span class="phil-stat-num">85%</span>
+          <span class="phil-stat-label">of all pickleball</span>
+        </div>
+        <ul>
+          <li>Scores aren't written down.</li>
+          <li>The experience is in the rally, the people, and how you <em>feel</em>.</li>
+          <li>Peak social pickleball is when you have all 4 dimensions.</li>
+        </ul>
+        <div class="phil-callout">
+          <strong>4D Pickleball is for the 85%.</strong>
+          The progression turns short-rally-play into long-rally-play — the tension and fun building with every ball over the net, until everyone's laughing their heads off at the end. Not caring so much about the W or the L. Caring about the point you just played together.
+        </div>
+      </div>
+    </div>
+
+    <button class="scroll-cue scroll-cue-2" type="button" data-scroll-target="#four-d-journey" aria-label="Continue to: Our 4D journey">
+      <span class="scroll-cue-label">Continue</span>
+      <svg class="scroll-cue-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 7l5 5 5-5M7 13l5 5 5-5"/>
+      </svg>
+    </button>
+  </section>
+
+  <!-- ── SECTION 3 — THE HOW: Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
+       + side info panel (parent-rendered, synced via postMessage from the iframe).
+       Page now ENDS with the journey + 0D modules so visitors close on action paths. -->
+  <section id="four-d-journey" class="reveal-section section-full">
     <h2 class="anim-header">Our 4D journey</h2>
     <div class="dim-layout">
       <div class="dim-frame">
@@ -1239,51 +1287,6 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <div class="di-traj" id="di-traj">In 1D pickleball, the points don't last very long, and they are, well, one dimensional. This is how many of us started.</div>
         <div class="di-hint">Tap a dimension · Pinch to zoom · Drag to orbit · Space (or ⏸) to pause</div>
       </aside>
-    </div>
-
-    <button class="scroll-cue scroll-cue-2" type="button" data-scroll-target=".philosophy" aria-label="Continue to: Two kinds of pickleball">
-      <span class="scroll-cue-label">Continue</span>
-      <svg class="scroll-cue-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M7 7l5 5 5-5M7 13l5 5 5-5"/>
-      </svg>
-    </button>
-  </section>
-
-  <!-- ── PHILOSOPHY: Two kinds of pickleball ── -->
-  <section class="philosophy reveal-section section-full">
-    <h2 class="phil-header">Two kinds of pickleball.</h2>
-    <p class="phil-lede">Both are amazing. They're not the same.</p>
-
-    <div class="phil-grid">
-      <div class="phil-col phil-comp">
-        <div class="phil-tag">Competitive</div>
-        <div class="phil-stat">
-          <span class="phil-stat-num">15%</span>
-          <span class="phil-stat-label">of all pickleball</span>
-        </div>
-        <ul>
-          <li>Tournaments, DUPR, leagues, written scores.</li>
-          <li>Win and get rewarded. Lose and you're punished.</li>
-          <li>Ice out the weaker player.</li>
-          <li>Most amateurs focus more on short-rally-style.</li>
-        </ul>
-      </div>
-      <div class="phil-col phil-social">
-        <div class="phil-tag">Social</div>
-        <div class="phil-stat">
-          <span class="phil-stat-num">85%</span>
-          <span class="phil-stat-label">of all pickleball</span>
-        </div>
-        <ul>
-          <li>Scores aren't written down.</li>
-          <li>The experience is in the rally, the people, and how you <em>feel</em>.</li>
-          <li>Peak social pickleball is when you have all 4 dimensions.</li>
-        </ul>
-        <div class="phil-callout">
-          <strong>4D Pickleball is for the 85%.</strong>
-          The progression turns short-rally-play into long-rally-play — the tension and fun building with every ball over the net, until everyone's laughing their heads off at the end. Not caring so much about the W or the L. Caring about the point you just played together.
-        </div>
-      </div>
     </div>
   </section>
 
