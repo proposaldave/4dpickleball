@@ -903,14 +903,30 @@ const SHOTS = {
         { from: [ 3, 2.3, -12], to: [ 0, 0.15, 4], apex: 6.5, dur: 0.90 },
         // BOUNCE -> near paddle
         { from: [ 0, 0.15, 4], to: [-1, 2.3, 7], apex: 2.3, dur: 0.48 },
-        // PRESSURE DINK: groundstroke cross-court, BOUNCES in far kitchen
+        // PRESSURE DINK 1: near cross-court low, BOUNCES (pulls farRight)
         { from: [-1, 2.3, 7], to: [ 4, 0.15, -5], apex: 3.5, dur: 0.75 },
-        // BOUNCE -> far paddle
+        // BOUNCE -> farRight paddle
         { from: [ 4, 0.15, -5], to: [ 3, 2.3, -7], apex: 2.2, dur: 0.45 },
-        // RETURN DINK too high -> near VOLLEYS (out of air, no bounce)
-        { from: [ 3, 2.3, -7], to: [-4, 1.8, 6], apex: 3.2, dur: 0.65 },
-        // SPEEDUP: near volleys fast flat at far body
-        { from: [-4, 1.8, 6], to: [ 3, 1.5, -6], apex: 3.2, dur: 0.42 },
+        // PRESSURE DINK 2: far cross-court back, BOUNCES (pulls nearLeft)
+        { from: [ 3, 2.3, -7], to: [-4, 0.15, 4], apex: 3.5, dur: 0.75 },
+        // BOUNCE -> nearLeft paddle
+        { from: [-4, 0.15, 4], to: [-4, 2.3, 7], apex: 2.2, dur: 0.45 },
+        // PRESSURE DINK 3: near probes middle, BOUNCES (drags farLeft to center)
+        { from: [-4, 2.3, 7], to: [ 0, 0.15, -5], apex: 3.5, dur: 0.80 },
+        // BOUNCE -> farLeft paddle (now shifted center)
+        { from: [ 0, 0.15, -5], to: [-1, 2.3, -7], apex: 2.2, dur: 0.45 },
+        // PRESSURE DINK 4: farLeft cross to near-right, BOUNCES (stretches nearRight)
+        { from: [-1, 2.3, -7], to: [ 4, 0.15, 5], apex: 3.5, dur: 0.78 },
+        // BOUNCE -> nearRight paddle
+        { from: [ 4, 0.15, 5], to: [ 5, 2.3, 8], apex: 2.2, dur: 0.45 },
+        // PRESSURE DINK 5: near hard cross to far-LEFT, BOUNCES — WINDOW OPENS
+        { from: [ 5, 2.3, 8], to: [-5, 0.15, -4], apex: 3.5, dur: 0.78 },
+        // BOUNCE -> farLeft paddle (sprinted way wide left)
+        { from: [-5, 0.15, -4], to: [-5, 2.3, -7], apex: 2.2, dur: 0.45 },
+        // FAR SCRAMBLES: weak high return — sits up for near (no bounce)
+        { from: [-5, 2.3, -7], to: [-2, 1.8, 6], apex: 3.2, dur: 0.65 },
+        // SPEEDUP: near volleys fast flat at far-RIGHT body (open zone)
+        { from: [-2, 1.8, 6], to: [ 3, 1.5, -6], apex: 3.0, dur: 0.42 },
         // POP-UP: far reflex volley, ball floats high back (cinematic)
         { from: [ 3, 1.5, -6], to: [-3, 3.2, 4], apex: 4.5, dur: 0.70 },
         // FINISH: near overhead smash, lands on ground in far backcourt
@@ -918,29 +934,64 @@ const SHOTS = {
       ]
     },
     playerFrames: [
+      // F0 - pre-serve
       { nearLeft:[-5,21],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F1 - serve in flight
       { nearLeft:[-5,21],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F2 - nearLeft return contact
       { nearLeft:[-5,21],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F3 - return flying
       { nearLeft:[-5,12],   nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F4 - farRight drives 3rd shot
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F5 - drive impacts; near baby blocks
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-22],   farRight:[5,-22] },
+      // F6 - baby block bouncing far transition; far moves up
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-3,-18],   farRight:[3,-15] },
+      // F7 - far reaches; drop incoming
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-3,-14],   farRight:[3,-12] },
+      // F8 - drop bouncing near kitchen
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-3,-11],   farRight:[3,-10] },
+      // F9 - all four at kitchen — DINK PHASE BEGINS
       { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[5,-8] },
-      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[5,-8] },
-      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[5,-8] },
-      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[5,-8] },
-      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[5,-8] },
-      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[5,-8] },
-      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[6,-8] }
+      // F10 - DINK 1 lands far-right kitchen; farRight tracks
+      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[4,-8] },
+      // F11 - farRight contacts; DINK 2 sent cross
+      { nearLeft:[-5,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[3,-7] },
+      // F12 - DINK 2 lands near-left; nearLeft tracks
+      { nearLeft:[-4,8],    nearRight:[5,8],    farLeft:[-5,-8],    farRight:[3,-8] },
+      // F13 - nearLeft contacts; DINK 3 probes middle
+      { nearLeft:[-4,7],    nearRight:[5,8],    farLeft:[-4,-8],    farRight:[3,-8] },
+      // F14 - DINK 3 lands middle; farLeft drags toward center
+      { nearLeft:[-4,8],    nearRight:[5,8],    farLeft:[-2,-8],    farRight:[3,-8] },
+      // F15 - farLeft contacts at center; DINK 4 cross to nearRight
+      { nearLeft:[-4,8],    nearRight:[5,8],    farLeft:[-1,-7],    farRight:[3,-8] },
+      // F16 - DINK 4 lands far-right; nearRight tracks wide
+      { nearLeft:[-4,8],    nearRight:[5,8],    farLeft:[-1,-8],    farRight:[3,-8] },
+      // F17 - nearRight contacts wide; DINK 5 hard cross to far-LEFT
+      { nearLeft:[-3,8],    nearRight:[5,7],    farLeft:[-1,-8],    farRight:[3,-8] },
+      // F18 - DINK 5 lands far-left; farLeft sprints wide LEFT
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-4,-8],    farRight:[3,-8] },
+      // F19 - farLeft scrambles way wide; far-RIGHT body now exposed
+      { nearLeft:[-3,8],    nearRight:[5,8],    farLeft:[-5,-7],    farRight:[3,-8] },
+      // F20 - far weak return sits up; near steps in to attack
+      { nearLeft:[-2,8],    nearRight:[4,8],    farLeft:[-5,-8],    farRight:[3,-8] },
+      // F21 - SPEEDUP at farRight body; far reacts late
+      { nearLeft:[-2,7],    nearRight:[3,8],    farLeft:[-5,-8],    farRight:[3,-7] },
+      // F22 - POP-UP off farRight floats back high
+      { nearLeft:[-3,7],    nearRight:[3,8],    farLeft:[-5,-8],    farRight:[3,-8] },
+      // F23 - FINISH overhead smash from near
+      { nearLeft:[-3,7],    nearRight:[3,8],    farLeft:[-5,-8],    farRight:[3,-8] }
     ],
     moments: [
-      { at: 0.70, label: 'CROSS-COURT PRESSURE',
-        why: 'Longest diagonal + lowest net - safest dink that still stretches them.',
+      { at: 0.45, label: 'PROBE — MOVE THEM AROUND',
+        why: 'Each dink targets a different spot. Force them to track laterally.',
         arrow: { type: 'ball' }, hold: 1.4 },
-      { at: 0.85, label: 'SPEEDUP AT THE BODY',
-        why: 'Weak dink sits up - volley fast and flat at the hip for a pop-up.',
+      { at: 0.68, label: 'WINDOW OPENS',
+        why: 'Hard cross-court pulls farLeft wide — far-right body now exposed.',
+        arrow: { type: 'court', pos: [3, -7] }, hold: 1.4 },
+      { at: 0.92, label: 'SPEEDUP AT THE BODY',
+        why: 'Weak dink sits up — volley fast and flat into the open zone.',
         arrow: { type: 'player', key: 'farRight' }, hold: 1.6 }
     ]  }
 };
