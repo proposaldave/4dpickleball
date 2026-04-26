@@ -823,13 +823,16 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   font-family:var(--font-display);font-style:italic;font-weight:400;
   font-size:clamp(36px,5.5vw,60px);line-height:1.05;letter-spacing:-1px;
   text-align:center;
-  margin:0 auto 28px;max-width:820px;
+  /* width:fit-content + margin:auto so the gradient's 0%→100% maps to the actual text,
+     not the full container width. Otherwise the "O" sits at ~35% of the gradient (pink). */
+  width:fit-content;max-width:100%;
+  margin:0 auto 28px;
   /* Each dimension color holds its own band (yellow/pink/green/blue) instead of bleeding
      through muted middle tones. Sharper transitions match the Drive→Defend→Drop→Dink wordmark. */
   background:linear-gradient(90deg,
-    #FBBF24 0%, #FBBF24 18%,
-    #F472B6 32%, #F472B6 48%,
-    #34D399 60%, #34D399 78%,
+    #FBBF24 0%, #FBBF24 22%,
+    #F472B6 36%, #F472B6 50%,
+    #34D399 64%, #34D399 78%,
     #2B8BFC 90%, #2B8BFC 100%);
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;
