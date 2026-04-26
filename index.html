@@ -93,7 +93,16 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .scroll-cue{animation:none;opacity:1}
   .scroll-cue-arrow{animation:none}
 }
-.hero{text-align:center;padding:48px 0 40px;position:relative}
+.hero{
+  text-align:center;padding:32px 0 24px;position:relative;
+  /* Fill the viewport so the animation section sits below the fold on initial load.
+     dvh accounts for mobile browser chrome shrink/grow. */
+  min-height:calc(100vh - 32px);
+  min-height:calc(100dvh - 32px);
+  display:flex;flex-direction:column;align-items:center;
+}
+/* Scroll cue pinned to bottom of hero — main content stays top-aligned */
+.hero .scroll-cue{margin-top:auto}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
 /* "The Progression" caption UNDER the wordmark — labels the four-word sequence as the named progression after the visual lands */
 .fd-eyebrow{
@@ -124,7 +133,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .fd-pair{flex-basis:100%;justify-content:center}
 }
 .fd-word{
-  font-size:clamp(28px,4.5vw,48px);font-weight:900;letter-spacing:-1.2px;
+  font-size:clamp(32px,5.5vw,64px);font-weight:900;letter-spacing:-1.2px;
   color:var(--fd-c);text-shadow:0 0 28px color-mix(in srgb,var(--fd-c) 35%,transparent);
   animation:fdPop .7s cubic-bezier(.16,1,.3,1) both;
   display:inline-block;
@@ -138,7 +147,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .fd-arrow{
   display:inline-block;color:var(--fa-c, #F5F3EE);
   /* MATCH the hero word size — arrows are sibling spans, not children, so they don't inherit font-size from .fd-word */
-  font-size:clamp(28px,4.5vw,48px);font-weight:900;line-height:1;letter-spacing:-1.2px;
+  font-size:clamp(32px,5.5vw,64px);font-weight:900;line-height:1;letter-spacing:-1.2px;
   text-shadow:0 0 28px color-mix(in srgb,var(--fa-c) 55%,transparent);
   margin:0 .1em;opacity:0;transform:translateX(-10px) scale(.6);
   filter:drop-shadow(0 0 10px var(--fa-c));
@@ -192,8 +201,9 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 /* Hero rally-length CHART — the KEY visual: 4-point growth curve from ~5 shots (1D) to 20+ (4D).
    Animates on page load: line draws in, dots pop, labels fade with stagger. */
 .hero-chart{
-  margin:28px auto 0;max-width:740px;width:100%;padding:0 20px;
+  margin:28px auto 0;max-width:900px;width:100%;padding:0 20px;
 }
+@media(max-width:900px){.hero-chart{max-width:680px}}
 .hero-chart svg{width:100%;height:auto;display:block;overflow:visible}
 .hero-chart figcaption{
   text-align:center;font-family:var(--font-body);
@@ -1171,7 +1181,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <li>Tournaments, DUPR, leagues, written scores.</li>
           <li>Win and get rewarded. Lose and you're punished.</li>
           <li>Ice out the weaker player.</li>
-          <li>Most amateurs tend toward short-rally-style.</li>
+          <li>Most amateurs play short-rally-style.</li>
         </ul>
       </div>
       <div class="phil-col phil-social">
@@ -1182,7 +1192,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         </div>
         <ul>
           <li>Scores aren't written down.</li>
-          <li>The fun is in the rally and the people.</li>
+          <li>The value is in the rally, the people, and how you <em>feel</em>.</li>
           <li>Peak social pickleball is when you have all 4 dimensions.</li>
         </ul>
         <div class="phil-callout">
