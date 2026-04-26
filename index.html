@@ -224,15 +224,20 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hero-chart svg{width:100%;height:auto;display:block;overflow:visible}
 .hero-chart figcaption{
   text-align:center;font-family:var(--font-body);
-  font-size:clamp(13px,1.6vw,16px);color:var(--warm-dim);
+  font-size:clamp(12px,1.4vw,15px);color:var(--warm-dim);
   margin-top:14px;font-style:italic;line-height:1.5;
-  max-width:600px;margin-left:auto;margin-right:auto;
+  max-width:none;margin-left:auto;margin-right:auto;
+  white-space:nowrap;
   /* Caption is the LAST thing to land — fades in after the wordmark cascade finishes,
      so the focus during initial animation stays on the chart and Drive→Defend→Drop→Dink */
   opacity:0;animation:hcFade 0.9s cubic-bezier(0.22,1,0.36,1) 5.6s forwards;
 }
 .hero-chart figcaption strong{
   color:var(--warm);font-weight:700;font-style:normal;
+}
+/* On narrow viewports, allow wrapping (one line of 80 chars won't fit on a phone). */
+@media(max-width:760px){
+  .hero-chart figcaption{white-space:normal;max-width:540px;font-size:13px}
 }
 @media(prefers-reduced-motion:reduce){
   .hero-chart figcaption{opacity:1;animation:none}
