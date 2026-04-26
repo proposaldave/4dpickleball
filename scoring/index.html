@@ -1786,7 +1786,7 @@ const steps = [
             moveBall('6%','25%', id);
             await sleep(240, id);
             p3.style.left = '67.5%'; p3.style.top = '75%';
-            p1.style.left = '6%'; p1.style.top = '25%'; // small step to meet deep return
+            p1.style.left = '-1%'; p1.style.top = '25%'; // tiny step to baseline edge (don't auto-march into court)
             if (!await sleep(600, id)) return;
             // (3) THIRD SHOT WINNER — p1 drives it past p3 (bottom kitchen) and p4
             //     (top kitchen anchored) into green's empty top-right corner. p1 STAYS.
@@ -1803,7 +1803,8 @@ const steps = [
         header: "Read the Score",
         step: "Three numbers",
         text: "Every call has three numbers. <strong>Your score · Their score · Server 1 or 2</strong>. The serving team says theirs <em>first</em>. It's the only way to know whose turn it is to serve.",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        // p1 stays at his small step-in position from end of rally (no snap-back); p3 stays at kitchen.
+        positions: { p1:{left:'-1%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'67.5%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         tooltips: { p1: "Calls 0-0-2" },
@@ -1827,10 +1828,10 @@ const steps = [
         header: "Winners Swap, Losers Stay",
         step: "Position rule",
         text: "When the serving team scores, <strong>they swap sides</strong> — so the same player serves from the other half. The receiving team never swaps. <em>Even score = right side. Odd score = left.</em>",
-        // Canonical receive formation — p3 at baseline, p4 at kitchen.
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        // p1 enters at his step-in position from the rally; p3 stays at kitchen (no snap-back).
+        positions: { p1:{left:'-1%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'67.5%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [1,0,2],
-        tooltips: { p1: "Moves down", p2: "Moves up" },
+        tooltips: { p1: "Swaps down", p2: "Swaps up" },
         animSequence: async (id) => {
             setBall('-2%','25%', false);
             if (!await sleep(500, id)) return;
@@ -1838,8 +1839,12 @@ const steps = [
             document.getElementById('s-val-1').classList.add('highlight');
             if (!await sleep(800, id)) return;
             document.getElementById('s-val-1').classList.remove('highlight');
-            document.getElementById('p1').style.top = '75%';
-            document.getElementById('p2').style.top = '25%';
+            // p1 moves DIRECTLY from his step-in spot to his final swapped baseline position.
+            // p1 + p2 swap simultaneously (no intermediate reset).
+            const p1el = document.getElementById('p1');
+            const p2el = document.getElementById('p2');
+            p1el.style.left = '-4%'; p1el.style.top = '75%';
+            p2el.style.top = '25%';
             if (!await sleep(1000, id)) return;
         }
     },
