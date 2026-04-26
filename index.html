@@ -159,17 +159,73 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   font-family:var(--font-body);
 }
 .hero-sub strong{color:var(--warm);font-weight:600}
-/* Hero rally-length stat — sits directly under the H1 as the most visceral value prop */
-.hero-stat{
-  text-align:center;font-family:var(--font-body);
-  font-size:clamp(15px,1.95vw,20px);color:var(--warm);
-  margin:24px auto 0;max-width:780px;line-height:1.5;font-weight:500;
+/* Hero rally-length CHART — the KEY visual: 4-point growth curve from ~5 shots (1D) to 20+ (4D).
+   Animates on page load: line draws in, dots pop, labels fade with stagger. */
+.hero-chart{
+  margin:28px auto 0;max-width:740px;width:100%;padding:0 20px;
 }
-.hero-stat .rs-num{font-weight:800;font-style:italic;font-family:var(--font-display);font-size:1.22em;letter-spacing:-.3px}
-.hero-stat .rs-arrow{color:var(--warm-mute);margin:0 5px;font-weight:700}
+.hero-chart svg{width:100%;height:auto;display:block;overflow:visible}
+.hero-chart figcaption{
+  text-align:center;font-family:var(--font-body);
+  font-size:clamp(13px,1.6vw,16px);color:var(--warm-dim);
+  margin-top:10px;font-style:italic;line-height:1.4;
+}
+/* SVG text */
+.hc-num{
+  font-family:var(--font-display);font-style:italic;font-weight:700;
+  font-size:24px;letter-spacing:-.5px;
+}
+.hc-num.l1{fill:#FBBF24}
+.hc-num.l2{fill:#F472B6}
+.hc-num.l3{fill:#34D399}
+.hc-num.l4{fill:#2B8BFC}
+.hc-num.hc-num-big{font-size:34px;font-weight:900}
+.hc-dim{
+  font-family:var(--font-body);font-weight:700;font-size:12px;letter-spacing:1.5px;
+}
+.hc-axis-y{
+  font-family:var(--font-body);font-weight:700;font-size:10px;letter-spacing:2px;
+}
+/* Dot glow — drop-shadow uses the dot's fill color via filter */
+.hc-dot.d1{filter:drop-shadow(0 0 8px rgba(251,191,36,.65))}
+.hc-dot.d2{filter:drop-shadow(0 0 8px rgba(244,114,182,.65))}
+.hc-dot.d3{filter:drop-shadow(0 0 8px rgba(52,211,153,.65))}
+.hc-dot.d4{filter:drop-shadow(0 0 14px rgba(43,139,252,.85))}
+
+/* Animations: line draws, dots pop, labels fade — staggered after page-load focus moment */
+.hc-line{
+  stroke-dasharray:1200;stroke-dashoffset:1200;
+  animation:hcDraw 2.4s cubic-bezier(0.65,0,0.35,1) 0.7s forwards;
+}
+@keyframes hcDraw{to{stroke-dashoffset:0}}
+
+.hc-area{opacity:0;animation:hcFade 1.2s ease 1.6s forwards}
+.hc-dot{opacity:0}
+.hc-dot.d1{animation:hcFade 0.5s ease 0.9s forwards}
+.hc-dot.d2{animation:hcFade 0.5s ease 1.5s forwards}
+.hc-dot.d3{animation:hcFade 0.5s ease 2.1s forwards}
+.hc-dot.d4{animation:hcFade 0.6s ease 2.7s forwards}
+.hc-labels-top text{opacity:0}
+.hc-labels-top .l1{animation:hcFade 0.5s ease 1.05s forwards}
+.hc-labels-top .l2{animation:hcFade 0.5s ease 1.65s forwards}
+.hc-labels-top .l3{animation:hcFade 0.5s ease 2.25s forwards}
+.hc-labels-top .l4{animation:hcFade 0.7s ease 2.9s forwards}
+.hc-labels-bot text, .hc-axis-y{opacity:0;animation:hcFade 0.7s ease 0.4s forwards}
+@keyframes hcFade{to{opacity:1}}
+
+@media(prefers-reduced-motion:reduce){
+  .hc-line{stroke-dashoffset:0;animation:none}
+  .hc-area, .hc-dot, .hc-labels-top text, .hc-labels-bot text, .hc-axis-y{
+    opacity:1;animation:none;
+  }
+}
+
 @media(max-width:620px){
-  .hero-stat{font-size:14px;margin-top:18px;padding:0 12px}
-  .hero-stat .rs-arrow{margin:0 3px}
+  .hero-chart{margin-top:22px;padding:0 8px}
+  .hc-num{font-size:18px}
+  .hc-num.hc-num-big{font-size:26px}
+  .hc-dim{font-size:10px;letter-spacing:1px}
+  .hc-axis-y{display:none}
 }
 
 /* ── PAIN POINTS ── */
@@ -921,7 +977,52 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <h1>Let's play<br>4D Pickleball.</h1>
 
-    <p class="hero-stat">Rallies grow from <span class="rs-num" style="color:#FBBF24">~5 shots</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#F472B6">~8</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#34D399">~12</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#2B8BFC">20+ shots</span> as you add dimensions.</p>
+    <figure class="hero-chart" aria-label="Rally length grows from ~5 shots at 1D, to ~8 at 2D, ~12 at 3D, and 20+ at 4D">
+      <svg viewBox="0 0 800 290" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="hcLineGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#FBBF24"/>
+            <stop offset="33%" stop-color="#F472B6"/>
+            <stop offset="66%" stop-color="#34D399"/>
+            <stop offset="100%" stop-color="#2B8BFC"/>
+          </linearGradient>
+          <linearGradient id="hcAreaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2B8BFC" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#2B8BFC" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- Baseline grid -->
+        <line x1="80" y1="230" x2="720" y2="230" stroke="rgba(245,243,238,.12)" stroke-dasharray="3 6"/>
+        <!-- Area fill under the curve -->
+        <path class="hc-area" d="M 80,230 L 80,220 C 200,220, 200,184, 293,184 C 380,184, 420,136, 507,136 C 600,136, 660,40, 720,40 L 720,230 Z" fill="url(#hcAreaGrad)"/>
+        <!-- The growth line -->
+        <path class="hc-line" d="M 80,220 C 200,220, 200,184, 293,184 C 380,184, 420,136, 507,136 C 600,136, 660,40, 720,40" fill="none" stroke="url(#hcLineGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Data dots -->
+        <g class="hc-dots">
+          <circle class="hc-dot d1" cx="80" cy="220" r="8" fill="#FBBF24" stroke="#0a1628" stroke-width="3"/>
+          <circle class="hc-dot d2" cx="293" cy="184" r="8" fill="#F472B6" stroke="#0a1628" stroke-width="3"/>
+          <circle class="hc-dot d3" cx="507" cy="136" r="8" fill="#34D399" stroke="#0a1628" stroke-width="3"/>
+          <circle class="hc-dot d4" cx="720" cy="40" r="11" fill="#2B8BFC" stroke="#0a1628" stroke-width="3"/>
+        </g>
+        <!-- Shots-per-rally labels (above each dot) -->
+        <g class="hc-labels-top">
+          <text class="hc-num l1" x="80" y="202" text-anchor="middle">~5</text>
+          <text class="hc-num l2" x="293" y="166" text-anchor="middle">~8</text>
+          <text class="hc-num l3" x="507" y="118" text-anchor="middle">~12</text>
+          <text class="hc-num l4 hc-num-big" x="720" y="22" text-anchor="middle">20+</text>
+        </g>
+        <!-- Dimension labels (below baseline) -->
+        <g class="hc-labels-bot">
+          <text class="hc-dim" x="80" y="258" text-anchor="middle" fill="#FBBF24">1D · DRIVE</text>
+          <text class="hc-dim" x="293" y="258" text-anchor="middle" fill="#F472B6">2D · DEFEND</text>
+          <text class="hc-dim" x="507" y="258" text-anchor="middle" fill="#34D399">3D · DROP</text>
+          <text class="hc-dim" x="720" y="258" text-anchor="middle" fill="#2B8BFC">4D · DINK</text>
+        </g>
+        <!-- Y-axis label -->
+        <text class="hc-axis-y" x="38" y="135" text-anchor="middle" transform="rotate(-90 38 135)" fill="rgba(245,243,238,.5)">SHOTS / RALLY</text>
+      </svg>
+      <figcaption>Rallies grow as you add dimensions.</figcaption>
+    </figure>
 
     <div class="fd-row">
       <div class="fd-pair">
