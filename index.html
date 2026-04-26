@@ -159,6 +159,15 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   top:50%;
   /* translate(-50%,-50%) is composed into each animation's transform */
 }
+/* Equal-width word boxes — each word is centered inside a 6.4ch container so
+   "Drive", "Defend", "Drop", "Dink" all occupy the same visual width regardless
+   of character count. This makes arrow midpoints land at visually-even gaps
+   between words. Without this, "Defend" being widest crowded the adjacent arrows. */
+.fd-row .fd-word{
+  display:inline-block;
+  text-align:center;
+  min-width:6.4ch;
+}
 .fd-row .fd-word.fw-1{ left:calc(20px + (100% - 40px) * 0.10) }
 .fd-row .fd-word.fw-2{ left:calc(20px + (100% - 40px) * 0.36667) }
 .fd-row .fd-word.fw-3{ left:calc(20px + (100% - 40px) * 0.63333) }
@@ -298,8 +307,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow-1{opacity:.30}
 .hc-peak-glow-2{opacity:.12}
 .hc-peak-pole{stroke-linecap:round}
-.hc-peak-flag{filter:drop-shadow(0 0 6px rgba(251,191,36,.55))}
-.hc-peak-flag-mark{letter-spacing:0;opacity:.7}
+/* Subtle white drop-shadow for separation from dark BG (was gold to match yellow flag) */
+.hc-peak-flag{filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
 .hc-axis-r{
   font-family:var(--font-body);font-weight:800;font-size:11px;letter-spacing:2.5px;
   opacity:.85;
@@ -336,8 +345,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow-1{animation-delay:2.9s}
 .hc-peak-glow-2{animation-delay:2.9s}
 .hc-peak-pole{opacity:0;animation:hcFade 0.6s ease 3.0s forwards}
-.hc-peak-flag{opacity:0;animation:hcFlagPlant 0.7s cubic-bezier(.34,1.56,.64,1) 3.2s forwards;transform-origin:720px 8px}
-.hc-peak-flag-mark{opacity:0;animation:hcFade 0.5s ease 3.7s forwards}
+.hc-peak-flag{opacity:0;animation:hcFlagPlant 0.7s cubic-bezier(.34,1.56,.64,1) 3.2s forwards;transform-origin:720px 11px}
 @keyframes hcFade{to{opacity:1}}
 @keyframes hcFlagPlant{
   0%{opacity:0;transform:scale(.4) rotate(-30deg)}
@@ -348,7 +356,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .hc-line{stroke-dashoffset:0;animation:none}
   .hc-area, .hc-dot, .hc-labels-top text, .hc-labels-bot text,
   .hc-axis-y, .hc-axis-y-arrow, .hc-curve-label, .hc-peak-glow,
-  .hc-peak-pole, .hc-peak-flag, .hc-peak-flag-mark{
+  .hc-peak-pole, .hc-peak-flag{
     opacity:1;animation:none;transform:none;
   }
 }
@@ -1136,10 +1144,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
             <stop offset="0%" stop-color="#2B8BFC" stop-opacity="0.22"/>
             <stop offset="100%" stop-color="#2B8BFC" stop-opacity="0"/>
           </linearGradient>
-          <!-- Gold flag gradient — light at top, deeper amber at trailing edge for sheen -->
-          <linearGradient id="hcFlagGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#FCD34D"/>
-            <stop offset="100%" stop-color="#F59E0B"/>
+          <!-- Championship pennant gradient: 4 sharp color bands representing each
+               dimension conquered (yellow=1D, pink=2D, green=3D, blue=4D).
+               Sharp stops create crisp stripe boundaries instead of a soft fade. -->
+          <linearGradient id="hcFlagGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#FBBF24"/>
+            <stop offset="25%" stop-color="#FBBF24"/>
+            <stop offset="25%" stop-color="#F472B6"/>
+            <stop offset="50%" stop-color="#F472B6"/>
+            <stop offset="50%" stop-color="#34D399"/>
+            <stop offset="75%" stop-color="#34D399"/>
+            <stop offset="75%" stop-color="#2B8BFC"/>
+            <stop offset="100%" stop-color="#2B8BFC"/>
           </linearGradient>
         </defs>
         <!-- Baseline grid -->
@@ -1178,12 +1194,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
             <circle cx="-2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
           </g>
           <g class="hc-dot d4" transform="translate(720,40)">
-            <circle r="13" fill="#2B8BFC" stroke="#0a1628" stroke-width="2"/>
-            <circle cx="0" cy="-5.5" r="1.9" fill="#0a1628" opacity=".62"/>
-            <circle cx="5" cy="-1.4" r="1.9" fill="#0a1628" opacity=".62"/>
-            <circle cx="-5" cy="-1.4" r="1.9" fill="#0a1628" opacity=".62"/>
-            <circle cx="3" cy="5" r="1.9" fill="#0a1628" opacity=".62"/>
-            <circle cx="-3" cy="5" r="1.9" fill="#0a1628" opacity=".62"/>
+            <circle r="9" fill="#2B8BFC" stroke="#0a1628" stroke-width="1.5"/>
+            <circle cx="0" cy="-4" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
           </g>
         </g>
         <!-- Shots-per-rally labels (above each dot) -->
@@ -1209,14 +1225,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
              italic, dimmed, rotated -15deg parallel to the curve's slope. -->
         <text class="hc-curve-label" x="385" y="208" text-anchor="middle" transform="rotate(-15 385 208)">Rally length</text>
 
-        <!-- Peak emblem at d4: gold flag pole + pennant rising from the dot. "Summit reached."
-             Pennant has gold gradient + brand ◆ stamped on it. Pole is taller than the
-             previous version. The "20+" label has been moved to the upper-LEFT of d4. -->
-        <line class="hc-peak-pole" x1="720" y1="27" x2="720" y2="2" stroke="#FBBF24" stroke-width="1.8"/>
-        <!-- Pennant shape with curved trailing edge for "wind in the flag" feel -->
-        <path class="hc-peak-flag" d="M 720 2 Q 745 4 750 9 Q 745 15 720 12 Z" fill="url(#hcFlagGrad)"/>
-        <!-- Brand mark ◆ on the flag — ties the summit to the 4D Pickleball badge -->
-        <text class="hc-peak-flag-mark" x="733" y="11" text-anchor="middle" font-family="var(--font-body)" font-weight="900" font-size="6" fill="#0a1628">◆</text>
+        <!-- Peak emblem at d4: pole rises from dot; 4-band pennant flies right with
+             yellow/pink/green/blue stripes — one for each dimension conquered.
+             Notched right edge gives the flag-shape silhouette. -->
+        <line class="hc-peak-pole" x1="720" y1="31" x2="720" y2="3" stroke="#94A3B8" stroke-width="1.6"/>
+        <!-- Notched pennant: rectangular body with V-cut on the right edge -->
+        <path class="hc-peak-flag" d="M 720 3 L 749 3 L 743 11 L 749 19 L 720 19 Z" fill="url(#hcFlagGrad)"/>
       </svg>
     </figure>
 
@@ -1278,7 +1292,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         </ul>
         <div class="phil-callout">
           <strong>4D Pickleball is for the 85%.</strong>
-          4D pickleball turns short-rally-play into long-rally-play — the tension and fun builds with every ball over the net, until it ends with an incredible winning shot or a funny error. Not caring so much about the W or the L. Caring about creating the best possible experience for each other.
+          4D pickleball turns short-rally-play into long-rally-play — the tension and fun builds with every ball over the net, until it ends with an incredible winner or a funny error. Not caring so much about the W or the L. Social pickleball is like any social situation: creating the best possible experience for each other.
         </div>
       </div>
     </div>
