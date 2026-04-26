@@ -651,6 +651,29 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .phil-callout{font-size:14px}
 }
 
+/* ── Reveal-on-scroll: hide below-the-hero sections at load, fade-up + stagger when they enter the viewport.
+   Hero gets a ~700ms focus moment first; respects prefers-reduced-motion. ── */
+.reveal-section{
+  opacity:0;transform:translateY(28px);
+  transition:opacity 0.95s cubic-bezier(0.22,1,0.36,1),
+             transform 0.95s cubic-bezier(0.22,1,0.36,1);
+  will-change:opacity,transform;
+}
+.reveal-section.is-visible{opacity:1;transform:translateY(0)}
+.reveal-section > *{
+  opacity:0;transform:translateY(18px);
+  transition:opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+             transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-section.is-visible > *{opacity:1;transform:translateY(0)}
+.reveal-section.is-visible > *:nth-child(1){transition-delay:0.05s}
+.reveal-section.is-visible > *:nth-child(2){transition-delay:0.20s}
+.reveal-section.is-visible > *:nth-child(3){transition-delay:0.36s}
+.reveal-section.is-visible > *:nth-child(4){transition-delay:0.52s}
+@media(prefers-reduced-motion:reduce){
+  .reveal-section,.reveal-section > *{opacity:1;transform:none;transition:none}
+}
+
 /* ── Animation section header — "Your journey to 4D" + rally-length subtitle ── */
 .anim-header{
   font-family:var(--font-display);font-style:italic;font-weight:400;
@@ -910,7 +933,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
   <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
        + side info panel (parent-rendered, synced via postMessage from the iframe) -->
-  <section style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
+  <section class="reveal-section" style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
     <h2 class="anim-header">Our 4D journey</h2>
     <p class="anim-sub">Rallies grow from <span class="rs-num" style="color:#FBBF24">~5 shots</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#F472B6">~8</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#34D399">~12</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#2B8BFC">20+ shots</span> as you add dimensions.</p>
     <div class="dim-layout">
@@ -983,7 +1006,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   </section>
 
   <!-- ── PHILOSOPHY: Two kinds of pickleball ── -->
-  <section class="philosophy">
+  <section class="philosophy reveal-section">
     <h2 class="phil-header">Two kinds of pickleball.</h2>
     <p class="phil-lede">Both are amazing. They're not the same.</p>
 
@@ -1170,6 +1193,31 @@ window.addEventListener('message', (e) => {
   const m = document.getElementById('di-mantra');  if (m) m.textContent = mantra;
   const t = document.getElementById('di-traj');    if (t) t.textContent = traj;
 });
+
+// ── Reveal-on-scroll: hide below-the-hero sections at load, fade-up + stagger when they enter the viewport.
+//    Hero gets a ~700ms focus moment first; respects prefers-reduced-motion.
+(function(){
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const targets = document.querySelectorAll('.reveal-section');
+  if (!targets.length) return;
+  if (reduced) { targets.forEach(el => el.classList.add('is-visible')); return; }
+  const HERO_FOCUS_MS = 700;
+  const loadedAt = performance.now();
+  const reveal = (el) => {
+    const elapsed = performance.now() - loadedAt;
+    const wait = Math.max(0, HERO_FOCUS_MS - elapsed);
+    setTimeout(() => el.classList.add('is-visible'), wait);
+  };
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        reveal(entry.target);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -40px 0px', threshold: 0.04 });
+  targets.forEach(el => obs.observe(el));
+})();
 
 // ── INTERACTIVE PROGRESSION STORY ──
 (function(){
