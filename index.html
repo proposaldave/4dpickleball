@@ -159,6 +159,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   font-family:var(--font-body);
 }
 .hero-sub strong{color:var(--warm);font-weight:600}
+/* Hero rally-length stat — sits directly under the H1 as the most visceral value prop */
+.hero-stat{
+  text-align:center;font-family:var(--font-body);
+  font-size:clamp(15px,1.95vw,20px);color:var(--warm);
+  margin:24px auto 0;max-width:780px;line-height:1.5;font-weight:500;
+}
+.hero-stat .rs-num{font-weight:800;font-style:italic;font-family:var(--font-display);font-size:1.22em;letter-spacing:-.3px}
+.hero-stat .rs-arrow{color:var(--warm-mute);margin:0 5px;font-weight:700}
+@media(max-width:620px){
+  .hero-stat{font-size:14px;margin-top:18px;padding:0 12px}
+  .hero-stat .rs-arrow{margin:0 3px}
+}
 
 /* ── PAIN POINTS ── */
 .pain-row{
@@ -909,6 +921,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <h1>Let's play<br>4D Pickleball.</h1>
 
+    <p class="hero-stat">Rallies grow from <span class="rs-num" style="color:#FBBF24">~5 shots</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#F472B6">~8</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#34D399">~12</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#2B8BFC">20+ shots</span> as you add dimensions.</p>
+
     <div class="fd-row">
       <div class="fd-pair">
         <span class="fd-word fw-1" style="--fd-c:#FBBF24">Drive</span>
@@ -935,7 +949,6 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
        + side info panel (parent-rendered, synced via postMessage from the iframe) -->
   <section class="reveal-section" style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
     <h2 class="anim-header">Our 4D journey</h2>
-    <p class="anim-sub">Rallies grow from <span class="rs-num" style="color:#FBBF24">~5 shots</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#F472B6">~8</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#34D399">~12</span> <span class="rs-arrow">→</span> <span class="rs-num" style="color:#2B8BFC">20+ shots</span> as you add dimensions.</p>
     <div class="dim-layout">
       <div class="dim-frame">
         <div class="touch-ctrls" aria-label="Touch controls">
