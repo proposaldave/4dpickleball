@@ -120,13 +120,16 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .section-full .scroll-cue{margin-top:auto;width:auto;max-width:none}
 @media(max-width:620px){.section-full{padding:32px 16px}}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
-/* "The Progression" caption UNDER the wordmark — labels the four-word sequence as the named progression after the visual lands */
+/* "The Progression" eyebrow ABOVE the wordmark — labels what's about to cascade in.
+   Fades in just before the wordmark cascade starts (3.2s). */
 .fd-eyebrow{
   font-family:var(--font-body);
   font-size:12px;font-weight:800;letter-spacing:5px;text-transform:uppercase;
   color:var(--blue-l,#2B8BFC);
-  margin:6px 0 18px;display:flex;align-items:center;justify-content:center;gap:14px;
+  margin:24px 0 14px;display:flex;align-items:center;justify-content:center;gap:14px;
+  opacity:0;animation:hcFade 0.7s cubic-bezier(0.22,1,0.36,1) 3.2s forwards;
 }
+@media(prefers-reduced-motion:reduce){.fd-eyebrow{opacity:1;animation:none}}
 .fd-eyebrow::before,.fd-eyebrow::after{
   content:"";display:inline-block;width:42px;height:1px;
   background:linear-gradient(90deg,transparent,rgba(43,139,252,.4),transparent);
@@ -137,7 +140,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .fd-row{
   display:inline-flex;align-items:center;justify-content:center;
-  gap:16px;margin:36px 0 4px;flex-wrap:wrap;
+  gap:16px;margin:8px 0 4px;flex-wrap:wrap;
 }
 /* Each pair (Drive→Defend, Drop→Dink) stays together as a single unit and never breaks across lines */
 .fd-pair{
@@ -222,26 +225,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 @media(max-width:1080px){.hero-chart{max-width:920px}}
 @media(max-width:900px){.hero-chart{max-width:680px}}
 .hero-chart svg{width:100%;height:auto;display:block;overflow:visible}
-.hero-chart figcaption{
-  text-align:center;font-family:var(--font-body);
-  font-size:clamp(12px,1.4vw,15px);color:var(--warm-dim);
-  margin-top:14px;font-style:italic;line-height:1.5;
-  max-width:none;margin-left:auto;margin-right:auto;
-  white-space:nowrap;
-  /* Caption is the LAST thing to land — fades in after the wordmark cascade finishes,
-     so the focus during initial animation stays on the chart and Drive→Defend→Drop→Dink */
-  opacity:0;animation:hcFade 0.9s cubic-bezier(0.22,1,0.36,1) 5.6s forwards;
-}
-.hero-chart figcaption strong{
-  color:var(--warm);font-weight:700;font-style:normal;
-}
-/* On narrow viewports, allow wrapping (one line of 80 chars won't fit on a phone). */
-@media(max-width:760px){
-  .hero-chart figcaption{white-space:normal;max-width:540px;font-size:13px}
-}
-@media(prefers-reduced-motion:reduce){
-  .hero-chart figcaption{opacity:1;animation:none}
-}
+/* Figcaption removed: "Rally length" rides the curve and "Peak social pickleball"
+   sits on d4 — both moved INSIDE the SVG to reduce text and strengthen the visual. */
 /* SVG text */
 .hc-num{
   font-family:var(--font-display);font-style:italic;font-weight:700;
@@ -257,6 +242,27 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .hc-axis-y{
   font-family:var(--font-body);font-weight:700;font-size:10px;letter-spacing:2px;
+}
+/* Y-axis up-arrow drawn separately from the text so it reads clearly as ↑.
+   Inline → glyph at 10px is barely visible; this chunky stroked arrow fixes that. */
+.hc-axis-y-arrow{
+  stroke-linecap:round;stroke-linejoin:round;
+}
+/* "Rally length" — italic label riding the curve, replacing the figcaption.
+   Captures what the chart IS doing visually instead of restating it underneath. */
+.hc-curve-label{
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:22px;letter-spacing:-.5px;
+  fill:rgba(245,243,238,.85);
+}
+/* Peak emphasis at d4 (4D dot) — concentric glow rings + italic destination label.
+   Visual + verbal: this point IS peak social pickleball. */
+.hc-peak-glow{filter:blur(3px)}
+.hc-peak-glow-1{opacity:.30}
+.hc-peak-glow-2{opacity:.12}
+.hc-peak-label{
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:14px;letter-spacing:-.2px;
 }
 .hc-axis-r{
   font-family:var(--font-body);font-weight:800;font-size:11px;letter-spacing:2.5px;
@@ -286,12 +292,20 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-labels-top .l2{animation:hcFade 0.5s ease 1.65s forwards}
 .hc-labels-top .l3{animation:hcFade 0.5s ease 2.25s forwards}
 .hc-labels-top .l4{animation:hcFade 0.7s ease 2.9s forwards}
-.hc-labels-bot text, .hc-axis-y{opacity:0;animation:hcFade 0.7s ease 0.4s forwards}
+.hc-labels-bot text, .hc-axis-y, .hc-axis-y-arrow{opacity:0;animation:hcFade 0.7s ease 0.4s forwards}
+/* "Rally length" curve label fades in just as the line finishes drawing */
+.hc-curve-label{opacity:0;animation:hcFade 0.6s ease 2.4s forwards}
+/* Peak emphasis lands AFTER d4 dot pops (d4 = 2.7s), then label slightly after */
+.hc-peak-glow{opacity:0;animation:hcFade 0.7s ease 2.9s forwards}
+.hc-peak-glow-1{animation-delay:2.9s}
+.hc-peak-glow-2{animation-delay:2.9s}
+.hc-peak-label{opacity:0;animation:hcFade 0.7s ease 3.2s forwards}
 @keyframes hcFade{to{opacity:1}}
 
 @media(prefers-reduced-motion:reduce){
   .hc-line{stroke-dashoffset:0;animation:none}
-  .hc-area, .hc-dot, .hc-labels-top text, .hc-labels-bot text, .hc-axis-y{
+  .hc-area, .hc-dot, .hc-labels-top text, .hc-labels-bot text,
+  .hc-axis-y, .hc-axis-y-arrow, .hc-curve-label, .hc-peak-glow, .hc-peak-label{
     opacity:1;animation:none;
   }
 }
@@ -301,7 +315,10 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .hc-num{font-size:18px}
   .hc-num.hc-num-big{font-size:26px}
   .hc-dim{font-size:10px;letter-spacing:1px}
-  .hc-axis-y{display:none}
+  .hc-axis-y, .hc-axis-y-arrow{display:none}
+  /* On phone, scale curve label and peak label down for narrow viewport */
+  .hc-curve-label{font-size:18px}
+  .hc-peak-label{font-size:11px}
 }
 
 /* ── PAIN POINTS ── */
@@ -1084,6 +1101,9 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <path class="hc-area" d="M 80,230 L 80,220 C 200,220, 200,184, 293,184 C 380,184, 420,136, 507,136 C 600,136, 660,40, 720,40 L 720,230 Z" fill="url(#hcAreaGrad)"/>
         <!-- The growth line -->
         <path class="hc-line" d="M 80,220 C 200,220, 200,184, 293,184 C 380,184, 420,136, 507,136 C 600,136, 660,40, 720,40" fill="none" stroke="url(#hcLineGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Peak emphasis halo BEHIND d4 (drawn before dots so the dot stays crisp on top). -->
+        <circle class="hc-peak-glow hc-peak-glow-2" cx="720" cy="40" r="34" fill="#2B8BFC"/>
+        <circle class="hc-peak-glow hc-peak-glow-1" cx="720" cy="40" r="22" fill="#2B8BFC"/>
         <!-- Data points: mini pickleballs in each dimension's color (5-hole wiffle pattern) -->
         <g class="hc-dots">
           <g class="hc-dot d1" transform="translate(80,220)">
@@ -1133,11 +1153,21 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <text class="hc-dim" x="507" y="258" text-anchor="middle" fill="#34D399">3D</text>
           <text class="hc-dim" x="720" y="258" text-anchor="middle" fill="#2B8BFC">4D</text>
         </g>
-        <!-- Y-axis label: emotional payoff (the chart's whole point) -->
-        <text class="hc-axis-y" x="38" y="135" text-anchor="middle" transform="rotate(-90 38 135)" fill="#2B8BFC">TENSION + FUN →</text>
+        <!-- Y-axis label: emotional payoff (the chart's whole point).
+             Arrow is a separate chunky SVG path so it reads as ↑ at glance, not a faint glyph. -->
+        <text class="hc-axis-y" x="38" y="148" text-anchor="middle" transform="rotate(-90 38 148)" fill="#2B8BFC">TENSION + FUN</text>
+        <path class="hc-axis-y-arrow" d="M 38 96 L 38 64 M 31 74 L 38 64 L 45 74" stroke="#2B8BFC" stroke-width="2.5" fill="none"/>
+
+        <!-- "Rally length" rides the rising curve — what the chart IS, said inside the chart.
+             Replaces the old figcaption underneath. -->
+        <text class="hc-curve-label" x="380" y="172" text-anchor="middle" transform="rotate(-19 380 172)">Rally length</text>
+
+        <!-- Italic destination label below d4 — "this point = peak social pickleball" -->
+        <text class="hc-peak-label" x="720" y="78" text-anchor="middle" fill="#2B8BFC">Peak social pickleball</text>
       </svg>
-      <figcaption>Rally length and fun increases as you add dimensions → <strong>4D is peak social pickleball.</strong></figcaption>
     </figure>
+
+    <div class="fd-eyebrow">The Progression</div>
 
     <div class="fd-row">
       <div class="fd-pair">
@@ -1152,8 +1182,6 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <span class="fd-word fw-4" style="--fd-c:#2B8BFC">Dink</span>
       </div>
     </div>
-
-    <div class="fd-eyebrow">The Progression</div>
 
     <button class="scroll-cue" type="button" data-scroll-target=".philosophy" aria-label="Continue to: Two kinds of pickleball">
       <span class="scroll-cue-label">Continue</span>
@@ -1182,7 +1210,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <li>Tournaments, DUPR, leagues, written scores.</li>
           <li>Win and get rewarded. Lose and you're punished.</li>
           <li>Ice out the weaker player.</li>
-          <li>Most amateurs focus more on short-rally-style.</li>
+          <li>Easiest path for most amateurs to win is short-rally-style.</li>
         </ul>
       </div>
       <div class="phil-col phil-social">
