@@ -67,9 +67,24 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 /* ── HERO ── */
 .hero{text-align:center;padding:48px 0 40px;position:relative}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
+/* "THE PROGRESSION" eyebrow over the wordmark — labels the four-word sequence as the named progression */
+.fd-eyebrow{
+  font-family:var(--font-body);
+  font-size:12px;font-weight:800;letter-spacing:5px;text-transform:uppercase;
+  color:var(--blue-l,#2B8BFC);
+  margin:36px 0 6px;display:flex;align-items:center;justify-content:center;gap:14px;
+}
+.fd-eyebrow::before,.fd-eyebrow::after{
+  content:"";display:inline-block;width:42px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(43,139,252,.4),transparent);
+}
+@media(max-width:620px){
+  .fd-eyebrow{font-size:10px;letter-spacing:3.5px;gap:10px}
+  .fd-eyebrow::before,.fd-eyebrow::after{width:24px}
+}
 .fd-row{
   display:inline-flex;align-items:center;justify-content:center;
-  gap:16px;margin:36px 0 8px;flex-wrap:wrap;
+  gap:16px;margin:6px 0 8px;flex-wrap:wrap;
 }
 /* Each pair (Drive→Defend, Drop→Dink) stays together as a single unit and never breaks across lines */
 .fd-pair{
@@ -774,6 +789,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <h1>Let's play<br>4D Pickleball.</h1>
 
+    <div class="fd-eyebrow">The Progression</div>
+
     <div class="fd-row">
       <div class="fd-pair">
         <span class="fd-word fw-1" style="--fd-c:#FBBF24">Drive</span>
@@ -787,6 +804,13 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <span class="fd-word fw-4" style="--fd-c:#2B8BFC">Dink</span>
       </div>
     </div>
+
+    <p class="hero-sub">
+      Pickleball has 100,000 YouTube videos. <strong>None of them is a progression.</strong>
+      4D Pickleball is — 1D to 4D, in the order a real point unfolds.
+      Master each dimension and the rallies get longer, the points get fun, and you stop playing 1D banger pickleball.
+      <em>Where are you on the progression?</em>
+    </p>
 
   </div>
 
