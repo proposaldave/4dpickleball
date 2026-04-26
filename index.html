@@ -65,6 +65,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 @keyframes pageIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── HERO ── */
+/* Screen-reader-only — keeps the H1 in the DOM for SEO/accessibility while hiding it visually */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .hero{text-align:center;padding:48px 0 40px;position:relative}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
 /* "The Progression" caption UNDER the wordmark — labels the four-word sequence as the named progression after the visual lands */
@@ -101,10 +103,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   animation:fdPop .7s cubic-bezier(.16,1,.3,1) both;
   display:inline-block;
 }
-.fd-word.fw-1{animation-delay:.10s}
-.fd-word.fw-2{animation-delay:.50s}
-.fd-word.fw-3{animation-delay:.90s}
-.fd-word.fw-4{animation:fdPop .7s cubic-bezier(.16,1,.3,1) 1.30s both, dinkWobble 1.0s cubic-bezier(.34,1.56,.64,1) 1.70s both}
+/* Wordmark animation delays sequenced AFTER the chart climax (chart climax ~3.0s).
+   Chart goes first (the key visual); wordmark cascades in after as the brand reveal. */
+.fd-word.fw-1{animation-delay:3.40s}
+.fd-word.fw-2{animation-delay:3.80s}
+.fd-word.fw-3{animation-delay:4.20s}
+.fd-word.fw-4{animation:fdPop .7s cubic-bezier(.16,1,.3,1) 4.60s both, dinkWobble 1.0s cubic-bezier(.34,1.56,.64,1) 5.00s both}
 .fd-arrow{
   display:inline-block;color:var(--fa-c, #F5F3EE);
   /* MATCH the hero word size — arrows are sibling spans, not children, so they don't inherit font-size from .fd-word */
@@ -114,11 +118,11 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   filter:drop-shadow(0 0 10px var(--fa-c));
   animation:fdArrowFade .45s cubic-bezier(.34,1.56,.64,1) forwards,
             fdArrowPulse 1.8s cubic-bezier(.4,0,.6,1) infinite;
-  /* arrow #1 — fires between Drive and Defend */
-  animation-delay:.30s, 2.30s;
+  /* arrow #1 — fires between Drive and Defend (delayed to follow the chart) */
+  animation-delay:3.60s, 5.60s;
 }
-.fd-arrow.fa-2{animation-delay:.70s, 2.50s}  /* between Defend and Drop */
-.fd-arrow.fa-3{animation-delay:1.10s, 2.70s} /* between Drop and Dink — last one */
+.fd-arrow.fa-2{animation-delay:4.00s, 5.80s}  /* between Defend and Drop */
+.fd-arrow.fa-3{animation-delay:4.40s, 6.00s}  /* between Drop and Dink — last one */
 @keyframes fdArrowFade{
   from{opacity:0;transform:translateX(-10px) scale(.6)}
   to{opacity:1;transform:translateX(0) scale(1)}
@@ -977,9 +981,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 <div class="page active" id="page-pyramid">
 
   <div class="hero">
+    <h1 class="sr-only">4D Pickleball — the progression for pickleball</h1>
     <div class="hero-badge">◆ 4D Pickleball</div>
-
-    <h1>Let's play<br>4D Pickleball.</h1>
 
     <figure class="hero-chart" aria-label="Rally length grows from ~5 shots at 1D, to ~8 at 2D, ~12 at 3D, and 20+ at 4D">
       <svg viewBox="0 0 800 290" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
@@ -1045,7 +1048,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
     <div class="fd-eyebrow">The Progression</div>
 
     <p class="hero-sub">
-      The 4 core dimensions of a point, in the order they unfold.
+      The 4 core dimensions of a pickleball point, in the order they unfold.
     </p>
 
   </div>
