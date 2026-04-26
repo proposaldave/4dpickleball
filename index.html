@@ -67,6 +67,32 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 /* ── HERO ── */
 /* Screen-reader-only — keeps the H1 in the DOM for SEO/accessibility while hiding it visually */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* Scroll cue — appears after the wordmark animation finishes; pulses to invite scrolling. Auto-hides on scroll. */
+.scroll-cue{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  margin:36px auto 0;background:transparent;border:0;cursor:pointer;
+  padding:8px 16px;color:var(--warm-mute,#7a8290);
+  font:inherit;-webkit-tap-highlight-color:transparent;
+  opacity:0;animation:cueFade 0.9s cubic-bezier(0.22,1,0.36,1) 5.8s forwards;
+  transition:opacity 0.45s ease, transform 0.45s ease;
+}
+.scroll-cue:hover{color:var(--blue-l,#2B8BFC)}
+.scroll-cue.is-hidden{opacity:0;transform:translateY(-8px);pointer-events:none;animation:none}
+.scroll-cue-label{
+  font-family:var(--font-body);font-size:11px;font-weight:700;
+  letter-spacing:2.5px;text-transform:uppercase;
+}
+.scroll-cue-arrow{
+  width:22px;height:22px;display:block;
+  animation:cueBounce 1.8s cubic-bezier(0.4,0,0.6,1) 6.6s infinite;
+}
+@keyframes cueFade{from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)}}
+@keyframes cueBounce{0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)}}
+@media(prefers-reduced-motion:reduce){
+  .scroll-cue{animation:none;opacity:1}
+  .scroll-cue-arrow{animation:none}
+}
 .hero{text-align:center;padding:48px 0 40px;position:relative}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
 /* "The Progression" caption UNDER the wordmark — labels the four-word sequence as the named progression after the visual lands */
@@ -1047,6 +1073,13 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <div class="fd-eyebrow">The Progression</div>
 
+    <button class="scroll-cue" type="button" aria-label="Scroll down to see your 4D journey">
+      <span class="scroll-cue-label">Continue</span>
+      <svg class="scroll-cue-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 7l5 5 5-5M7 13l5 5 5-5"/>
+      </svg>
+    </button>
+
   </div>
 
   <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
@@ -1310,6 +1343,21 @@ window.addEventListener('message', (e) => {
   const m = document.getElementById('di-mantra');  if (m) m.textContent = mantra;
   const t = document.getElementById('di-traj');    if (t) t.textContent = traj;
 });
+
+// ── Scroll cue: clicks scroll to the animation section; auto-hides once user scrolls past 60px.
+(function(){
+  const cue = document.querySelector('.scroll-cue');
+  if (!cue) return;
+  cue.addEventListener('click', () => {
+    const target = document.querySelector('.dim-layout') || document.querySelector('.reveal-section');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  let hidden = false;
+  window.addEventListener('scroll', () => {
+    if (hidden) return;
+    if (window.scrollY > 60) { cue.classList.add('is-hidden'); hidden = true; }
+  }, { passive: true });
+})();
 
 // ── Reveal-on-scroll: hide below-the-hero sections at load, fade-up + stagger when they enter the viewport.
 //    Hero gets a ~700ms focus moment first; respects prefers-reduced-motion.
