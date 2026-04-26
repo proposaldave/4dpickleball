@@ -1459,6 +1459,9 @@ async function runMiniRally() {
         //                Both red players recover BEHIND the baseline for the
         //                next point. mp1 had stepped in at 6% to hit the winner;
         //                now it retreats so both are back at x=-4%.
+        // +1 POINT popup matches the wizard scenarios — same .score-popup styling,
+        // anchored inside .mini-court near the winning shot's landing spot.
+        miniScorePopup('88%', '35%', '+1 POINT', 'var(--team-serve)');
         document.getElementById('ms1').textContent = '1';
         mp1.style.left = '-4%'; mp1.style.top = '25%';
         mp2.style.left = '-4%'; mp2.style.top = '75%';
@@ -1606,6 +1609,22 @@ function spawnScorePopup(left, top, text, color="var(--4dp-success)", isFault=fa
         else sfxScore();
     }
     setTimeout(() => { if (document.body.contains(pop)) pop.remove(); }, 1700);
+}
+
+// Hero mini-rally popup — same .score-popup styling as the wizard, but anchored
+// inside .mini-court (the wizard's #visual-layer doesn't exist on the home screen).
+// sfxScore() is muted-by-default per the audio toggle, so safe to call on each loop.
+function miniScorePopup(left, top, text, color="var(--team-serve)") {
+    const court = document.querySelector('.mini-court');
+    if (!court) return;
+    const pop = document.createElement('div');
+    pop.className = 'score-popup';
+    pop.style.left = left; pop.style.top = top;
+    pop.style.color = color;
+    pop.innerText = text;
+    court.appendChild(pop);
+    sfxScore();
+    setTimeout(() => { if (court.contains(pop)) pop.remove(); }, 1700);
 }
 
 function setTooltips(tips) {
