@@ -581,6 +581,58 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .prog-badge{margin-bottom:14px;font-size:10px;letter-spacing:1.5px}
 }
 
+/* ── Philosophy section: Two kinds of pickleball (competitive vs social) ── */
+.philosophy{max-width:1080px;margin:80px auto 40px;padding:0 24px}
+.phil-header{
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:clamp(32px,5vw,52px);line-height:1.05;letter-spacing:-1px;
+  text-align:center;color:var(--warm);margin:0 0 10px;
+}
+.phil-lede{
+  text-align:center;font-size:18px;color:var(--warm-dim);
+  margin:0 0 38px;font-family:var(--font-body);font-style:italic;line-height:1.5;
+}
+.phil-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px}
+@media(max-width:760px){.phil-grid{grid-template-columns:1fr;gap:14px}}
+.phil-col{
+  background:rgba(10,22,40,.72);border:1px solid rgba(245,243,238,.08);
+  border-radius:18px;padding:28px 26px;
+}
+.phil-col.phil-comp{border-top:3px solid #FBBF24}
+.phil-col.phil-social{border-top:3px solid #2B8BFC}
+.phil-tag{
+  font-family:var(--font-body);font-size:11px;font-weight:800;
+  letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px;
+}
+.phil-comp .phil-tag{color:#FBBF24}
+.phil-social .phil-tag{color:#2B8BFC}
+.phil-col ul{list-style:none;padding:0;margin:0}
+.phil-col li{
+  font-size:16px;color:var(--warm);line-height:1.5;
+  padding:9px 0 9px 22px;position:relative;
+  border-bottom:1px solid rgba(245,243,238,.06);
+}
+.phil-col li:last-child{border-bottom:0}
+.phil-col li::before{
+  content:"";position:absolute;left:0;top:16px;
+  width:6px;height:6px;border-radius:50%;
+}
+.phil-comp li::before{background:#FBBF24}
+.phil-social li::before{background:#2B8BFC}
+.phil-close{
+  text-align:center;font-size:18px;color:var(--warm);
+  max-width:720px;margin:24px auto 0;line-height:1.6;
+  font-family:var(--font-body);
+}
+.phil-close strong{color:var(--warm);font-weight:700}
+@media(max-width:620px){
+  .philosophy{margin:50px auto 30px}
+  .phil-lede{font-size:16px;margin-bottom:28px}
+  .phil-col{padding:22px 20px}
+  .phil-col li{font-size:15px}
+  .phil-close{font-size:16px}
+}
+
 /* ── Animation section header — "Where are you on your journey to 4D?" ── */
 .anim-header{
   font-family:var(--font-display);font-style:italic;font-weight:400;
@@ -819,8 +871,6 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
     <p class="hero-sub">
       <strong>4D Pickleball is the progression.</strong>
       The four core dimensions of the sport, in the order a real point unfolds.
-      There are 100,000 coaching videos on YouTube; this is the one that puts them in order.
-      Master each dimension and the rallies get longer, the points get fun, and you stop playing 1D banger pickleball.
     </p>
 
   </div>
@@ -892,6 +942,38 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <div class="di-hint">Tap a dimension · Pinch to zoom · Drag to orbit · Space (or ⏸) to pause</div>
       </aside>
     </div>
+  </section>
+
+  <!-- ── PHILOSOPHY: Two kinds of pickleball ── -->
+  <section class="philosophy">
+    <h2 class="phil-header">Two kinds of pickleball.</h2>
+    <p class="phil-lede">Both are amazing. They're not the same.</p>
+
+    <div class="phil-grid">
+      <div class="phil-col phil-comp">
+        <div class="phil-tag">15% — Competitive</div>
+        <ul>
+          <li>DUPR, leagues, written scores.</li>
+          <li>The point is the win.</li>
+          <li>Target the weaker player. Ice them out.</li>
+          <li>1D bangs win the most points the fastest.</li>
+        </ul>
+      </div>
+      <div class="phil-col phil-social">
+        <div class="phil-tag">85% — Social</div>
+        <ul>
+          <li>Scores don't get written down.</li>
+          <li>The point is the point.</li>
+          <li>Long rallies, real fun, real community.</li>
+          <li>Be the player others want on their court.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="phil-close">
+      <strong>4D Pickleball is for the 85%.</strong>
+      The progression turns 1D banger games into 4D rallies — the kind people want more of. Not caring so much about the W or the L. Caring about the point you just played together.
+    </p>
   </section>
 
 </div><!-- /page-pyramid -->
