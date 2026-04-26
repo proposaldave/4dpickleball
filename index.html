@@ -201,8 +201,9 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 /* Hero rally-length CHART — the KEY visual: 4-point growth curve from ~5 shots (1D) to 20+ (4D).
    Animates on page load: line draws in, dots pop, labels fade with stagger. */
 .hero-chart{
-  margin:28px auto 0;max-width:900px;width:100%;padding:0 20px;
+  margin:28px auto 0;max-width:1080px;width:100%;padding:0 20px;
 }
+@media(max-width:1080px){.hero-chart{max-width:920px}}
 @media(max-width:900px){.hero-chart{max-width:680px}}
 .hero-chart svg{width:100%;height:auto;display:block;overflow:visible}
 .hero-chart figcaption{
@@ -229,6 +230,10 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .hc-axis-y{
   font-family:var(--font-body);font-weight:700;font-size:10px;letter-spacing:2px;
+}
+.hc-axis-r{
+  font-family:var(--font-body);font-weight:800;font-size:11px;letter-spacing:2.5px;
+  opacity:.85;
 }
 /* Dot glow — drop-shadow uses the dot's fill color via filter */
 .hc-dot.d1{filter:drop-shadow(0 0 8px rgba(251,191,36,.65))}
@@ -1040,12 +1045,40 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <path class="hc-area" d="M 80,230 L 80,220 C 200,220, 200,184, 293,184 C 380,184, 420,136, 507,136 C 600,136, 660,40, 720,40 L 720,230 Z" fill="url(#hcAreaGrad)"/>
         <!-- The growth line -->
         <path class="hc-line" d="M 80,220 C 200,220, 200,184, 293,184 C 380,184, 420,136, 507,136 C 600,136, 660,40, 720,40" fill="none" stroke="url(#hcLineGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Data dots -->
+        <!-- Data points: mini pickleballs in each dimension's color (5-hole wiffle pattern) -->
         <g class="hc-dots">
-          <circle class="hc-dot d1" cx="80" cy="220" r="8" fill="#FBBF24" stroke="#0a1628" stroke-width="3"/>
-          <circle class="hc-dot d2" cx="293" cy="184" r="8" fill="#F472B6" stroke="#0a1628" stroke-width="3"/>
-          <circle class="hc-dot d3" cx="507" cy="136" r="8" fill="#34D399" stroke="#0a1628" stroke-width="3"/>
-          <circle class="hc-dot d4" cx="720" cy="40" r="11" fill="#2B8BFC" stroke="#0a1628" stroke-width="3"/>
+          <g class="hc-dot d1" transform="translate(80,220)">
+            <circle r="9" fill="#FBBF24" stroke="#0a1628" stroke-width="1.5"/>
+            <circle cx="0" cy="-4" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
+          </g>
+          <g class="hc-dot d2" transform="translate(293,184)">
+            <circle r="9" fill="#F472B6" stroke="#0a1628" stroke-width="1.5"/>
+            <circle cx="0" cy="-4" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
+          </g>
+          <g class="hc-dot d3" transform="translate(507,136)">
+            <circle r="9" fill="#34D399" stroke="#0a1628" stroke-width="1.5"/>
+            <circle cx="0" cy="-4" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-3.5" cy="-1" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
+            <circle cx="-2.1" cy="3.5" r="1.4" fill="#0a1628" opacity=".62"/>
+          </g>
+          <g class="hc-dot d4" transform="translate(720,40)">
+            <circle r="13" fill="#2B8BFC" stroke="#0a1628" stroke-width="2"/>
+            <circle cx="0" cy="-5.5" r="1.9" fill="#0a1628" opacity=".62"/>
+            <circle cx="5" cy="-1.4" r="1.9" fill="#0a1628" opacity=".62"/>
+            <circle cx="-5" cy="-1.4" r="1.9" fill="#0a1628" opacity=".62"/>
+            <circle cx="3" cy="5" r="1.9" fill="#0a1628" opacity=".62"/>
+            <circle cx="-3" cy="5" r="1.9" fill="#0a1628" opacity=".62"/>
+          </g>
         </g>
         <!-- Shots-per-rally labels (above each dot) -->
         <g class="hc-labels-top">
@@ -1061,8 +1094,9 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <text class="hc-dim" x="507" y="258" text-anchor="middle" fill="#34D399">3D</text>
           <text class="hc-dim" x="720" y="258" text-anchor="middle" fill="#2B8BFC">4D</text>
         </g>
-        <!-- Y-axis label -->
+        <!-- Y-axis labels: data on the left, emotional payoff on the right -->
         <text class="hc-axis-y" x="38" y="135" text-anchor="middle" transform="rotate(-90 38 135)" fill="rgba(245,243,238,.5)">SHOTS / RALLY</text>
+        <text class="hc-axis-r" x="772" y="135" text-anchor="middle" transform="rotate(-90 772 135)" fill="#2B8BFC">TENSION + FUN ↑</text>
       </svg>
       <figcaption>Rallies lengthen as you add dimensions → leading to <strong>peak social pickleball.</strong></figcaption>
     </figure>
