@@ -138,31 +138,47 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .fd-eyebrow{font-size:10px;letter-spacing:3.5px;gap:10px}
   .fd-eyebrow::before,.fd-eyebrow::after{width:24px}
 }
-/* Wordmark grid — column centers align with the chart's d1/d2/d3/d4 dot positions.
-   Chart data area spans viewBox 80→720 within 800-wide viewBox (10%→90%).
-   Dots evenly spaced at 10%, 36.67%, 63.33%, 90%. Grid columns sized so each
-   word's center lands at those exact x-positions. Container matches .hero-chart
-   width + padding so the math holds. */
+/* Wordmark — absolute positioning so word centers + arrow centers are
+   mathematically fixed at the chart's dot percentages, regardless of word widths.
+   Chart data area: viewBox 80→720 within 800-wide viewBox = 10%→90%.
+   Dots: 10%, 36.67%, 63.33%, 90%. Arrow midpoints: 23.33%, 50%, 76.67%.
+   With grid+justify-self, wider words like "Defend" overflowed their cells and
+   crowded adjacent arrows. Absolute positioning fixes this — each item's left
+   center is locked, word width doesn't shift anything. */
 .fd-row{
-  display:grid;
-  grid-template-columns: 20% 6.67% 20% 6.67% 20% 6.67% 19.99%;
-  align-items:center;
+  position:relative;
   width:100%;max-width:1080px;
-  margin:8px auto 4px;
+  margin:18px auto 4px;
   padding:0 20px;
   box-sizing:border-box;
+  height:clamp(56px,9vw,90px);
 }
-/* .fd-pair becomes structural-only (children become direct grid children) */
 .fd-pair{display:contents}
-.fd-row .fd-word, .fd-row .fd-arrow{justify-self:center}
-/* On phone, drop the grid alignment — switch to flex-wrap with pairs stacking */
+.fd-row .fd-word, .fd-row .fd-arrow{
+  position:absolute;
+  top:50%;
+  /* translate(-50%,-50%) is composed into each animation's transform */
+}
+.fd-row .fd-word.fw-1{ left:calc(20px + (100% - 40px) * 0.10) }
+.fd-row .fd-word.fw-2{ left:calc(20px + (100% - 40px) * 0.36667) }
+.fd-row .fd-word.fw-3{ left:calc(20px + (100% - 40px) * 0.63333) }
+.fd-row .fd-word.fw-4{ left:calc(20px + (100% - 40px) * 0.90) }
+.fd-row .fd-arrow.fa-1{ left:calc(20px + (100% - 40px) * 0.23333) }
+.fd-row .fd-arrow.fa-2{ left:calc(20px + (100% - 40px) * 0.50) }
+.fd-row .fd-arrow.fa-3{ left:calc(20px + (100% - 40px) * 0.76667) }
+/* On phone, drop absolute positioning — switch to flex-wrap with pairs stacking.
+   Animations are disabled so the static-positioned items don't try to translate. */
 @media (max-width:620px){
   .fd-row{
+    position:static;
+    height:auto;
     display:flex;flex-wrap:wrap;justify-content:center;
     gap:16px;padding:0 12px;
-    grid-template-columns:none;
   }
   .fd-pair{display:inline-flex;align-items:center;gap:14px;flex-wrap:nowrap;flex-basis:100%;justify-content:center}
+  .fd-row .fd-word, .fd-row .fd-arrow{
+    position:static;animation:none;opacity:1;transform:none;
+  }
   .fd-row .fd-arrow.fa-2{display:none}
 }
 .fd-word{
@@ -191,21 +207,27 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .fd-arrow.fa-2{animation-delay:4.00s, 5.80s}  /* between Defend and Drop */
 .fd-arrow.fa-3{animation-delay:4.40s, 6.00s}  /* between Drop and Dink — last one */
+/* Animation keyframes for the wordmark — translate(-50%,-50%) is BAKED IN
+   to every keyframe so the absolute positioning (left:%) gives true centering.
+   Without this, the animations would override the centering transform. */
 @keyframes fdArrowFade{
-  from{opacity:0;transform:translateX(-10px) scale(.6)}
-  to{opacity:1;transform:translateX(0) scale(1)}
+  from{opacity:0;transform:translate(-50%,-50%) translateX(-10px) scale(.6)}
+  to{opacity:1;transform:translate(-50%,-50%) translateX(0) scale(1)}
 }
 @keyframes fdArrowPulse{
-  0%,100%{transform:translateX(-3px);opacity:.85}
-  50%{transform:translateX(4px);opacity:1}
+  0%,100%{transform:translate(-50%,-50%) translateX(-3px);opacity:.85}
+  50%{transform:translate(-50%,-50%) translateX(4px);opacity:1}
 }
-@keyframes fdPop{from{opacity:0;transform:translateY(14px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fdPop{
+  from{opacity:0;transform:translate(-50%,-50%) translateY(14px) scale(.92)}
+  to{opacity:1;transform:translate(-50%,-50%) translateY(0) scale(1)}
+}
 @keyframes dinkWobble{
-  0%{transform:translateY(0) scale(1) rotate(0deg)}
-  20%{transform:translateY(0) scale(1.05) rotate(-8deg)}
-  45%{transform:translateY(0) scale(1.05) rotate(7deg)}
-  70%{transform:translateY(0) scale(1.03) rotate(-3deg)}
-  100%{transform:translateY(0) scale(1) rotate(0deg)}
+  0%{transform:translate(-50%,-50%) scale(1) rotate(0deg)}
+  20%{transform:translate(-50%,-50%) scale(1.05) rotate(-8deg)}
+  45%{transform:translate(-50%,-50%) scale(1.05) rotate(7deg)}
+  70%{transform:translate(-50%,-50%) scale(1.03) rotate(-3deg)}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(0deg)}
 }
 .dim-tag{
   display:inline-block;font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
@@ -254,10 +276,11 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-dim{
   font-family:var(--font-body);font-weight:700;font-size:12px;letter-spacing:1.5px;
 }
-/* Top-left axis title (formerly rotated y-axis label).
-   Horizontal "↑ TENSION + FUN" reads cleanly without the awkward rotation. */
+/* Y-axis label — rotated vertical on the LEFT side of the chart.
+   Reads bottom-up: "Builds tension + fun" with a chunky up-arrow above it.
+   Tells the visitor what the y-axis is measuring. */
 .hc-axis-y{
-  font-family:var(--font-body);font-weight:800;font-size:10px;letter-spacing:2.4px;
+  font-family:var(--font-body);font-weight:700;font-size:11px;letter-spacing:1.6px;
 }
 .hc-axis-y-arrow{
   stroke-linecap:round;stroke-linejoin:round;
@@ -276,6 +299,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow-2{opacity:.12}
 .hc-peak-pole{stroke-linecap:round}
 .hc-peak-flag{filter:drop-shadow(0 0 6px rgba(251,191,36,.55))}
+.hc-peak-flag-mark{letter-spacing:0;opacity:.7}
 .hc-axis-r{
   font-family:var(--font-body);font-weight:800;font-size:11px;letter-spacing:2.5px;
   opacity:.85;
@@ -312,7 +336,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-peak-glow-1{animation-delay:2.9s}
 .hc-peak-glow-2{animation-delay:2.9s}
 .hc-peak-pole{opacity:0;animation:hcFade 0.6s ease 3.0s forwards}
-.hc-peak-flag{opacity:0;animation:hcFlagPlant 0.7s cubic-bezier(.34,1.56,.64,1) 3.2s forwards;transform-origin:720px 11.5px}
+.hc-peak-flag{opacity:0;animation:hcFlagPlant 0.7s cubic-bezier(.34,1.56,.64,1) 3.2s forwards;transform-origin:720px 8px}
+.hc-peak-flag-mark{opacity:0;animation:hcFade 0.5s ease 3.7s forwards}
 @keyframes hcFade{to{opacity:1}}
 @keyframes hcFlagPlant{
   0%{opacity:0;transform:scale(.4) rotate(-30deg)}
@@ -323,7 +348,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .hc-line{stroke-dashoffset:0;animation:none}
   .hc-area, .hc-dot, .hc-labels-top text, .hc-labels-bot text,
   .hc-axis-y, .hc-axis-y-arrow, .hc-curve-label, .hc-peak-glow,
-  .hc-peak-pole, .hc-peak-flag{
+  .hc-peak-pole, .hc-peak-flag, .hc-peak-flag-mark{
     opacity:1;animation:none;transform:none;
   }
 }
@@ -333,8 +358,9 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .hc-num{font-size:18px}
   .hc-num.hc-num-big{font-size:26px}
   .hc-dim{font-size:10px;letter-spacing:1px}
-  /* On phone, scale curve label down for narrow viewport */
+  /* On phone, scale curve label down + hide the side y-axis (chart speaks for itself) */
   .hc-curve-label{font-size:18px}
+  .hc-axis-y, .hc-axis-y-arrow{display:none}
 }
 
 /* ── PAIN POINTS ── */
@@ -1110,6 +1136,11 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
             <stop offset="0%" stop-color="#2B8BFC" stop-opacity="0.22"/>
             <stop offset="100%" stop-color="#2B8BFC" stop-opacity="0"/>
           </linearGradient>
+          <!-- Gold flag gradient — light at top, deeper amber at trailing edge for sheen -->
+          <linearGradient id="hcFlagGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#FCD34D"/>
+            <stop offset="100%" stop-color="#F59E0B"/>
+          </linearGradient>
         </defs>
         <!-- Baseline grid -->
         <line x1="80" y1="230" x2="720" y2="230" stroke="rgba(245,243,238,.12)" stroke-dasharray="3 6"/>
@@ -1169,20 +1200,23 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <text class="hc-dim" x="507" y="258" text-anchor="middle" fill="#34D399">3D</text>
           <text class="hc-dim" x="720" y="258" text-anchor="middle" fill="#2B8BFC">4D</text>
         </g>
-        <!-- Top-left chart title — horizontal "↑ TENSION + FUN" reads cleanly without
-             the awkward rotation. Arrow is a small up-chevron, text reads left-to-right. -->
-        <path class="hc-axis-y-arrow" d="M 76 14 L 81 8 L 86 14" stroke="#2B8BFC" stroke-width="2" fill="none"/>
-        <text class="hc-axis-y" x="93" y="13" text-anchor="start" fill="#2B8BFC">TENSION + FUN</text>
+        <!-- Y-axis label on the LEFT — rotated reads bottom-up, with chunky up-arrow above.
+             Tells the visitor WHAT the y-axis is measuring: "Builds tension + fun" climbing. -->
+        <text class="hc-axis-y" x="38" y="158" text-anchor="middle" transform="rotate(-90 38 158)" fill="#2B8BFC">Builds tension + fun</text>
+        <path class="hc-axis-y-arrow" d="M 38 70 L 38 38 M 30 48 L 38 38 L 46 48" stroke="#2B8BFC" stroke-width="2.4" fill="none"/>
 
-        <!-- "Rally length" rides ABOVE the rising curve in clean dark space —
-             italic, dimmed, rotated to the curve's average slope (-15deg). -->
-        <text class="hc-curve-label" x="385" y="128" text-anchor="middle" transform="rotate(-15 385 128)">Rally length</text>
+        <!-- "Rally length" rides UNDER the curve in the area-fill region —
+             italic, dimmed, rotated -15deg parallel to the curve's slope. -->
+        <text class="hc-curve-label" x="385" y="208" text-anchor="middle" transform="rotate(-15 385 208)">Rally length</text>
 
-        <!-- Peak emblem at d4: gold flag pole + triangular flag rising from the dot.
-             "Summit reached." Replaces the previous text label. Pole avoids the "20+"
-             label which has been moved to the upper-LEFT of d4. -->
-        <line class="hc-peak-pole" x1="720" y1="27" x2="720" y2="6" stroke="#FBBF24" stroke-width="1.6"/>
-        <path class="hc-peak-flag" d="M 720 6 L 738 11.5 L 720 17 Z" fill="#FBBF24"/>
+        <!-- Peak emblem at d4: gold flag pole + pennant rising from the dot. "Summit reached."
+             Pennant has gold gradient + brand ◆ stamped on it. Pole is taller than the
+             previous version. The "20+" label has been moved to the upper-LEFT of d4. -->
+        <line class="hc-peak-pole" x1="720" y1="27" x2="720" y2="2" stroke="#FBBF24" stroke-width="1.8"/>
+        <!-- Pennant shape with curved trailing edge for "wind in the flag" feel -->
+        <path class="hc-peak-flag" d="M 720 2 Q 745 4 750 9 Q 745 15 720 12 Z" fill="url(#hcFlagGrad)"/>
+        <!-- Brand mark ◆ on the flag — ties the summit to the 4D Pickleball badge -->
+        <text class="hc-peak-flag-mark" x="733" y="11" text-anchor="middle" font-family="var(--font-body)" font-weight="900" font-size="6" fill="#0a1628">◆</text>
       </svg>
     </figure>
 
@@ -1241,11 +1275,10 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <ul>
           <li>Scores aren't written down.</li>
           <li>The experience is in the rally, the people, and how you <em>feel</em>.</li>
-          <li>Peak social pickleball is when you have all 4 dimensions.</li>
         </ul>
         <div class="phil-callout">
           <strong>4D Pickleball is for the 85%.</strong>
-          The progression turns short-rally-play into long-rally-play — the tension and fun building with every ball over the net, until everyone's laughing their heads off at the end. Not caring so much about the W or the L. Caring about the point you just played together.
+          4D pickleball turns short-rally-play into long-rally-play — the tension and fun builds with every ball over the net, until it ends with an incredible winning shot or a funny error. Not caring so much about the W or the L. Caring about creating the best possible experience for each other.
         </div>
       </div>
     </div>
