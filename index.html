@@ -67,12 +67,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 /* ── HERO ── */
 .hero{text-align:center;padding:48px 0 40px;position:relative}
 .fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
-/* "THE PROGRESSION" eyebrow over the wordmark — labels the four-word sequence as the named progression */
+/* "The Progression" caption UNDER the wordmark — labels the four-word sequence as the named progression after the visual lands */
 .fd-eyebrow{
   font-family:var(--font-body);
   font-size:12px;font-weight:800;letter-spacing:5px;text-transform:uppercase;
   color:var(--blue-l,#2B8BFC);
-  margin:36px 0 6px;display:flex;align-items:center;justify-content:center;gap:14px;
+  margin:6px 0 18px;display:flex;align-items:center;justify-content:center;gap:14px;
 }
 .fd-eyebrow::before,.fd-eyebrow::after{
   content:"";display:inline-block;width:42px;height:1px;
@@ -84,7 +84,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .fd-row{
   display:inline-flex;align-items:center;justify-content:center;
-  gap:16px;margin:6px 0 8px;flex-wrap:wrap;
+  gap:16px;margin:36px 0 4px;flex-wrap:wrap;
 }
 /* Each pair (Drive→Defend, Drop→Dink) stays together as a single unit and never breaks across lines */
 .fd-pair{
@@ -581,6 +581,17 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .prog-badge{margin-bottom:14px;font-size:10px;letter-spacing:1.5px}
 }
 
+/* ── Animation section header — "Where are you on your journey to 4D?" ── */
+.anim-header{
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:clamp(28px,4.6vw,46px);line-height:1.05;letter-spacing:-1px;
+  text-align:center;color:var(--warm);
+  margin:0 auto 26px;max-width:780px;
+}
+@media(max-width:620px){
+  .anim-header{font-size:clamp(24px,7vw,30px);margin-bottom:18px;letter-spacing:-.5px}
+}
+
 /* ── Dimension info panel (side of iframe) ── */
 .dim-layout{display:flex;gap:22px;align-items:stretch}
 .dim-frame{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:14px}
@@ -789,8 +800,6 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 
     <h1>Let's play<br>4D Pickleball.</h1>
 
-    <div class="fd-eyebrow">The Progression</div>
-
     <div class="fd-row">
       <div class="fd-pair">
         <span class="fd-word fw-1" style="--fd-c:#FBBF24">Drive</span>
@@ -805,11 +814,13 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
       </div>
     </div>
 
+    <div class="fd-eyebrow">The Progression</div>
+
     <p class="hero-sub">
-      There are 100,000 coaching videos on YouTube. <strong>Zero progression.</strong>
-      4D Pickleball is the progression. The four dimensions of the sport, in the order a real point unfolds.
+      <strong>4D Pickleball is the progression.</strong>
+      The four core dimensions of the sport, in the order a real point unfolds.
+      There are 100,000 coaching videos on YouTube; this is the one that puts them in order.
       Master each dimension and the rallies get longer, the points get fun, and you stop playing 1D banger pickleball.
-      <em>Where are you on the progression?</em>
     </p>
 
   </div>
@@ -817,6 +828,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
        + side info panel (parent-rendered, synced via postMessage from the iframe) -->
   <section style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
+    <h2 class="anim-header">Where are you on your journey to 4D?</h2>
     <div class="dim-layout">
       <div class="dim-frame">
         <div class="touch-ctrls" aria-label="Touch controls">
