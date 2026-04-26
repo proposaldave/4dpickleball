@@ -79,6 +79,8 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 .scroll-cue:hover{color:var(--blue-l,#2B8BFC)}
 .scroll-cue.is-hidden{opacity:0;transform:translateY(-8px);pointer-events:none;animation:none}
+/* Second scroll cue (end of animation section) — animates in via .reveal-section, no fixed delay */
+.scroll-cue-2{animation:none;margin:32px auto 8px}
 .scroll-cue-label{
   font-family:var(--font-body);font-size:11px;font-weight:700;
   letter-spacing:2.5px;text-transform:uppercase;
@@ -209,11 +211,17 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hero-chart figcaption{
   text-align:center;font-family:var(--font-body);
   font-size:clamp(13px,1.6vw,16px);color:var(--warm-dim);
-  margin-top:10px;font-style:italic;line-height:1.5;
+  margin-top:14px;font-style:italic;line-height:1.5;
   max-width:600px;margin-left:auto;margin-right:auto;
+  /* Caption is the LAST thing to land — fades in after the wordmark cascade finishes,
+     so the focus during initial animation stays on the chart and Drive→Defend→Drop→Dink */
+  opacity:0;animation:hcFade 0.9s cubic-bezier(0.22,1,0.36,1) 5.6s forwards;
 }
 .hero-chart figcaption strong{
   color:var(--warm);font-weight:700;font-style:normal;
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-chart figcaption{opacity:1;animation:none}
 }
 /* SVG text */
 .hc-num{
@@ -794,9 +802,13 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 /* ── Animation section header — "Your journey to 4D" + rally-length subtitle ── */
 .anim-header{
   font-family:var(--font-display);font-style:italic;font-weight:400;
-  font-size:clamp(22px,3vw,32px);line-height:1.15;letter-spacing:-.5px;
-  text-align:center;color:var(--warm);
-  margin:0 auto 8px;max-width:680px;
+  font-size:clamp(36px,5.5vw,60px);line-height:1.05;letter-spacing:-1px;
+  text-align:center;
+  margin:0 auto 28px;max-width:820px;
+  background:linear-gradient(90deg, #FBBF24 0%, #F472B6 33%, #34D399 66%, #2B8BFC 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 2px 24px rgba(43,139,252,.18));
 }
 .anim-sub{
   text-align:center;font-family:var(--font-body);
@@ -806,7 +818,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .anim-sub .rs-num{font-weight:800;font-style:italic;font-family:var(--font-display);font-size:1.18em;letter-spacing:-.3px}
 .anim-sub .rs-arrow{color:var(--warm-mute);margin:0 4px;font-weight:700}
 @media(max-width:620px){
-  .anim-header{font-size:clamp(18px,5vw,22px);margin-bottom:6px;letter-spacing:-.2px}
+  .anim-header{font-size:clamp(28px,7.5vw,38px);margin-bottom:20px;letter-spacing:-.5px}
   .anim-sub{font-size:13px;margin-bottom:16px}
   .anim-sub .rs-arrow{margin:0 2px}
 }
@@ -1094,11 +1106,10 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <text class="hc-dim" x="507" y="258" text-anchor="middle" fill="#34D399">3D</text>
           <text class="hc-dim" x="720" y="258" text-anchor="middle" fill="#2B8BFC">4D</text>
         </g>
-        <!-- Y-axis labels: data on the left, emotional payoff on the right -->
-        <text class="hc-axis-y" x="38" y="135" text-anchor="middle" transform="rotate(-90 38 135)" fill="rgba(245,243,238,.5)">SHOTS / RALLY</text>
-        <text class="hc-axis-r" x="772" y="135" text-anchor="middle" transform="rotate(-90 772 135)" fill="#2B8BFC">TENSION + FUN ↑</text>
+        <!-- Y-axis label: emotional payoff (the chart's whole point) -->
+        <text class="hc-axis-y" x="38" y="135" text-anchor="middle" transform="rotate(-90 38 135)" fill="#2B8BFC">TENSION + FUN ↑</text>
       </svg>
-      <figcaption>Rallies lengthen as you add dimensions → leading to <strong>peak social pickleball.</strong></figcaption>
+      <figcaption>Rallies lengthen as you add dimensions → <strong>peak social pickleball.</strong></figcaption>
     </figure>
 
     <div class="fd-row">
@@ -1197,6 +1208,13 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <div class="di-hint">Tap a dimension · Pinch to zoom · Drag to orbit · Space (or ⏸) to pause</div>
       </aside>
     </div>
+
+    <button class="scroll-cue scroll-cue-2" type="button" data-scroll-target=".philosophy" aria-label="Continue to: Two kinds of pickleball">
+      <span class="scroll-cue-label">Continue</span>
+      <svg class="scroll-cue-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 7l5 5 5-5M7 13l5 5 5-5"/>
+      </svg>
+    </button>
   </section>
 
   <!-- ── PHILOSOPHY: Two kinds of pickleball ── -->
@@ -1388,19 +1406,28 @@ window.addEventListener('message', (e) => {
   const t = document.getElementById('di-traj');    if (t) t.textContent = traj;
 });
 
-// ── Scroll cue: clicks scroll to the animation section; auto-hides once user scrolls past 60px.
+// ── Scroll cues: each cue clicks to scroll to its data-scroll-target (defaults to .dim-layout).
+//    The HERO cue auto-hides after first scroll past 60px. Subsequent cues stay visible
+//    (they're inline section transitions, not above-the-fold prompts).
 (function(){
-  const cue = document.querySelector('.scroll-cue');
-  if (!cue) return;
-  cue.addEventListener('click', () => {
-    const target = document.querySelector('.dim-layout') || document.querySelector('.reveal-section');
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const cues = document.querySelectorAll('.scroll-cue');
+  if (!cues.length) return;
+  cues.forEach(cue => {
+    cue.addEventListener('click', () => {
+      const sel = cue.getAttribute('data-scroll-target') || '.dim-layout';
+      const target = document.querySelector(sel) || document.querySelector('.reveal-section');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   });
-  let hidden = false;
-  window.addEventListener('scroll', () => {
-    if (hidden) return;
-    if (window.scrollY > 60) { cue.classList.add('is-hidden'); hidden = true; }
-  }, { passive: true });
+  // Hero cue (first .scroll-cue, sits inside .hero) auto-hides after first real scroll
+  const heroCue = document.querySelector('.hero .scroll-cue');
+  if (heroCue) {
+    let hidden = false;
+    window.addEventListener('scroll', () => {
+      if (hidden) return;
+      if (window.scrollY > 60) { heroCue.classList.add('is-hidden'); hidden = true; }
+    }, { passive: true });
+  }
 })();
 
 // ── Reveal-on-scroll: hide below-the-hero sections at load, fade-up + stagger when they enter the viewport.
