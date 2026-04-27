@@ -296,6 +296,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-axis-y-arrow{
   stroke-linecap:round;stroke-linejoin:round;
 }
+/* X-axis label below the dimension dots — Beth feedback #6 math-teacher fix. */
+.hc-axis-x{
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:13px;letter-spacing:.2px;
+  fill:#2B8BFC;opacity:.78;
+}
 /* "Rally length" — italic label riding ABOVE the curve (not on it).
    Sits in clean dark space so it doesn't crash through the gradient line. */
 .hc-curve-label{
@@ -342,7 +348,7 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .hc-labels-top .l2{animation:hcFade 0.5s ease 1.65s forwards}
 .hc-labels-top .l3{animation:hcFade 0.5s ease 2.25s forwards}
 .hc-labels-top .l4{animation:hcFade 0.7s ease 2.9s forwards}
-.hc-labels-bot text, .hc-axis-y, .hc-axis-y-arrow{opacity:0;animation:hcFade 0.7s ease 0.4s forwards}
+.hc-labels-bot text, .hc-axis-y, .hc-axis-y-arrow, .hc-axis-x{opacity:0;animation:hcFade 0.7s ease 0.4s forwards}
 /* "Rally length" curve label fades in just as the line finishes drawing */
 .hc-curve-label{opacity:0;animation:hcFade 0.6s ease 2.4s forwards}
 /* Peak emphasis lands AFTER d4 dot pops (d4 = 2.7s); flag plants slightly after */
@@ -1216,14 +1222,15 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
           <text class="hc-dim" x="507" y="258" text-anchor="middle" fill="#34D399">3D</text>
           <text class="hc-dim" x="720" y="258" text-anchor="middle" fill="#2B8BFC">4D</text>
         </g>
-        <!-- Y-axis label on the LEFT — rotated reads bottom-up, with chunky up-arrow above.
-             Tells the visitor WHAT the y-axis is measuring: "Builds tension + fun" climbing. -->
-        <text class="hc-axis-y" x="38" y="158" text-anchor="middle" transform="rotate(-90 38 158)" fill="#2B8BFC">Builds tension + fun</text>
+        <!-- Y-axis label on the LEFT — Beth feedback #6 (math-teacher correctness):
+             the Y values are rally-length numbers (5, 8, 12, 20+), so the axis
+             label IS "Rally length". The up-arrow communicates "more is better." -->
+        <text class="hc-axis-y" x="38" y="158" text-anchor="middle" transform="rotate(-90 38 158)" fill="#2B8BFC">Rally length</text>
         <path class="hc-axis-y-arrow" d="M 38 70 L 38 38 M 30 48 L 38 38 L 46 48" stroke="#2B8BFC" stroke-width="2.4" fill="none"/>
 
-        <!-- "Rally length" rides UNDER the curve in the area-fill region —
-             italic, dimmed, rotated -15deg parallel to the curve's slope. -->
-        <text class="hc-curve-label" x="385" y="208" text-anchor="middle" transform="rotate(-15 385 208)">Rally length</text>
+        <!-- X-axis label below the dimension labels. Tells the visitor what the
+             X-axis represents — the progression that builds tension + fun. -->
+        <text class="hc-axis-x" x="400" y="282" text-anchor="middle" fill="#2B8BFC">Progression — builds tension + fun</text>
 
         <!-- Peak emblem at d4: silver pole + solid 4D-blue swallowtail flag with the
              brand ◆ stamped in white. Single-color so it doesn't read as pride flag.

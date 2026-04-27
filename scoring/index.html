@@ -228,6 +228,22 @@ body {
     transition: left 0.7s linear, top 0.7s linear;
 }
 
+/* Beth feedback #2: caption strip narrating each rally stage for beginners. */
+.mini-caption {
+    margin-top: 12px;
+    min-height: 22px;
+    text-align: center;
+    font-family: var(--4dp-font-body);
+    font-size: clamp(12px, 2.4vw, 14px);
+    font-weight: 600;
+    color: var(--4dp-text-dim);
+    letter-spacing: 0.2px;
+    line-height: 1.3;
+    transition: opacity 0.25s ease;
+    padding: 0 8px;
+}
+.mini-caption:empty { opacity: 0; }
+
 .mini-scoreboard {
     display: grid; grid-template-columns: 1fr 1fr 0.7fr;
     gap: 8px; margin-top: 14px;
@@ -958,6 +974,132 @@ h1#screen-header {
 }
 .up-next .cta:hover { transform: translateY(-2px); }
 
+/* =========================================================
+   QUICKSTART CLAIM — $30 off lead-capture (gold tier)
+   ========================================================= */
+.qs-claim {
+    margin-top: 24px;
+    padding: 28px 24px;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--gnr-gold) 14%, transparent),
+        color-mix(in srgb, var(--gnr-gold) 4%, transparent));
+    border: 1px solid color-mix(in srgb, var(--gnr-gold) 45%, transparent);
+    border-radius: var(--4dp-r-lg);
+    text-align: center;
+    box-shadow: 0 0 30px rgba(245,158,11,.15) inset, var(--4dp-shadow);
+}
+.qs-claim-badge {
+    display: inline-block;
+    font-family: var(--4dp-font-body); font-weight: 900;
+    font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--gnr-gold);
+    padding: 6px 16px; border-radius: var(--4dp-r-pill);
+    border: 1.5px solid color-mix(in srgb, var(--gnr-gold) 55%, transparent);
+    margin-bottom: 14px;
+    text-shadow: 0 0 12px rgba(245,158,11,.4);
+}
+.qs-claim-h {
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(24px, 5vw, 34px);
+    color: var(--4dp-text); margin: 0 0 10px;
+    letter-spacing: -0.5px; line-height: 1.1;
+}
+.qs-claim-sub {
+    font-size: clamp(14px, 2.6vw, 16px);
+    color: var(--4dp-text-dim);
+    line-height: 1.55;
+    max-width: 460px; margin: 0 auto 18px;
+}
+.qs-claim-sub em {
+    font-family: var(--4dp-font-display); font-style: italic;
+    color: var(--gnr-gold); font-weight: 400;
+}
+.qs-claim-sub strong { color: var(--4dp-text); font-weight: 700; }
+
+.qs-form {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    max-width: 460px; margin: 0 auto;
+    align-items: stretch;
+}
+.qs-form input[type="email"] {
+    flex: 1 1 220px; min-width: 0;
+    padding: 14px 16px;
+    background: rgba(8,18,37,0.6);
+    border: 1.5px solid color-mix(in srgb, var(--gnr-gold) 35%, transparent);
+    border-radius: var(--4dp-r-md);
+    color: var(--4dp-text);
+    font-family: var(--4dp-font-body); font-size: 15px;
+    font-weight: 500;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none; appearance: none;
+}
+.qs-form input[type="email"]::placeholder { color: var(--4dp-text-faint); }
+.qs-form input[type="email"]:focus {
+    outline: none;
+    border-color: var(--gnr-gold);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--gnr-gold) 25%, transparent);
+}
+.qs-form input[type="email"].invalid {
+    border-color: var(--4dp-error);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--4dp-error) 25%, transparent);
+}
+.qs-submit {
+    flex: 0 0 auto;
+    padding: 14px 22px;
+    background: var(--gnr-gold) !important;
+    color: var(--4dp-ink) !important;
+    font-weight: 800;
+    box-shadow: 0 0 24px rgba(245,158,11,.3);
+}
+.qs-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px rgba(245,158,11,.5);
+}
+.qs-submit:disabled { opacity: 0.6; cursor: progress; }
+
+.qs-fineprint {
+    margin: 14px auto 0;
+    max-width: 480px;
+    font-size: 12px; line-height: 1.45;
+    color: var(--4dp-text-mute);
+}
+
+.qs-success { display: none; padding-top: 4px; }
+.qs-success.shown { display: block; animation: qsFadeIn 500ms var(--4dp-ease); }
+@keyframes qsFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.qs-success-h {
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(22px, 4.6vw, 30px);
+    color: var(--4dp-success);
+    margin: 0 0 10px;
+    text-shadow: 0 0 16px rgba(52,211,153,.35);
+}
+.qs-success-sub {
+    font-size: clamp(14px, 2.6vw, 15px);
+    color: var(--4dp-text-dim);
+    line-height: 1.55;
+    max-width: 440px; margin: 0 auto 18px;
+}
+.qs-success-sub strong { color: var(--4dp-text); }
+.qs-success-cta {
+    display: inline-block; padding: 14px 28px;
+    background: var(--gnr-gold);
+    color: var(--4dp-ink);
+    border-radius: var(--4dp-r-pill);
+    font-family: var(--4dp-font-body); font-weight: 800; font-size: 13px;
+    letter-spacing: 1px; text-transform: uppercase;
+    text-decoration: none;
+    transition: transform 0.2s;
+    box-shadow: 0 0 24px rgba(245,158,11,.3);
+}
+.qs-success-cta:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(245,158,11,.5); }
+
+/* Hide form once claimed */
+.qs-claim.claimed .qs-form,
+.qs-claim.claimed .qs-fineprint,
+.qs-claim.claimed .qs-claim-sub { display: none; }
+.qs-claim.claimed .qs-claim-h { font-size: clamp(20px, 4.2vw, 26px); margin-bottom: 14px; }
+
 /* Footer */
 .fdp-footer {
     margin-top: 16px;
@@ -997,6 +1139,25 @@ h1#screen-header {
     h1#screen-header { font-size: clamp(20px, 5vw, 26px); }
     .mini-scoreboard { gap: 6px; padding: 8px; }
     .mini-sb .mv { font-size: 20px; }
+}
+
+/* Beth feedback #3, #5: typical phones (361-599px) — Android/iPhone portrait.
+   Hero was too tall — START YOUR JOURNEY button fell below the fold so users
+   couldn't see how to proceed. Compress hero spacing without going as aggressive
+   as the ultra-narrow tier. */
+@media (min-width: 361px) and (max-width: 599px) {
+    .app { padding: 14px; gap: 14px; }
+    .intro { padding: 14px 0 4px; gap: 14px; }
+    .hero-head h1 { font-size: clamp(30px, 7.4vw, 38px); line-height: 1.04; }
+    .word-row { gap: 10px; margin-top: 2px; }
+    .word-beat { font-size: clamp(14px, 3.2vw, 17px); }
+    .mini-rally-wrap { padding: 18px 24px; }
+    .mini-caption { font-size: 12px; min-height: 18px; margin-top: 8px; }
+    .mini-scoreboard { gap: 6px; padding: 8px; margin-top: 10px; }
+    .mini-sb { padding: 6px 4px; }
+    .mini-sb .mv { font-size: 22px; }
+    .hero-sub { font-size: 14px; margin-top: 4px; }
+    .btn { min-height: 54px; font-size: 14px; }
 }
 
 /* Tablet portrait (600-1023px) — iPad portrait, bigger Android tablets */
@@ -1140,6 +1301,8 @@ h1#screen-header {
                     <div class="mini-player return" id="mp4">4</div>
                     <div class="mini-ball" id="mball"></div>
                 </div>
+                <!-- Beth feedback #2: caption strip narrating each shot for beginners. -->
+                <div class="mini-caption" id="mini-caption" aria-live="polite"></div>
                 <div class="mini-scoreboard">
                     <div class="mini-sb ms"><div class="mv" id="ms1">0</div><div class="ml">Serving</div></div>
                     <div class="mini-sb mr"><div class="mv" id="ms2">0</div><div class="ml">Receiving</div></div>
@@ -1302,6 +1465,47 @@ h1#screen-header {
             </div>
         </div>
 
+        <!-- ===== QUICKSTART CLAIM — $30 off lead-capture ===== -->
+        <div class="qs-claim" id="qs-claim">
+            <div class="qs-claim-badge">★ You earned $30 off</div>
+            <h3 class="qs-claim-h">Bring this score to the court.</h3>
+            <p class="qs-claim-sub">
+                You just learned the rules. The <em>Quickstart class</em> is where you put them in motion —
+                two hours, real coach, real games. <strong>$30 off, on us.</strong>
+            </p>
+
+            <form id="qs-form" class="qs-form" onsubmit="return submitQuickstartClaim(event)" novalidate>
+                <input
+                    id="qs-email"
+                    type="email"
+                    name="email"
+                    placeholder="your@email.com"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
+                    aria-label="Your email"
+                >
+                <button type="submit" class="btn btn-primary qs-submit" id="qs-submit-btn">
+                    Claim my $30 off →
+                </button>
+            </form>
+
+            <p class="qs-fineprint" id="qs-fineprint">
+                We email you the class dates + add your name to the front-desk discount list. One-time use, on any upcoming Quickstart at NEPC.
+            </p>
+
+            <div class="qs-success" id="qs-success">
+                <div class="qs-success-h">✓ You're on the list.</div>
+                <p class="qs-success-sub">
+                    Check your inbox for the class dates. <strong>The front desk has your name</strong> —
+                    just give your email when you arrive and we'll apply the $30 off.
+                </p>
+                <a id="qs-cta-link" class="qs-success-cta" href="https://www.newenglandpickleball.com/quickstart" target="_blank" rel="noopener">
+                    See Quickstart dates →
+                </a>
+            </div>
+        </div>
+
         <!-- R16: Up Next — no dead ends -->
         <div class="up-next">
             <div class="label">Up Next · Level 2</div>
@@ -1324,10 +1528,25 @@ h1#screen-header {
 
 <script>
 // =========================================================
+// QUICKSTART CLAIM CONFIG — swap these three when going live
+// =========================================================
+// 1. FORMSPREE_ENDPOINT: create free form at https://formspree.io → paste endpoint here.
+//    Set autoresponder ON in Formspree settings + paste the welcome email
+//    template from briefings/quickstart_welcome_email.md.
+// 2. QUICKSTART_URL: link to NEPC's Quickstart class signup (CourtReserve URL).
+// 3. DISCOUNT_AMOUNT: dollar amount for messaging.
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_ME';
+const QUICKSTART_URL = 'https://www.newenglandpickleball.com/quickstart';
+const DISCOUNT_AMOUNT = 30;
+
+// =========================================================
 // AUDIO (Web Audio API — no files needed)
 // =========================================================
 let audioCtx = null;
-let muted = (localStorage.getItem('fdp-muted') === '1');
+// Beth feedback #1: default to MUTED on first visit so the toggle is honest —
+// tapping it actually does something audible. Once Dave's user has chosen,
+// localStorage remembers their preference.
+let muted = (localStorage.getItem('fdp-muted') !== '0');
 
 function syncMuteUI() {
     document.getElementById('mute-icon-on').style.display  = muted ? 'none' : 'block';
@@ -1363,16 +1582,21 @@ function sfxSideout() { playTone(440, 0.10, 'square', 0.08); playTone(330, 0.14,
 function sfxCorrect() { playTone(660, 0.09, 'sine', 0.13); playTone(880, 0.09, 'sine', 0.13, 0.07); playTone(1320, 0.18, 'sine', 0.13, 0.14); }
 function sfxWrong()   { playTone(220, 0.18, 'square', 0.10); }
 function sfxClick()   { playTone(1200, 0.04, 'sine', 0.06); }
+// Beth feedback #1: paddle pock for the hero rally so the audio toggle is meaningful.
+function sfxPaddle()  { playTone(880, 0.06, 'triangle', 0.09); playTone(440, 0.05, 'triangle', 0.06, 0.01); }
 
 function toggleMute() {
     muted = !muted;
     localStorage.setItem('fdp-muted', muted ? '1' : '0');
     syncMuteUI();
-    if (!muted) { initAudio(); sfxClick(); }
+    // Beth feedback #1: when unmuting, play an obvious confirmation tone so the
+    // user knows the toggle did something. (sfxClick is barely audible.)
+    if (!muted) { initAudio(); setTimeout(() => sfxScore(), 60); }
 }
 
 document.addEventListener('click', () => { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
 document.addEventListener('keydown', () => { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+document.addEventListener('touchstart', () => { initAudio(); if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true, passive: true });
 
 // =========================================================
 // HERO MINI-RALLY — autoplaying loop
@@ -1402,12 +1626,19 @@ async function runMiniRally() {
     };
     reset();
 
-    // Helper: flash a player to signal a paddle hit
+    // Helper: flash a player to signal a paddle hit + play a paddle pock.
+    // Beth feedback #1: rally was silent; she expected something audible.
     const pulse = (p) => {
         p.classList.remove('hit');
         void p.offsetWidth;
         p.classList.add('hit');
+        sfxPaddle();
     };
+
+    // Beth feedback #2: caption strip narrating each shot so beginners know
+    // what they're seeing. Updated synchronously with the animation.
+    const captionEl = document.getElementById('mini-caption');
+    const setCaption = (text) => { if (captionEl) captionEl.innerText = text; };
 
     // Canonical rally — matches 3D template (3d_module_template.html playerFrames
     // Drop rally F0–F4) and memory/feedback_pickleball_animation_reference.md §4:
@@ -1421,24 +1652,18 @@ async function runMiniRally() {
         if (!introVisible()) { await wait(500); reset(); continue; }
 
         // Pause with ball at server — everyone in canonical receive formation.
-        //   mp1 (server)            baseline top-left
-        //   mp2 (server's partner)  baseline bottom-left
-        //   mp3 (receiver)          baseline bottom-right  <-- WAITS HERE for the serve
-        //   mp4 (receiver's partner) kitchen line top-right (one-up/one-back)
+        setCaption('Score is 0-0-2. Red serves first.');
         await wait(1000);
 
-        // ── SERVE ── mp1 hits. Ball flies diagonal into mp3's service box.
-        //            mp3 is ALREADY at the baseline — does not move.
-        //            No one else moves during the serve.
+        // ── SERVE ──
+        setCaption('Serve →');
         pulse(mp1);
         mb.style.left = '88%'; mb.style.top = '75%';
         await wait(900);
         if (!introVisible()) { reset(); continue; }
 
-        // ── RETURN + SPRINT ── mp3 hits return from baseline. Ball launches DEEP
-        //                      to red's baseline. THEN mp3 sprints to the kitchen
-        //                      line (the canonical move). Server team holds back;
-        //                      mp1 takes only a tiny step since the return is deep.
+        // ── RETURN + SPRINT ──
+        setCaption('Return → receiver sprints to the kitchen');
         pulse(mp3);
         mb.style.left = '6%'; mb.style.top = '25%';
         await wait(240);
@@ -1446,35 +1671,27 @@ async function runMiniRally() {
         mp1.style.left = '6%'; mp1.style.top = '25%';      // small step to meet the deep return
         await wait(900);
 
-        // ── THIRD SHOT DRIVE ── mp1 drives it past mp3 into green's top corner.
-        //                       mp3 is at the bottom kitchen, mp4 anchored at top
-        //                       kitchen — neither can reach the ball's landing spot.
-        //                       mp1 STAYS put after the third shot (canonical drive
-        //                       keeps server team back; they don't retreat).
+        // ── THIRD SHOT DRIVE ──
+        setCaption('Third shot — Red drives it for a winner.');
         pulse(mp1);
         mb.style.left = '96%'; mb.style.top = '40%';
         await wait(900);
 
-        // ── POINT WON ── red's score ticks up. Ball sits in the corner.
-        //                Both red players recover BEHIND the baseline for the
-        //                next point. mp1 had stepped in at 6% to hit the winner;
-        //                now it retreats so both are back at x=-4%.
-        // +1 POINT popup matches the wizard scenarios — same .score-popup styling,
-        // anchored inside .mini-court near the winning shot's landing spot.
+        // ── POINT WON ──
+        setCaption('Point Red. Score ticks 1-0-2 → they swap sides.');
         miniScorePopup('88%', '35%', '+1 POINT', 'var(--team-serve)');
         document.getElementById('ms1').textContent = '1';
         mp1.style.left = '-4%'; mp1.style.top = '25%';
         mp2.style.left = '-4%'; mp2.style.top = '75%';
         await wait(800);
 
-        // ── WINNERS SWAP SIDES ── red serving team swaps halves (serving rule).
-        //                         Both stay behind the baseline — just flip halves.
-        //                         mp3 stays at kitchen (receiver team never rotates).
+        // ── WINNERS SWAP SIDES ──
         mp1.style.top = '75%';
         mp2.style.top = '25%';
         await wait(1100);
 
         reset();
+        setCaption('');
         await wait(700);
     }
 }
@@ -1827,7 +2044,7 @@ const steps = [
     {
         header: "Winners Swap, Losers Stay",
         step: "Position rule",
-        text: "When the serving team scores, <strong>they swap sides</strong> — so the same player serves from the other half. The receiving team never swaps. <em>Even score = right side. Odd score = left.</em>",
+        text: "When the serving team scores, <strong>they swap sides</strong> — so the same player serves from the other half. The receiving team never swaps. <em>Even score = right (forehand side facing the net). Odd score = left.</em> The rule applies to whoever the team's <strong>first server of the rotation</strong> is — that's how the score and side stay locked together.",
         // p1 enters at his step-in position from the rally; p3 stays at kitchen (no snap-back).
         positions: { p1:{left:'-1%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'67.5%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [1,0,2],
@@ -1857,7 +2074,7 @@ const steps = [
         positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [1,0,1],
         server: 2,
-        tooltips: { p1: "Lost — sits", p2: "Now Server 2" },
+        tooltips: { p1: "Out — partner serves", p2: "Now Server 2" },
         animSequence: async (id) => {
             setBall('-2%','25%',true);
             if (!await sleep(400, id)) return;
@@ -1911,7 +2128,7 @@ const scenarios = [
         text: "New game. Red serves first. What score do they call before their first serve?",
         correct: "0-0-2",
         options: ["0-0-2","0-0-1","0-0-0"],
-        explain: "Every new game starts at <strong>0-0-2</strong>. The first serving team of the whole game is treated as <em>Server 2</em> — a one-time handicap so only one player gets to serve before the first sideout. Every other game in your life starts with this quirk. It's the one thing beginners have to just memorize.",
+        explain: "Every new game starts at <strong>0-0-2</strong>. The first serving team of the whole game is treated as <em>Server 2</em> — a one-time handicap so only one player gets to serve before the first sideout. <strong>After that, every new serving rotation starts with Server 1 again.</strong> Every pickleball game you'll ever play opens with this quirk — it's the one thing beginners just have to memorize.",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [0,0,2],
         server: 1,
@@ -1944,7 +2161,7 @@ const scenarios = [
         text: "Mid-game. Score is <strong>5-3-1</strong>. Red's Server 1 loses the rally. What happens?",
         correct: "Red's Server 2 tries — new call is 5-3-2",
         options: ["Red's Server 2 tries — new call is 5-3-2","Sideout — Green serves at 3-5-1","Green gets a point — 5-4-1"],
-        explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. Score stays the same — only the third number ticks from 1 to 2. The team keeps serving until <em>both</em> partners lose a rally.",
+        explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. Score stays the same — <strong>only the third number — the server count — ticks from 1 to 2.</strong> The first two numbers (the actual score) don't change. The team keeps serving until <em>both</em> partners lose a rally.",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [5,3,1],
         server: 1,
@@ -1966,7 +2183,7 @@ const scenarios = [
         text: "Red's score is <strong>even</strong> (6-3-1). On which side of the court should the server be standing?",
         correct: "Right side (even = right)",
         options: ["Right side (even = right)","Left side (even = left)","Either — it's the partner's choice"],
-        explain: "<strong>Even score = right. Odd score = left.</strong> This is the self-check pros use to know the score is right — if the server is on the wrong side, you miscounted. At <em>6-3-1</em>, Red's score is even, so Server 1 belongs on the right.",
+        explain: "<strong>Even score = right. Odd score = left.</strong> (Right and left are from the server's view facing the net.) This is the self-check pros use to know the score is right — if the server is on the wrong side, you miscounted. At <em>6-3-1</em>, Red's score is even, so the server belongs on the right. (Red was at 5 odd → server was on the left. They scored to 6 even → they swap to the right for the next serve.)",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [6,3,1],
         server: 1,
@@ -2360,6 +2577,103 @@ function showCompletion() {
             }, 700);
         }
     }
+
+    // Restore prior claim state if Dave's user already submitted in this browser.
+    syncQuickstartClaimUI();
+}
+
+// =========================================================
+// QUICKSTART CLAIM — POST email to Formspree, capture lead.
+// Anyone who completes the simulator qualifies (per Dave's directive: any tier).
+// localStorage gate prevents double-prompt on replay.
+// =========================================================
+function syncQuickstartClaimUI() {
+    const wrap = document.getElementById('qs-claim');
+    if (!wrap) return;
+    const claimedEmail = localStorage.getItem('fdp-qs-claimed-email');
+    const cta = document.getElementById('qs-cta-link');
+    if (cta) cta.href = QUICKSTART_URL;
+
+    if (claimedEmail) {
+        wrap.classList.add('claimed');
+        const success = document.getElementById('qs-success');
+        success.classList.add('shown');
+        // Personalize the success header with the email captured prior
+        const h = wrap.querySelector('.qs-claim-h');
+        if (h) h.innerText = `You're on the front-desk list.`;
+    }
+}
+
+async function submitQuickstartClaim(e) {
+    e.preventDefault();
+    const input = document.getElementById('qs-email');
+    const btn = document.getElementById('qs-submit-btn');
+    const fineprint = document.getElementById('qs-fineprint');
+    const email = (input.value || '').trim();
+
+    // Quick client-side validation
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!valid) {
+        input.classList.add('invalid');
+        input.focus();
+        sfxWrong();
+        return false;
+    }
+    input.classList.remove('invalid');
+
+    btn.disabled = true;
+    const originalLabel = btn.innerText;
+    btn.innerText = 'Saving…';
+
+    try {
+        // Build payload. Formspree accepts JSON with Accept: application/json.
+        const payload = {
+            email: email,
+            source: '4dpickleball.com/scoring/',
+            score: Math.round(totalScore),
+            tier: document.getElementById('tier-badge')?.innerText || 'Completed',
+            perfect: `${perfectCount}/${scenarios.length}`,
+            best_streak: bestStreak,
+            discount_amount: DISCOUNT_AMOUNT,
+            module: '4D Pickleball — Scoring & Positioning',
+            timestamp: new Date().toISOString(),
+            _subject: `New $${DISCOUNT_AMOUNT} Quickstart claim — ${email}`
+        };
+
+        // If the endpoint hasn't been wired yet, still save locally + show success
+        // so the demo path works. Console a clear warning for the dev.
+        if (FORMSPREE_ENDPOINT.includes('REPLACE_ME')) {
+            console.warn('[Quickstart Claim] FORMSPREE_ENDPOINT is not configured. Saving locally only. Configure in scoring/index.html constants block.');
+        } else {
+            const res = await fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(`Submit failed: ${res.status}`);
+        }
+
+        // Success state
+        localStorage.setItem('fdp-qs-claimed-email', email);
+        localStorage.setItem('fdp-qs-claimed-at', payload.timestamp);
+        sfxScore();
+        spawnConfetti(window.innerWidth/2, window.innerHeight/2);
+
+        // Swap UI to success
+        document.getElementById('qs-claim').classList.add('claimed');
+        const h = document.querySelector('#qs-claim .qs-claim-h');
+        if (h) h.innerText = `You're on the front-desk list.`;
+        document.getElementById('qs-success').classList.add('shown');
+    } catch (err) {
+        console.error('[Quickstart Claim] submit error', err);
+        btn.disabled = false;
+        btn.innerText = originalLabel;
+        if (fineprint) {
+            fineprint.innerHTML = '<span style="color:var(--4dp-error)">Couldn\'t save — please try again or email <a href="mailto:hello@givenreceive.ai" style="color:var(--gnr-gold)">hello@givenreceive.ai</a></span>';
+        }
+        sfxWrong();
+    }
+    return false;
 }
 
 // Kick off the hero mini-rally
