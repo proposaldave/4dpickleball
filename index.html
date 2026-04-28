@@ -1060,15 +1060,20 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 .zero-d-bedrock .zd-headline em{
   font-style:italic;color:var(--warm);font-size:1.15em;margin-right:6px;
 }
+/* 3-column grid for chips AND CTAs so each CTA aligns vertically under its
+   corresponding concept chip: Positioning → Scoring CTA, Anticipation → Outballs CTA.
+   Third column (Ready Position) has no CTA — cell stays empty. */
 .zero-d-bedrock .zd-pillars{
-  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  margin-bottom:18px;align-items:center;
 }
 .zero-d-bedrock .zd-chip{
   background:rgba(245,243,238,.06);
   border:1px solid rgba(245,243,238,.14);
-  border-radius:100px;padding:7px 16px;
-  font-family:var(--font-display);font-style:italic;font-size:15px;
+  border-radius:100px;padding:8px 18px;
+  font-family:var(--font-body);font-weight:600;font-size:13px;letter-spacing:.4px;
   color:var(--warm);
+  text-align:center;justify-self:center;
 }
 .zero-d-bedrock .zd-chip-link{
   background:rgba(52,211,153,.14);
@@ -1076,16 +1081,18 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   color:#34D399;
 }
 .zero-d-bedrock .zd-ctas{
-  display:inline-flex;flex-wrap:wrap;gap:14px;justify-content:center;
-  margin-top:4px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  margin-top:4px;align-items:center;
 }
 .zero-d-bedrock .zd-cta{
-  display:inline-block;background:#2B8BFC;color:#fff;
-  padding:11px 26px;border-radius:999px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  background:#2B8BFC;color:#fff;
+  padding:11px 20px;border-radius:999px;
   font-family:var(--font-body);font-weight:700;font-size:13px;
   letter-spacing:1.2px;text-transform:uppercase;
   text-decoration:none;box-shadow:0 6px 18px rgba(43,139,252,.32);
   transition:transform .2s;
+  /* CTA 1 → column 1 (under Positioning); CTA 2 → column 2 (under Anticipation) */
 }
 .zero-d-bedrock .zd-cta:hover{transform:translateY(-1px)}
 @media(max-width:900px){
@@ -1096,7 +1103,9 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   .zero-d-bedrock .zd-headline{font-size:15px;line-height:1.35}
 }
 @media(max-width:680px){
-  .zero-d-bedrock .zd-ctas{flex-direction:column;gap:10px;width:100%;align-items:stretch}
+  /* On phone, drop the column alignment — stack CTAs full-width */
+  .zero-d-bedrock .zd-pillars{grid-template-columns:1fr;gap:8px}
+  .zero-d-bedrock .zd-ctas{grid-template-columns:1fr;gap:10px}
   .zero-d-bedrock .zd-cta{text-align:center;padding:14px 28px}
 }
 </style>
@@ -1286,15 +1295,12 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
               <span class="zd-chip zd-chip-link">Anticipation&nbsp;↓</span>
               <span class="zd-chip">Ready Position</span>
             </div>
-            <div class="zd-ctas-label">Open a module ↓</div>
             <div class="zd-ctas">
               <a href="/scoring/" class="zd-cta">
-                <span class="zd-cta-tag">Module · 0D</span>
                 <span class="zd-cta-name">Beginner Scoring &amp; Positioning</span>
                 <span class="zd-cta-arrow">→</span>
               </a>
               <a href="/outballs/" class="zd-cta">
-                <span class="zd-cta-tag">Module · 0D</span>
                 <span class="zd-cta-name">Train Out Balls</span>
                 <span class="zd-cta-arrow">→</span>
               </a>
