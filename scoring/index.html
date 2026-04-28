@@ -1395,25 +1395,22 @@ h1#screen-header {
     position: fixed;
     bottom: max(14px, env(safe-area-inset-bottom));
     right: max(14px, env(safe-area-inset-right));
-    width: 46px; height: 46px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.08);
+    width: 78px; height: 78px;
+    background: transparent;
     z-index: 50;
-    transition: transform 200ms var(--4dp-ease), box-shadow 200ms var(--4dp-ease);
+    transition: transform 200ms var(--4dp-ease), filter 200ms var(--4dp-ease);
     -webkit-tap-highlight-color: transparent;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,.55));
 }
 .nepc-cobrand:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 24px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.18);
+    transform: scale(1.06);
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,.7));
 }
 .nepc-cobrand img {
     width: 100%; height: 100%; display: block; object-fit: contain;
-    padding: 2px;
 }
 @media (max-width: 599px) {
-    .nepc-cobrand { width: 40px; height: 40px; }
+    .nepc-cobrand { width: 64px; height: 64px; }
 }
 </style>
 </head>
