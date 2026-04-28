@@ -392,7 +392,9 @@ h1#screen-header {
     line-height: 1.55; color: var(--4dp-text);
 }
 .step-text strong { color: var(--4dp-text); font-weight: 700; }
-.step-text em { font-family: var(--4dp-font-display); font-style: italic; color: var(--4dp-drive); font-size: 1.02em; }
+/* Body-context emphasis stays in DM Sans italic — Instrument Serif is reserved
+   for headlines. Italic serif at body size was hard to read (Dave feedback). */
+.step-text em { font-family: var(--4dp-font-body); font-style: italic; color: var(--4dp-drive); font-weight: 600; }
 
 /* =========================================================
    COURT
@@ -913,8 +915,8 @@ h1#screen-header {
 }
 .sim-feedback-explain strong { color: var(--4dp-text); }
 .sim-feedback-explain em {
-    font-family: var(--4dp-font-display); font-style: italic;
-    color: var(--4dp-drive); font-weight: 400; font-size: 1.02em;
+    font-family: var(--4dp-font-body); font-style: italic;
+    color: var(--4dp-drive); font-weight: 600;
 }
 @keyframes explainFadeIn {
     from { opacity: 0; transform: translateY(6px); }
@@ -1054,8 +1056,8 @@ h1#screen-header {
     max-width: 460px; margin: 0 auto 18px;
 }
 .qs-claim-sub em {
-    font-family: var(--4dp-font-display); font-style: italic;
-    color: var(--gnr-gold); font-weight: 400;
+    font-family: var(--4dp-font-body); font-style: italic;
+    color: var(--gnr-gold); font-weight: 600;
 }
 .qs-claim-sub strong { color: var(--4dp-text); font-weight: 700; }
 
@@ -1445,7 +1447,7 @@ h1#screen-header {
                         <button id="lesson-back-btn" class="btn btn-outline" onclick="prevStep()">← Back</button>
                         <button id="next-btn" class="btn btn-primary" onclick="nextStep()">Next →</button>
                     </div>
-                    <button id="play-pause-btn" class="control-btn" onclick="togglePlayPause()">⏸ Pause (Space)</button>
+                    <button id="play-pause-btn" class="mini-pause-btn" type="button" onclick="togglePlayPause()" aria-pressed="false" aria-label="Pause or resume the animation">⏸ Pause</button>
                     <div class="kb-hints visible" id="kb-hints">
                         <span><kbd>←</kbd><kbd>→</kbd> Navigate</span>
                         <span><kbd>Space</kbd> Pause</span>
@@ -1779,7 +1781,9 @@ function togglePlayPause() { if (isPaused) resumeAnimations(); else pauseAnimati
 
 function pauseAnimations() {
     isPaused = true;
-    document.getElementById('play-pause-btn').innerHTML = '▶ Play (Space)';
+    const btn = document.getElementById('play-pause-btn');
+    btn.innerHTML = '▶ Resume';
+    btn.setAttribute('aria-pressed', 'true');
     ['ball','p1','p2','p3','p4'].forEach(id => {
         const el = document.getElementById(id); if (!el) return;
         const comp = window.getComputedStyle(el);
@@ -1796,7 +1800,9 @@ function pauseAnimations() {
 
 function resumeAnimations() {
     isPaused = false;
-    document.getElementById('play-pause-btn').innerHTML = '⏸ Pause (Space)';
+    const btn = document.getElementById('play-pause-btn');
+    btn.innerHTML = '⏸ Pause';
+    btn.setAttribute('aria-pressed', 'false');
     ['ball','p1','p2','p3','p4'].forEach(id => {
         const el = document.getElementById(id); if (!el) return;
         el.style.transition = el.dataset.transition || 'all 0.65s cubic-bezier(0.34, 1.4, 0.64, 1)';
