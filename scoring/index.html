@@ -586,41 +586,6 @@ h1#screen-header {
     100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
 }
 
-/* =========================================================
-   SERVICE-BOX LABELS (Beth feedback #9)
-   Small persistent badges so beginners can see which box is
-   the server's RIGHT vs LEFT from their POV facing the net.
-   Diagonal-serve geometry: red's RIGHT = top-left quadrant
-   (red faces net rightward → right hand is "south" on diagram,
-   but the simulator convention places even-score server at top
-   matching diagonal cross-court serve). Green faces opposite.
-   ========================================================= */
-.service-label {
-    position: absolute;
-    font-family: var(--4dp-font-body);
-    font-weight: 800;
-    font-size: clamp(9px, 1.3vw, 11px);
-    letter-spacing: 1.2px;
-    padding: 3px 6px;
-    border-radius: 4px;
-    background: rgba(8, 18, 37, 0.65);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(245,243,238,0.78);
-    pointer-events: none;
-    z-index: 6;
-    text-transform: uppercase;
-    line-height: 1;
-    user-select: none;
-}
-.service-label.red   { color: #FCA5A5; border-color: rgba(239,68,68,0.35); }
-.service-label.green { color: #6EE7B7; border-color: rgba(16,185,129,0.35); }
-/* Position each label near the baseline corner of its quadrant
-   so it doesn't collide with player avatars or the kitchen. */
-.sl-tl { top: 6px;    left: 6px; }     /* Red R   */
-.sl-bl { bottom: 6px; left: 6px; }     /* Red L   */
-.sl-tr { top: 6px;    right: 6px; }    /* Green L */
-.sl-br { bottom: 6px; right: 6px; }    /* Green R */
 
 /* =========================================================
    SCOREBOARD
@@ -1418,12 +1383,6 @@ h1#screen-header {
                         <div class="net-line"></div>
                         <div class="center-line center-left"></div>
                         <div class="center-line center-right"></div>
-
-                        <!-- Service-box labels (Beth #9) — server's POV facing net. -->
-                        <div class="service-label red sl-tl" title="Red's RIGHT service box">R · RED</div>
-                        <div class="service-label red sl-bl" title="Red's LEFT service box">L · RED</div>
-                        <div class="service-label green sl-tr" title="Green's LEFT service box">L · GRN</div>
-                        <div class="service-label green sl-br" title="Green's RIGHT service box">R · GRN</div>
 
                         <div id="visual-layer" class="visual-layer"></div>
 
