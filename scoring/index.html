@@ -2145,7 +2145,38 @@ const steps = [
             if (!await sleep(900, id)) return;
         }
     },
-    // Step 6: The Score Flips
+    // Step 6: The 0-0-2 Exception
+    {
+        header: "The 0-0-2 Exception",
+        step: "Start-of-game rule",
+        text: "One exception to the two-servers rule: at the <strong>very start of the game</strong>, the first serving team is treated as if they're <em>already on Server 2</em> — so they only get ONE server before sideout. That's why every game opens at <strong>0-0-2</strong>, not 0-0-1. After that first sideout, every rotation starts fresh with Server 1.",
+        // Game-start formation: red server at deuce, returner at green deuce baseline.
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
+        showScore: true, score: [0,0,2],
+        server: 1,
+        tooltips: { p1: "Calls 0-0-2" },
+        animSequence: async (id) => {
+            setBall('-2%','75%', true);
+            const s3 = document.getElementById('s-val-3');
+            if (!await sleep(500, id)) return;
+            // Show what the score WOULD be if the rule didn't apply…
+            s3.classList.add('pop');
+            s3.innerText = '1';
+            spawnScorePopup('72%','110%','✗ NOT 0-0-1','var(--4dp-error)', true);
+            if (!await sleep(1100, id)) return;
+            s3.classList.remove('pop');
+            // …then snap to the real start-of-game score.
+            s3.classList.add('pop');
+            s3.innerText = '2';
+            spawnScorePopup('72%','110%','✓ 0-0-2','var(--team-return)');
+            if (!await sleep(700, id)) return;
+            s3.classList.remove('pop');
+            s3.classList.add('highlight');
+            if (!await sleep(900, id)) return;
+            s3.classList.remove('highlight');
+        }
+    },
+    // Step 7: The Score Flips
     {
         header: "The Score Flips",
         step: "Whoever serves reads first",
