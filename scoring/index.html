@@ -89,7 +89,10 @@ body {
     padding-left:  max(clamp(14px, 3vw, 24px), env(safe-area-inset-left));
     padding-right: max(clamp(14px, 3vw, 24px), env(safe-area-inset-right));
     padding-top:    max(clamp(14px, 3vw, 24px), env(safe-area-inset-top));
-    padding-bottom: max(clamp(14px, 3vw, 24px), env(safe-area-inset-bottom));
+    /* Bottom padding clears the fixed NEPC co-brand badge (78px desktop /
+       64px mobile) plus safe-area inset, so scrollable content never hides
+       behind it on any screen size. */
+    padding-bottom: max(110px, calc(env(safe-area-inset-bottom) + 100px));
     display: flex; flex-direction: column;
     gap: clamp(14px, 2.4vw, 20px);
 }
@@ -340,7 +343,17 @@ body {
 }
 .hero-reward-text strong { color: var(--gnr-gold); font-weight: 700; }
 @media (max-width: 599px) {
-    .hero-reward { padding: 9px 14px; gap: 8px; }
+    .hero-reward {
+        padding: 9px 14px;
+        gap: 8px;
+        font-size: 12.5px;
+        line-height: 1.3;
+        max-width: calc(100% - 8px);
+        text-align: center;
+    }
+}
+@media (max-width: 360px) {
+    .hero-reward { padding: 8px 12px; font-size: 11.5px; }
 }
 
 /* =========================================================
@@ -950,6 +963,30 @@ h1#screen-header {
     font-family: var(--4dp-font-body); font-style: italic;
     color: var(--4dp-drive); font-weight: 600;
 }
+
+/* Wrong-answer hint — shows ONLY when the user picks the wrong choice.
+   Right answers move on without re-explaining (Dave's pedagogy directive). */
+.sim-hint {
+    margin-top: 14px; padding: 14px 18px;
+    border-radius: 14px;
+    background: rgba(239,68,68,0.10);
+    border: 1px solid rgba(239,68,68,0.32);
+    color: var(--4dp-text);
+    font-size: 14px; line-height: 1.55;
+    animation: simHintIn 360ms var(--4dp-ease);
+}
+.sim-hint-label {
+    display: inline-block;
+    color: var(--4dp-error); font-weight: 800;
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    margin-right: 8px;
+}
+.sim-hint strong { color: var(--4dp-text); }
+.sim-hint em { font-family: var(--4dp-font-body); font-style: italic; color: var(--4dp-drive); font-weight: 600; }
+@keyframes simHintIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 @keyframes explainFadeIn {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: none; }
@@ -1409,9 +1446,9 @@ h1#screen-header {
 .nepc-cobrand img {
     width: 100%; height: 100%; display: block; object-fit: contain;
 }
-@media (max-width: 599px) {
-    .nepc-cobrand { width: 64px; height: 64px; }
-}
+@media (max-width: 360px)            { .nepc-cobrand { width: 56px; height: 56px; bottom: max(10px, env(safe-area-inset-bottom)); right: max(10px, env(safe-area-inset-right)); } }
+@media (min-width: 361px) and (max-width: 599px) { .nepc-cobrand { width: 64px; height: 64px; } }
+@media (min-width: 600px) and (max-width: 1023px) { .nepc-cobrand { width: 72px; height: 72px; } }
 </style>
 </head>
 <body class="tokens-base">
@@ -1485,7 +1522,7 @@ h1#screen-header {
             <!-- Reward incentive — visible on the front so users know what's at stake. -->
             <div class="hero-reward" aria-label="Reward for passing the quiz">
                 <span class="hero-reward-star">★</span>
-                <span class="hero-reward-text">Pass the quiz → <strong>$30 off</strong> your first Quickstart or 101 class at NEPC!</span>
+                <span class="hero-reward-text">Pass the quiz → <strong>$30 off</strong> your first Quickstart class at NEPC!</span>
             </div>
 
             <div class="button-group" style="margin-top: 4px;">
@@ -1587,10 +1624,13 @@ h1#screen-header {
 
                 <div id="simulator-ui" style="display:none;">
                     <div id="answer-options"></div>
+                    <!-- Inline hint shown ONLY when a wrong answer is selected.
+                         Right answers move on without re-explaining the rule. -->
+                    <div id="sim-hint" class="sim-hint" style="display:none;"></div>
                     <div id="sim-feedback" class="instruction sim-feedback">
                         <div id="sim-feedback-text" class="step-text">Correct!</div>
                         <div id="sim-feedback-explain" class="sim-feedback-explain"></div>
-                        <button id="sim-next-btn" class="btn btn-primary" style="margin-top: 14px; min-height: 48px;" onclick="nextScenario()">Next Scenario →</button>
+                        <button id="sim-next-btn" class="btn btn-primary" style="margin-top: 14px; min-height: 48px;" onclick="nextScenario()">Next →</button>
                     </div>
                     <div class="button-group" style="margin-top: 10px;">
                         <button id="sim-back-btn" class="btn btn-outline" onclick="prevScenario()">← Back</button>
@@ -1606,17 +1646,14 @@ h1#screen-header {
             <div class="dim-line"></div>
             <div>
                 <div class="kicker-text">4D Pickleball · Scoring</div>
-                <h1>The lesson is done.</h1>
+                <h1>Quiz</h1>
             </div>
         </div>
         <div class="instruction" style="padding: 28px 24px;">
-            <div class="step-label">Ready to test it</div>
-            <div class="step-text">
-                You've seen the rules in motion. Six quick scenarios to lock it in. <em>Aim for a perfect run.</em>
-            </div>
+            <div class="step-text">Six questions. Score 80%+ for $30 off.</div>
         </div>
         <div class="button-group">
-            <button class="btn btn-primary pulse-btn" onclick="startSimulator()">Enter Simulator →</button>
+            <button class="btn btn-primary pulse-btn" onclick="startSimulator()">Start Quiz →</button>
         </div>
     </section>
 
@@ -1646,8 +1683,7 @@ h1#screen-header {
             <div class="qs-claim-badge">★ You earned $30 off</div>
             <h3 class="qs-claim-h">Bring this score to the court.</h3>
             <p class="qs-claim-sub">
-                You just learned the rules. The <em>Quickstart or 101 class</em> is where you put them in motion —
-                two hours, real coach, real games. <strong>$30 off, on us.</strong>
+                You just learned the rules. NEPC's <em>Quickstart class</em> is where you put them in motion with our pros and play your first real games. <strong>$30 off, on us.</strong>
             </p>
 
             <form id="qs-form" class="qs-form" onsubmit="return submitQuickstartClaim(event)" novalidate>
@@ -1667,22 +1703,16 @@ h1#screen-header {
             </form>
 
             <p class="qs-fineprint" id="qs-fineprint">
-                We email you the class dates + add your name to the front-desk discount list. One-time use, on any upcoming Quickstart or 101 class at NEPC.
+                We email you the class dates + add your name to the front-desk discount list. One-time use, on any upcoming Quickstart class at NEPC.
             </p>
 
             <div class="qs-success" id="qs-success">
                 <div class="qs-success-h">✓ You're on the list.</div>
                 <p class="qs-success-sub">
-                    Check your inbox for the class dates. <strong>The front desk has your name + this code</strong> —
-                    show this code when you arrive and we'll apply the $30 off.
+                    Check your inbox for class dates. <strong>The front desk has your email</strong> — just give us your email at check-in and we'll apply the $30 off automatically. Nothing to remember.
                 </p>
-                <div class="qs-code-wrap" aria-label="Your reward code">
-                    <div class="qs-code-label">Your reward code</div>
-                    <div class="qs-code" id="qs-code">— — — — —</div>
-                    <div class="qs-code-hint">One-time use · save this email or screenshot</div>
-                </div>
-                <a id="qs-cta-link" class="qs-success-cta" href="https://www.newenglandpickleball.com/quickstart" target="_blank" rel="noopener">
-                    See Quickstart dates →
+                <a id="qs-cta-link" class="qs-success-cta" href="https://www.newenglandpickleball.com/new-to-pickle-ball" target="_blank" rel="noopener">
+                    Sign up for Quickstart now →
                 </a>
             </div>
         </div>
@@ -1708,13 +1738,12 @@ h1#screen-header {
         </div>
 
         <div class="button-group" style="margin-top: 8px;">
-            <button class="btn btn-outline" onclick="shareResult()">Share Score</button>
+            <button class="btn btn-outline" onclick="shareResult()">Share with a Friend</button>
             <button onclick="location.reload()" class="btn btn-outline">Restart</button>
         </div>
 
         <div class="fdp-footer">
             <div>Built at <a href="https://www.newenglandpickleball.com">New England Pickleball Club</a></div>
-            <div style="margin-top:6px"><span class="parent">A Give 'n Receive product</span></div>
         </div>
     </section>
 
@@ -1730,7 +1759,7 @@ h1#screen-header {
 // 2. QUICKSTART_URL: link to NEPC's Quickstart class signup (CourtReserve URL).
 // 3. DISCOUNT_AMOUNT: dollar amount for messaging.
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_ME';
-const QUICKSTART_URL = 'https://www.newenglandpickleball.com/quickstart';
+const QUICKSTART_URL = 'https://www.newenglandpickleball.com/new-to-pickle-ball';
 const DISCOUNT_AMOUNT = 30;
 
 // =========================================================
@@ -2281,7 +2310,7 @@ const steps = [
     },
     // Step 4: Winners Swap
     {
-        header: "Winners Swap, Losers Stay",
+        header: "Swap sides",
         step: "Swap places",
         text: "When the serving team scores, <strong>they swap sides</strong> — so the same player serves from the other half. The receiving team never swaps.",
         // p1 enters at his step-in position from the rally; p3 stays at kitchen (no snap-back).
@@ -2314,17 +2343,31 @@ const steps = [
         server: 2,
         tooltips: { p1: "Out — partner serves", p2: "Now Server 2" },
         animSequence: async (id) => {
-            setBall('-2%','25%',true);
-            if (!await sleep(400, id)) return;
-            if (!await moveBall('69%','25%', id)) return;
-            spawnScorePopup('50%','50%',"SECOND SERVE","var(--4dp-drive)");
+            // Narrative: Server 1 (p1, top/ad) loses → Server 2 (p2, bottom/deuce)
+            // takes over → also loses → sideout to green.
+            // 1) Server 1 serves and the rally ends in a loss (ball into the net).
+            setBall('-2%','25%', true);
+            if (!await sleep(500, id)) return;
+            if (!await moveBall('48%','35%', id, 600)) return;     // into the net
+            spawnScorePopup('30%','25%','✗ SERVER 1 LOST','var(--4dp-error)', true);
+            if (!await sleep(900, id)) return;
+
+            // 2) Second serve — Server 2 (the partner at deuce) takes over.
+            setBall('-2%','75%', true);
+            spawnScorePopup('50%','50%','SECOND SERVE','var(--4dp-drive)');
             document.getElementById('s-val-3').innerText = '2';
             document.getElementById('s-val-3').classList.add('highlight');
             if (!await sleep(900, id)) return;
             document.getElementById('s-val-3').classList.remove('highlight');
-            if (!await sleep(400, id)) return;
-            if (!await moveBall('104%','25%', id, 500)) return;
-            spawnScorePopup('80%','50%',"SIDEOUT","var(--team-return)");
+
+            // 3) Server 2 also loses the rally — same visual: ball into net.
+            if (!await moveBall('48%','65%', id, 600)) return;     // into the net
+            spawnScorePopup('30%','75%','✗ SERVER 2 LOST','var(--4dp-error)', true);
+            if (!await sleep(900, id)) return;
+
+            // 4) Sideout — serve transfers to green. Ball appears on green's side.
+            spawnScorePopup('80%','50%','SIDEOUT','var(--team-return)');
+            setBall('85%','25%', true);
             if (!await sleep(900, id)) return;
         }
     },
@@ -2343,15 +2386,17 @@ const steps = [
             const s3 = document.getElementById('s-val-3');
             if (!await sleep(500, id)) return;
             // Show what the score WOULD be if the rule didn't apply…
+            // Popup lives in upper-third of the court so it stays clear of
+            // the scoreboard below.
             s3.classList.add('pop');
             s3.innerText = '1';
-            spawnScorePopup('72%','110%','✗ NOT 0-0-1','var(--4dp-error)', true);
+            spawnScorePopup('50%','30%','✗ NOT 0-0-1','var(--4dp-error)', true);
             if (!await sleep(1100, id)) return;
             s3.classList.remove('pop');
             // …then snap to the real start-of-game score.
             s3.classList.add('pop');
             s3.innerText = '2';
-            spawnScorePopup('72%','110%','✓ 0-0-2','var(--team-return)');
+            spawnScorePopup('50%','30%','✓ 0-0-2','var(--team-return)');
             if (!await sleep(700, id)) return;
             s3.classList.remove('pop');
             s3.classList.add('highlight');
@@ -2382,8 +2427,9 @@ const steps = [
             s1.innerText = '3'; s2.innerText = '5'; s3.innerText = '1';
             if (!await sleep(600, id)) return;
             s1.classList.remove('pop'); s2.classList.remove('pop');
-            // After sideout: green serving with score 3 (odd) → green's ad = bottom-right.
-            setBall('85%','75%', true);
+            // Ball moves to the new server (p3 at green's deuce baseline, top-right).
+            // Putting the ball next to the highlighted player makes the cause→effect read.
+            setBall('98%','25%', true);
             if (!await sleep(500, id)) return;
         }
     }
@@ -2398,7 +2444,7 @@ const scenarios = [
         text: "New game. Red serves first. What score do they call before their first serve?",
         correct: "0-0-2",
         options: ["0-0-2","0-0-1","0-0-0"],
-        explain: "Every new game starts at <strong>0-0-2</strong>. The first serving team of the whole game is treated as <em>Server 2</em> — a one-time handicap so only one player gets to serve before the first sideout. <strong>After that, every new serving rotation starts with Server 1 again.</strong> Every pickleball game you'll ever play opens with this quirk — it's the one thing beginners just have to memorize.",
+        explain: "Every new game starts at <strong>0-0-2</strong>. The first serving team only gets <em>one</em> server before sideout — a one-time handicap.",
         // Even score (0) → server on deuce. Red faces east → deuce = bottom-left.
         positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [0,0,2],
@@ -2473,6 +2519,9 @@ let currentStep = -1;
 let simIndex = 0;
 let totalScore = 0;
 let attempts = 0;
+// Per-scenario score record: 'first' | 'retry' | undefined.
+// Prevents back-button score-doubling — each scenario can only credit once.
+let scenarioScored = [];
 let mode = 'lesson';
 let perfectCount = 0;
 let streak = 0;
@@ -2636,6 +2685,7 @@ function startSimulator() {
     mode = 'simulator';
     simIndex = 0; totalScore = 0;
     perfectCount = 0; streak = 0; bestStreak = 0;
+    scenarioScored = [];
     document.getElementById('lesson-ui').style.display = 'none';
     document.getElementById('simulator-ui').style.display = 'block';
     document.getElementById('progress-dots').style.display = 'none';
@@ -2654,6 +2704,8 @@ function renderScenario() {
     document.getElementById('progress-fill').style.width = `${(simIndex / scenarios.length) * 100}%`;
     document.getElementById('sim-feedback').style.display = 'none';
     document.getElementById('answer-options').style.display = 'block';
+    const hintEl = document.getElementById('sim-hint');
+    if (hintEl) hintEl.style.display = 'none';
 
     const container = document.getElementById('answer-options');
     container.innerHTML = '';
@@ -2681,32 +2733,43 @@ function handleAnswer(btn, choice) {
         btn.style.color = '#0E1F38';
         sfxCorrect();
         hapticSuccess();
-        const firstTry = attempts === 0;
-        totalScore += firstTry ? POINTS_FIRST : POINTS_RETRY;
-        if (firstTry) {
-            perfectCount++;
-            streak++;
-            if (streak > bestStreak) bestStreak = streak;
-            if (streak >= 2) {
-                const pill = document.getElementById('streak-pill');
-                document.getElementById('streak-val').innerText = streak;
-                pill.classList.add('show');
-                pill.style.animation = 'none';
-                void pill.offsetWidth;
-                pill.style.animation = '';
-            }
-        } else streak = 0;
+
+        // Score-once-per-scenario: prevents back→retry from double-crediting.
+        let firstTry;
+        if (scenarioScored[simIndex] === undefined) {
+            firstTry = attempts === 0;
+            totalScore += firstTry ? POINTS_FIRST : POINTS_RETRY;
+            scenarioScored[simIndex] = firstTry ? 'first' : 'retry';
+            if (firstTry) {
+                perfectCount++;
+                streak++;
+                if (streak > bestStreak) bestStreak = streak;
+                if (streak >= 2) {
+                    const pill = document.getElementById('streak-pill');
+                    document.getElementById('streak-val').innerText = streak;
+                    pill.classList.add('show');
+                    pill.style.animation = 'none';
+                    void pill.offsetWidth;
+                    pill.style.animation = '';
+                }
+            } else streak = 0;
+        } else {
+            // Already scored on a prior visit — just replay the affirmation visual.
+            firstTry = scenarioScored[simIndex] === 'first';
+        }
 
         const rect = btn.getBoundingClientRect();
         spawnConfetti(rect.left + rect.width/2, rect.top + rect.height/2);
 
+        // Right-answer pedagogy: just affirm + advance. No re-explaining the rule.
         document.getElementById('answer-options').style.display = 'none';
+        document.getElementById('sim-hint').style.display = 'none';
         document.getElementById('sim-feedback-text').innerText = firstTry ? "Nailed it." : "Got it!";
-        const explainEl = document.getElementById('sim-feedback-explain');
-        explainEl.innerHTML = s.explain || '';
-        explainEl.style.display = s.explain ? 'block' : 'none';
+        document.getElementById('sim-feedback-explain').style.display = 'none';
         document.getElementById('sim-feedback').style.display = 'flex';
     } else {
+        // Wrong answer — show inline hint with the explain, keep the other
+        // options clickable so they can retry. Teaching happens HERE, not on right.
         btn.classList.add('shake');
         btn.style.backgroundColor = 'var(--4dp-error)';
         btn.style.borderColor = 'var(--4dp-error)';
@@ -2718,6 +2781,12 @@ function handleAnswer(btn, choice) {
         streak = 0;
         document.getElementById('streak-pill').classList.remove('show');
         setTimeout(() => btn.classList.remove('shake'), 300);
+
+        const hintEl = document.getElementById('sim-hint');
+        if (hintEl && s.explain) {
+            hintEl.innerHTML = `<span class="sim-hint-label">Hint</span>${s.explain}`;
+            hintEl.style.display = 'block';
+        }
     }
 }
 
@@ -2800,11 +2869,17 @@ function showCompletion() {
     document.getElementById('stat-streak').innerText = bestStreak;
 
     let tierColor, tierGlow, tierLabel, rating;
-    if (totalScore >= 95) {
+    const trulyPerfect = perfectCount === scenarios.length;
+    if (trulyPerfect) {
         tierColor = 'var(--gnr-gold)';
         tierGlow = 'rgba(245,158,11,0.45)';
         tierLabel = 'Gold · Perfect Run';
         rating = "Flawless. You understand pickleball scoring better than most people at the club.";
+    } else if (totalScore >= 95) {
+        tierColor = 'var(--gnr-gold)';
+        tierGlow = 'rgba(245,158,11,0.45)';
+        tierLabel = 'Gold';
+        rating = "Excellent. A miss or two on retry — but you've got the pattern locked.";
     } else if (totalScore >= 80) {
         tierColor = '#C0C9D4';
         tierGlow = 'rgba(192,201,212,0.45)';
@@ -2904,8 +2979,6 @@ function syncQuickstartClaimUI() {
         success.classList.add('shown');
         const h = wrap.querySelector('.qs-claim-h');
         if (h) h.innerText = `You're on the front-desk list.`;
-        // Restore the previously generated code so it's still visible on replay.
-        if (claimedCode) document.getElementById('qs-code').innerText = claimedCode;
     }
 }
 
@@ -2982,11 +3055,12 @@ async function submitQuickstartClaim(e) {
         sfxScore();
         spawnConfetti(window.innerWidth/2, window.innerHeight/2);
 
-        // Swap UI to success — show the unique reward code prominently.
+        // Swap UI to success. The code is captured in Formspree for the front-desk
+        // dedupe sheet but NEVER shown to the player — email is the only thing they
+        // need to remember. Front desk looks them up by email at check-in.
         document.getElementById('qs-claim').classList.add('claimed');
         const h = document.querySelector('#qs-claim .qs-claim-h');
         if (h) h.innerText = `You're on the front-desk list.`;
-        document.getElementById('qs-code').innerText = rewardCode;
         document.getElementById('qs-success').classList.add('shown');
     } catch (err) {
         console.error('[Quickstart Claim] submit error', err);
