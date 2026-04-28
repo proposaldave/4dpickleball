@@ -1665,11 +1665,14 @@ async function runMiniRally() {
     });
 
     const reset = () => {
-        mp1.style.left = '-4%';   mp1.style.top = '25%';
-        mp2.style.left = '-4%';   mp2.style.top = '75%';
-        mp3.style.left = '104%';  mp3.style.top = '75%';
-        mp4.style.left = '67.5%'; mp4.style.top = '25%'; // at kitchen line (outer edge ~65.9%), close but not touching
-        mb.style.left = '-2%';    mb.style.top = '25%';
+        // 0-0-2 game start: red server on red's deuce (bottom-left, since red faces
+        // east → right hand south). Green returner on green's deuce (top-right, since
+        // green faces west → right hand north). Diagonal serve = deuce-to-deuce.
+        mp1.style.left = '-4%';   mp1.style.top = '75%';   // red server (deuce)
+        mp2.style.left = '-4%';   mp2.style.top = '25%';   // red partner (ad)
+        mp3.style.left = '104%';  mp3.style.top = '25%';   // green returner (deuce)
+        mp4.style.left = '67.5%'; mp4.style.top = '75%';   // green kitchen partner (ad)
+        mb.style.left = '-2%';    mb.style.top = '75%';
         document.getElementById('ms1').textContent = '0';
         document.getElementById('ms2').textContent = '0';
         document.getElementById('ms3').textContent = '2';
@@ -1705,39 +1708,39 @@ async function runMiniRally() {
         setCaption('Score is 0-0-2. Red serves first.');
         await wait(1000);
 
-        // ── SERVE ──
+        // ── SERVE ── deuce-to-deuce diagonal: red's bottom-left → green's top-right.
         setCaption('Serve →');
         pulse(mp1);
-        mb.style.left = '88%'; mb.style.top = '75%';
+        mb.style.left = '88%'; mb.style.top = '25%';
         await wait(900);
         if (!introVisible()) { reset(); continue; }
 
         // ── RETURN + RUN ──
         setCaption('Return → receiver runs to the kitchen');
         pulse(mp3);
-        mb.style.left = '6%'; mb.style.top = '25%';
+        mb.style.left = '6%'; mb.style.top = '75%';
         await wait(240);
-        mp3.style.left = '67.5%'; mp3.style.top = '75%';   // RUN to kitchen (matches mp4 dist)
-        mp1.style.left = '6%'; mp1.style.top = '25%';      // small step to meet the deep return
+        mp3.style.left = '67.5%'; mp3.style.top = '25%';   // RUN to green's deuce kitchen
+        mp1.style.left = '6%'; mp1.style.top = '75%';      // small step to meet the deep return
         await wait(900);
 
         // ── THIRD SHOT DRIVE ──
         setCaption('Third shot — Red drives it for a winner.');
         pulse(mp1);
-        mb.style.left = '96%'; mb.style.top = '40%';
+        mb.style.left = '96%'; mb.style.top = '60%';
         await wait(900);
 
         // ── POINT WON ──
         setCaption('Point Red. Score ticks 1-0-2 → they swap sides.');
-        miniScorePopup('88%', '35%', '+1 POINT', 'var(--team-serve)');
+        miniScorePopup('88%', '65%', '+1 POINT', 'var(--team-serve)');
         document.getElementById('ms1').textContent = '1';
-        mp1.style.left = '-4%'; mp1.style.top = '25%';
-        mp2.style.left = '-4%'; mp2.style.top = '75%';
+        mp1.style.left = '-4%'; mp1.style.top = '75%';
+        mp2.style.left = '-4%'; mp2.style.top = '25%';
         await wait(800);
 
-        // ── WINNERS SWAP SIDES ──
-        mp1.style.top = '75%';
-        mp2.style.top = '25%';
+        // ── WINNERS SWAP SIDES ── score now 1 (odd) → server moves from deuce to ad.
+        mp1.style.top = '25%';
+        mp2.style.top = '75%';
         await wait(1100);
 
         reset();
@@ -2024,11 +2027,13 @@ const steps = [
         header: "The Court & The Team",
         step: "Who stands where",
         text: "Four players. <strong>Red team</strong> serves from the left baseline. <strong>Green team</strong> receives from the right. <strong>Only the serving team can score.</strong>",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        // 0-0-2 game start: red server on red's deuce (bottom-left). Green returner on
+        // green's deuce (top-right). Diagonal serve = deuce-to-deuce.
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: false,
         server: 1,
         tooltips: { p1: "Server", p2: "Server's Partner", p3: "Returner", p4: "Returner's Partner" },
-        animSequence: async (id) => { setBall('-2%', '25%', true); }
+        animSequence: async (id) => { setBall('-2%', '75%', true); }
     },
     // Step 2: Only Servers Score
     {
@@ -2036,7 +2041,7 @@ const steps = [
         step: "The #1 rule",
         text: "If the <strong>serving team</strong> wins the rally, they get a point. If they lose, <em>nothing</em> changes on the scoreboard — the serve just passes.",
         // Canonical receive formation: returner (p3) at baseline, partner (p4) at kitchen.
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         tooltips: { p1: "Serving Team", p3: "Receiving Team" },
@@ -2044,21 +2049,21 @@ const steps = [
             // Canonical 3-shot rally matching feedback_canonical_pickleball_animation_behavior.md
             const p3 = document.getElementById('p3');
             const p1 = document.getElementById('p1');
-            setBall('-2%','25%',true);
+            setBall('-2%','75%',true);
             if (!await sleep(500, id)) return;
-            // (1) SERVE — ball flies to p3 waiting AT the baseline (no one moves)
-            if (!await moveBall('88%','75%', id)) return;
+            // (1) SERVE — diagonal deuce-to-deuce: red's bottom-left → green's top-right.
+            if (!await moveBall('88%','25%', id)) return;
             if (!await sleep(200, id)) return;
-            // (2) RETURN deep back to red's baseline. Then p3 RUNS to kitchen.
-            moveBall('6%','25%', id);
+            // (2) RETURN deep back to red's deuce baseline. Then p3 RUNS to kitchen.
+            moveBall('6%','75%', id);
             await sleep(240, id);
-            p3.style.left = '67.5%'; p3.style.top = '75%';
-            p1.style.left = '-1%'; p1.style.top = '25%'; // tiny step to baseline edge (don't auto-march into court)
+            p3.style.left = '67.5%'; p3.style.top = '25%';
+            p1.style.left = '-1%'; p1.style.top = '75%'; // tiny step to baseline edge (don't auto-march into court)
             if (!await sleep(600, id)) return;
-            // (3) THIRD SHOT WINNER — p1 drives it past p3 (bottom kitchen) and p4
-            //     (top kitchen anchored) into green's empty top-right corner. p1 STAYS.
-            if (!await moveBall('96%','40%', id)) return;
-            spawnBounceRing('96%','40%');
+            // (3) THIRD SHOT WINNER — p1 drives it past p3 (top kitchen) and p4
+            //     (bottom kitchen anchored) into green's empty deep court. p1 STAYS.
+            if (!await moveBall('96%','60%', id)) return;
+            spawnBounceRing('96%','60%');
             spawnScorePopup('20%','50%',"+1 POINT","var(--team-serve)");
             document.getElementById('s-val-1').classList.add('highlight');
             if (!await sleep(1000, id)) return;
@@ -2071,12 +2076,12 @@ const steps = [
         step: "Three numbers",
         text: "Every call has three numbers. <strong>Your score · Their score · Server 1 or 2</strong>. The serving team says theirs <em>first</em>. It's the only way to know whose turn it is to serve.",
         // p1 stays at his small step-in position from end of rally (no snap-back); p3 stays at kitchen.
-        positions: { p1:{left:'-1%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'67.5%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        positions: { p1:{left:'-1%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'67.5%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         tooltips: { p1: "Calls 0-0-2" },
         animSequence: async (id) => {
-            setBall('-2%','25%',true);
+            setBall('-2%','75%',true);
             if (!await sleep(400, id)) return;
             // Highlight each score digit in sequence
             document.getElementById('s-val-1').classList.add('highlight');
@@ -2094,24 +2099,23 @@ const steps = [
     {
         header: "Winners Swap, Losers Stay",
         step: "Position rule",
-        text: "When the serving team scores, <strong>they swap sides</strong> — so the same player serves from the other half. The receiving team never swaps. <em>Even score = right (forehand side facing the net). Odd score = left.</em> The rule applies to whoever the team's <strong>first server of the rotation</strong> is — that's how the score and side stay locked together.",
+        text: "When the serving team scores, <strong>they swap sides</strong> — so the same player serves from the other half. The receiving team never swaps. <em>Even score = right (deuce). Odd score = left (ad).</em> The rule applies to whoever the team's <strong>first server of the rotation</strong> is — that's how the score and side stay locked together.",
         // p1 enters at his step-in position from the rally; p3 stays at kitchen (no snap-back).
-        positions: { p1:{left:'-1%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'67.5%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        positions: { p1:{left:'-1%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'67.5%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [1,0,2],
-        tooltips: { p1: "Swaps down", p2: "Swaps up" },
+        tooltips: { p1: "Swaps up (to ad)", p2: "Swaps down (to deuce)" },
         animSequence: async (id) => {
-            setBall('-2%','25%', false);
+            setBall('-2%','75%', false);
             if (!await sleep(500, id)) return;
             spawnScorePopup('20%','50%',"+1 POINT","var(--team-serve)");
             document.getElementById('s-val-1').classList.add('highlight');
             if (!await sleep(800, id)) return;
             document.getElementById('s-val-1').classList.remove('highlight');
-            // p1 moves DIRECTLY from his step-in spot to his final swapped baseline position.
-            // p1 + p2 swap simultaneously (no intermediate reset).
+            // Score is now 1 (odd) → server moves to ad (top). Partner moves to deuce (bottom).
             const p1el = document.getElementById('p1');
             const p2el = document.getElementById('p2');
-            p1el.style.left = '-4%'; p1el.style.top = '75%';
-            p2el.style.top = '25%';
+            p1el.style.left = '-4%'; p1el.style.top = '25%';
+            p2el.style.top = '75%';
             if (!await sleep(1000, id)) return;
         }
     },
@@ -2120,22 +2124,22 @@ const steps = [
         header: "Two Servers, Then Sideout",
         step: "Everyone gets a turn",
         text: "<strong>Server 1</strong> — whoever serves first in the <em>current rotation</em> (not the start of the game) — keeps serving until they <em>lose</em> a rally. Then their <strong>partner</strong> takes over as Server 2. When Server 2 also loses — <strong>sideout</strong>. The other team gets the serve.",
-        // Red has swapped (top:75/25) because they scored earlier. Receive side at baseline.
-        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        // Red after their first score: server (p1) on ad/top (odd score 1), partner (p2) on deuce/bottom.
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [1,0,1],
         server: 2,
         tooltips: { p1: "Out — partner serves", p2: "Now Server 2" },
         animSequence: async (id) => {
             setBall('-2%','25%',true);
             if (!await sleep(400, id)) return;
-            if (!await moveBall('69%','75%', id)) return;
+            if (!await moveBall('69%','25%', id)) return;
             spawnScorePopup('50%','50%',"SECOND SERVE","var(--4dp-drive)");
             document.getElementById('s-val-3').innerText = '2';
             document.getElementById('s-val-3').classList.add('highlight');
             if (!await sleep(900, id)) return;
             document.getElementById('s-val-3').classList.remove('highlight');
             if (!await sleep(400, id)) return;
-            if (!await moveBall('104%','75%', id, 500)) return;
+            if (!await moveBall('104%','25%', id, 500)) return;
             spawnScorePopup('80%','50%',"SIDEOUT","var(--team-return)");
             if (!await sleep(900, id)) return;
         }
@@ -2145,12 +2149,12 @@ const steps = [
         header: "The Score Flips",
         step: "Whoever serves reads first",
         text: "After a sideout, the <em>new serving team</em> reads their score first. <strong>5-3-1</strong> from Red's side becomes <strong>3-5-1</strong> from Green's. Same game — just whose turn it is to call the score.",
-        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [5,3,2],
         server: 3,
         tooltips: { p3: "New server" },
         animSequence: async (id) => {
-            setBall('-2%','75%',false);
+            setBall('-2%','25%',false);
             if (!await sleep(400, id)) return;
             spawnScorePopup('50%','40%',"SIDEOUT","var(--team-return)");
             if (!await sleep(700, id)) return;
@@ -2163,6 +2167,7 @@ const steps = [
             s1.innerText = '3'; s2.innerText = '5'; s3.innerText = '1';
             if (!await sleep(600, id)) return;
             s1.classList.remove('pop'); s2.classList.remove('pop');
+            // After sideout: green serving with score 3 (odd) → green's ad = bottom-right.
             setBall('85%','75%', true);
             if (!await sleep(500, id)) return;
         }
@@ -2179,7 +2184,8 @@ const scenarios = [
         correct: "0-0-2",
         options: ["0-0-2","0-0-1","0-0-0"],
         explain: "Every new game starts at <strong>0-0-2</strong>. The first serving team of the whole game is treated as <em>Server 2</em> — a one-time handicap so only one player gets to serve before the first sideout. <strong>After that, every new serving rotation starts with Server 1 again.</strong> Every pickleball game you'll ever play opens with this quirk — it's the one thing beginners just have to memorize.",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        // Even score (0) → server on deuce. Red faces east → deuce = bottom-left.
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         ballHolder: 1
@@ -2189,8 +2195,8 @@ const scenarios = [
         text: "Red wins the first rally. What happens next?",
         correct: "Red's players swap sides, score becomes 1-0-2",
         options: ["Red's players swap sides, score becomes 1-0-2","Red stays put, score becomes 1-0-2","Green switches sides, score becomes 0-1-1"],
-        explain: "Only the <strong>serving team</strong> swaps sides when they score. Receivers never swap during a game. This is also how servers know which side to stand on: <em>even score = right, odd score = left</em>. If the servers are on the wrong side, the score is wrong.",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        explain: "Only the <strong>serving team</strong> swaps sides when they score. Receivers never swap during a game. This is also how servers know which side to stand on: <em>even score = right (deuce), odd score = left (ad)</em>. If the servers are on the wrong side, the score is wrong.",
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [0,0,2],
         server: 1,
         ballHolder: 1
@@ -2201,7 +2207,8 @@ const scenarios = [
         correct: "Green scored, new score is 4-5-1",
         options: ["Green scored, new score is 4-5-1","Red scored, new score is 3-6-1","Green scored, new score is 5-3-1"],
         explain: "Green is the <strong>serving team</strong>, so Green's number is read first — that's the <em>3</em>. Green wins, so the 3 becomes a 4. New score: <strong>4-5-1</strong>. The order doesn't flip unless there's a sideout.",
-        positions: { p1:{left:'104%',top:'25%'}, p2:{left:'104%',top:'75%'}, p3:{left:'-4%',top:'75%'}, p4:{left:'-4%',top:'25%'} },
+        // Green's score 3 is odd → ad. Green faces west → ad = bottom-right.
+        positions: { p1:{left:'104%',top:'75%'}, p2:{left:'104%',top:'25%'}, p3:{left:'-4%',top:'25%'}, p4:{left:'-4%',top:'75%'} },
         showScore: true, score: [3,5,1],
         server: 3,
         ballHolder: 3
@@ -2212,6 +2219,7 @@ const scenarios = [
         correct: "Red's Server 2 tries — new call is 5-3-2",
         options: ["Red's Server 2 tries — new call is 5-3-2","Sideout — Green serves at 3-5-1","Green gets a point — 5-4-1"],
         explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. Score stays the same — <strong>only the third number — the server count — ticks from 1 to 2.</strong> The first two numbers (the actual score) don't change. The team keeps serving until <em>both</em> partners lose a rally. <em>(Reminder: 'Server 1' = first server of this rotation, not first of the game.)</em>",
+        // Red's score 5 is odd → ad. Red faces east → ad = top-left.
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [5,3,1],
         server: 1,
@@ -2222,8 +2230,9 @@ const scenarios = [
         text: "Now Red's Server 2 loses the next rally. What's the new score from Green's point of view?",
         correct: "Sideout — Green serves, score is 3-5-1",
         options: ["Sideout — Green serves, score is 3-5-1","Red's Server 2 tries again — 5-3-2","Score becomes 5-3-0"],
-        explain: "Both Red servers have lost — <strong>sideout</strong>. Serve goes to Green. Green's 3 is now read first because Green is serving. <em>Same game, same points — just a different team calling.</em> Green starts with Server 1 (the one on the right side).",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        explain: "Both Red servers have lost — <strong>sideout</strong>. Serve goes to Green. Green's 3 is now read first because Green is serving. <em>Same game, same points — just a different team calling.</em>",
+        // Server 1 (just lost) was at ad/top; Server 2 takes over from deuce/bottom without moving.
+        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [5,3,2],
         server: 2,
         ballHolder: 0
@@ -2231,10 +2240,11 @@ const scenarios = [
     {
         step: "Scenario 6 of 6",
         text: "Red's score is <strong>even</strong> (6-3-1). On which side of the court should the server be standing?",
-        correct: "Right side (even = right)",
-        options: ["Right side (even = right)","Left side (even = left)","Either — it's the partner's choice"],
-        explain: "<strong>Even score = right. Odd score = left.</strong> (Right and left are from the server's view facing the net.) This is the self-check pros use to know the score is right — if the server is on the wrong side, you miscounted. At <em>6-3-1</em>, Red's score is even, so the server belongs on the right. (Red was at 5 odd → server was on the left. They scored to 6 even → they swap to the right for the next serve.)",
-        positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
+        correct: "Right side (deuce — even = right)",
+        options: ["Right side (deuce — even = right)","Left side (ad — even = left)","Either — it's the partner's choice"],
+        explain: "<strong>Even score = right (deuce). Odd score = left (ad).</strong> (Right and left are from the server's view facing the net.) This is the self-check pros use to know the score is right — if the server is on the wrong side, you miscounted. At <em>6-3-1</em>, Red's score is even, so the server belongs on the right (deuce). (Red was at 5 odd → server was on the left/ad. They scored to 6 even → they swap to the right/deuce for the next serve.)",
+        // Even score (6) → server on deuce → red's bottom-left.
+        positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [6,3,1],
         server: 1,
         ballHolder: 1
