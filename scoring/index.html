@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Positioning & Scoring · 4D Pickleball</title>
-<meta name="description" content="Pickleball scoring is famously weird. Watch one point unfold — then lock it in with six quick scenarios. Level 1 · 4D Pickleball Academy.">
+<meta name="description" content="Pickleball scoring is famously weird. Explore a full point unfolding — then lock it in with six quiz questions. Level 1 · 4D Pickleball Academy.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232B8BFC'/%3E%3Ctext x='50' y='68' font-family='Inter,Arial,sans-serif' font-size='56' font-weight='900' fill='white' text-anchor='middle'%3E4D%3C/text%3E%3C/svg%3E">
 
 <!-- Font preconnect (saves ~150-300ms on first paint across devices) -->
@@ -274,6 +274,36 @@ body {
     letter-spacing: 1.2px; opacity: 0.7;
     margin-top: 4px; font-weight: 700;
     color: var(--4dp-text-dim);
+}
+
+/* Small pause/resume control beneath the scoreboard. Subtle by default;
+   becomes a clear "▶ Resume" affordance when paused. */
+.mini-pause-btn {
+    display: block;
+    margin: 10px auto 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--4dp-hairline-s);
+    color: var(--4dp-text-dim);
+    font-family: var(--4dp-font-body);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 160ms var(--4dp-ease), color 160ms var(--4dp-ease), border-color 160ms var(--4dp-ease);
+    -webkit-tap-highlight-color: transparent;
+}
+.mini-pause-btn:hover {
+    background: rgba(255,255,255,0.08);
+    color: var(--4dp-text);
+    border-color: rgba(255,255,255,0.18);
+}
+.mini-pause-btn[aria-pressed="true"] {
+    background: rgba(251,191,36,0.12);
+    border-color: rgba(251,191,36,0.4);
+    color: var(--4dp-drive);
 }
 
 .hero-sub {
@@ -1344,9 +1374,10 @@ h1#screen-header {
                     <div class="mini-sb mr"><div class="mv" id="ms2">0</div><div class="ml">Receiving</div></div>
                     <div class="mini-sb"><div class="mv" id="ms3">2</div><div class="ml">Server #</div></div>
                 </div>
+                <button class="mini-pause-btn" id="mini-pause-btn" type="button" onclick="toggleMiniPause()" aria-pressed="false" aria-label="Pause or resume the rally">⏸ Pause</button>
             </div>
 
-            <p class="hero-sub">Watch one point unfold. Then lock it in with <em>six quick scenarios</em>.</p>
+            <p class="hero-sub">Explore a full point unfolding. Then lock it in with <em>six quiz questions</em>.</p>
 
             <div class="button-group" style="margin-top: 4px;">
                 <button class="btn btn-primary pulse-btn" onclick="startLesson()" style="min-height: 60px;">Start Your Journey</button>
@@ -1645,6 +1676,18 @@ document.addEventListener('touchstart', () => { initAudio(); if (audioCtx && aud
 // Players MOVE to the ball when they hit. mp4 (green partner at kitchen)
 // is the one player that never moves — canonical pickleball one-up/one-back.
 // =========================================================
+// Hero rally pause flag — wired to the small pause button under the scoreboard.
+let miniPaused = false;
+function toggleMiniPause() {
+    miniPaused = !miniPaused;
+    const btn = document.getElementById('mini-pause-btn');
+    if (btn) {
+        btn.innerHTML = miniPaused ? '▶ Resume' : '⏸ Pause';
+        btn.setAttribute('aria-pressed', miniPaused ? 'true' : 'false');
+    }
+    sfxClick();
+}
+
 async function runMiniRally() {
     const mb  = document.getElementById('mball');
     const mp1 = document.getElementById('mp1'); // red server
@@ -1654,7 +1697,13 @@ async function runMiniRally() {
     if (!mb || !mp1) return;
 
     const introVisible = () => document.getElementById('intro-screen').classList.contains('active');
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+    // Pausable wait — polls miniPaused every 40ms; only advances when not paused.
+    const wait = (ms) => new Promise(resolve => {
+        let t = 0; const step = 40;
+        const timer = setInterval(() => {
+            if (!miniPaused) { t += step; if (t >= ms) { clearInterval(timer); resolve(); } }
+        }, step);
+    });
 
     const reset = () => {
         mp1.style.left = '-4%';   mp1.style.top = '25%';
@@ -1686,7 +1735,7 @@ async function runMiniRally() {
     // Drop rally F0–F4) and memory/feedback_pickleball_animation_reference.md §4:
     //
     //   - Receiver stands AT baseline during the serve. Does NOT move to intercept.
-    //   - After hitting the return, receiver SPRINTS to the kitchen. This is
+    //   - After hitting the return, receiver RUNS to the kitchen. This is
     //     THE defining move that unlocks pickleball.
     //   - Server team stays behind the baseline until after their third shot.
     //   - Server's partner (mp2) and receiver's partner (mp4) stay anchored.
@@ -1704,12 +1753,12 @@ async function runMiniRally() {
         await wait(900);
         if (!introVisible()) { reset(); continue; }
 
-        // ── RETURN + SPRINT ──
-        setCaption('Return → receiver sprints to the kitchen');
+        // ── RETURN + RUN ──
+        setCaption('Return → receiver runs to the kitchen');
         pulse(mp3);
         mb.style.left = '6%'; mb.style.top = '25%';
         await wait(240);
-        mp3.style.left = '67.5%'; mp3.style.top = '75%';   // SPRINT to kitchen (matches mp4 dist)
+        mp3.style.left = '67.5%'; mp3.style.top = '75%';   // RUN to kitchen (matches mp4 dist)
         mp1.style.left = '6%'; mp1.style.top = '25%';      // small step to meet the deep return
         await wait(900);
 
@@ -2041,7 +2090,7 @@ const steps = [
             // (1) SERVE — ball flies to p3 waiting AT the baseline (no one moves)
             if (!await moveBall('88%','75%', id)) return;
             if (!await sleep(200, id)) return;
-            // (2) RETURN deep back to red's baseline. Then p3 SPRINTS to kitchen.
+            // (2) RETURN deep back to red's baseline. Then p3 RUNS to kitchen.
             moveBall('6%','25%', id);
             await sleep(240, id);
             p3.style.left = '67.5%'; p3.style.top = '75%';
