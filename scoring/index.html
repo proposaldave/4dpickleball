@@ -557,6 +557,42 @@ h1#screen-header {
 }
 
 /* =========================================================
+   SERVICE-BOX LABELS (Beth feedback #9)
+   Small persistent badges so beginners can see which box is
+   the server's RIGHT vs LEFT from their POV facing the net.
+   Diagonal-serve geometry: red's RIGHT = top-left quadrant
+   (red faces net rightward → right hand is "south" on diagram,
+   but the simulator convention places even-score server at top
+   matching diagonal cross-court serve). Green faces opposite.
+   ========================================================= */
+.service-label {
+    position: absolute;
+    font-family: var(--4dp-font-body);
+    font-weight: 800;
+    font-size: clamp(9px, 1.3vw, 11px);
+    letter-spacing: 1.2px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background: rgba(8, 18, 37, 0.65);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(245,243,238,0.78);
+    pointer-events: none;
+    z-index: 6;
+    text-transform: uppercase;
+    line-height: 1;
+    user-select: none;
+}
+.service-label.red   { color: #FCA5A5; border-color: rgba(239,68,68,0.35); }
+.service-label.green { color: #6EE7B7; border-color: rgba(16,185,129,0.35); }
+/* Position each label near the baseline corner of its quadrant
+   so it doesn't collide with player avatars or the kitchen. */
+.sl-tl { top: 6px;    left: 6px; }     /* Red R   */
+.sl-bl { bottom: 6px; left: 6px; }     /* Red L   */
+.sl-tr { top: 6px;    right: 6px; }    /* Green L */
+.sl-br { bottom: 6px; right: 6px; }    /* Green R */
+
+/* =========================================================
    SCOREBOARD
    ========================================================= */
 .scoreboard {
@@ -1352,6 +1388,12 @@ h1#screen-header {
                         <div class="center-line center-left"></div>
                         <div class="center-line center-right"></div>
 
+                        <!-- Service-box labels (Beth #9) — server's POV facing net. -->
+                        <div class="service-label red sl-tl" title="Red's RIGHT service box">R · RED</div>
+                        <div class="service-label red sl-bl" title="Red's LEFT service box">L · RED</div>
+                        <div class="service-label green sl-tr" title="Green's LEFT service box">L · GRN</div>
+                        <div class="service-label green sl-br" title="Green's RIGHT service box">R · GRN</div>
+
                         <div id="visual-layer" class="visual-layer"></div>
 
                         <div id="tt-p1" class="tooltip"></div>
@@ -2069,7 +2111,7 @@ const steps = [
     {
         header: "Two Servers, Then Sideout",
         step: "Everyone gets a turn",
-        text: "Server 1 keeps serving until they <em>lose</em> a rally. Then their <strong>partner</strong> takes over as Server 2. When Server 2 also loses — <strong>sideout</strong>. The other team gets the serve.",
+        text: "<strong>Server 1</strong> — whoever serves first in the <em>current rotation</em> (not the start of the game) — keeps serving until they <em>lose</em> a rally. Then their <strong>partner</strong> takes over as Server 2. When Server 2 also loses — <strong>sideout</strong>. The other team gets the serve.",
         // Red has swapped (top:75/25) because they scored earlier. Receive side at baseline.
         positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [1,0,1],
@@ -2161,7 +2203,7 @@ const scenarios = [
         text: "Mid-game. Score is <strong>5-3-1</strong>. Red's Server 1 loses the rally. What happens?",
         correct: "Red's Server 2 tries — new call is 5-3-2",
         options: ["Red's Server 2 tries — new call is 5-3-2","Sideout — Green serves at 3-5-1","Green gets a point — 5-4-1"],
-        explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. Score stays the same — <strong>only the third number — the server count — ticks from 1 to 2.</strong> The first two numbers (the actual score) don't change. The team keeps serving until <em>both</em> partners lose a rally.",
+        explain: "When Server 1 loses, their <strong>partner</strong> takes over as Server 2. Score stays the same — <strong>only the third number — the server count — ticks from 1 to 2.</strong> The first two numbers (the actual score) don't change. The team keeps serving until <em>both</em> partners lose a rally. <em>(Reminder: 'Server 1' = first server of this rotation, not first of the game.)</em>",
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [5,3,1],
         server: 1,
