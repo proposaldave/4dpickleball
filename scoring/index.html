@@ -258,6 +258,7 @@ body {
     background: rgba(255,255,255,.025);
     text-align: center;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; /* host for +1 POINT popup that floats up from this box */
 }
 .mini-sb.ms { background: linear-gradient(180deg, var(--team-serve-soft), rgba(239,68,68,.04)); border: 1px solid color-mix(in srgb, var(--team-serve) 25%, transparent); }
 .mini-sb.mr { background: linear-gradient(180deg, var(--team-return-soft), rgba(16,185,129,.04)); border: 1px solid color-mix(in srgb, var(--team-return) 25%, transparent); }
@@ -1744,10 +1745,11 @@ async function runMiniRally() {
         mb.style.left = '96%'; mb.style.top = '60%';
         await wait(900);
 
-        // ── POINT WON ──
+        // ── POINT WON ── popup emerges from the Serving score box that just
+        // ticked from 0 → 1 — makes the cause→effect explicit.
         setCaption('Point Red. Score ticks 1-0-2 → they swap sides.');
-        miniScorePopup('88%', '65%', '+1 POINT', 'var(--team-serve)');
         document.getElementById('ms1').textContent = '1';
+        miniScoreBoxPopup('.mini-sb.ms', '+1 POINT', 'var(--team-serve)');
         mp1.style.left = '-4%'; mp1.style.top = '75%';
         mp2.style.left = '-4%'; mp2.style.top = '25%';
         await wait(800);
@@ -1913,6 +1915,22 @@ function miniScorePopup(left, top, text, color="var(--team-serve)") {
     court.appendChild(pop);
     sfxScore();
     setTimeout(() => { if (court.contains(pop)) pop.remove(); }, 1700);
+}
+
+// Spawn +1 POINT directly above the serving (or any) score box, so it visibly
+// emerges from the number that just incremented. Cleaner cause→effect than a
+// court-corner popup. Uses the same .score-popup floatUp animation.
+function miniScoreBoxPopup(boxSelector, text, color="var(--team-serve)") {
+    const box = document.querySelector(boxSelector);
+    if (!box) return;
+    const pop = document.createElement('div');
+    pop.className = 'score-popup';
+    pop.style.left = '50%'; pop.style.top = '50%';
+    pop.style.color = color;
+    pop.innerText = text;
+    box.appendChild(pop);
+    sfxScore();
+    setTimeout(() => { if (box.contains(pop)) pop.remove(); }, 1700);
 }
 
 function setTooltips(tips) {
@@ -2088,9 +2106,9 @@ const steps = [
             document.getElementById('s-val-1').classList.remove('highlight');
         }
     },
-    // Step 3: Read the Score
+    // Step 3: Call the Score
     {
-        header: "Read the Score",
+        header: "Call the Score",
         step: "Three numbers",
         text: "Before serving, call the score: every call has three numbers.",
         // Pre-serve formation at 0-0-2: server at red deuce baseline, returner at green
