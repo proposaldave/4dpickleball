@@ -387,6 +387,9 @@ h1#screen-header {
     font-family: var(--4dp-font-body); font-weight: 800; font-size: 11px;
     text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
 }
+/* One-title-per-slide: hide the right-pane eyebrow ('SWAP PLACES' style) since
+   the big italic screen-header above the court is already the slide's title. */
+#step-id { display: none; }
 .step-text {
     font-family: var(--4dp-font-body);
     font-size: clamp(14px, 2.8vw, 16px);
