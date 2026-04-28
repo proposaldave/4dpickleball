@@ -1649,11 +1649,44 @@ h1#screen-header {
                 <h1>Quiz</h1>
             </div>
         </div>
-        <div class="instruction" style="padding: 28px 24px;">
-            <div class="step-text">Six questions. Score 80%+ for $30 off.</div>
+
+        <!-- Email gate: ONE CHANCE framing — capture lead up front, gate the $30 discount on score ≥ 80%. -->
+        <div class="qs-claim" id="quiz-email-gate" style="margin-top: 8px;">
+            <div class="qs-claim-badge">★ One chance · $30 off</div>
+            <h3 class="qs-claim-h">Take the quiz. Score 80%+. Lock in $30 off.</h3>
+            <p class="qs-claim-sub">
+                Six questions. <strong>One shot.</strong> Drop your email below — score eighty percent or higher and we wire <strong>$30 off your first NEPC class</strong> straight to the front desk under your name. No code to remember. No second attempts on the discount.
+            </p>
+
+            <form id="quiz-email-form" class="qs-form" onsubmit="return submitEmailAndStart(event)" novalidate>
+                <input
+                    id="quiz-email"
+                    type="email"
+                    name="email"
+                    placeholder="your@email.com"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
+                    aria-label="Your email"
+                >
+                <button type="submit" class="btn btn-primary pulse-btn qs-submit" id="quiz-email-submit-btn">
+                    Lock it in &amp; start the quiz →
+                </button>
+            </form>
+
+            <p class="qs-fineprint" id="quiz-email-fineprint">
+                Email goes to the NEPC front-desk list. We use it to apply your $30 off if you pass — and to send you class dates either way.
+            </p>
         </div>
-        <div class="button-group">
-            <button class="btn btn-primary pulse-btn" onclick="startSimulator()">Start Quiz →</button>
+
+        <!-- Returning-visitor path: skip the email field if we already have it from a prior session. -->
+        <div id="quiz-email-returning" style="display:none;">
+            <div class="instruction" style="padding: 28px 24px;">
+                <div class="step-text">Welcome back. Your <strong>$30 off</strong> is queued — score 80%+ to lock it in.</div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary pulse-btn" onclick="startSimulator()">Start Quiz →</button>
+            </div>
         </div>
     </section>
 
@@ -2449,7 +2482,21 @@ const scenarios = [
         positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [0,0,2],
         server: 1,
-        ballHolder: 1
+        ballHolder: 1,
+        // On correct: pulse the score box (especially the "2") and drop a
+        // popup explaining why first server = 2: one-time handicap.
+        onCorrectAnim: async (id) => {
+            const s3 = document.getElementById('s-val-3');
+            if (s3) {
+                s3.classList.add('pop');
+                void s3.offsetWidth;
+            }
+            spawnScorePopup('50%','85%','START · 0-0-2','var(--team-serve)');
+            if (!await sleep(700, id)) return;
+            if (s3) s3.classList.remove('pop');
+            spawnScorePopup('50%','60%','One-time handicap','var(--gnr-gold)');
+            if (!await sleep(700, id)) return;
+        }
     },
     {
         step: "Scenario 2 of 6",
@@ -2460,7 +2507,31 @@ const scenarios = [
         positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [0,0,2],
         server: 1,
-        ballHolder: 1
+        ballHolder: 1,
+        // On correct: tick Red's score 0 → 1, then visibly swap p1 (deuce-bottom)
+        // and p2 (ad-top) on the left side of the court. Green doesn't move.
+        onCorrectAnim: async (id) => {
+            const p1 = document.getElementById('p1');
+            const p2 = document.getElementById('p2');
+            const s1 = document.getElementById('s-val-1');
+
+            // 1) score popup + tick 0 → 1
+            spawnScorePopup('15%','85%','+1 RED','var(--team-serve)');
+            if (s1) {
+                s1.classList.add('pop');
+                void s1.offsetWidth;
+                s1.innerText = '1';
+            }
+            if (!await sleep(600, id)) return;
+            if (s1) s1.classList.remove('pop');
+
+            // 2) swap p1 and p2 — top % flips. Existing CSS transition on .player
+            //    handles the slide. Red faces east → after the swap, server is
+            //    on Red's ad (top-left) since their score is now odd (1).
+            if (p1) p1.style.top = '25%';
+            if (p2) p2.style.top = '75%';
+            if (!await sleep(900, id)) return;
+        }
     },
     {
         step: "Scenario 3 of 6",
@@ -2472,7 +2543,29 @@ const scenarios = [
         positions: { p1:{left:'104%',top:'75%'}, p2:{left:'104%',top:'25%'}, p3:{left:'-4%',top:'25%'}, p4:{left:'-4%',top:'75%'} },
         showScore: true, score: [3,5,1],
         server: 3,
-        ballHolder: 3
+        ballHolder: 3,
+        // On correct: pop Green's score 3 → 4, then swap Green (p3 + p4 on the
+        // left side here since Green is serving from the left in this scenario).
+        // Their score goes odd → even, so they swap deuce ↔ ad.
+        onCorrectAnim: async (id) => {
+            const p3 = document.getElementById('p3');
+            const p4 = document.getElementById('p4');
+            const s1 = document.getElementById('s-val-1');
+
+            spawnScorePopup('85%','85%','+1 GREEN','var(--team-return)');
+            if (s1) {
+                s1.classList.add('pop');
+                void s1.offsetWidth;
+                s1.innerText = '4';
+            }
+            if (!await sleep(600, id)) return;
+            if (s1) s1.classList.remove('pop');
+
+            // Green servers swap: p3 was at top, p4 at bottom — flip them.
+            if (p3) p3.style.top = '75%';
+            if (p4) p4.style.top = '25%';
+            if (!await sleep(900, id)) return;
+        }
     },
     {
         step: "Scenario 4 of 6",
@@ -2484,7 +2577,28 @@ const scenarios = [
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'75%'}, p4:{left:'67.5%',top:'25%'} },
         showScore: true, score: [5,3,1],
         server: 1,
-        ballHolder: 0
+        ballHolder: 0,
+        // On correct: server-count ticks 1 → 2, ball moves from p1 (Server 1)
+        // to p2 (Server 2 — the partner takes over). The actual score doesn't
+        // change. p1 and p2 don't move; the ball does.
+        onCorrectAnim: async (id) => {
+            const s3 = document.getElementById('s-val-3');
+
+            // Tick the server count 1 → 2.
+            if (s3) {
+                s3.classList.add('pop');
+                void s3.offsetWidth;
+                s3.innerText = '2';
+            }
+            spawnScorePopup('15%','50%','SERVER 2','var(--team-serve)');
+            if (!await sleep(600, id)) return;
+            if (s3) s3.classList.remove('pop');
+
+            // Move the ball from p1 (top-left, ad) to p2 (bottom-left, deuce)
+            // — the partner now serves from where they're already standing.
+            setBall('-2%','75%', true);
+            if (!await sleep(700, id)) return;
+        }
     },
     {
         step: "Scenario 5 of 6",
@@ -2496,7 +2610,30 @@ const scenarios = [
         positions: { p1:{left:'-4%',top:'25%'}, p2:{left:'-4%',top:'75%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [5,3,2],
         server: 2,
-        ballHolder: 0
+        ballHolder: 0,
+        // On correct: SIDEOUT popup, score flips from 5-3-2 (Red's view)
+        // to 3-5-1 (Green's view), ball moves to Green's deuce side.
+        onCorrectAnim: async (id) => {
+            const s1 = document.getElementById('s-val-1');
+            const s2 = document.getElementById('s-val-2');
+            const s3 = document.getElementById('s-val-3');
+
+            spawnScorePopup('50%','40%','SIDEOUT','var(--team-return)');
+            if (!await sleep(500, id)) return;
+
+            // Flip 5-3-2 → 3-5-1 (Green now reads first, fresh server count).
+            if (s1) { s1.classList.add('pop'); void s1.offsetWidth; s1.innerText = '3'; }
+            if (s2) { s2.classList.add('pop'); void s2.offsetWidth; s2.innerText = '5'; }
+            if (s3) { s3.classList.add('pop'); void s3.offsetWidth; s3.innerText = '1'; }
+            if (!await sleep(700, id)) return;
+            if (s1) s1.classList.remove('pop');
+            if (s2) s2.classList.remove('pop');
+            if (s3) s3.classList.remove('pop');
+
+            // Ball moves to Green's deuce baseline (top-right, where p3 stands).
+            setBall('98%','25%', true);
+            if (!await sleep(600, id)) return;
+        }
     },
     {
         step: "Scenario 6 of 6",
@@ -2508,7 +2645,21 @@ const scenarios = [
         positions: { p1:{left:'-4%',top:'75%'}, p2:{left:'-4%',top:'25%'}, p3:{left:'104%',top:'25%'}, p4:{left:'67.5%',top:'75%'} },
         showScore: true, score: [6,3,1],
         server: 1,
-        ballHolder: 1
+        ballHolder: 1,
+        // On correct: highlight the server (p1) standing on the deuce side
+        // (bottom-left, since Red faces east). Pulse the server, then drop the
+        // EVEN = RIGHT label as a popup so the rule sticks.
+        onCorrectAnim: async (id) => {
+            const p1 = document.getElementById('p1');
+            spawnScorePopup('15%','85%','EVEN = RIGHT (DEUCE)','var(--gnr-gold)');
+            if (p1) {
+                p1.classList.add('serving-indicator');
+                p1.classList.remove('hit');
+                void p1.offsetWidth;
+                p1.classList.add('hit');
+            }
+            if (!await sleep(900, id)) return;
+        }
     }
 ];
 
@@ -2767,6 +2918,17 @@ function handleAnswer(btn, choice) {
         document.getElementById('sim-feedback-text').innerText = firstTry ? "Nailed it." : "Got it!";
         document.getElementById('sim-feedback-explain').style.display = 'none';
         document.getElementById('sim-feedback').style.display = 'flex';
+
+        // On-court animation for the correct answer — runs the cause→effect on
+        // the actual court so the student SEES what just happened. Optional per
+        // scenario; when defined, runs to completion before the next button is
+        // emphasized. Uses the same animId pattern as lesson animSequences so
+        // it cancels cleanly if the user clicks Next mid-animation.
+        if (typeof s.onCorrectAnim === 'function') {
+            currentAnimId++;
+            const myAnimId = currentAnimId;
+            s.onCorrectAnim(myAnimId).catch(err => console.warn('[onCorrectAnim] error', err));
+        }
     } else {
         // Wrong answer — show inline hint with the explain, keep the other
         // options clickable so they can retry. Teaching happens HERE, not on right.
@@ -2930,6 +3092,10 @@ function showCompletion() {
         }
     }
 
+    // If the email was captured at the start AND they passed, fire the
+    // $30-earned row to Formspree automatically — no second form-fill required.
+    autoClaimIfPassed();
+
     // Restore prior claim state if Dave's user already submitted in this browser.
     syncQuickstartClaimUI();
 }
@@ -2992,6 +3158,146 @@ function restartLesson() {
     sfxClick();
     document.getElementById('qs-locked').classList.remove('show');
     startLesson();
+}
+
+// =========================================================
+// EMAIL GATE — captured up front on the transition screen.
+// "ONE CHANCE to get $30 off" framing. Lead is logged immediately
+// (stage = quiz_started). The $30 itself is still gated to score ≥ 80%
+// — this just captures the prospect even if they don't pass.
+// =========================================================
+async function submitEmailAndStart(e) {
+    e.preventDefault();
+    const input = document.getElementById('quiz-email');
+    const btn = document.getElementById('quiz-email-submit-btn');
+    const fineprint = document.getElementById('quiz-email-fineprint');
+    const email = (input.value || '').trim();
+
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!valid) {
+        input.classList.add('invalid');
+        input.focus();
+        sfxWrong();
+        return false;
+    }
+    input.classList.remove('invalid');
+
+    btn.disabled = true;
+    const originalLabel = btn.innerText;
+    btn.innerText = 'Locking it in…';
+
+    try {
+        // Generate the reward code now so it ties to the lead-captured row
+        // and the eventual claim row in Formspree.
+        const rewardCode = generateRewardCode();
+
+        const payload = {
+            email,
+            reward_code: rewardCode,
+            source: '4dpickleball.com/scoring/',
+            stage: 'quiz_started',
+            module: '4D Pickleball — Scoring & Positioning',
+            discount_amount: DISCOUNT_AMOUNT,
+            timestamp: new Date().toISOString(),
+            redeemed: 'NO',
+            _subject: `Quiz lead captured — ${rewardCode} — ${email} (one-chance gate, awaiting score)`
+        };
+
+        if (FORMSPREE_ENDPOINT.includes('REPLACE_ME')) {
+            console.warn('[Email gate] FORMSPREE_ENDPOINT is not configured. Saving locally only.');
+        } else {
+            // Fire and forget — we don't block the quiz on the network round trip.
+            fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(err => console.warn('[Email gate] background submit failed', err));
+        }
+
+        // Persist so the completion screen knows we already have the email
+        // and can auto-apply the claim if they score ≥ 80%.
+        localStorage.setItem('fdp-quiz-email', email);
+        localStorage.setItem('fdp-quiz-reward-code', rewardCode);
+        localStorage.setItem('fdp-quiz-started-at', payload.timestamp);
+
+        sfxScore();
+        startSimulator();
+    } catch (err) {
+        console.error('[Email gate] submit error', err);
+        btn.disabled = false;
+        btn.innerText = originalLabel;
+        if (fineprint) {
+            fineprint.innerHTML = '<span style="color:var(--4dp-error)">Couldn\'t save — please try again.</span>';
+        }
+        sfxWrong();
+    }
+    return false;
+}
+
+// On transition-screen entry: if a prior quiz email is on file in this browser,
+// skip the email field and just show "Welcome back, start the quiz."
+function syncQuizEmailGate() {
+    const existing = localStorage.getItem('fdp-quiz-email')
+                  || localStorage.getItem('fdp-qs-claimed-email');
+    const gate = document.getElementById('quiz-email-gate');
+    const returning = document.getElementById('quiz-email-returning');
+    if (!gate || !returning) return;
+    if (existing) {
+        gate.style.display = 'none';
+        returning.style.display = '';
+    } else {
+        gate.style.display = '';
+        returning.style.display = 'none';
+    }
+}
+syncQuizEmailGate();
+
+// Auto-claim the $30 off if email was captured at the start AND score ≥ 80%.
+// Fires the "passed" Formspree row using the same reward code so the front desk
+// dedupe-by-email lookup just works.
+async function autoClaimIfPassed() {
+    const email = localStorage.getItem('fdp-quiz-email');
+    const rewardCode = localStorage.getItem('fdp-quiz-reward-code');
+    const alreadyClaimed = localStorage.getItem('fdp-qs-claimed-email');
+    const score = Math.round(totalScore);
+    if (!email || alreadyClaimed || score < QS_PASS_THRESHOLD) return;
+
+    try {
+        const payload = {
+            email,
+            reward_code: rewardCode || generateRewardCode(),
+            source: '4dpickleball.com/scoring/',
+            stage: 'quiz_passed',
+            score,
+            tier: document.getElementById('tier-badge')?.innerText || 'Completed',
+            perfect: `${perfectCount}/${scenarios.length}`,
+            best_streak: bestStreak,
+            module: '4D Pickleball — Scoring & Positioning',
+            discount_amount: DISCOUNT_AMOUNT,
+            timestamp: new Date().toISOString(),
+            redeemed: 'NO',
+            _subject: `$${DISCOUNT_AMOUNT} EARNED — ${rewardCode} — ${email} (passed at ${score})`
+        };
+
+        if (FORMSPREE_ENDPOINT.includes('REPLACE_ME')) {
+            console.warn('[Auto-claim] FORMSPREE_ENDPOINT not configured. Saving locally only.');
+        } else {
+            fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(err => console.warn('[Auto-claim] background submit failed', err));
+        }
+
+        localStorage.setItem('fdp-qs-claimed-email', email);
+        localStorage.setItem('fdp-qs-claimed-code', payload.reward_code);
+        localStorage.setItem('fdp-qs-claimed-at', payload.timestamp);
+
+        // Re-render the completion claim block in claimed state.
+        syncQuickstartClaimUI();
+    } catch (err) {
+        console.error('[Auto-claim] error', err);
+    }
 }
 
 async function submitQuickstartClaim(e) {
