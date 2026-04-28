@@ -315,6 +315,34 @@ body {
 }
 .hero-sub em { font-family: var(--4dp-font-display); font-style: italic; color: var(--4dp-text); }
 
+/* Reward incentive on the hero — gold pill, prominent but not loud. */
+.hero-reward {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px auto 0;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(251,191,36,0.16), rgba(251,191,36,0.08));
+    border: 1px solid rgba(251,191,36,0.4);
+    color: var(--4dp-text);
+    font-family: var(--4dp-font-body);
+    font-size: clamp(13px, 1.9vw, 15px);
+    line-height: 1.35;
+    max-width: 540px;
+    box-shadow: 0 0 24px rgba(251,191,36,0.12);
+}
+.hero-reward-star {
+    color: var(--gnr-gold);
+    font-size: 1.15em;
+    flex-shrink: 0;
+    text-shadow: 0 0 12px rgba(245,158,11,0.55);
+}
+.hero-reward-text strong { color: var(--gnr-gold); font-weight: 700; }
+@media (max-width: 599px) {
+    .hero-reward { padding: 9px 14px; gap: 8px; }
+}
+
 /* =========================================================
    LESSON HEADER (reused by main-screen)
    ========================================================= */
@@ -1149,6 +1177,67 @@ h1#screen-header {
 .qs-claim.claimed .qs-claim-sub { display: none; }
 .qs-claim.claimed .qs-claim-h { font-size: clamp(20px, 4.2vw, 26px); margin-bottom: 14px; }
 
+/* Reward code — monospaced, prominent, copyable feel. */
+.qs-code-wrap {
+    margin: 18px auto;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: rgba(245,158,11,0.10);
+    border: 1px dashed rgba(245,158,11,0.5);
+    max-width: 420px;
+    text-align: center;
+}
+.qs-code-label {
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--4dp-text-mute); margin-bottom: 6px;
+}
+.qs-code {
+    font-family: var(--4dp-font-data, ui-monospace, "SF Mono", monospace);
+    font-size: clamp(20px, 4.4vw, 28px); font-weight: 700;
+    color: var(--gnr-gold); letter-spacing: 2px;
+    text-shadow: 0 0 18px rgba(245,158,11,0.35);
+    user-select: all;
+}
+.qs-code-hint {
+    font-size: 11px; color: var(--4dp-text-mute); margin-top: 6px;
+    font-style: italic;
+}
+
+/* Locked block — shown when score < 80%. Hidden by default; class .show toggles. */
+.qs-locked { display: none; }
+.qs-locked.show {
+    display: block;
+    margin: 32px auto 0;
+    padding: 28px 24px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.08);
+    max-width: 560px;
+    text-align: center;
+    animation: qsFadeIn 500ms var(--4dp-ease);
+}
+.qs-locked-badge {
+    display: inline-block;
+    padding: 5px 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    color: var(--4dp-text-mute);
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    margin-bottom: 10px;
+}
+.qs-locked-h {
+    font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(22px, 4vw, 28px); line-height: 1.15;
+    color: var(--4dp-text); margin: 0 0 8px;
+}
+.qs-locked-sub {
+    font-family: var(--4dp-font-body);
+    color: var(--4dp-text-dim); font-size: 14px; line-height: 1.55;
+    max-width: 460px; margin: 0 auto;
+}
+.qs-locked-sub strong { color: var(--4dp-drive); }
+
 /* Footer */
 .fdp-footer {
     margin-top: 16px;
@@ -1396,6 +1485,12 @@ h1#screen-header {
 
             <p class="hero-sub">Explore a full point unfolding. Then lock it in with <em>six quiz questions</em>.</p>
 
+            <!-- Reward incentive — visible on the front so users know what's at stake. -->
+            <div class="hero-reward" aria-label="Reward for passing the quiz">
+                <span class="hero-reward-star">★</span>
+                <span class="hero-reward-text">Pass the quiz (80%+) → <strong>$30 off</strong> your first Quickstart or 101 class at NEPC.</span>
+            </div>
+
             <div class="button-group" style="margin-top: 4px;">
                 <button class="btn btn-primary pulse-btn" onclick="startLesson()" style="min-height: 60px;">Start Your Journey</button>
             </div>
@@ -1549,12 +1644,12 @@ h1#screen-header {
             </div>
         </div>
 
-        <!-- ===== QUICKSTART CLAIM — $30 off lead-capture ===== -->
+        <!-- ===== QUICKSTART CLAIM — $30 off lead-capture (gated to 80%+ pass) ===== -->
         <div class="qs-claim" id="qs-claim">
             <div class="qs-claim-badge">★ You earned $30 off</div>
             <h3 class="qs-claim-h">Bring this score to the court.</h3>
             <p class="qs-claim-sub">
-                You just learned the rules. The <em>Quickstart class</em> is where you put them in motion —
+                You just learned the rules. The <em>Quickstart or 101 class</em> is where you put them in motion —
                 two hours, real coach, real games. <strong>$30 off, on us.</strong>
             </p>
 
@@ -1575,18 +1670,36 @@ h1#screen-header {
             </form>
 
             <p class="qs-fineprint" id="qs-fineprint">
-                We email you the class dates + add your name to the front-desk discount list. One-time use, on any upcoming Quickstart at NEPC.
+                We email you the class dates + add your name to the front-desk discount list. One-time use, on any upcoming Quickstart or 101 class at NEPC.
             </p>
 
             <div class="qs-success" id="qs-success">
                 <div class="qs-success-h">✓ You're on the list.</div>
                 <p class="qs-success-sub">
-                    Check your inbox for the class dates. <strong>The front desk has your name</strong> —
-                    just give your email when you arrive and we'll apply the $30 off.
+                    Check your inbox for the class dates. <strong>The front desk has your name + this code</strong> —
+                    show this code when you arrive and we'll apply the $30 off.
                 </p>
+                <div class="qs-code-wrap" aria-label="Your reward code">
+                    <div class="qs-code-label">Your reward code</div>
+                    <div class="qs-code" id="qs-code">— — — — —</div>
+                    <div class="qs-code-hint">One-time use · save this email or screenshot</div>
+                </div>
                 <a id="qs-cta-link" class="qs-success-cta" href="https://www.newenglandpickleball.com/quickstart" target="_blank" rel="noopener">
                     See Quickstart dates →
                 </a>
+            </div>
+        </div>
+
+        <!-- ===== TRY-AGAIN BLOCK — shown when score < 80% (didn't earn the $30) ===== -->
+        <div class="qs-locked" id="qs-locked">
+            <div class="qs-locked-badge">🔒 So close</div>
+            <h3 class="qs-locked-h">Hit 80%+ to unlock $30 off.</h3>
+            <p class="qs-locked-sub">
+                You scored <strong id="qs-locked-score">0</strong> out of 100. Replay the lesson, or jump straight back into the quiz — first-try right answers count for full points.
+            </p>
+            <div class="button-group" style="margin-top:14px;">
+                <button class="btn btn-primary" onclick="restartSimulator()">Retake the quiz →</button>
+                <button class="btn btn-outline" onclick="restartLesson()">Replay the lesson</button>
             </div>
         </div>
 
@@ -2751,24 +2864,64 @@ function showCompletion() {
 
 // =========================================================
 // QUICKSTART CLAIM — POST email to Formspree, capture lead.
-// Anyone who completes the simulator qualifies (per Dave's directive: any tier).
-// localStorage gate prevents double-prompt on replay.
+// Pass-gate: only scores ≥ 80% see the qs-claim block. Below 80% → qs-locked
+// retake prompt. localStorage gate prevents double-prompt on replay.
 // =========================================================
+const QS_PASS_THRESHOLD = 80;
+
+// Reward-code generator: 4DP30-XXXXX. Random 5-char alphanumeric (no I/O/0/1
+// to avoid lookalikes). Front-desk-readable, search-friendly in spreadsheets.
+function generateRewardCode() {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = '';
+    for (let i = 0; i < 5; i++) s += alphabet[Math.floor(Math.random() * alphabet.length)];
+    return `4DP30-${s}`;
+}
+
 function syncQuickstartClaimUI() {
     const wrap = document.getElementById('qs-claim');
-    if (!wrap) return;
-    const claimedEmail = localStorage.getItem('fdp-qs-claimed-email');
+    const locked = document.getElementById('qs-locked');
+    if (!wrap || !locked) return;
     const cta = document.getElementById('qs-cta-link');
     if (cta) cta.href = QUICKSTART_URL;
+
+    const score = Math.round(totalScore);
+    const claimedEmail = localStorage.getItem('fdp-qs-claimed-email');
+    const claimedCode = localStorage.getItem('fdp-qs-claimed-code');
+
+    // Pass gate — show claim block only if ≥80% (or already claimed in this browser).
+    if (score < QS_PASS_THRESHOLD && !claimedEmail) {
+        wrap.style.display = 'none';
+        locked.classList.add('show');
+        document.getElementById('qs-locked-score').innerText = score;
+        return;
+    }
+
+    // Score qualifies (or claimed previously): show claim, hide locked block.
+    wrap.style.display = '';
+    locked.classList.remove('show');
 
     if (claimedEmail) {
         wrap.classList.add('claimed');
         const success = document.getElementById('qs-success');
         success.classList.add('shown');
-        // Personalize the success header with the email captured prior
         const h = wrap.querySelector('.qs-claim-h');
         if (h) h.innerText = `You're on the front-desk list.`;
+        // Restore the previously generated code so it's still visible on replay.
+        if (claimedCode) document.getElementById('qs-code').innerText = claimedCode;
     }
+}
+
+// Retake helpers wired to the locked-block buttons.
+function restartSimulator() {
+    sfxClick();
+    document.getElementById('qs-locked').classList.remove('show');
+    startSimulator();
+}
+function restartLesson() {
+    sfxClick();
+    document.getElementById('qs-locked').classList.remove('show');
+    startLesson();
 }
 
 async function submitQuickstartClaim(e) {
@@ -2793,9 +2946,13 @@ async function submitQuickstartClaim(e) {
     btn.innerText = 'Saving…';
 
     try {
+        // Generate the unique one-time reward code that the front desk will look up.
+        const rewardCode = generateRewardCode();
+
         // Build payload. Formspree accepts JSON with Accept: application/json.
         const payload = {
             email: email,
+            reward_code: rewardCode,
             source: '4dpickleball.com/scoring/',
             score: Math.round(totalScore),
             tier: document.getElementById('tier-badge')?.innerText || 'Completed',
@@ -2804,7 +2961,8 @@ async function submitQuickstartClaim(e) {
             discount_amount: DISCOUNT_AMOUNT,
             module: '4D Pickleball — Scoring & Positioning',
             timestamp: new Date().toISOString(),
-            _subject: `New $${DISCOUNT_AMOUNT} Quickstart claim — ${email}`
+            redeemed: 'NO',
+            _subject: `New $${DISCOUNT_AMOUNT} Quickstart claim — ${rewardCode} — ${email}`
         };
 
         // If the endpoint hasn't been wired yet, still save locally + show success
@@ -2820,16 +2978,18 @@ async function submitQuickstartClaim(e) {
             if (!res.ok) throw new Error(`Submit failed: ${res.status}`);
         }
 
-        // Success state
+        // Success state — persist code so it survives reload.
         localStorage.setItem('fdp-qs-claimed-email', email);
         localStorage.setItem('fdp-qs-claimed-at', payload.timestamp);
+        localStorage.setItem('fdp-qs-claimed-code', rewardCode);
         sfxScore();
         spawnConfetti(window.innerWidth/2, window.innerHeight/2);
 
-        // Swap UI to success
+        // Swap UI to success — show the unique reward code prominently.
         document.getElementById('qs-claim').classList.add('claimed');
         const h = document.querySelector('#qs-claim .qs-claim-h');
         if (h) h.innerText = `You're on the front-desk list.`;
+        document.getElementById('qs-code').innerText = rewardCode;
         document.getElementById('qs-success').classList.add('shown');
     } catch (err) {
         console.error('[Quickstart Claim] submit error', err);
