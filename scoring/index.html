@@ -696,9 +696,21 @@ h1#screen-header {
     box-shadow: 0 8px 24px rgba(251,191,36,.45);
     transform: translateY(-1px);
 }
-.btn-primary:disabled {
+.btn-primary:disabled,
+.btn-primary.pending {
     background: color-mix(in srgb, var(--4dp-drive) 30%, var(--4dp-surface-2));
-    color: var(--4dp-text-mute); cursor: not-allowed; box-shadow: none;
+    color: var(--4dp-text-mute); box-shadow: none;
+}
+.btn-primary:disabled { cursor: not-allowed; }
+/* .pending = looks disabled, still clickable (Dave's "click-through to test" mode). */
+.btn-primary.pending,
+.btn-outline.pending {
+    cursor: pointer;
+    opacity: 0.7;
+}
+.btn-outline.pending {
+    border-color: color-mix(in srgb, var(--4dp-drive) 25%, transparent);
+    color: var(--4dp-text-mute);
 }
 .btn-outline {
     background: transparent;
@@ -2391,8 +2403,10 @@ async function renderStep(s) {
 
     if (isPaused) resumeAnimations();
 
-    document.getElementById('next-btn').disabled = true;
-    document.getElementById('lesson-back-btn').disabled = true;
+    // .pending = visually grayed but still clickable so Dave can rapid-skip steps
+    // for testing. The animation completes in the background regardless.
+    document.getElementById('next-btn').classList.add('pending');
+    document.getElementById('lesson-back-btn').classList.add('pending');
     document.getElementById('visual-layer').innerHTML = '';
     setKitchenPulse(false);
     setKitchenLabels(false);
@@ -2443,8 +2457,8 @@ async function renderStep(s) {
         } else setBall('0','0',false);
     }
 
-    document.getElementById('next-btn').disabled = false;
-    document.getElementById('lesson-back-btn').disabled = false;
+    document.getElementById('next-btn').classList.remove('pending');
+    document.getElementById('lesson-back-btn').classList.remove('pending');
 }
 
 function startSimulator() {
