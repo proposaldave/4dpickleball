@@ -1296,11 +1296,45 @@ h1#screen-header {
     .pulse-btn { animation: none; }
     .ambient-glow, .ball.idle { animation: none; }
 }
+
+/* =========================================================
+   NEPC CO-BRAND BADGE — persistent on every screen.
+   Bottom-right, small, subtle. Mirrors the home-link (top-left)
+   and mute toggle (top-right). Click opens nepc.com in new tab.
+   ========================================================= */
+.nepc-cobrand {
+    position: fixed;
+    bottom: max(14px, env(safe-area-inset-bottom));
+    right: max(14px, env(safe-area-inset-right));
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.08);
+    z-index: 50;
+    transition: transform 200ms var(--4dp-ease), box-shadow 200ms var(--4dp-ease);
+    -webkit-tap-highlight-color: transparent;
+}
+.nepc-cobrand:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 24px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.18);
+}
+.nepc-cobrand img {
+    width: 100%; height: 100%; display: block; object-fit: contain;
+    padding: 2px;
+}
+@media (max-width: 599px) {
+    .nepc-cobrand { width: 40px; height: 40px; }
+}
 </style>
 </head>
 <body class="tokens-base">
 
 <a href="https://4dpickleball.com" class="home-link">← 4D Pickleball</a>
+
+<a href="https://www.newenglandpickleball.com" target="_blank" rel="noopener" class="nepc-cobrand" aria-label="New England Pickleball Club — host of the 4D Academy" title="New England Pickleball Club">
+    <img src="nepc-logo.png" alt="New England Pickleball Club" loading="lazy">
+</a>
 
 <button class="mute-toggle" id="mute-toggle" onclick="toggleMute()" aria-label="Toggle sound">
     <svg id="mute-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
