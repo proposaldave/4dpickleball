@@ -36,6 +36,16 @@
   --4dp-defend-soft: rgba(244,114,182,.12);
   --4dp-drop-soft:   rgba(52,211,153,.12);
   --4dp-dink-soft:   rgba(43,139,252,.12);
+
+  /* ─── 0D LOCAL OVERRIDE ────────────────────────────────────────
+     "Cover the Middle" is a 0D foundation skill (positioning + anticipation),
+     NOT L4 Dink. R7 forbids cross-painting dimension colors, so we override
+     the module's accent away from Dink blue. Slate-cool reads as foundational
+     ("the bedrock under every dimension") without claiming any locked color.
+     The footer's "Dink." word is pinned to hardcoded #2B8BFC below so the
+     brand string still reads true. */
+  --4dp-dink:        #94A3B8;
+  --4dp-dink-soft:   rgba(148, 163, 184, 0.14);
   --gnr-gold:       #F59E0B;
   --gnr-gold-soft:  rgba(245,158,11,.14);
 
@@ -1704,7 +1714,7 @@ a:hover{text-decoration:underline;}
 <!-- ═══════════════════ TOP BAR ═══════════════════ -->
 <div class="topbar">
   <div class="brand"><span class="four">4D</span> · Academy</div>
-  <div class="dim-badge"><span class="dot"></span>Level 4 · Dink</div>
+  <div class="dim-badge"><span class="dot"></span>0D · Positioning</div>
   <a class="home-link" href="../">← Home</a>
 </div>
 
@@ -2146,7 +2156,7 @@ a:hover{text-decoration:underline;}
     <span class="dim-w" style="--w:var(--4dp-drive)">Drive.</span>
     <span class="dim-w" style="--w:var(--4dp-defend)">Defend.</span>
     <span class="dim-w" style="--w:var(--4dp-drop)">Drop.</span>
-    <span class="dim-w" style="--w:var(--4dp-dink)">Dink.</span>
+    <span class="dim-w" style="--w:#2B8BFC">Dink.</span>
   </div>
 </div>
 
