@@ -1535,11 +1535,30 @@ a:hover{text-decoration:underline;}
 .sources .list a { color: var(--4dp-text-dim); text-decoration: none; border-bottom: 1px dotted var(--4dp-hairline-s); }
 .sources .list a:hover { color: var(--4dp-dink); border-bottom-color: var(--4dp-dink); }
 .sources .tail {
-  margin-top: 20px;
+  margin-top: 0;
   font-family: var(--4dp-font-display); font-style: italic;
-  font-size: 15px; color: var(--4dp-text-faint);
+  font-size: clamp(15px, 2vw, 20px);
+  letter-spacing: -.3px;
+  color: var(--4dp-text);
+  display: inline-flex; align-items: baseline; gap: 10px;
+  flex-wrap: wrap; justify-content: center;
+  line-height: 1.5;
 }
-.sources .tail .parent { color: var(--gnr-gold); font-weight: 400; }
+.sources .tail .brand-4d {
+  font-family: var(--4dp-font-body); font-style: normal; font-weight: 800;
+  font-size: 0.78em; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--4dp-text-dim);
+}
+.sources .tail .brand-em { color: var(--4dp-text-faint); margin: 0 -2px; }
+.sources .tail .dim-w {
+  color: var(--w);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--w) 35%, transparent);
+}
+@media (max-width: 480px) {
+  .sources .tail { gap: 8px; }
+  .sources .tail .brand-4d { width: 100%; }
+}
 
 /* ═══════════════════════════════════════════════════════════════════
    RESPONSIVE — laptop · tablet · smartphone
@@ -2119,18 +2138,16 @@ a:hover{text-decoration:underline;}
   </div>
 </div>
 
-<!-- ═══════════════════ SOURCES FOOTER ═══════════════════ -->
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
 <div class="sources">
-  <div class="list">
-    Synthesized from
-    <a href="https://betterpickleball.com/respect-the-x-doubles-pickleball-strategy/" target="_blank" rel="noopener">Tony Roig &amp; CJ Johnson</a>,
-    Zane Navratil, Catherine Parenteau, Simone Jardim &amp; Coach Phil,
-    <a href="https://sarahansbourypickleballacademy.com/" target="_blank" rel="noopener">Sarah Ansboury</a>,
-    Jordan Briones, Jim &amp; Jake,
-    <a href="https://www.thedinkpickleball.com/covers-middle-x-rule/" target="_blank" rel="noopener">The Dink</a>,
-    <a href="https://usapickleball.org/blog/pickleball-poaching-planned-vs-opportunistic-strategy/" target="_blank" rel="noopener">USA Pickleball</a>.
+  <div class="tail">
+    <span class="brand-4d">4D Pickleball</span>
+    <span class="brand-em">—</span>
+    <span class="dim-w" style="--w:var(--4dp-drive)">Drive.</span>
+    <span class="dim-w" style="--w:var(--4dp-defend)">Defend.</span>
+    <span class="dim-w" style="--w:var(--4dp-drop)">Drop.</span>
+    <span class="dim-w" style="--w:var(--4dp-dink)">Dink.</span>
   </div>
-  <div class="tail"><span class="parent">4D Pickleball</span> — Drive. Defend. Drop. Dink.</div>
 </div>
 
 </div><!-- /wrap -->
