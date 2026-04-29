@@ -157,6 +157,38 @@ a:hover{text-decoration:underline;}
   color: var(--4dp-text);
   margin: 0 auto 24px;
   max-width: 820px;
+  /* Cinematic fade-in on page load */
+  opacity: 0;
+  animation: heroH1 1.2s cubic-bezier(.16, 1, .3, 1) .15s forwards;
+}
+.hero h1 em {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--4dp-text) 0%, color-mix(in srgb, var(--4dp-text) 65%, var(--4dp-dink)) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+@keyframes heroH1 {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hero-sub {
+  opacity: 0;
+  animation: heroFade 1s cubic-bezier(.16, 1, .3, 1) .9s forwards;
+}
+.hero-cta {
+  opacity: 0;
+  animation: heroFade 1s cubic-bezier(.16, 1, .3, 1) 1.3s forwards, ctaPulse 3s ease-in-out 2.5s infinite;
+}
+@keyframes heroFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ctaPulse {
+  0%,   100% { box-shadow: 0 12px 38px rgba(43, 139, 252, 0.4); }
+  50%        { box-shadow: 0 12px 50px rgba(43, 139, 252, 0.7), 0 0 0 4px rgba(43, 139, 252, 0.18); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero h1, .hero-sub, .hero-cta { animation: none; opacity: 1; }
 }
 /* ═══════════════════════════════════════════════════════════════════
    HERO SUB + CTA (new minimal hero — dogma-bust moved into scenarios)
@@ -282,6 +314,64 @@ a:hover{text-decoration:underline;}
   width: 100%; height: 100%;
   border: 0; display: block;
   background: var(--4dp-ink-deep);
+}
+
+/* Cinematic scenario transition — sweeps in over the iframe for ~700ms */
+.stage-transition {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(14, 31, 56, 0);
+  pointer-events: none;
+  opacity: 0;
+}
+.stage-transition.firing {
+  animation: stTransition 1100ms cubic-bezier(.16, 1, .3, 1) forwards;
+}
+@keyframes stTransition {
+  0%   { opacity: 0; background: rgba(14, 31, 56, 0); }
+  18%  { opacity: 1; background: rgba(14, 31, 56, 0.92); }
+  62%  { opacity: 1; background: rgba(14, 31, 56, 0.92); }
+  100% { opacity: 0; background: rgba(14, 31, 56, 0); }
+}
+.stage-transition .st-eyebrow {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 11px; letter-spacing: 4px;
+  color: var(--4dp-dink);
+  margin-bottom: 4px;
+  opacity: 0;
+  transform: translateY(14px);
+}
+.stage-transition .st-num {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(80px, 14vw, 180px);
+  line-height: 0.9;
+  letter-spacing: -4px;
+  color: var(--4dp-text);
+  text-shadow: 0 0 60px color-mix(in srgb, var(--4dp-dink) 50%, transparent);
+  opacity: 0;
+  transform: translateY(20px) scale(0.92);
+}
+.stage-transition.firing .st-eyebrow {
+  animation: stEyebrowIn 1100ms cubic-bezier(.16, 1, .3, 1) forwards;
+}
+.stage-transition.firing .st-num {
+  animation: stNumIn 1100ms cubic-bezier(.16, 1, .3, 1) forwards;
+}
+@keyframes stEyebrowIn {
+  0%   { opacity: 0; transform: translateY(14px); }
+  22%  { opacity: 1; transform: translateY(0); }
+  62%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes stNumIn {
+  0%   { opacity: 0; transform: translateY(20px) scale(0.92); }
+  22%  { opacity: 1; transform: translateY(0) scale(1); }
+  62%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-8px) scale(0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-transition.firing { animation: none; opacity: 0; }
 }
 
 /* Progressive reveal: progress track (1 of 4, 2 of 4...) + next-button */
@@ -1207,6 +1297,16 @@ a:hover{text-decoration:underline;}
   line-height: 1.45;
   margin-bottom: 18px;
 }
+.mode-best {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 11px; letter-spacing: 1.5px;
+  color: var(--gnr-gold);
+  margin-bottom: 8px;
+  min-height: 14px;
+  opacity: 0;
+  transition: opacity .3s var(--4dp-ease);
+}
+.mode-best.shown { opacity: 1; }
 .mode-go {
   display: inline-flex; align-items: center; gap: 6px;
   font-weight: 700; font-size: 11px; letter-spacing: 1.5px;
@@ -1746,6 +1846,11 @@ a:hover{text-decoration:underline;}
             class="stage-3d-frame"
             loading="lazy"
             title="3D pickleball scenario — cover the middle"></iframe>
+    <!-- Cinematic transition overlay — shown briefly when scenarios change -->
+    <div class="stage-transition" id="stage-transition" aria-hidden="true">
+      <div class="st-num" id="st-num">02</div>
+      <div class="st-eyebrow" id="st-eyebrow">SCENARIO</div>
+    </div>
   </div>
 
   <div class="stage-progress">
@@ -2108,6 +2213,7 @@ a:hover{text-decoration:underline;}
         <div class="mode-tag">01 · DECISION</div>
         <div class="mode-name">Mine or Yours</div>
         <div class="mode-sub">5 scenarios · pass 4/5 · teach the read</div>
+        <div class="mode-best" data-mode-best="decision">—</div>
         <div class="mode-go">
           <span>Play</span>
           <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2118,6 +2224,7 @@ a:hover{text-decoration:underline;}
         <div class="mode-tag">02 · LIGHTNING</div>
         <div class="mode-name">Lightning Reads</div>
         <div class="mode-sub">10 rounds · half-second window · streak bonus</div>
+        <div class="mode-best" data-mode-best="lightning">—</div>
         <div class="mode-go">
           <span>Play</span>
           <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2128,6 +2235,7 @@ a:hover{text-decoration:underline;}
         <div class="mode-tag">03 · QUIZ</div>
         <div class="mode-name">Name the Rule</div>
         <div class="mode-sub">4 scenarios · pick the rule · no clock</div>
+        <div class="mode-best" data-mode-best="quiz">—</div>
         <div class="mode-go">
           <span>Play</span>
           <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2311,12 +2419,26 @@ a:hover{text-decoration:underline;}
   function activate(n, scrollToStage) {
     const sc = SCENARIOS[n - 1];
     if (!sc) return;
+    const isChange = current !== n;
     current = n;
 
     // Header
     eyebrow.textContent = sc.eyebrow;
     title.textContent   = sc.title;
     rule.textContent    = sc.rule;
+
+    // Cinematic transition — only on actual scenario change (not initial load)
+    if (isChange) {
+      const trans = document.getElementById('stage-transition');
+      if (trans) {
+        document.getElementById('st-num').textContent = String(n).padStart(2, '0');
+        document.getElementById('st-eyebrow').textContent = sc.eyebrow.split('·').slice(-1)[0]?.trim() || 'SCENARIO';
+        trans.classList.remove('firing');
+        // Force reflow to restart animation
+        void trans.offsetWidth;
+        trans.classList.add('firing');
+      }
+    }
 
     // Progress steps: mark all <= current as visited, current as active
     steps.forEach(s => {
@@ -3539,6 +3661,14 @@ function endSession() {
     </div>`
   ).join('');
 
+  // Persist personal best for this mode (writeBest is exposed on window
+  // by the parent script — see paintBests / cmWriteBest)
+  try {
+    if (window.cmWriteBest) {
+      window.cmWriteBest(GAME.mode || 'decision', GAME.score, total, GAME.bestStreak || 0);
+    }
+  } catch (e) {}
+
   end.classList.add('on');
 }
 
@@ -3726,6 +3856,50 @@ function closeTrainer() {
   GAME.state = 'idle';
   if (raf) { cancelAnimationFrame(raf); raf = null; }
 }
+
+// localStorage personal-best system — exposed on window for the trainer module
+const CM_STORE_KEY = 'cm-bests-v1';
+window.cmReadBests = readBests;
+window.cmWriteBest = writeBest;
+window.cmPaintBests = paintBests;
+function readBests() {
+  try { return JSON.parse(localStorage.getItem(CM_STORE_KEY) || '{}'); } catch (e) { return {}; }
+}
+function writeBest(mode, score, total, streak) {
+  const b = readBests();
+  const prev = b[mode] || {};
+  // Lightning mode: track best streak as the headline
+  if (mode === 'lightning') {
+    if ((streak || 0) > (prev.streak || 0)) prev.streak = streak;
+    if ((score || 0) > (prev.score || 0)) prev.score = score;
+    prev.total = total;
+  } else {
+    if ((score || 0) > (prev.score || 0)) prev.score = score;
+    prev.total = total;
+  }
+  b[mode] = prev;
+  try { localStorage.setItem(CM_STORE_KEY, JSON.stringify(b)); } catch (e) {}
+  paintBests();
+}
+function paintBests() {
+  const b = readBests();
+  document.querySelectorAll('[data-mode-best]').forEach(el => {
+    const m = el.dataset.modeBest;
+    const r = b[m];
+    if (!r || (!r.score && !r.streak)) {
+      el.textContent = '';
+      el.classList.remove('shown');
+      return;
+    }
+    if (m === 'lightning') {
+      el.textContent = `Best · ${r.score || 0}/${r.total || 10} · streak ${r.streak || 0}`;
+    } else {
+      el.textContent = `Best · ${r.score || 0}/${r.total || (m === 'quiz' ? 4 : 5)}`;
+    }
+    el.classList.add('shown');
+  });
+}
+paintBests();
 
 // Mode-card launch buttons
 document.querySelectorAll('.mode-card').forEach(btn => {

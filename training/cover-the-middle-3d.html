@@ -354,6 +354,81 @@ function applyReadyPose(p) {
   }
 }
 
+// ─── Audio synth — procedural Web Audio (no assets) ─────
+const audio = (() => {
+  let ctx = null, master = null, ambient = null, ambGain = null, enabled = false;
+  function ensure() {
+    if (ctx) return;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain();
+      master.gain.value = 0.34;
+      master.connect(ctx.destination);
+    } catch (e) {}
+  }
+  function pock(freq = 1100, dur = 0.085) {
+    if (!enabled || !ctx) return;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.55, ctx.currentTime + dur);
+    g.gain.setValueAtTime(0.24, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.connect(g).connect(master);
+    osc.start(); osc.stop(ctx.currentTime + dur);
+  }
+  function bounce() { pock(310, 0.11); }
+  function whoosh() {
+    if (!enabled || !ctx) return;
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.18, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = 'bandpass'; filt.frequency.value = 1800; filt.Q.value = 4;
+    const g = ctx.createGain(); g.gain.value = 0.18;
+    src.connect(filt).connect(g).connect(master);
+    src.start();
+  }
+  function chime() {
+    if (!enabled || !ctx) return;
+    [880, 1175].forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = f;
+      const t0 = ctx.currentTime + i * 0.06;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(0.13, t0 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.55);
+      osc.connect(g).connect(master);
+      osc.start(t0); osc.stop(t0 + 0.6);
+    });
+  }
+  function startAmbient() {
+    if (!enabled || !ctx || ambient) return;
+    ambient = ctx.createOscillator();
+    ambGain = ctx.createGain();
+    ambient.type = 'sine'; ambient.frequency.value = 55;
+    ambGain.gain.value = 0.04;
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.frequency.value = 0.15; lfoGain.gain.value = 0.012;
+    lfo.connect(lfoGain).connect(ambGain.gain);
+    ambient.connect(ambGain).connect(master);
+    ambient.start(); lfo.start();
+  }
+  function stopAmbient() {
+    if (ambient) { try { ambient.stop(); } catch(e){} ambient = null; }
+  }
+  return {
+    enable(on) { enabled = on; if (on) { ensure(); if (ctx?.state === 'suspended') ctx.resume(); startAmbient(); } else { stopAmbient(); } },
+    pock, bounce, whoosh, chime,
+    get enabled() { return enabled; }
+  };
+})();
+
 function buildBall() {
   const mat = new THREE.MeshStandardMaterial({
     color: 0xC6FF00, emissive: 0xC6FF00, emissiveIntensity: 0.7,
@@ -501,7 +576,7 @@ function hideMoments() {
 const SCENARIOS = {
   1: {
     tag: 'SCENARIO 01 · START OF POINT',
-    caption: 'You\'re at the kitchen. Partner is still running up. <em>You cover the middle.</em>',
+    caption: 'You\'re at the kitchen. Partner returns and starts running up.',
     // Choreography:
     //  - farLeft serves deep to nearRight (cross-court serve)
     //  - nearRight returns serve (still at baseline); starts sprinting to kitchen
@@ -517,26 +592,19 @@ const SCENARIOS = {
       Object.values(players).forEach(applyReadyPose);
     },
     beats: [
-      // 1. Serve from farLeft toward nearRight baseline
-      { kind:'shot', from:[-5,2.0,-22], to:[4.2,0.2,19], apex:7, dur:1.1, hitter:'farLeft' },
-      // 2. Partner returns — ball goes back cross-court deep
-      { kind:'shot', from:[4.2,2.2,20], to:[-4,0.2,-19], apex:7.5, dur:1.1, hitter:'nearRight' },
-      // 3. Partner starts sprinting to kitchen (but won't get there in time)
+      { kind:'shot', from:[-5,2.0,-22], to:[4.2,0.2,19], apex:7, dur:1.1, hitter:'farLeft', caption:'Serve.' },
+      { kind:'shot', from:[4.2,2.2,20], to:[-4,0.2,-19], apex:7.5, dur:1.1, hitter:'nearRight', caption:'Return — and partner starts sprinting up.' },
       { kind:'move', who:'nearRight', to:[4, 0, 16], dur:0.8 },
-      // 4. Third shot drive from farLeft THROUGH THE MIDDLE (aiming at seam)
-      { kind:'shot', from:[-4,2.3,-21], to:[-1, 0.8, 8.5], apex:3.8, dur:0.85, hitter:'farLeft', focus: true },
-      // 5. YOU slide toward middle
+      { kind:'shot', from:[-4,2.3,-21], to:[-1, 0.8, 8.5], apex:3.8, dur:0.85, hitter:'farLeft', focus: true, caption:'Third shot. Through the middle. <em>Whose ball?</em>' },
       { kind:'move', who:'nearLeft', to:[-1.5, 0, 8], dur:0.35, parallel: true },
-      // 6. YOU block it — ball travels back toward far baseline
-      { kind:'shot', from:[-1.3, 1.2, 8.2], to:[-2, 0.2, -12], apex:2.8, dur:0.9, hitter:'nearLeft', caption:'Block. Reset. Protect partner.' },
-      // 7. Small pause before loop
-      { kind:'hold', dur:1.0 }
+      { kind:'shot', from:[-1.3, 1.2, 8.2], to:[-2, 0.2, -12], apex:2.8, dur:0.9, hitter:'nearLeft', caption:'Yours. You\'re at the line — partner can\'t reach a shin-high ball. Block, reset, buy them the second.' },
+      { kind:'hold', dur:1.4 }
     ]
   },
 
   2: {
     tag: 'SCENARIO 02 · SOFT FLOATER · BOTH AT KITCHEN',
-    caption: 'High soft ball through the middle. <em>Forehand takes it.</em>',
+    caption: 'Both teams at the kitchen. Cross-court dink rally setting up.',
     // Choreography:
     //  - All 4 at kitchen
     //  - farLeft hits a SOFT HIGH floater through the middle
@@ -552,24 +620,19 @@ const SCENARIOS = {
       Object.values(players).forEach(applyReadyPose);
     },
     beats: [
-      // 1. Warmup dink cross-court (to set context)
-      { kind:'shot', from:[-4,1.2,-8], to:[3.5,0.6,7.6], apex:3.2, dur:1.1, hitter:'farLeft' },
+      { kind:'shot', from:[-4,1.2,-8], to:[3.5,0.6,7.6], apex:3.2, dur:1.1, hitter:'farLeft', caption:'Cross-court dink. Patient.' },
       { kind:'shot', from:[4,1.2,8], to:[-3.5,0.6,-7.6], apex:3.2, dur:1.1, hitter:'nearRight' },
-      // 2. SOFT HIGH FLOATER through the MIDDLE
-      { kind:'shot', from:[-4,1.8,-8], to:[0.5,1.2,7.6], apex:5.0, dur:1.3, hitter:'farLeft', focus: true, caption:'High. Soft. Middle. Attackable.' },
-      // 3. PARTNER (nearRight) steps in with forehand
+      { kind:'shot', from:[-4,1.8,-8], to:[0.5,1.2,7.6], apex:5.0, dur:1.3, hitter:'farLeft', focus: true, caption:'Wait — that one\'s <em>high</em>. And <em>soft</em>. Through the middle.' },
       { kind:'move', who:'nearRight', to:[1.0, 0, 8], dur:0.55, parallel: true },
-      // 4. PARTNER puts it away — ball goes cross-court hard
-      { kind:'shot', from:[1.2, 2.6, 8], to:[-5, 0.2, -6], apex:3.3, dur:0.7, hitter:'nearRight', caption:'Forehand takes the middle. Dogma was right — here.' },
-      // 5. Partner recovers
+      { kind:'shot', from:[1.2, 2.6, 8], to:[-5, 0.2, -6], apex:3.3, dur:0.7, hitter:'nearRight', caption:'Partner has time — and their forehand reaches the seam. Putaway. <em>Forehand takes the middle when the ball gives you time.</em>' },
       { kind:'move', who:'nearRight', to:[4, 0, 8], dur:0.45, parallel: true },
-      { kind:'hold', dur:1.0 }
+      { kind:'hold', dur:1.4 }
     ]
   },
 
   3: {
     tag: 'SCENARIO 03 · HARD ATTACK · BOTH AT KITCHEN',
-    caption: 'Hard attack through the middle. <em>Diagonal-from-hitter absorbs.</em>',
+    caption: 'Both at the kitchen. The dink rally is about to break.',
     // Choreography:
     //  - All 4 at kitchen
     //  - farRIGHT attacks HARD through middle (speed-up)
@@ -586,28 +649,21 @@ const SCENARIOS = {
       Object.values(players).forEach(applyReadyPose);
     },
     beats: [
-      // 1. Setup dink
-      { kind:'shot', from:[4,1.2,-8], to:[-3.5,0.6,7.6], apex:3.2, dur:1.1, hitter:'farRight' },
-      // 2. Near-left soft return
+      { kind:'shot', from:[4,1.2,-8], to:[-3.5,0.6,7.6], apex:3.2, dur:1.1, hitter:'farRight', caption:'Cross-court dink — slow tempo.' },
       { kind:'shot', from:[-3.5,1.2,8], to:[3.5,0.6,-7.6], apex:3.0, dur:1.1, hitter:'nearLeft' },
-      // 3. FARRIGHT speeds up HARD through middle, angled toward nearLeft (diagonal X)
-      { kind:'shot', from:[4,2.2,-8], to:[-1.5,1.3,8], apex:3.1, dur:0.55, hitter:'farRight', focus: true, caption:'Speed-up. Through the middle. Fast.' },
-      // 4. YOU (nearLeft) absorb — small shift to middle
+      { kind:'shot', from:[4,2.2,-8], to:[-1.5,1.3,8], apex:3.1, dur:0.55, hitter:'farRight', focus: true, caption:'<em>He fires.</em> Hard. Through the middle.' },
       { kind:'move', who:'nearLeft', to:[-1.5, 0, 8], dur:0.3, parallel: true },
-      // 5. Partner covers line (small shift right)
       { kind:'move', who:'nearRight', to:[6, 0, 8], dur:0.3, parallel: true },
-      // 6. Block — short redirect
-      { kind:'shot', from:[-1.2, 1.4, 8.1], to:[3, 0.3, -4], apex:2.6, dur:0.85, hitter:'nearLeft', caption:'Respect the X. Ball came to you — you took it.' },
-      // 7. Recover
+      { kind:'shot', from:[-1.2, 1.4, 8.1], to:[3, 0.3, -4], apex:2.6, dur:0.85, hitter:'nearLeft', caption:'You\'re diagonal from the hitter. Ball travels TO you. You absorb. <em>Respect the X — when the ball doesn\'t give you time.</em>' },
       { kind:'move', who:'nearLeft',  to:[-4, 0, 8], dur:0.45, parallel: true },
       { kind:'move', who:'nearRight', to:[ 4, 0, 8], dur:0.45, parallel: true },
-      { kind:'hold', dur:1.0 }
+      { kind:'hold', dur:1.4 }
     ]
   },
 
   4: {
     tag: 'SCENARIO 04 · RIGHTY ON THE LEFT · CROSS-COURT',
-    caption: 'Cross-court rally. <em>Camp on the forehand — let backhand speed-ups fly wide.</em>',
+    caption: 'You\'re a righty on the left side. Cross-court dink rally with the diagonal opponent.',
     // Choreography:
     //  - YOU (nearLeft, righty) dinking cross-court with farLEFT (also righty)
     //  - Opponent tries a backhand SPEED-UP to your backhand (your left side)
@@ -623,18 +679,13 @@ const SCENARIOS = {
       Object.values(players).forEach(applyReadyPose);
     },
     beats: [
-      // 1-3. Cross-court dink rally (you ↔ farLeft)
-      { kind:'shot', from:[-4,1.2,-8], to:[-3.8,0.6,7.4], apex:3.2, dur:1.1, hitter:'farLeft' },
+      { kind:'shot', from:[-4,1.2,-8], to:[-3.8,0.6,7.4], apex:3.2, dur:1.1, hitter:'farLeft', caption:'Cross-court dink. Your forehand side.' },
       { kind:'shot', from:[-3.8,1.2,8], to:[-4,0.6,-7.4], apex:3.0, dur:1.0, hitter:'nearLeft' },
       { kind:'shot', from:[-4,1.2,-8], to:[-3.5,0.6,7.4], apex:2.9, dur:1.0, hitter:'farLeft' },
-      // 4. farLeft tries BACKHAND SPEED-UP toward YOUR LEFT sideline (your backhand)
-      //    Ball flies WIDE — lands past your sideline (x ≈ -11, outside the court)
-      { kind:'shot', from:[-4,2.4,-8], to:[-11,0.3,8.5], apex:3.5, dur:0.55, hitter:'farLeft', focus: true, caption:'Backhand speed-up — wide.', ballGoesWide: true },
-      // 5. YOU don't move (camped on forehand). Ball sails past you.
-      { kind:'hold', dur:0.9 },
-      // 6. Show "WIDE" label briefly
-      { kind:'shot', from:[-11,0.3,8.5], to:[-14,0.2,12], apex:0.8, dur:0.5, hitter:null, caption:'You were sitting right. Let it fly.' },
-      { kind:'hold', dur:0.8 }
+      { kind:'shot', from:[-4,2.4,-8], to:[-11,0.3,8.5], apex:3.5, dur:0.55, hitter:'farLeft', focus: true, caption:'<em>He goes for your backhand.</em>', ballGoesWide: true },
+      { kind:'hold', dur:0.5 },
+      { kind:'shot', from:[-11,0.3,8.5], to:[-14,0.2,12], apex:0.8, dur:0.5, hitter:null, caption:'<em>Wide.</em> The geometry pushed it out. You were sitting right — never had to move.' },
+      { kind:'hold', dur:1.4 }
     ]
   }
 };
@@ -724,12 +775,20 @@ function startBeat() {
       to:   new THREE.Vector3(...beat.to),
       apex: beat.apex || 3,
       dur:  beat.dur || 1,
-      hitter: beat.hitter
+      hitter: beat.hitter,
+      bouncedThisBeat: false
     };
     ball.mesh.visible = true;
     ball.shadow.visible = true;
     ball.mesh.position.copy(PLAY.currentBall.from);
     ball.shadow.position.set(PLAY.currentBall.from.x, 0.01, PLAY.currentBall.from.z);
+
+    // Audio: paddle pock on contact (per-shot pitch)
+    if (beat.hitter) {
+      const pitchByApex = beat.apex > 4.5 ? 950 : (beat.apex < 2.5 ? 1100 : (beat.dur < 0.65 ? 1280 : 1080));
+      audio.pock(pitchByApex);
+    }
+
     if (beat.caption) {
       document.getElementById('capText').innerHTML = beat.caption;
     }
@@ -781,6 +840,11 @@ function advance(dt) {
     ball.shadow.material.opacity = 0.45 * (1 - Math.min(1, p.y / 6));
     // Trail
     addTrailPoint(p.x, Math.max(0.3, p.y), p.z);
+    // Audio: bounce thud when ball hits the ground mid-flight (only fire once per beat)
+    if (!PLAY.currentBall.bouncedThisBeat && p.y < 0.25 && u > 0.55 && u < 0.95) {
+      PLAY.currentBall.bouncedThisBeat = true;
+      audio.bounce();
+    }
     if (u >= 1) {
       // Beat done
       PLAY.beatIdx++;
@@ -862,17 +926,30 @@ window.addEventListener('message', (e) => {
   if (e.data.type === '4dp:cm-scenario') {
     const n = +e.data.scenario;
     if (SCENARIOS[n]) {
+      audio.chime();
       loadScenario(n);
       PLAY.running = true;
     }
   } else if (e.data.type === '4dp:select-shot') {
-    // Backwards-compat: map shot names to scenario numbers if anyone still posts them
     const map = { defend: 1, dink: 2, drop: 4 };
     const n = map[e.data.shot] || 1;
     loadScenario(n);
     PLAY.running = true;
+  } else if (e.data.type === '4dp:cm-audio') {
+    audio.enable(!!e.data.on);
   }
 });
+
+// Enable audio on first user interaction (anywhere in the iframe)
+function enableAudioOnce() {
+  audio.enable(true);
+  window.removeEventListener('click', enableAudioOnce);
+  window.removeEventListener('touchstart', enableAudioOnce);
+  window.removeEventListener('keydown', enableAudioOnce);
+}
+window.addEventListener('click', enableAudioOnce, { once: true });
+window.addEventListener('touchstart', enableAudioOnce, { once: true });
+window.addEventListener('keydown', enableAudioOnce, { once: true });
 
 // Init
 init();
