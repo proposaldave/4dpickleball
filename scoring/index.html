@@ -920,22 +920,55 @@ h1#screen-header {
 }
 @media (min-width: 768px) and (hover: hover) and (pointer: fine) { .kb-hints.visible { display: flex; } }
 
-/* Replay button */
-.replay-btn {
-    display: flex; align-items: center; justify-content: center;
-    gap: 6px; padding: 10px 16px; border-radius: 10px;
-    background: color-mix(in srgb, var(--4dp-drive) 8%, transparent);
-    border: 1px solid color-mix(in srgb, var(--4dp-drive) 25%, transparent);
-    color: var(--4dp-drive);
-    font-family: var(--4dp-font-body); font-weight: 700; font-size: 12px;
-    letter-spacing: 1.5px; text-transform: uppercase;
-    cursor: pointer; transition: all 0.2s;
-    align-self: center; margin: 0 auto;
+/* Replay + Speed controls — sit side by side above lesson Back/Next */
+.lesson-controls-row {
+    display: flex; gap: 10px; justify-content: center; align-items: stretch;
+    flex-wrap: wrap; margin: 4px 0 8px;
 }
-.replay-btn:hover { background: color-mix(in srgb, var(--4dp-drive) 15%, transparent); transform: translateY(-1px); }
-.replay-btn svg { width: 14px; height: 14px; }
+.replay-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 12px 22px; border-radius: var(--4dp-r-pill);
+    background: color-mix(in srgb, var(--4dp-drive) 14%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--4dp-drive) 50%, transparent);
+    color: var(--4dp-drive);
+    font-family: var(--4dp-font-body); font-weight: 700; font-size: 13px;
+    letter-spacing: 1.2px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s var(--4dp-ease);
+    flex: 2;
+}
+.replay-btn:hover {
+    background: color-mix(in srgb, var(--4dp-drive) 22%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(251,191,36,.25);
+}
+.replay-btn svg { width: 16px; height: 16px; }
 .replay-btn.spin svg { animation: spin 0.6s ease-out; }
+
+/* Pulse to draw attention when an animation just finished */
+.replay-btn.attention {
+    animation: replayPulse 2.4s ease-in-out 2;
+}
+@keyframes replayPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0); }
+    50%      { box-shadow: 0 0 0 10px rgba(251,191,36,.18); }
+}
 @keyframes spin { from { transform: rotate(0); } to { transform: rotate(-360deg); } }
+
+.speed-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 12px 16px; border-radius: var(--4dp-r-pill);
+    background: var(--4dp-surface);
+    border: 1.5px solid var(--4dp-hairline-s);
+    color: var(--4dp-text-dim);
+    font-family: var(--4dp-font-body); font-weight: 700; font-size: 12px;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; transition: all 0.2s var(--4dp-ease);
+    flex: 1; min-width: 90px;
+}
+.speed-btn:hover {
+    color: var(--4dp-text);
+    border-color: color-mix(in srgb, var(--4dp-drive) 45%, transparent);
+}
 
 /* Feedback card */
 .sim-feedback {
@@ -2065,13 +2098,16 @@ h1#screen-header {
                 </div>
 
                 <div id="lesson-ui">
-                    <button id="replay-btn" class="replay-btn" onclick="replayStep()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="1 4 1 10 7 10"></polyline>
-                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                        </svg>
-                        Replay
-                    </button>
+                    <div class="lesson-controls-row">
+                        <button id="replay-btn" class="replay-btn" onclick="replayStep()" aria-label="Watch the point again">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10"></polyline>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                            </svg>
+                            Watch Again
+                        </button>
+                        <button id="speed-toggle" class="speed-btn" onclick="cycleLessonSpeed()" aria-label="Adjust animation speed">⏱ Slow</button>
+                    </div>
                     <div class="button-group">
                         <button id="lesson-back-btn" class="btn btn-outline" onclick="prevStep()">← Back</button>
                         <button id="next-btn" class="btn btn-primary" onclick="nextStep()">Next →</button>
@@ -2503,11 +2539,32 @@ async function runMiniRally() {
 let isPaused = false;
 let currentAnimId = 0;
 
+// Lesson speed multiplier — Slow (1.5x duration) is default for beginners
+// per staff feedback. Persisted to localStorage so it remembers across visits.
+let lessonSpeed = parseFloat(localStorage.getItem('fdp-lesson-speed') || '1.5');
+if (![1.5, 1.0, 0.7].includes(lessonSpeed)) lessonSpeed = 1.5;
+
+const SPEED_LABELS = { 1.5: 'Slow', 1.0: 'Normal', 0.7: 'Fast' };
+
+function cycleLessonSpeed() {
+    const order = [1.5, 1.0, 0.7];
+    const i = order.indexOf(lessonSpeed);
+    lessonSpeed = order[(i + 1) % order.length];
+    localStorage.setItem('fdp-lesson-speed', String(lessonSpeed));
+    updateSpeedUI();
+    sfxClick && sfxClick();
+}
+function updateSpeedUI() {
+    const btn = document.getElementById('speed-toggle');
+    if (btn) btn.innerHTML = '⏱ ' + (SPEED_LABELS[lessonSpeed] || 'Slow');
+}
+
 const sleep = (ms, animId) => new Promise(resolve => {
     let t = 0; const interval = 20;
+    const targetMs = ms * lessonSpeed;
     const timer = setInterval(() => {
         if (animId && animId !== currentAnimId) { clearInterval(timer); resolve(false); return; }
-        if (!isPaused) { t += interval; if (t >= ms) { clearInterval(timer); resolve(true); } }
+        if (!isPaused) { t += interval; if (t >= targetMs) { clearInterval(timer); resolve(true); } }
     }, interval);
 });
 
@@ -2576,6 +2633,7 @@ function spawnTrailDot(leftPct, topPct) {
 }
 
 async function moveBall(left, top, animId, duration=600) {
+    duration = duration * lessonSpeed; // honor user-selected speed
     const ball = document.getElementById('ball');
     ball.classList.remove('idle');
     const startLeft = parseFloat(ball.style.left) || 0;
@@ -3339,6 +3397,16 @@ async function renderStep(s) {
         if (s.animSequence) {
             await s.animSequence(myAnimId);
             if (myAnimId !== currentAnimId) return;
+            // After the animation completes, pulse the Watch-Again button so
+            // confused beginners see it. Skipped for static/no-anim steps.
+            if (!s.static) {
+                const rb = document.getElementById('replay-btn');
+                if (rb) {
+                    rb.classList.remove('attention');
+                    void rb.offsetWidth;
+                    rb.classList.add('attention');
+                }
+            }
         }
     } else {
         setTooltips({});
@@ -3354,6 +3422,10 @@ async function renderStep(s) {
     document.getElementById('next-btn').classList.remove('pending');
     document.getElementById('lesson-back-btn').classList.remove('pending');
 }
+
+// Initialize speed toggle UI on load
+document.addEventListener('DOMContentLoaded', updateSpeedUI);
+updateSpeedUI();
 
 function startSimulator() {
     mode = 'simulator';
