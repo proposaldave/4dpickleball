@@ -93,33 +93,64 @@ a:hover{text-decoration:underline;}
 }
 .topbar .home-link:hover{ color:var(--4dp-text); text-decoration:none; }
 
-/* ─── HERO ─── */
+/* ─── HERO — full-bleed cinematic with embedded 3D backdrop ─── */
 .hero{
-  text-align:center;
-  padding:80px 0 56px;
   position:relative;
+  min-height: calc(100vh - 56px);
+  min-height: calc(100dvh - 56px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 0 32px;
+  text-align:center;
+  overflow: hidden;
 }
+/* 3D iframe backdrop — looping scenarios from the dedicated 3D player.
+   Fills the hero, sits behind the text with low contrast + dark overlay. */
+.hero-3d-bg {
+  position: absolute; inset: 0; z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  animation: heroBg 2.4s var(--4dp-ease) .35s forwards;
+}
+@keyframes heroBg { from { opacity: 0; } to { opacity: .5; } }
+.hero-3d-bg iframe {
+  width: 100%; height: 100%; border: 0; display: block;
+  pointer-events: none;
+}
+/* Atmospheric vignette + bottom gradient over the iframe so text is legible */
+.hero-veil {
+  position: absolute; inset: 0; z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 0%, rgba(14,31,56,0.62) 70%, rgba(14,31,56,0.92) 100%),
+    linear-gradient(180deg, rgba(14,31,56,0.4) 0%, transparent 30%, transparent 70%, rgba(14,31,56,0.85) 100%);
+}
+.hero > .hero-content { position: relative; z-index: 2; padding: 0 24px; }
+
 .hero .eyebrow{
   display:inline-flex; align-items:center; gap:8px;
   padding:6px 18px; border-radius:999px;
-  background:var(--mod-soft);
-  border:1px solid color-mix(in srgb, var(--mod) 35%, transparent);
+  background:rgba(14,31,56,0.7); backdrop-filter: blur(10px);
+  border:1px solid color-mix(in srgb, var(--mod) 45%, transparent);
   color:var(--mod);
-  font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase;
   margin-bottom:32px;
-  opacity:0; animation:heroFade 1s var(--4dp-ease) .05s forwards;
+  opacity:0; animation:heroFade 1s var(--4dp-ease) .25s forwards;
 }
 .hero .eyebrow .dot{
   width:6px; height:6px; border-radius:50%;
-  background:var(--mod); box-shadow:0 0 8px var(--mod);
+  background:var(--mod); box-shadow:0 0 10px var(--mod);
+  animation: pulseDot 2.4s ease-in-out infinite;
 }
+@keyframes pulseDot { 0%,100% { opacity:.7; } 50% { opacity:1; } }
+
 .hero h1{
   font-family:var(--4dp-font-display); font-style:italic; font-weight:400;
-  font-size:clamp(56px, 9vw, 124px);
-  line-height:.94; letter-spacing:-2.5px;
+  font-size:clamp(64px, 11vw, 168px);
+  line-height:.92; letter-spacing:-3px;
   color:var(--4dp-text);
-  margin:0 auto 36px; max-width:880px;
-  opacity:0; animation:heroFade 1.2s var(--4dp-ease) .15s forwards;
+  margin:0 auto 32px; max-width:980px;
+  text-shadow: 0 4px 60px rgba(0,0,0,.6);
+  opacity:0; animation:heroFade 1.2s var(--4dp-ease) .4s forwards;
 }
 .hero h1 em{
   font-style:italic;
@@ -129,58 +160,79 @@ a:hover{text-decoration:underline;}
 }
 @keyframes heroFade{ from{opacity:0;transform:translateY(16px) scale(.985)} to{opacity:1;transform:translateY(0) scale(1)} }
 
-/* ─── DOGMA BUST — naming both rules then knocking them over ─── */
+/* ─── DOGMA BUST — cinematic cascade reveal ─── */
 .dogma{
-  max-width:640px;
+  max-width:680px;
   margin:0 auto;
-  padding:32px 36px;
-  background:linear-gradient(180deg, rgba(14,31,56,.6), rgba(14,31,56,.3));
-  border:1px solid var(--4dp-hairline);
+  padding:36px 42px;
+  background:linear-gradient(180deg, rgba(14,31,56,.78), rgba(14,31,56,.55));
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border:1px solid var(--4dp-hairline-s);
   border-radius:var(--4dp-r-lg);
   text-align:left;
-  opacity:0; animation:heroFade 1s var(--4dp-ease) .9s forwards;
-  box-shadow:var(--4dp-shadow);
+  box-shadow: 0 30px 90px rgba(0,0,0,.55), 0 0 0 1px color-mix(in srgb, var(--mod) 14%, transparent);
 }
 .dogma .row{
   display:flex; align-items:baseline; justify-content:space-between; gap:18px;
   font-family:var(--4dp-font-body);
-  font-size:clamp(15px, 2vw, 18px);
+  font-size:clamp(15px, 2vw, 19px);
   color:var(--4dp-text-dim);
   line-height:1.5;
-  margin-bottom:14px;
+  margin-bottom:18px;
+  opacity: 0;
+  transform: translateY(8px);
 }
 .dogma .row em{
   font-family:var(--4dp-font-display); font-style:italic;
   color:var(--4dp-text);
-  font-size:1.16em; letter-spacing:-.2px;
+  font-size:1.18em; letter-spacing:-.2px;
 }
 .dogma .row .verdict{
   font-family:var(--4dp-font-display); font-style:italic;
   color:var(--gnr-gold);
-  font-size:1.22em; letter-spacing:-.2px;
+  font-size:1.32em; letter-spacing:-.2px;
   white-space:nowrap;
+  text-shadow: 0 0 24px color-mix(in srgb, var(--gnr-gold) 45%, transparent);
 }
 .dogma .punch{
-  margin-top:20px; padding-top:20px;
+  margin-top:22px; padding-top:22px;
   border-top:1px solid var(--4dp-hairline);
   font-family:var(--4dp-font-display); font-style:italic;
-  font-size:clamp(20px, 2.7vw, 26px);
+  font-size:clamp(20px, 2.8vw, 28px);
   color:var(--4dp-text);
   line-height:1.3; letter-spacing:-.3px;
+  opacity: 0;
+  transform: translateY(8px);
 }
-.dogma .punch em{ color:var(--mod); font-style:italic; }
+.dogma .punch em{
+  color:var(--mod); font-style:italic;
+  text-shadow: 0 0 24px color-mix(in srgb, var(--mod) 35%, transparent);
+}
+
+/* Sequential reveal — row 1 → row 2 → punch */
+.dogma .row.r1   { animation: dogmaIn .8s var(--4dp-ease) 1.0s forwards; }
+.dogma .row.r2   { animation: dogmaIn .8s var(--4dp-ease) 1.7s forwards; }
+.dogma .punch    { animation: dogmaIn 1.0s var(--4dp-ease) 2.5s forwards; }
+@keyframes dogmaIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @media(max-width:560px){
   .dogma{ padding:22px 22px; }
   .dogma .row{ flex-direction:column; align-items:flex-start; gap:4px; margin-bottom:18px; }
-  .dogma .row .verdict{ font-size:1.4em; }
+  .dogma .row .verdict{ font-size:1.5em; }
   .dogma .punch{ font-size:18px; }
+}
+@media(prefers-reduced-motion:reduce){
+  .dogma .row, .dogma .punch { opacity: 1; transform: none; animation: none; }
 }
 
 /* ─── PRIMARY CTA — Start the module ─── */
 .start-wrap{
   text-align:center;
   margin:48px auto 0;
-  opacity:0; animation:heroFade 1s var(--4dp-ease) 1.4s forwards;
+  opacity:0; animation:heroFade 1s var(--4dp-ease) 3.4s forwards;
 }
 .start-cta{
   display:inline-flex; align-items:center; gap:12px;
@@ -465,29 +517,37 @@ a:hover{text-decoration:underline;}
 
 <div class="wrap">
 
-<!-- ═════ HERO ═════ -->
+<!-- ═════ HERO — full-bleed with 3D backdrop ═════ -->
 <section class="hero">
-  <div class="eyebrow"><span class="dot"></span>Partnership skill</div>
-  <h1><em>Whose ball</em><br>is&nbsp;that?</h1>
-
-  <div class="dogma">
-    <div class="row">
-      <span>Ever heard <em>"forehand covers the middle"</em>?</span>
-      <span class="verdict">sometimes.</span>
-    </div>
-    <div class="row">
-      <span>Ever heard <em>"respect the X"</em>?</span>
-      <span class="verdict">sometimes.</span>
-    </div>
-    <p class="punch">Sometimes those are right. Sometimes they aren't. <em>Covering the middle is scenario recognition, and each scenario is different.</em> Once you understand them, it's obvious.</p>
+  <!-- 3D iframe backdrop — looping scenarios -->
+  <div class="hero-3d-bg" aria-hidden="true">
+    <iframe src="./cover-the-middle-3d.html?scenario=2" loading="lazy" title="3D pickleball scenario backdrop"></iframe>
   </div>
+  <div class="hero-veil" aria-hidden="true"></div>
 
-  <div class="start-wrap">
-    <a class="start-cta" href="./cover-the-middle-game.html">
-      Start the module
-      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-    <div class="start-meta">4 scenarios · 5 looks each · educate then play</div>
+  <div class="hero-content">
+    <div class="eyebrow"><span class="dot"></span>0D · Partnership · Positioning</div>
+    <h1><em>Whose ball</em><br>is&nbsp;that?</h1>
+
+    <div class="dogma">
+      <div class="row r1">
+        <span>Ever heard <em>"forehand covers the middle"</em>?</span>
+        <span class="verdict">sometimes.</span>
+      </div>
+      <div class="row r2">
+        <span>Ever heard <em>"respect the X"</em>?</span>
+        <span class="verdict">sometimes.</span>
+      </div>
+      <p class="punch">Sometimes those are right. Sometimes they aren't. <em>Covering the middle is scenario recognition, and each scenario is different.</em> Once you understand them, it's obvious.</p>
+    </div>
+
+    <div class="start-wrap">
+      <a class="start-cta" href="./cover-the-middle-game.html">
+        Start the module
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <div class="start-meta">4 scenarios · 5 looks each · educate then play</div>
+    </div>
   </div>
 </section>
 
