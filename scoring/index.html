@@ -1292,6 +1292,131 @@ h1#screen-header {
 .fdp-footer a { color: inherit; text-decoration: none; border-bottom: 1px dashed var(--4dp-hairline); }
 
 /* =========================================================
+   SANDBOX — explorable explanation controls
+   ========================================================= */
+.sb-step-label {
+    color: var(--4dp-drive);
+    font-family: var(--4dp-font-body); font-weight: 800; font-size: 11px;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;
+}
+.sb-explain {
+    background: var(--4dp-surface);
+    border: 1px solid var(--4dp-hairline-s);
+    border-left: 3px solid var(--4dp-drive);
+    border-radius: var(--4dp-r-md);
+    padding: 14px 16px;
+    font-family: var(--4dp-font-body); font-size: 14px;
+    line-height: 1.55; color: var(--4dp-text);
+    margin-bottom: 16px;
+    transition: background 0.3s var(--4dp-ease);
+    min-height: 80px;
+}
+.sb-explain strong { color: var(--4dp-drive); font-weight: 700; }
+.sb-explain em {
+    font-family: var(--4dp-font-display); font-style: italic;
+    color: var(--4dp-drive); font-weight: 400; font-size: 1.04em;
+}
+.sb-explain.flash { animation: sbFlash 0.6s ease; }
+@keyframes sbFlash {
+    0%   { background: var(--4dp-surface); }
+    30%  { background: color-mix(in srgb, var(--4dp-drive) 18%, var(--4dp-surface)); }
+    100% { background: var(--4dp-surface); }
+}
+
+.sb-controls {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.sb-ctrl-group {
+    background: var(--4dp-surface);
+    border: 1px solid var(--4dp-hairline-s);
+    border-radius: var(--4dp-r-md);
+    padding: 10px 8px;
+    text-align: center;
+}
+.sb-ctrl-group[data-which="serv-num"] { grid-column: 1 / -1; }
+.sb-ctrl-label {
+    font-family: var(--4dp-font-body); font-weight: 700;
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--4dp-text-dim); margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.sb-ctrl-row {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.sb-ctrl-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: color-mix(in srgb, var(--4dp-drive) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--4dp-drive) 40%, transparent);
+    color: var(--4dp-drive);
+    font-family: var(--4dp-font-body); font-weight: 800; font-size: 18px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all 0.15s var(--4dp-ease);
+}
+.sb-ctrl-btn:hover { background: color-mix(in srgb, var(--4dp-drive) 22%, transparent); transform: scale(1.05); }
+.sb-ctrl-btn:active { transform: scale(0.95); }
+.sb-ctrl-btn.sb-ctrl-side { width: auto; padding: 0 12px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+#sb-toggle-serv { width: auto; padding: 0 12px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+.sb-ctrl-val {
+    font-family: var(--4dp-font-data); font-weight: 700;
+    font-size: 26px; line-height: 1;
+    color: var(--4dp-text); min-width: 32px;
+    font-variant-numeric: tabular-nums;
+}
+.sb-val-drive { color: var(--4dp-drive); text-shadow: 0 0 12px rgba(251,191,36,.5); }
+
+.sb-presets {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+.sb-preset {
+    padding: 6px 12px; border-radius: var(--4dp-r-pill);
+    background: var(--4dp-surface);
+    border: 1px solid var(--4dp-hairline-s);
+    color: var(--4dp-text-dim);
+    font-family: var(--4dp-font-body); font-weight: 600;
+    font-size: 11px; letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.15s var(--4dp-ease);
+}
+.sb-preset:hover {
+    color: var(--4dp-drive);
+    border-color: color-mix(in srgb, var(--4dp-drive) 50%, transparent);
+}
+
+/* Score inspector tooltip — taps on scoreboard digits in any mode */
+.score-num.inspectable { cursor: pointer; position: relative; }
+.score-inspector {
+    position: absolute; left: 50%; bottom: calc(100% + 10px);
+    transform: translateX(-50%) translateY(8px);
+    background: var(--4dp-ink-deep); color: var(--4dp-text);
+    border: 1px solid var(--4dp-drive);
+    border-radius: var(--4dp-r-md);
+    padding: 10px 14px;
+    font-family: var(--4dp-font-body); font-size: 12.5px;
+    line-height: 1.45;
+    white-space: normal; max-width: 240px; min-width: 180px;
+    box-shadow: var(--4dp-shadow-lg);
+    opacity: 0; pointer-events: none;
+    z-index: 50;
+    transition: opacity 0.2s, transform 0.2s var(--4dp-ease);
+}
+.score-inspector strong { color: var(--4dp-drive); }
+.score-inspector::after {
+    content: ''; position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--4dp-drive);
+}
+.score-num.inspectable.show-tip + .score-inspector,
+.score-num.inspectable:focus + .score-inspector {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+
+/* =========================================================
    FEEDBACK — floating FAB + modal
    ========================================================= */
 .feedback-fab {
@@ -1956,6 +2081,53 @@ h1#screen-header {
                         <span><kbd>←</kbd><kbd>→</kbd> Navigate</span>
                         <span><kbd>Space</kbd> Pause</span>
                         <span><kbd>R</kbd> Replay</span>
+                    </div>
+                </div>
+
+                <!-- SANDBOX UI — explorable explanation. User changes the score,
+                     the court rearranges itself per the rules, a live explanation
+                     updates. Bret-Victor "explorable explanation" pattern. -->
+                <div id="sandbox-ui" style="display:none;">
+                    <div class="sb-step-label">Try It Yourself</div>
+                    <div class="sb-explain" id="sb-explain">Pick any score. Watch how the court rearranges itself.</div>
+
+                    <div class="sb-controls">
+                        <div class="sb-ctrl-group" data-which="serve">
+                            <div class="sb-ctrl-label"><span class="team-pip pip-red"></span>Serving</div>
+                            <div class="sb-ctrl-row">
+                                <button class="sb-ctrl-btn" onclick="sbAdjust('serve',-1)" aria-label="decrease serving score">−</button>
+                                <div class="sb-ctrl-val" id="sb-val-serve">0</div>
+                                <button class="sb-ctrl-btn" onclick="sbAdjust('serve',1)" aria-label="increase serving score">+</button>
+                            </div>
+                        </div>
+                        <div class="sb-ctrl-group" data-which="recv">
+                            <div class="sb-ctrl-label"><span class="team-pip pip-green"></span>Receiving</div>
+                            <div class="sb-ctrl-row">
+                                <button class="sb-ctrl-btn" onclick="sbAdjust('recv',-1)" aria-label="decrease receiving score">−</button>
+                                <div class="sb-ctrl-val" id="sb-val-recv">0</div>
+                                <button class="sb-ctrl-btn" onclick="sbAdjust('recv',1)" aria-label="increase receiving score">+</button>
+                            </div>
+                        </div>
+                        <div class="sb-ctrl-group" data-which="serv-num">
+                            <div class="sb-ctrl-label">Server #</div>
+                            <div class="sb-ctrl-row">
+                                <button class="sb-ctrl-btn" onclick="sbToggleServer()" id="sb-toggle-serv" aria-label="toggle server number">Flip</button>
+                                <div class="sb-ctrl-val sb-val-drive" id="sb-val-num">2</div>
+                                <button class="sb-ctrl-btn sb-ctrl-side" onclick="sbSideout()" aria-label="trigger sideout">Sideout</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sb-presets">
+                        <button class="sb-preset" onclick="sbPreset(0,0,2)">Game start</button>
+                        <button class="sb-preset" onclick="sbPreset(5,3,1)">Mid-game</button>
+                        <button class="sb-preset" onclick="sbPreset(10,9,2)">Match point</button>
+                        <button class="sb-preset" onclick="sbPreset(7,7,1)">Tied 7-7</button>
+                    </div>
+
+                    <div class="button-group" style="margin-top: 14px;">
+                        <button class="btn btn-outline" onclick="exitSandbox()">← Back to lesson</button>
+                        <button class="btn btn-primary" onclick="exitSandboxToQuiz()">Quiz me →</button>
                     </div>
                 </div>
 
@@ -3733,6 +3905,219 @@ async function submitQuickstartClaim(e) {
 
 // Kick off the hero mini-rally
 runMiniRally();
+
+// =========================================================
+// SANDBOX MODE — explorable explanation of the scoring rules.
+// User adjusts each scoreboard digit. The court rearranges per
+// the rules. A live "why" explanation updates with each change.
+// Bret-Victor / Nicky-Case "explorable explanation" pattern.
+// =========================================================
+let sbScore = { serve: 0, recv: 0, num: 2 };
+
+function enterSandbox() {
+    mode = 'sandbox';
+    document.getElementById('lesson-ui').style.display = 'none';
+    document.getElementById('simulator-ui').style.display = 'none';
+    document.getElementById('sandbox-ui').style.display = 'block';
+    document.getElementById('progress-dots').style.display = 'none';
+    document.getElementById('sim-progress').style.display = 'none';
+    document.getElementById('streak-pill').classList.remove('show');
+    document.getElementById('screen-header').innerText = 'Try It';
+    document.querySelector('.kicker-text').innerHTML = 'Sandbox · Explore the Rules';
+
+    sbScore = { serve: 0, recv: 0, num: 2 };
+    showScreen('main-screen');
+    sbApply();
+    enableScoreInspector(true);
+}
+
+function exitSandbox() {
+    // Back to last lesson step
+    enableScoreInspector(false);
+    document.getElementById('sandbox-ui').style.display = 'none';
+    document.getElementById('lesson-ui').style.display = 'block';
+    document.getElementById('progress-dots').style.display = 'flex';
+    mode = 'lesson';
+    currentStep = steps.length - 1;
+    renderStep(steps[currentStep]);
+}
+
+function exitSandboxToQuiz() {
+    enableScoreInspector(false);
+    document.getElementById('sandbox-ui').style.display = 'none';
+    showScreen('transition-screen');
+}
+
+function sbAdjust(which, delta) {
+    sfxClick && sfxClick();
+    if (which === 'serve') sbScore.serve = Math.max(0, Math.min(15, sbScore.serve + delta));
+    else if (which === 'recv') sbScore.recv = Math.max(0, Math.min(15, sbScore.recv + delta));
+    sbApply();
+}
+
+function sbToggleServer() {
+    sfxClick && sfxClick();
+    sbScore.num = sbScore.num === 1 ? 2 : 1;
+    sbApply('serverFlip');
+}
+
+function sbSideout() {
+    sfxSideout && sfxSideout();
+    // Sideout: serve and receive flip; new server starts as Server 1
+    const newServe = sbScore.recv;
+    const newRecv = sbScore.serve;
+    sbScore.serve = newServe;
+    sbScore.recv = newRecv;
+    sbScore.num = 1;
+    sbApply('sideout');
+}
+
+function sbPreset(s, r, n) {
+    sfxClick && sfxClick();
+    sbScore = { serve: s, recv: r, num: n };
+    sbApply('preset');
+}
+
+// Apply the scoring rules → reposition players + write the "why"
+function sbApply(reason) {
+    // Update scoreboard
+    setScore(sbScore.serve, sbScore.recv, sbScore.num);
+    document.getElementById('sb-val-serve').textContent = sbScore.serve;
+    document.getElementById('sb-val-recv').textContent = sbScore.recv;
+    document.getElementById('sb-val-num').textContent = sbScore.num;
+
+    const evenServe = sbScore.serve % 2 === 0;
+    // RULE: Serving team's server stands on the RIGHT side of THEIR court
+    //       when their score is EVEN, LEFT side when ODD.
+    // p1 and p2 are the serving (red) team. The active server (Server 1 or 2)
+    // is at the position dictated by the score; the partner is on the other half.
+    // For visual clarity we keep p1 at top, p2 at bottom and flip their x positions.
+    // In our 2D top-down: red is on the LEFT half (left baseline). Right-of-court
+    // for red means the BOTTOM half (top=75%); left means top half (top=25%).
+    // So: even score = server at bottom (top=75%), odd = server at top (top=25%).
+    // The *active* server (1 or 2) shows the active-server ring.
+
+    const activeServerEl = sbScore.num === 1 ? 'p1' : 'p2';
+
+    // Server team — both behind baseline
+    if (evenServe) {
+        // Server 1 at bottom-half baseline, Server 2 at top-half baseline
+        document.getElementById('p1').style.left = '-4%';
+        document.getElementById('p1').style.top = '75%';
+        document.getElementById('p2').style.left = '-4%';
+        document.getElementById('p2').style.top = '25%';
+    } else {
+        // Odd score — server at top-half baseline
+        document.getElementById('p1').style.left = '-4%';
+        document.getElementById('p1').style.top = '25%';
+        document.getElementById('p2').style.left = '-4%';
+        document.getElementById('p2').style.top = '75%';
+    }
+
+    // Receiving team — partner at kitchen, returner at baseline
+    document.getElementById('p3').style.left = '104%';
+    document.getElementById('p3').style.top = '75%';
+    document.getElementById('p4').style.left = '68.5%';
+    document.getElementById('p4').style.top = '25%';
+
+    // Active server ring — only on the player whose number matches
+    setServingPlayer(sbScore.num);
+
+    // Tooltips showing roles
+    setTooltips({
+        p1: sbScore.num === 1 ? 'Server 1 (active)' : 'Server 1',
+        p2: sbScore.num === 2 ? 'Server 2 (active)' : "Server's Partner",
+        p3: 'Returner',
+        p4: "Returner's Partner"
+    });
+
+    // Show kitchen labels so users see the NVZ
+    setKitchenLabels(true);
+
+    // Hide the ball during sandbox (no rally)
+    setBall('0', '0', false);
+
+    // Show the scoreboard
+    document.getElementById('score-display-area').classList.add('show');
+
+    // Live explanation
+    const ex = document.getElementById('sb-explain');
+    let txt = '';
+    const sideTxt = evenServe ? '<strong>RIGHT side</strong> (bottom half here)' : '<strong>LEFT side</strong> (top half here)';
+    const evenness = evenServe ? 'EVEN' : 'ODD';
+
+    if (reason === 'sideout') {
+        txt = `<em>Sideout!</em> The other team takes over the serve. The score flips perspective: <strong>${sbScore.serve}-${sbScore.recv}-1</strong> from the new serving team's view. Server 1 starts on the ${sideTxt}.`;
+    } else if (reason === 'serverFlip') {
+        txt = `Server <strong>${sbScore.num}</strong> is now active. When they lose, ${sbScore.num === 1 ? 'their partner takes over as Server 2' : 'sideout — the other team gets the serve'}.`;
+    } else if (sbScore.serve === 0 && sbScore.recv === 0 && sbScore.num === 2) {
+        txt = `<em>Game start.</em> Every game opens at <strong>0-0-2</strong>. The very first server is treated as Server 2 — a one-time quirk so only one player serves before the first sideout.`;
+    } else {
+        txt = `Score is <strong>${sbScore.serve}-${sbScore.recv}-${sbScore.num}</strong>. The serving team's score (${sbScore.serve}) is <strong>${evenness}</strong>, so the active server stands on the ${sideTxt}.`;
+    }
+    ex.innerHTML = txt;
+    ex.classList.remove('flash'); void ex.offsetWidth; ex.classList.add('flash');
+}
+
+// =========================================================
+// SCORE INSPECTOR — tap any scoreboard digit to see what it means
+// =========================================================
+function enableScoreInspector(on) {
+    ['s-val-1', 's-val-2', 's-val-3'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (on) {
+            el.classList.add('inspectable');
+            // Inject inspector tooltip if missing
+            if (!el.parentElement.querySelector('.score-inspector')) {
+                const tip = document.createElement('div');
+                tip.className = 'score-inspector';
+                el.parentElement.appendChild(tip);
+            }
+            el.onclick = () => showScoreTip(id);
+        } else {
+            el.classList.remove('inspectable', 'show-tip');
+            el.onclick = null;
+            const tip = el.parentElement.querySelector('.score-inspector');
+            if (tip) tip.remove();
+        }
+    });
+}
+function showScoreTip(id) {
+    sfxClick && sfxClick();
+    document.querySelectorAll('.score-num.inspectable').forEach(el => el.classList.remove('show-tip'));
+    const el = document.getElementById(id);
+    el.classList.add('show-tip');
+    const tip = el.parentElement.querySelector('.score-inspector');
+    if (!tip) return;
+    let txt = '';
+    if (id === 's-val-1') {
+        txt = `<strong>${sbScore.serve}</strong> — the <em>serving team's</em> score. Read first because they're serving.`;
+    } else if (id === 's-val-2') {
+        txt = `<strong>${sbScore.recv}</strong> — the <em>receiving team's</em> score. Read second.`;
+    } else if (id === 's-val-3') {
+        txt = `<strong>${sbScore.num}</strong> — Server ${sbScore.num} is up. ${sbScore.num === 1 ? 'If they lose, their partner becomes Server 2.' : 'If they lose, sideout — other team serves.'}`;
+    }
+    tip.innerHTML = txt;
+    setTimeout(() => el.classList.remove('show-tip'), 4500);
+}
+
+// Make the lesson's last step → sandbox transition optional via the lesson controls.
+// Re-wire the existing nextStep so step 6 → sandbox instead of straight to transition.
+const _origNextStep = nextStep;
+nextStep = async function() {
+    // If we're at the last lesson step and lesson mode, go to sandbox
+    if (mode === 'lesson' && currentStep === steps.length - 1) {
+        hapticTap();
+        const curr = steps[currentStep];
+        if (curr && curr.onExit) curr.onExit();
+        currentStep++;
+        document.getElementById('progress-dots').style.display = 'none';
+        enterSandbox();
+        return;
+    }
+    return _origNextStep.apply(this, arguments);
+};
 
 // =========================================================
 // FEEDBACK WIDGET — three intents (rate / pro question / lesson)
