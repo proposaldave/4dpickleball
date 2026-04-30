@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>Cover the Middle · The Game · 4D Academy</title>
+<meta name="description" content="Educate-then-play game: 4 scenarios, 5 variants each, decide who covers the middle. Play one partner or the other. Built for instinct.">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --4dp-ink:        #0E1F38;
+  --4dp-ink-deep:   #081225;
+  --4dp-surface:    #12253E;
+  --4dp-surface-2:  #183353;
+  --4dp-hairline:   rgba(245,243,238,.08);
+  --4dp-hairline-s: rgba(245,243,238,.14);
+  --4dp-text:       #F5F3EE;
+  --4dp-text-dim:   rgba(245,243,238,.62);
+  --4dp-text-mute:  rgba(245,243,238,.40);
+  --4dp-text-faint: rgba(245,243,238,.22);
+  --4dp-drive:      #FBBF24;
+  --4dp-defend:     #F472B6;
+  --4dp-drop:       #34D399;
+  --4dp-dink-true:  #2B8BFC;
+  --gnr-gold:       #F59E0B;
+
+  --mod:        #94A3B8;
+  --mod-soft:   rgba(148,163,184,.14);
+
+  --4dp-font-display: 'Instrument Serif', Georgia, serif;
+  --4dp-font-body:    'DM Sans', -apple-system, system-ui, sans-serif;
+  --4dp-font-data:    'JetBrains Mono', ui-monospace, monospace;
+
+  --r-md: 16px; --r-lg: 24px;
+  --ease: cubic-bezier(.16,1,.3,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  height: 100%; overflow: hidden;
+  background: var(--4dp-ink); color: var(--4dp-text);
+  font-family: var(--4dp-font-body);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+#viewport { position: fixed; inset: 0; z-index: 0; }
+#viewport canvas { display: block; width: 100%!important; height: 100%!important; }
+
+/* ─── Top bar ─── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 22px;
+  background: linear-gradient(180deg, rgba(14,31,56,.92), rgba(14,31,56,0));
+}
+.topbar a {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--4dp-text-dim); text-decoration: none;
+  padding: 8px 12px; border-radius: 999px;
+  background: rgba(14,31,56,.62); backdrop-filter: blur(10px);
+  border: 1px solid var(--4dp-hairline-s);
+  transition: color .2s var(--ease);
+}
+.topbar a:hover { color: var(--4dp-text); }
+.topbar .brand {
+  margin-left: auto;
+  font-size: 11px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--4dp-text-faint);
+}
+.topbar .brand .four { color: var(--mod); }
+.topbar .badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 4px 12px; border-radius: 999px;
+  background: var(--mod-soft);
+  border: 1px solid color-mix(in srgb, var(--mod) 35%, transparent);
+  color: var(--mod);
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.topbar .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--mod); box-shadow: 0 0 8px var(--mod); }
+
+/* ─── HUD ─── */
+.hud {
+  position: fixed; top: 64px; right: 18px; z-index: 12;
+  background: rgba(14,31,56,.78); backdrop-filter: blur(12px);
+  border: 1px solid var(--4dp-hairline-s);
+  border-radius: var(--r-md);
+  padding: 12px 16px; min-width: 130px;
+  opacity: 0; transition: opacity .35s var(--ease);
+}
+.hud.on { opacity: 1; }
+.hud .lbl { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--4dp-text-mute); }
+.hud .row {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 22px; line-height: 1; color: var(--mod);
+  letter-spacing: -.5px; margin-top: 4px;
+}
+.hud .stars {
+  margin-top: 6px;
+  font-size: 14px; line-height: 1;
+  letter-spacing: 2px; color: var(--gnr-gold);
+}
+.hud .stars .dim { color: var(--4dp-hairline-s); }
+
+/* ─── State overlays ─── */
+.overlay {
+  position: fixed; inset: 0; z-index: 14;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  background: rgba(8,18,37,.72); backdrop-filter: blur(14px);
+}
+.overlay.on { display: flex; }
+
+/* INTRO card */
+.intro-card {
+  max-width: 560px; width: 100%; text-align: center;
+  padding: 44px 40px;
+  background: linear-gradient(180deg, rgba(24,51,83,.55), rgba(14,31,56,.85));
+  border: 1px solid var(--4dp-hairline-s);
+  border-radius: var(--r-lg);
+  box-shadow: 0 28px 80px rgba(0,0,0,.7);
+}
+.intro-eyebrow {
+  font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--mod); margin-bottom: 12px;
+}
+.intro-h1 {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(40px, 7vw, 72px);
+  line-height: .96; letter-spacing: -1.4px;
+  color: var(--4dp-text);
+  margin-bottom: 18px;
+}
+.intro-h1 em {
+  background: linear-gradient(135deg, var(--4dp-text), color-mix(in srgb, var(--4dp-text) 60%, var(--mod)));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.intro-sub { font-size: 15px; color: var(--4dp-text-dim); line-height: 1.55; margin-bottom: 26px; max-width: 460px; margin-left: auto; margin-right: auto; }
+.intro-keys {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 26px; padding: 18px; border-radius: var(--r-md);
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--4dp-hairline);
+}
+.key-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: rgba(14,31,56,.7);
+  border: 1px solid var(--4dp-hairline-s);
+  border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .8px;
+  color: var(--4dp-text);
+}
+.key-chip kbd {
+  font-family: var(--4dp-font-body); font-weight: 800;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-bottom: 2px solid rgba(255,255,255,.26);
+  padding: 4px 9px; border-radius: 6px;
+  font-size: 10px; letter-spacing: 1px;
+  min-width: 50px; text-align: center;
+}
+.intro-go {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 36px;
+  background: var(--mod);
+  color: var(--4dp-ink);
+  border: 0; border-radius: 999px;
+  font-family: var(--4dp-font-body); font-weight: 800;
+  font-size: 13px; letter-spacing: 1.8px; text-transform: uppercase;
+  cursor: pointer; transition: all .2s var(--ease);
+  box-shadow: 0 12px 36px rgba(148,163,184,.42);
+}
+.intro-go:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(148,163,184,.6); }
+.intro-go svg { width: 14px; height: 14px; }
+
+/* BRIEF card (per-scenario education) */
+.brief-card {
+  max-width: 620px; width: 100%; text-align: center;
+  padding: 38px 40px 32px;
+  background: linear-gradient(180deg, rgba(24,51,83,.5), rgba(14,31,56,.85));
+  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 30%, transparent);
+  border-radius: var(--r-lg);
+  box-shadow: 0 28px 80px rgba(0,0,0,.7);
+}
+.brief-tag {
+  display: inline-block;
+  padding: 4px 14px; border-radius: 999px;
+  background: color-mix(in srgb, var(--c, var(--mod)) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 50%, transparent);
+  color: var(--c, var(--mod));
+  font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.brief-h {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(30px, 5.2vw, 48px); line-height: 1.04; letter-spacing: -.9px;
+  color: var(--4dp-text); margin-bottom: 16px;
+}
+.brief-rule {
+  display: inline-block;
+  padding: 10px 22px; border-radius: 999px;
+  background: rgba(14,31,56,.6);
+  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 42%, transparent);
+  color: var(--c, var(--mod));
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(15px, 2vw, 18px); letter-spacing: -.1px;
+  margin-bottom: 22px;
+}
+.brief-why {
+  font-size: 14px; color: var(--4dp-text-dim);
+  line-height: 1.6; max-width: 480px; margin: 0 auto 24px;
+}
+.brief-why em { font-family: var(--4dp-font-display); color: var(--4dp-text); font-style: italic; font-size: 1.1em; }
+.brief-go {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px;
+  background: var(--c, var(--mod));
+  color: var(--4dp-ink);
+  border: 0; border-radius: 999px;
+  font-family: var(--4dp-font-body); font-weight: 800;
+  font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase;
+  cursor: pointer; transition: all .2s var(--ease);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--c, var(--mod)) 42%, transparent);
+}
+.brief-go:hover { transform: translateY(-2px); }
+
+/* PLAY UI — minimal, lives over the 3D scene */
+.play-ui {
+  position: fixed; top: 64px; left: 0; right: 0; z-index: 11;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none; opacity: 0;
+  transition: opacity .35s var(--ease);
+}
+.play-ui.on { opacity: 1; }
+
+.play-prompt {
+  background: rgba(14,31,56,.78); backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 42%, transparent);
+  border-radius: var(--r-md);
+  padding: 12px 22px; max-width: 92vw;
+  text-align: center;
+  box-shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+.play-prompt .pp-eyebrow {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 10px; letter-spacing: 2px;
+  color: var(--c, var(--mod));
+  margin-bottom: 4px;
+}
+.play-prompt .pp-h {
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(18px, 2.8vw, 24px);
+  color: var(--4dp-text); line-height: 1.2; letter-spacing: -.3px;
+}
+
+/* Decision-window indicator — the "now" bar */
+.decision-bar {
+  position: fixed; left: 0; right: 0; bottom: 80px; z-index: 11;
+  height: 3px; background: rgba(255,255,255,.08);
+  pointer-events: none; opacity: 0; transition: opacity .25s var(--ease);
+}
+.decision-bar.on { opacity: 1; }
+.decision-bar .fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--c, var(--mod)), color-mix(in srgb, var(--c, var(--mod)) 50%, var(--gnr-gold)));
+  box-shadow: 0 0 12px var(--c, var(--mod));
+  transform-origin: left center;
+  transition: width .05s linear;
+}
+
+/* Bottom keys (mobile/touch) */
+.gates {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 12;
+  padding: 14px 20px max(20px, env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  max-width: 720px; margin: 0 auto;
+  pointer-events: none;
+  opacity: 0; transition: opacity .25s var(--ease);
+}
+.gates.on { opacity: 1; pointer-events: auto; }
+.gate {
+  background: rgba(14,31,56,.72); backdrop-filter: blur(12px);
+  border: 1.5px solid var(--4dp-hairline-s);
+  border-radius: 14px;
+  padding: 12px 14px;
+  text-align: center; cursor: pointer;
+  font-family: var(--4dp-font-body);
+  transition: all .12s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.gate.yours {
+  border-color: color-mix(in srgb, var(--4dp-drop) 50%, transparent);
+  background: color-mix(in srgb, var(--4dp-drop) 10%, rgba(14,31,56,.72));
+}
+.gate.mine {
+  border-color: color-mix(in srgb, var(--4dp-defend) 55%, transparent);
+  background: color-mix(in srgb, var(--4dp-defend) 10%, rgba(14,31,56,.72));
+}
+.gate .gk { font-weight: 800; font-size: 10px; letter-spacing: 2px; color: var(--4dp-text-mute); margin-bottom: 4px; }
+.gate .gn { font-family: var(--4dp-font-display); font-style: italic; font-size: 22px; line-height: 1; letter-spacing: -.3px; color: var(--4dp-text); }
+.gate.pressed { transform: translateY(1px); }
+.gate.yours.pressed { background: color-mix(in srgb, var(--4dp-drop) 38%, rgba(14,31,56,.72)); border-color: var(--4dp-drop); }
+.gate.mine.pressed  { background: color-mix(in srgb, var(--4dp-defend) 42%, rgba(14,31,56,.72)); border-color: var(--4dp-defend); }
+
+/* VERDICT — flashes on round resolve */
+.verdict {
+  position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%);
+  z-index: 15; text-align: center;
+  pointer-events: none;
+  opacity: 0; transition: opacity .2s;
+}
+.verdict.on { opacity: 1; }
+.verdict .v-big {
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(56px, 10vw, 120px);
+  line-height: .9; letter-spacing: -2.5px;
+  text-shadow: 0 6px 42px rgba(0,0,0,.85);
+}
+.verdict .v-big.good { color: var(--4dp-drop); }
+.verdict .v-big.miss { color: #FB7185; }
+.verdict .v-sub {
+  margin-top: 6px;
+  font-size: 13px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--4dp-text-dim);
+  max-width: 520px; margin-left: auto; margin-right: auto; padding: 0 16px;
+}
+
+/* SCENARIO RESULT card */
+.result-card {
+  max-width: 520px; width: 100%; text-align: center;
+  padding: 36px 36px;
+  background: linear-gradient(180deg, rgba(24,51,83,.5), rgba(14,31,56,.85));
+  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 30%, transparent);
+  border-radius: var(--r-lg);
+  box-shadow: 0 28px 80px rgba(0,0,0,.7);
+}
+.result-tag {
+  font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--c, var(--mod));
+  margin-bottom: 12px;
+}
+.result-stars {
+  font-size: clamp(48px, 8vw, 76px); letter-spacing: 8px;
+  color: var(--gnr-gold);
+  margin-bottom: 8px; line-height: 1;
+}
+.result-stars .dim { color: var(--4dp-hairline-s); }
+.result-score {
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: 24px; color: var(--4dp-text); margin-bottom: 16px; letter-spacing: -.3px;
+}
+.result-tip {
+  font-size: 14px; color: var(--4dp-text-dim); line-height: 1.55;
+  margin-bottom: 24px; max-width: 420px; margin-left: auto; margin-right: auto;
+}
+.result-go {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 32px;
+  background: var(--c, var(--mod));
+  color: var(--4dp-ink);
+  border: 0; border-radius: 999px;
+  font-weight: 800; font-size: 12px; letter-spacing: 1.8px; text-transform: uppercase;
+  cursor: pointer; transition: all .2s var(--ease);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--c, var(--mod)) 42%, transparent);
+}
+.result-go:hover { transform: translateY(-2px); }
+
+/* FINAL summary */
+.final-card {
+  max-width: 560px; width: 100%; text-align: center;
+  padding: 44px 40px;
+  background: linear-gradient(180deg, rgba(24,51,83,.5), rgba(14,31,56,.85));
+  border: 1px solid color-mix(in srgb, var(--gnr-gold) 30%, transparent);
+  border-radius: var(--r-lg);
+  box-shadow: 0 28px 80px rgba(0,0,0,.7);
+}
+.final-eyebrow {
+  font-size: 10px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gnr-gold); margin-bottom: 12px;
+}
+.final-h {
+  font-family: var(--4dp-font-display); font-style: italic;
+  font-size: clamp(36px, 6vw, 60px); line-height: .98; letter-spacing: -1.2px;
+  color: var(--4dp-text); margin-bottom: 12px;
+}
+.final-stars-row {
+  display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+  margin: 24px 0;
+}
+.final-star-cell {
+  padding: 12px 16px; border-radius: var(--r-md);
+  background: rgba(14,31,56,.5);
+  border: 1px solid var(--4dp-hairline);
+  min-width: 100px;
+}
+.final-star-cell .fsc-tag { font-family: var(--4dp-font-data); font-weight: 700; font-size: 9px; letter-spacing: 1.5px; color: var(--4dp-text-mute); margin-bottom: 4px; }
+.final-star-cell .fsc-stars { font-size: 16px; letter-spacing: 4px; color: var(--gnr-gold); line-height: 1; }
+.final-star-cell .fsc-stars .dim { color: var(--4dp-hairline-s); }
+.final-go-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 22px; }
+.final-go {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px;
+  border: 0; border-radius: 999px;
+  font-weight: 800; font-size: 11px; letter-spacing: 1.8px; text-transform: uppercase;
+  cursor: pointer; transition: all .2s var(--ease);
+  text-decoration: none;
+}
+.final-go.primary { background: var(--gnr-gold); color: var(--4dp-ink); box-shadow: 0 12px 32px rgba(245,158,11,.5); }
+.final-go.primary:hover { transform: translateY(-2px); }
+.final-go.ghost { background: rgba(255,255,255,.06); color: var(--4dp-text); border: 1px solid var(--4dp-hairline-s); }
+
+/* Floating "+N" points on correct hits */
+.fp {
+  position: fixed; z-index: 13; pointer-events: none;
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: clamp(28px, 5vw, 48px); line-height: 1; letter-spacing: -.4px;
+  color: var(--gnr-gold);
+  text-shadow: 0 2px 24px rgba(245,158,11,.7);
+  transform: translate(-50%, -50%);
+  animation: fpRise 1.1s cubic-bezier(.2,1.1,.3,1) forwards;
+}
+@keyframes fpRise {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.6); }
+  18%  { opacity: 1; transform: translate(-50%, -90%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -200%) scale(.95); }
+}
+
+/* Hit flash — green = correct, red = miss */
+#hit-flash {
+  position: fixed; inset: 0; z-index: 6; pointer-events: none;
+  opacity: 0; transition: opacity .25s ease;
+  background: radial-gradient(ellipse at center, rgba(52,211,153,.16) 0%, transparent 60%);
+}
+#hit-flash.flash-good { opacity: 1; transition: opacity .08s ease; background: radial-gradient(ellipse at center, rgba(52,211,153,.18) 0%, transparent 60%); }
+#hit-flash.flash-miss { opacity: 1; transition: opacity .08s ease; background: radial-gradient(ellipse at center, rgba(251,113,133,.18) 0%, transparent 60%); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  .topbar a, .topbar .badge { font-size: 10px; padding: 6px 10px; }
+  .play-ui { top: 56px; }
+  .play-prompt { padding: 10px 16px; }
+  .gate { padding: 10px 12px; }
+  .gate .gn { font-size: 18px; }
+  .intro-card, .brief-card, .result-card, .final-card { padding: 28px 22px; }
+}
+</style>
+</head>
+<body>
+
+<div id="viewport"></div>
+<div id="hit-flash"></div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <a href="./cover-the-middle.html">← Overview</a>
+  <a href="javascript:void(0)" id="restart-btn" style="display:none">↻ Restart</a>
+  <span class="brand"><span class="four">4D</span> · Academy</span>
+  <span class="badge"><span class="dot"></span>0D · Game</span>
+</div>
+
+<!-- HUD -->
+<div class="hud" id="hud">
+  <div class="lbl">Round</div>
+  <div class="row" id="hud-round">— / —</div>
+  <div class="stars" id="hud-stars">★★★★★</div>
+</div>
+
+<!-- INTRO overlay -->
+<div class="overlay on" id="intro">
+  <div class="intro-card">
+    <div class="intro-eyebrow">Cover the Middle · The Game</div>
+    <h1 class="intro-h1"><em>Whose ball</em><br>is&nbsp;that?</h1>
+    <p class="intro-sub">Four scenarios. Five looks each. Read the ball, decide fast, beat your own best.</p>
+    <div class="intro-keys">
+      <span class="key-chip"><kbd>SPACE</kbd> Yours</span>
+      <span class="key-chip"><kbd>ENTER</kbd> Mine</span>
+      <span class="key-chip"><kbd>← →</kbd> Step</span>
+    </div>
+    <button class="intro-go" id="intro-go">
+      Start
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- BRIEF overlay (per-scenario education) -->
+<div class="overlay" id="brief">
+  <div class="brief-card" id="brief-card">
+    <div class="brief-tag" id="brief-tag">SCENARIO 01</div>
+    <h2 class="brief-h" id="brief-h">Player in front has the option.</h2>
+    <div class="brief-rule" id="brief-rule">NVZ-player takes it. Block or reset.</div>
+    <p class="brief-why" id="brief-why">Partner just returned and is sprinting up. By the time they reach the line, the ball's at their shins. <em>You're already at the line.</em> You take it.</p>
+    <button class="brief-go" id="brief-go">
+      Got it · play 5
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- PLAY UI -->
+<div class="play-ui" id="play-ui">
+  <div class="play-prompt">
+    <div class="pp-eyebrow" id="pp-eyebrow">SCENARIO 01 · ROUND 1 / 5</div>
+    <div class="pp-h" id="pp-h">Read it.</div>
+  </div>
+</div>
+
+<!-- Decision-bar (countdown to deadline) -->
+<div class="decision-bar" id="decision-bar"><div class="fill" id="decision-fill"></div></div>
+
+<!-- Decision gates (touch-friendly) -->
+<div class="gates" id="gates">
+  <button class="gate yours" id="gate-yours" aria-label="Yours / let go">
+    <div class="gk">SPACE</div>
+    <div class="gn">Yours</div>
+  </button>
+  <button class="gate mine" id="gate-mine" aria-label="Mine / take it">
+    <div class="gk">ENTER</div>
+    <div class="gn">Mine</div>
+  </button>
+</div>
+
+<!-- VERDICT flash -->
+<div class="verdict" id="verdict">
+  <div class="v-big" id="v-big">GOOD</div>
+  <div class="v-sub" id="v-sub">Nice read</div>
+</div>
+
+<!-- SCENARIO RESULT overlay -->
+<div class="overlay" id="scen-result">
+  <div class="result-card" id="result-card">
+    <div class="result-tag" id="rt-tag">SCENARIO 01 · COMPLETE</div>
+    <div class="result-stars" id="rt-stars">★★★★<span class="dim">★</span></div>
+    <div class="result-score" id="rt-score">4 of 5</div>
+    <p class="result-tip" id="rt-tip">Strong reads on the middle balls. One miss to log: you let through a ball that was yours.</p>
+    <button class="result-go" id="rt-go">
+      Next scenario
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- FINAL summary -->
+<div class="overlay" id="final">
+  <div class="final-card">
+    <div class="final-eyebrow">Module complete</div>
+    <h2 class="final-h" id="final-h">Reads <em>locked in.</em></h2>
+    <div class="final-stars-row" id="final-stars-row">
+      <!-- Generated by JS -->
+    </div>
+    <div class="final-go-row">
+      <button class="final-go primary" id="final-replay">Run it again ↻</button>
+      <a class="final-go ghost" href="./cover-the-middle.html">Back to overview</a>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass }from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+// ═════════════════════════════════════════════════════════════════════
+// COVER THE MIDDLE · THE GAME
+// 4 scenarios × 5 variants each = 20 rounds total.
+// Each scenario: brief education → 5 rounds of play → result → next.
+// ═════════════════════════════════════════════════════════════════════
+
+const COURT = { W: 20, L: 44, KITCHEN: 7 };
+const BALL_R = 0.13;
+
+let scene, camera, renderer, composer;
+let players = {}, ball = null;
+let raf = null;
+
+// ─── Audio synth ─────────────────────────────────────────
+const audio = (() => {
+  let ctx, master, ambient, ambGain;
+  let enabled = false;
+  function ensure() {
+    if (ctx) return;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain();
+      master.gain.value = 0.35;
+      master.connect(ctx.destination);
+    } catch (e) {}
+  }
+  function pock(freq=1100, dur=.085) {
+    if (!enabled || !ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.setValueAtTime(freq, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(freq*.55, ctx.currentTime+dur);
+    g.gain.setValueAtTime(.25, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+dur);
+    o.connect(g).connect(master);
+    o.start(); o.stop(ctx.currentTime+dur);
+  }
+  function bounce() { pock(310, .12); }
+  function good() {
+    if (!enabled || !ctx) return;
+    [660, 880, 1320].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      const t0 = ctx.currentTime + i*.07;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(.14, t0+.02);
+      g.gain.exponentialRampToValueAtTime(.001, t0+.32);
+      o.connect(g).connect(master);
+      o.start(t0); o.stop(t0+.34);
+    });
+  }
+  function miss() {
+    if (!enabled || !ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(240, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(90, ctx.currentTime+.4);
+    g.gain.setValueAtTime(.16, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime+.4);
+    o.connect(g).connect(master);
+    o.start(); o.stop(ctx.currentTime+.45);
+  }
+  function chime() {
+    if (!enabled || !ctx) return;
+    [880, 1175, 1568].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      const t0 = ctx.currentTime + i*.06;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(.13, t0+.02);
+      g.gain.exponentialRampToValueAtTime(.001, t0+.55);
+      o.connect(g).connect(master);
+      o.start(t0); o.stop(t0+.6);
+    });
+  }
+  function startAmbient() {
+    if (!enabled || !ctx || ambient) return;
+    ambient = ctx.createOscillator();
+    ambGain = ctx.createGain();
+    ambient.type = 'sine'; ambient.frequency.value = 55;
+    ambGain.gain.value = .04;
+    ambient.connect(ambGain).connect(master);
+    ambient.start();
+  }
+  return {
+    enable(on) { enabled = on; if (on) { ensure(); if (ctx?.state === 'suspended') ctx.resume(); startAmbient(); } },
+    pock, bounce, good, miss, chime,
+    get enabled() { return enabled; }
+  };
+})();
+
+// ─── Court textures ──────────────────────────────────────
+function canvasTex(w, h, fn) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  fn(c.getContext('2d'));
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+function deckTex() {
+  return canvasTex(512, 512, ctx => {
+    const g = ctx.createLinearGradient(0,0,0,512);
+    g.addColorStop(0, '#7A8290'); g.addColorStop(1, '#5E6878');
+    ctx.fillStyle = g; ctx.fillRect(0,0,512,512);
+    for (let i=0;i<1400;i++){ ctx.fillStyle=`rgba(0,0,0,${Math.random()*.06})`; ctx.fillRect(Math.random()*512, Math.random()*512, 1, 1); }
+  });
+}
+function courtTex() {
+  return canvasTex(1024, 1024, ctx => {
+    const g = ctx.createRadialGradient(512,512,40,512,512,680);
+    g.addColorStop(0,'#2D5FA8'); g.addColorStop(.7,'#234E8C'); g.addColorStop(1,'#1B3E72');
+    ctx.fillStyle = g; ctx.fillRect(0,0,1024,1024);
+    const v = ctx.createRadialGradient(512,512,300,512,512,720);
+    v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.28)');
+    ctx.fillStyle = v; ctx.fillRect(0,0,1024,1024);
+  });
+}
+function kitchenTex() {
+  return canvasTex(512, 256, ctx => {
+    const g = ctx.createLinearGradient(0,0,0,256);
+    g.addColorStop(0,'#6B0F1A'); g.addColorStop(1,'#52090F');
+    ctx.fillStyle = g; ctx.fillRect(0,0,512,256);
+  });
+}
+
+// ─── Court ───────────────────────────────────────────────
+function buildCourt() {
+  const g = new THREE.Group();
+  const deck = new THREE.Mesh(
+    new THREE.PlaneGeometry(COURT.W+18, COURT.L+18),
+    new THREE.MeshStandardMaterial({ map: deckTex(), roughness:.88, metalness:.02 })
+  );
+  deck.rotation.x = -Math.PI/2; deck.position.y = -.02; deck.receiveShadow = true;
+  g.add(deck);
+
+  const surf = new THREE.Mesh(
+    new THREE.PlaneGeometry(COURT.W, COURT.L),
+    new THREE.MeshStandardMaterial({ map: courtTex(), roughness:.68, metalness:.05 })
+  );
+  surf.rotation.x = -Math.PI/2; surf.receiveShadow = true;
+  g.add(surf);
+
+  const kMat = new THREE.MeshStandardMaterial({ map: kitchenTex(), roughness:.7 });
+  for (const z of [COURT.KITCHEN/2, -COURT.KITCHEN/2]) {
+    const k = new THREE.Mesh(new THREE.PlaneGeometry(COURT.W, COURT.KITCHEN), kMat);
+    k.rotation.x = -Math.PI/2; k.position.set(0, .004, z); k.receiveShadow = true;
+    g.add(k);
+  }
+
+  const lineMat = new THREE.MeshStandardMaterial({
+    color: 0xDEDBD0, emissive: 0xDEDBD0, emissiveIntensity: .02,
+    transparent: true, opacity: .9
+  });
+  const LINE = .18;
+  const addLine = (x, z, w, l) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, l), lineMat);
+    m.rotation.x = -Math.PI/2; m.position.set(x, .006, z);
+    g.add(m);
+  };
+  addLine(0,  COURT.L/2, COURT.W, LINE);
+  addLine(0, -COURT.L/2, COURT.W, LINE);
+  addLine( COURT.W/2, 0, LINE, COURT.L);
+  addLine(-COURT.W/2, 0, LINE, COURT.L);
+  addLine(0,  COURT.KITCHEN, COURT.W, LINE);
+  addLine(0, -COURT.KITCHEN, COURT.W, LINE);
+  addLine(0,  (COURT.L/2 + COURT.KITCHEN)/2, LINE, COURT.L/2 - COURT.KITCHEN);
+  addLine(0, -(COURT.L/2 + COURT.KITCHEN)/2, LINE, COURT.L/2 - COURT.KITCHEN);
+
+  const postMat = new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness:.3, metalness:.8 });
+  for (const x of [-COURT.W/2 - .3, COURT.W/2 + .3]) {
+    const p = new THREE.Mesh(new THREE.CylinderGeometry(.12, .12, 3.4, 12), postMat);
+    p.position.set(x, 1.7, 0); g.add(p);
+  }
+  const netMat = new THREE.MeshStandardMaterial({ color: 0x0F2138, transparent:true, opacity:.72, side:THREE.DoubleSide, roughness:.9 });
+  const net = new THREE.Mesh(new THREE.PlaneGeometry(COURT.W+.6, 3.0, 24, 8), netMat);
+  net.position.set(0, 1.5, 0); g.add(net);
+  const tape = new THREE.Mesh(new THREE.BoxGeometry(COURT.W+.6, .08, .08), lineMat);
+  tape.position.set(0, 3.0, 0); g.add(tape);
+  return g;
+}
+
+// ─── Player ──────────────────────────────────────────────
+function buildPlayer({ jersey, shorts, hat }) {
+  const g = new THREE.Group();
+  const torso = new THREE.Mesh(
+    new THREE.CapsuleGeometry(.42, 1.1, 6, 10),
+    new THREE.MeshStandardMaterial({ color: jersey, roughness:.6 })
+  );
+  torso.position.y = 3.3; torso.castShadow = true; g.add(torso);
+
+  const sh = new THREE.Mesh(
+    new THREE.CylinderGeometry(.42, .36, .6, 10),
+    new THREE.MeshStandardMaterial({ color: shorts, roughness:.7 })
+  );
+  sh.position.y = 2.25; sh.castShadow = true; g.add(sh);
+
+  for (const sgn of [-1, 1]) {
+    const leg = new THREE.Mesh(
+      new THREE.CylinderGeometry(.17, .17, 1.8, 8),
+      new THREE.MeshStandardMaterial({ color: 0x0F1524, roughness:.7 })
+    );
+    leg.position.set(sgn*.2, 1.0, 0); leg.castShadow = true; g.add(leg);
+    const shoe = new THREE.Mesh(
+      new THREE.BoxGeometry(.38, .2, .6),
+      new THREE.MeshStandardMaterial({ color: 0xF5F3EE, roughness:.7 })
+    );
+    shoe.position.set(sgn*.2, .1, .05); shoe.castShadow = true; g.add(shoe);
+  }
+
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(.32, 16, 12),
+    new THREE.MeshStandardMaterial({ color: 0xE8C4A0, roughness:.6 })
+  );
+  head.position.y = 4.3; head.castShadow = true; g.add(head);
+  g.userData.head = head;
+
+  const hatMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(.33, .3, .3, 12),
+    new THREE.MeshStandardMaterial({ color: hat, roughness:.5, emissive: hat, emissiveIntensity:.2 })
+  );
+  hatMesh.position.y = 4.6; hatMesh.castShadow = true; g.add(hatMesh);
+  const brim = new THREE.Mesh(
+    new THREE.BoxGeometry(.7, .04, .3),
+    new THREE.MeshStandardMaterial({ color: hat, roughness:.5 })
+  );
+  brim.position.set(0, 4.48, .22); g.add(brim);
+
+  const armGroup = new THREE.Group();
+  armGroup.position.set(.55, 3.2, 0);
+  const arm = new THREE.Mesh(
+    new THREE.CylinderGeometry(.12, .1, 1.0, 8),
+    new THREE.MeshStandardMaterial({ color: 0xE8C4A0, roughness:.6 })
+  );
+  arm.position.y = -.5; arm.castShadow = true; armGroup.add(arm);
+
+  const paddleGroup = new THREE.Group();
+  paddleGroup.position.set(0, -1.0, .2);
+  const paddle = new THREE.Mesh(
+    new THREE.BoxGeometry(.62, .78, .06),
+    new THREE.MeshStandardMaterial({ color: 0x12253E, roughness:.4, metalness:.2 })
+  );
+  paddleGroup.add(paddle);
+  const dot = new THREE.Mesh(
+    new THREE.CircleGeometry(.12, 16),
+    new THREE.MeshStandardMaterial({ color: 0xF5F3EE, emissive: 0xF5F3EE, emissiveIntensity:.6 })
+  );
+  dot.position.set(0, .1, .032); paddleGroup.add(dot);
+  const grip = new THREE.Mesh(
+    new THREE.CylinderGeometry(.07, .07, .45, 8),
+    new THREE.MeshStandardMaterial({ color: 0x1A1F2E, roughness:.8 })
+  );
+  grip.position.y = .55; paddleGroup.add(grip);
+  armGroup.add(paddleGroup);
+  g.add(armGroup);
+
+  g.userData.armGroup = armGroup;
+  g.userData.paddleGroup = paddleGroup;
+  // Default ready pose
+  armGroup.rotation.x = -.4;
+  paddleGroup.rotation.x = -.2;
+  return g;
+}
+
+function applyReadyPose(p) {
+  const arm = p.userData.armGroup;
+  const pad = p.userData.paddleGroup;
+  if (Math.abs(p.position.z) < 10) {
+    arm.rotation.x = -.55; arm.rotation.z = -.3;
+    pad.rotation.x = -.05; pad.rotation.z = -.35;
+  } else {
+    arm.rotation.x = -.2; arm.rotation.z = 0;
+    pad.rotation.x = -.3; pad.rotation.z = .1;
+  }
+}
+
+function buildBall() {
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0xC6FF00, emissive: 0xC6FF00, emissiveIntensity: .7, roughness: .3
+  });
+  const mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 16, 12), mat);
+  mesh.castShadow = true;
+  const shadow = new THREE.Mesh(
+    new THREE.CircleGeometry(BALL_R*1.4, 16),
+    new THREE.MeshBasicMaterial({ color: 0x000, transparent:true, opacity:.45 })
+  );
+  shadow.rotation.x = -Math.PI/2; shadow.position.y = .01;
+  return { mesh, shadow };
+}
+
+// ─── Init ────────────────────────────────────────────────
+function init() {
+  const container = document.getElementById('viewport');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0A1628);
+  scene.fog = new THREE.Fog(0x0A1628, 50, 140);
+
+  const w = container.clientWidth, h = container.clientHeight;
+  camera = new THREE.PerspectiveCamera(50, w/h, .1, 200);
+  camera.position.set(14, 18, 22);
+  camera.lookAt(0, 2, 4);
+
+  renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+  renderer.setSize(w, h);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.12;
+  container.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0x6688CC, .42));
+  const key = new THREE.DirectionalLight(0xFFF4DC, 1.1);
+  key.position.set(18, 28, 10); key.castShadow = true;
+  key.shadow.mapSize.width = 1024; key.shadow.mapSize.height = 1024;
+  key.shadow.camera.left = -30; key.shadow.camera.right = 30;
+  key.shadow.camera.top = 30; key.shadow.camera.bottom = -30;
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0x5BA8FF, .45);
+  rim.position.set(-12, 18, -16); scene.add(rim);
+
+  scene.add(buildCourt());
+
+  players.farLeft   = buildPlayer({ jersey: 0xA02020, shorts: 0x2A1010, hat: 0x4ADE80 });
+  players.farRight  = buildPlayer({ jersey: 0xA02020, shorts: 0x2A1010, hat: 0xFB923C });
+  players.nearLeft  = buildPlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0x2B8BFC });
+  players.nearRight = buildPlayer({ jersey: 0x1B4079, shorts: 0x0F2138, hat: 0xFDE047 });
+  players.nearLeft.rotation.y = Math.PI;
+  players.nearRight.rotation.y = Math.PI;
+  Object.values(players).forEach(p => scene.add(p));
+
+  ball = buildBall();
+  scene.add(ball.mesh); scene.add(ball.shadow);
+  ball.mesh.visible = false; ball.shadow.visible = false;
+
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), .55, .82, .82));
+
+  window.addEventListener('resize', onResize);
+}
+function onResize() {
+  const c = document.getElementById('viewport');
+  const w = c.clientWidth, h = c.clientHeight;
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+  renderer.setSize(w, h); composer.setSize(w, h);
+}
+
+// ─── Physics ─────────────────────────────────────────────
+function ballArc(from, to, apex, u) {
+  const x = from.x + (to.x - from.x) * u;
+  const z = from.z + (to.z - from.z) * u;
+  const linY = from.y + (to.y - from.y) * u;
+  const arcY = 4 * (apex - Math.max(from.y, to.y)) * u * (1 - u);
+  return new THREE.Vector3(x, Math.max(.08, linY + arcY), z);
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// SCENARIO DATA — 4 scenarios × 5 variants each
+//
+// Each variant:
+//   { ballFrom, ballTo, apex, dur, hitter, correct, why }
+//
+// correct: 'mine' | 'yours'
+// "mine" = player should call ENTER (take it / poach)
+// "yours" = player should call SPACE (let it go / partner's)
+//
+// ═════════════════════════════════════════════════════════════════════
+
+// SCENARIO 1: Start of point. YOU = nearLeft (at kitchen). PARTNER = nearRight (in transition).
+// Rule: kitchen player takes middle balls because partner can't reach yet.
+const SCEN_1 = {
+  id: 1,
+  tag: 'SCENARIO 01 · START OF POINT',
+  title: 'Player in front has the option.',
+  rule: 'NVZ-player takes the middle. Partner\'s still running up.',
+  why: 'Partner just returned and is sprinting up. By the time they reach the line, the ball\'s at their shins. <em>You\'re already at the line.</em> You take it.',
+  color: '#F472B6',  // Defend pink — anticipation
+  cameraPos: [14, 18, 22],
+  cameraLook: [0, 2, 6],
+  setup: () => {
+    players.farLeft.position.set(-5, 0, -22);
+    players.farRight.position.set(4, 0, -22);
+    players.nearLeft.position.set(-4, 0, 8);    // YOU at kitchen
+    players.nearRight.position.set(4, 0, 17);   // PARTNER in transition
+    Object.values(players).forEach(applyReadyPose);
+  },
+  variants: [
+    { // V1 — drive through middle, normal pace → MINE
+      from:[-4,2.3,-22], to:[-1.0, .3, 8.5], apex:3.6, dur:.95, hitter:'farLeft',
+      ctx:'Drive through middle.',
+      correct:'mine', why:'Through the middle, partner can\'t reach. Slide and block.'
+    },
+    { // V2 — drop to partner's deep corner → YOURS
+      from:[5,2.0,-22], to:[5.5, .25, 17], apex:6.5, dur:1.05, hitter:'farRight',
+      ctx:'Drop deep to partner\'s side.',
+      correct:'yours', why:'Far from middle, partner can play it as they reach.'
+    },
+    { // V3 — drive at YOUR forehand sideline → MINE
+      from:[-5,2.2,-22], to:[-7.5, .3, 8.5], apex:3.5, dur:.85, hitter:'farLeft',
+      ctx:'Drive to your sideline.',
+      correct:'mine', why:'On your side, you\'re at the line. Easy take.'
+    },
+    { // V4 — drive WIDE past your sideline → YOURS
+      from:[-5,2.3,-22], to:[-12, .25, 8], apex:3.5, dur:.7, hitter:'farLeft',
+      ctx:'Hard drive — wide.',
+      correct:'yours', why:'Going past the sideline. Let it fly out.'
+    },
+    { // V5 — high floater through middle → MINE
+      from:[3,2.1,-22], to:[-.5, .9, 8], apex:5.2, dur:1.2, hitter:'farRight',
+      ctx:'High floater through middle.',
+      correct:'mine', why:'High and middle — easy putaway. You\'re right there.'
+    }
+  ]
+};
+
+// SCENARIO 2: Both at kitchen, soft floater. YOU = nearRight (your forehand faces middle).
+// Rule: forehand-closer takes middle when ball is soft.
+const SCEN_2 = {
+  id: 2,
+  tag: 'SCENARIO 02 · SOFT FLOATER · BOTH AT KITCHEN',
+  title: 'Forehand takes the middle.',
+  rule: '"Forehand takes the middle" — here it\'s true.',
+  why: 'You\'re a righty on the right side — your <em>forehand faces the middle.</em> Soft balls give time. When the ball comes high and slow through the middle, you have reach, angle, and power.',
+  color: '#FBBF24',  // Drive yellow — striking opportunity
+  cameraPos: [-14, 16, 20],
+  cameraLook: [2, 2, 6],
+  setup: () => {
+    players.farLeft.position.set(-4, 0, -8);
+    players.farRight.position.set(4, 0, -8);
+    players.nearLeft.position.set(-4, 0, 8);     // PARTNER (covers line)
+    players.nearRight.position.set(4, 0, 8);     // YOU (forehand toward middle)
+    Object.values(players).forEach(applyReadyPose);
+  },
+  variants: [
+    { // V1 — soft floater high MIDDLE → MINE (your forehand)
+      from:[-4,1.8,-8], to:[1, 1.2, 7.6], apex:5.0, dur:1.25, hitter:'farLeft',
+      ctx:'Soft high floater — middle.',
+      correct:'mine', why:'High, soft, middle. Your forehand is RIGHT there. Putaway.'
+    },
+    { // V2 — soft floater to YOUR sideline → MINE
+      from:[-4,1.6,-8], to:[6, .9, 7.5], apex:4.5, dur:1.1, hitter:'farLeft',
+      ctx:'Floater to your sideline.',
+      correct:'mine', why:'Coming to your forehand. Take it.'
+    },
+    { // V3 — soft floater to PARTNER's sideline → YOURS
+      from:[3,1.6,-8], to:[-7, .9, 7.5], apex:4.4, dur:1.1, hitter:'farRight',
+      ctx:'Floater to partner\'s sideline.',
+      correct:'yours', why:'Way over on partner\'s line. Their ball, not yours.'
+    },
+    { // V4 — soft floater just past middle (partner's middle) → MINE
+      from:[-4,1.7,-8], to:[-1.5, 1.1, 7.7], apex:4.7, dur:1.2, hitter:'farLeft',
+      ctx:'Floater — just past middle.',
+      correct:'mine', why:'Soft = time. Your forehand reaches across the seam. Take it.'
+    },
+    { // V5 — short cross to partner's KITCHEN corner → YOURS
+      from:[4,1.6,-8], to:[-3.8, .8, 8.2], apex:3.6, dur:1.0, hitter:'farRight',
+      ctx:'Short cross to partner\'s kitchen.',
+      correct:'yours', why:'Cross-court to partner\'s side. Let them dink it back.'
+    }
+  ]
+};
+
+// SCENARIO 3: Both at kitchen, hard attack. YOU = nearLeft (diagonal X from far-right).
+// Rule: diagonal-from-hitter absorbs because ball travels TO you, not partner.
+const SCEN_3 = {
+  id: 3,
+  tag: 'SCENARIO 03 · HARD ATTACK · BOTH AT KITCHEN',
+  title: 'Respect the X.',
+  rule: 'Diagonal from hitter takes it.',
+  why: 'When the attack comes hard from the far-right, the ball travels <em>toward YOU</em> on the near-left — and AWAY from partner. You\'re better positioned. You absorb; partner covers the line.',
+  color: '#34D399',  // Drop green — defensive read
+  cameraPos: [14, 16, 20],
+  cameraLook: [0, 2, 6],
+  setup: () => {
+    players.farLeft.position.set(-4, 0, -8);
+    players.farRight.position.set(4, 0, -8);
+    players.nearLeft.position.set(-4, 0, 8);    // YOU
+    players.nearRight.position.set(4, 0, 8);    // PARTNER
+    Object.values(players).forEach(applyReadyPose);
+  },
+  variants: [
+    { // V1 — hard speed-up through middle from far-right → MINE
+      from:[4,2.2,-8], to:[-1.5, 1.3, 8], apex:3.0, dur:.55, hitter:'farRight',
+      ctx:'Speed-up through middle.',
+      correct:'mine', why:'You\'re diagonal — ball travels TO you. Absorb it.'
+    },
+    { // V2 — hard speed-up at PARTNER's body → YOURS
+      from:[-4,2.2,-8], to:[3.5, 1.4, 8], apex:3.1, dur:.55, hitter:'farLeft',
+      ctx:'Speed-up at partner\'s body.',
+      correct:'yours', why:'Partner\'s ball — they\'re the closer target. You hold position.'
+    },
+    { // V3 — hard speed-up to YOUR sideline → MINE
+      from:[4,2.2,-8], to:[-7, 1.0, 8], apex:3.0, dur:.55, hitter:'farRight',
+      ctx:'Speed-up to your line.',
+      correct:'mine', why:'Down your line — your line shot. Reach for it.'
+    },
+    { // V4 — hard speed-up wide past PARTNER's sideline → YOURS
+      from:[-4,2.4,-8], to:[10.5, .35, 8], apex:3.5, dur:.55, hitter:'farLeft',
+      ctx:'Speed-up — wide past partner.',
+      correct:'yours', why:'Going out — let it fly. Don\'t lunge.'
+    },
+    { // V5 — hard speed-up to MIDDLE seam (low) → MINE
+      from:[4,2.0,-8], to:[-.5, .8, 8.2], apex:2.8, dur:.6, hitter:'farRight',
+      ctx:'Hard middle attack.',
+      correct:'mine', why:'Diagonal X again — ball travels to you. Take it.'
+    }
+  ]
+};
+
+// SCENARIO 4: Righty on the left, cross-court rally. YOU = nearLeft (righty).
+// Rule: backhand speed-ups go wide — let them.
+const SCEN_4 = {
+  id: 4,
+  tag: 'SCENARIO 04 · RIGHTY ON THE LEFT',
+  title: 'Sit on the forehand.',
+  rule: 'Backhand speed-up goes wide. Let it.',
+  why: 'You\'re a righty on the left side. Cross-court opponent can\'t hit a backhand speed-up that stays in — <em>geometry pushes it wide.</em> Pre-load the forehand, ignore the backhand lane.',
+  color: '#2B8BFC',  // Dink blue — kitchen rally
+  cameraPos: [12, 14, 18],
+  cameraLook: [-3, 1.8, 4],
+  setup: () => {
+    players.farLeft.position.set(-4, 0, -8);
+    players.farRight.position.set(4, 0, -8);
+    players.nearLeft.position.set(-4, 0, 8);     // YOU
+    players.nearRight.position.set(4, 0, 8);     // partner
+    Object.values(players).forEach(applyReadyPose);
+  },
+  variants: [
+    { // V1 — backhand speed-up at YOUR backhand → YOURS (let wide)
+      from:[-4,2.4,-8], to:[-11, .3, 8.5], apex:3.5, dur:.55, hitter:'farLeft',
+      ctx:'Backhand speed-up — wide.',
+      correct:'yours', why:'Going wide. Geometry pushed it out. Don\'t move.'
+    },
+    { // V2 — forehand attack at YOUR forehand → MINE
+      from:[-4,2.2,-8], to:[-1.5, 1.3, 8], apex:3.0, dur:.65, hitter:'farLeft',
+      ctx:'Attack at your forehand.',
+      correct:'mine', why:'Your loaded side. Block it back.'
+    },
+    { // V3 — soft dink to YOUR forehand → MINE
+      from:[-4,1.4,-8], to:[-2, .6, 7.6], apex:3.2, dur:1.1, hitter:'farLeft',
+      ctx:'Dink to your forehand.',
+      correct:'mine', why:'Soft and on your forehand. Take it cleanly.'
+    },
+    { // V4 — wild attack to PARTNER's side → YOURS
+      from:[-4,2.2,-8], to:[6, 1.0, 8], apex:3.0, dur:.6, hitter:'farLeft',
+      ctx:'Attack at partner.',
+      correct:'yours', why:'Partner\'s territory — let them defend it.'
+    },
+    { // V5 — second backhand speed-up wide → YOURS
+      from:[-4,2.5,-8], to:[-11.5, .35, 9], apex:3.6, dur:.55, hitter:'farLeft',
+      ctx:'Backhand speed-up — wide again.',
+      correct:'yours', why:'Same shot, same answer. Keep sitting on the forehand.'
+    }
+  ]
+};
+
+const SCENARIOS = [SCEN_1, SCEN_2, SCEN_3, SCEN_4];
+
+// ═════════════════════════════════════════════════════════════════════
+// GAME STATE MACHINE
+// ═════════════════════════════════════════════════════════════════════
+
+const GAME = {
+  state: 'INTRO',     // 'INTRO' | 'BRIEF' | 'PRE_ROUND' | 'BALL_FLIGHT' | 'RESOLVE' | 'SCEN_RESULT' | 'FINAL'
+  scenIdx: 0,
+  variantIdx: 0,
+  scenScores: [0, 0, 0, 0],   // correct count per scenario
+  shotT: 0,
+  shotDur: 1,
+  currentVariant: null,
+  decisionWindow: [.30, .82], // [start, deadline] as fraction of shot
+  answer: null,                // 'mine' | 'yours' | null
+  answerLocked: false,
+  resolveTimer: 0,
+  preRoundT: 0,
+  lastT: 0,
+  // Player position adjustments (LEFT/RIGHT shift)
+  playerOffsetX: 0
+};
+
+function $id(id) { return document.getElementById(id); }
+function setOverlay(which) {
+  ['intro','brief','scen-result','final'].forEach(id => $id(id).classList.toggle('on', id === which));
+}
+function showPlayUI(on) {
+  $id('play-ui').classList.toggle('on', on);
+  $id('gates').classList.toggle('on', on);
+  $id('hud').classList.toggle('on', on);
+  $id('decision-bar').classList.toggle('on', on && GAME.state === 'BALL_FLIGHT');
+}
+
+function setColor(hex) {
+  document.documentElement.style.setProperty('--c', hex);
+  $id('brief-card').style.setProperty('--c', hex);
+  $id('result-card').style.setProperty('--c', hex);
+}
+
+function showBrief(scen) {
+  setColor(scen.color);
+  $id('brief-tag').textContent = scen.tag;
+  $id('brief-h').textContent = scen.title;
+  $id('brief-rule').textContent = scen.rule;
+  $id('brief-why').innerHTML = scen.why;
+  setOverlay('brief');
+  showPlayUI(false);
+  audio.chime();
+}
+
+function startScenario(idx) {
+  GAME.scenIdx = idx;
+  GAME.variantIdx = 0;
+  GAME.scenScores[idx] = 0;
+  const scen = SCENARIOS[idx];
+  scen.setup();
+  // Camera
+  if (scen.cameraPos) {
+    camera.position.set(...scen.cameraPos);
+    camera.lookAt(...scen.cameraLook);
+  }
+  showBrief(scen);
+}
+
+function startRound() {
+  const scen = SCENARIOS[GAME.scenIdx];
+  const v = scen.variants[GAME.variantIdx];
+  GAME.currentVariant = v;
+  GAME.state = 'PRE_ROUND';
+  GAME.preRoundT = 0;
+  GAME.shotT = 0;
+  GAME.answer = null;
+  GAME.answerLocked = false;
+  GAME.shotDur = v.dur * 1.05;
+  GAME.playerOffsetX = 0;
+
+  // Reset positions
+  scen.setup();
+
+  // Update HUD + prompt
+  $id('hud-round').textContent = `${GAME.variantIdx + 1} / 5`;
+  $id('pp-eyebrow').textContent = `${scen.tag.replace('SCENARIO 0','S0').split('·')[0]} · ROUND ${GAME.variantIdx + 1} / 5`;
+  $id('pp-h').textContent = v.ctx;
+
+  // Star display
+  const sc = GAME.scenScores[GAME.scenIdx];
+  $id('hud-stars').innerHTML = '★'.repeat(sc) + '<span class="dim">' + '★'.repeat(5 - sc) + '</span>';
+
+  setOverlay(null);
+  showPlayUI(true);
+  audio.pock(900, .07);
+}
+
+function lockAnswer(answer) {
+  if (GAME.state !== 'BALL_FLIGHT' || GAME.answerLocked) return;
+  // Only accept inside the decision window
+  if (GAME.shotT < GAME.decisionWindow[0]) {
+    // Too early — flag visually but don't lock yet
+    flashGate(answer, 'early');
+    return;
+  }
+  GAME.answer = answer;
+  GAME.answerLocked = true;
+  flashGate(answer, 'pressed');
+  audio.pock(answer === 'mine' ? 1300 : 800, .07);
+}
+
+function flashGate(answer, cls) {
+  const g = $id(answer === 'mine' ? 'gate-mine' : 'gate-yours');
+  if (cls === 'pressed') {
+    g.classList.add('pressed');
+    setTimeout(() => g.classList.remove('pressed'), 260);
+  }
+}
+
+function resolveRound() {
+  const scen = SCENARIOS[GAME.scenIdx];
+  const v = GAME.currentVariant;
+  const correct = GAME.answer === v.correct;
+  if (correct) GAME.scenScores[GAME.scenIdx]++;
+
+  // Verdict UI
+  const verd = $id('verdict');
+  const big = $id('v-big'), sub = $id('v-sub');
+  big.textContent = correct ? 'GOOD.' : (GAME.answer ? 'MISS' : 'TOO LATE');
+  big.className = 'v-big ' + (correct ? 'good' : 'miss');
+  sub.textContent = correct ? v.why : `Should\'ve been ${v.correct.toUpperCase()}. ${v.why}`;
+  verd.classList.add('on');
+
+  // Hit-flash
+  const flash = $id('hit-flash');
+  flash.classList.remove('flash-good', 'flash-miss');
+  flash.classList.add(correct ? 'flash-good' : 'flash-miss');
+  setTimeout(() => flash.classList.remove('flash-good', 'flash-miss'), 450);
+
+  // Audio
+  if (correct) audio.good(); else audio.miss();
+
+  // Floating +N for correct
+  if (correct) {
+    const fp = document.createElement('div');
+    fp.className = 'fp';
+    fp.textContent = '+10';
+    fp.style.left = '50%';
+    fp.style.top = '52%';
+    document.body.appendChild(fp);
+    setTimeout(() => fp.remove(), 1200);
+  }
+
+  // Update star display
+  const sc = GAME.scenScores[GAME.scenIdx];
+  $id('hud-stars').innerHTML = '★'.repeat(sc) + '<span class="dim">' + '★'.repeat(5 - sc) + '</span>';
+
+  GAME.state = 'RESOLVE';
+  GAME.resolveTimer = 0;
+}
+
+function finishScenario() {
+  const scen = SCENARIOS[GAME.scenIdx];
+  const sc = GAME.scenScores[GAME.scenIdx];
+  setColor(scen.color);
+  $id('rt-tag').textContent = `${scen.tag} · COMPLETE`;
+  $id('rt-stars').innerHTML = '★'.repeat(sc) + '<span class="dim">' + '★'.repeat(5 - sc) + '</span>';
+  $id('rt-score').textContent = `${sc} of 5`;
+  let tip;
+  if (sc === 5) tip = 'Perfect read. The rule is locked in for this scenario.';
+  else if (sc === 4) tip = 'Strong reads. One slipped — review the rule and you\'ve got it.';
+  else if (sc === 3) tip = 'Solid foundation. The trap variants caught you — that\'s the point of the drill.';
+  else if (sc === 2) tip = 'Read more carefully. Each variant has different cues — slow down on the next one.';
+  else tip = 'Run it again. The patterns will start to feel obvious.';
+  $id('rt-tip').textContent = tip;
+
+  const isLast = GAME.scenIdx >= SCENARIOS.length - 1;
+  $id('rt-go').innerHTML = isLast
+    ? 'See your final mastery <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    : 'Next scenario <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  setOverlay('scen-result');
+  showPlayUI(false);
+}
+
+function showFinal() {
+  const total = GAME.scenScores.reduce((a, b) => a + b, 0);
+  const max = SCENARIOS.length * 5;
+  let h = `Reads <em>locked in.</em>`;
+  if (total === max) h = `<em>Perfect.</em> All twenty.`;
+  else if (total >= max - 2) h = `Sharp eyes. <em>${total} of ${max}.</em>`;
+  else if (total >= max - 5) h = `Strong run. <em>${total} of ${max}.</em>`;
+  else h = `Run it again. <em>${total} of ${max}.</em>`;
+  $id('final-h').innerHTML = h;
+
+  // Per-scenario star cells
+  const row = $id('final-stars-row'); row.innerHTML = '';
+  SCENARIOS.forEach((sc, i) => {
+    const score = GAME.scenScores[i];
+    const cell = document.createElement('div');
+    cell.className = 'final-star-cell';
+    cell.innerHTML = `<div class="fsc-tag">SCEN ${String(i+1).padStart(2,'0')}</div><div class="fsc-stars">${'★'.repeat(score)}<span class="dim">${'★'.repeat(5 - score)}</span></div>`;
+    row.appendChild(cell);
+  });
+
+  // Persist personal best
+  try {
+    const KEY = 'cm-game-best-v1';
+    const prev = JSON.parse(localStorage.getItem(KEY) || '{}');
+    if ((prev.total || 0) < total) {
+      localStorage.setItem(KEY, JSON.stringify({ total, scens: GAME.scenScores.slice(), date: Date.now() }));
+    }
+    // Also write to the cm-bests-v1 key so the landing's drill-card best display picks it up
+    const oldKey = 'cm-bests-v1';
+    const old = JSON.parse(localStorage.getItem(oldKey) || '{}');
+    old.decision = old.decision || {};
+    if ((old.decision.score || 0) < total) {
+      old.decision.score = total;
+      old.decision.total = max;
+      localStorage.setItem(oldKey, JSON.stringify(old));
+    }
+  } catch (e) {}
+
+  setOverlay('final');
+  showPlayUI(false);
+  audio.chime();
+}
+
+// ─── Animate loop ────────────────────────────────────────
+function animate() {
+  raf = requestAnimationFrame(animate);
+  const now = performance.now() / 1000;
+  const dt = Math.min(.05, now - (GAME.lastT || now));
+  GAME.lastT = now;
+
+  // PRE_ROUND — short pause before ball flies (lets player see context prompt)
+  if (GAME.state === 'PRE_ROUND') {
+    GAME.preRoundT += dt;
+    if (GAME.preRoundT >= 0.9) {
+      GAME.state = 'BALL_FLIGHT';
+      $id('decision-bar').classList.add('on');
+      // Place ball at start
+      const v = GAME.currentVariant;
+      ball.mesh.visible = true; ball.shadow.visible = true;
+      ball.mesh.position.set(...v.from);
+      ball.shadow.position.set(v.from[0], .01, v.from[2]);
+      audio.pock(v.dur < .65 ? 1300 : (v.dur > 1.1 ? 950 : 1100));
+    }
+  }
+
+  // BALL_FLIGHT — ball arcs from hitter to target; player can decide
+  if (GAME.state === 'BALL_FLIGHT' && GAME.currentVariant) {
+    GAME.shotT += dt / GAME.shotDur;
+
+    const v = GAME.currentVariant;
+    const u = Math.min(1, GAME.shotT);
+    const from = new THREE.Vector3(...v.from);
+    const to = new THREE.Vector3(...v.to);
+    const p = ballArc(from, to, v.apex, u);
+    ball.mesh.position.copy(p);
+    ball.shadow.position.set(p.x, .01, p.z);
+    const hF = Math.max(0, 1 - p.y / 4);
+    ball.shadow.scale.setScalar(1 + hF * .3);
+    ball.shadow.material.opacity = .45 * (1 - Math.min(1, p.y / 6));
+
+    // Decision bar visual
+    const fillPct = Math.max(0, Math.min(1, (GAME.shotT - GAME.decisionWindow[0]) / (GAME.decisionWindow[1] - GAME.decisionWindow[0])));
+    $id('decision-fill').style.width = (fillPct * 100) + '%';
+
+    // Bounce sound when ball touches ground mid-flight
+    if (!v._bounced && p.y < .25 && u > .55 && u < .95) {
+      v._bounced = true;
+      audio.bounce();
+    }
+
+    // Decision deadline
+    if (!GAME.answerLocked && GAME.shotT >= GAME.decisionWindow[1]) {
+      GAME.answer = null;
+      GAME.answerLocked = true;
+    }
+
+    // End of flight
+    if (u >= 1.0) {
+      delete v._bounced;
+      $id('decision-bar').classList.remove('on');
+      resolveRound();
+    }
+  }
+
+  // RESOLVE — show verdict for ~1.6s, then advance
+  if (GAME.state === 'RESOLVE') {
+    GAME.resolveTimer += dt;
+    if (GAME.resolveTimer >= 1.7) {
+      $id('verdict').classList.remove('on');
+      // Advance variant or finish scenario
+      if (GAME.variantIdx >= SCENARIOS[GAME.scenIdx].variants.length - 1) {
+        finishScenario();
+      } else {
+        GAME.variantIdx++;
+        startRound();
+      }
+    }
+  }
+
+  composer && composer.render();
+}
+
+// ─── Input ───────────────────────────────────────────────
+function onKey(e) {
+  // Enable audio on first keypress
+  if (!audio.enabled) audio.enable(true);
+
+  if (e.code === 'Escape') {
+    // No-op for now (could add pause/exit menu)
+    return;
+  }
+
+  if (GAME.state === 'INTRO') {
+    if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); $id('intro-go').click(); }
+    return;
+  }
+  if (GAME.state === 'BRIEF') {
+    if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); $id('brief-go').click(); }
+    return;
+  }
+  if (GAME.state === 'SCEN_RESULT') {
+    if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); $id('rt-go').click(); }
+    return;
+  }
+  if (GAME.state === 'FINAL') {
+    if (e.code === 'Enter') { e.preventDefault(); $id('final-replay').click(); }
+    return;
+  }
+
+  // Active play
+  if (GAME.state === 'BALL_FLIGHT') {
+    if (e.code === 'Space')  { e.preventDefault(); lockAnswer('yours'); }
+    if (e.code === 'Enter')  { e.preventDefault(); lockAnswer('mine'); }
+    // Movement (visual nudge — small lateral shift)
+    if (e.code === 'ArrowLeft')  { e.preventDefault(); nudgePlayer(-.6); }
+    if (e.code === 'ArrowRight') { e.preventDefault(); nudgePlayer( .6); }
+  }
+}
+
+function nudgePlayer(dx) {
+  const scen = SCENARIOS[GAME.scenIdx];
+  // Determine which player is "YOU" per scenario
+  const you = (scen.id === 2) ? players.nearRight : players.nearLeft;
+  const newX = you.position.x + dx;
+  // Clamp to within reasonable kitchen range
+  if (Math.abs(newX) <= 9) {
+    you.position.x = newX;
+    GAME.playerOffsetX += dx;
+  }
+}
+
+window.addEventListener('keydown', onKey);
+
+// Wire UI buttons
+$id('intro-go').addEventListener('click', () => {
+  audio.enable(true);
+  startScenario(0);
+  GAME.state = 'BRIEF';
+});
+$id('brief-go').addEventListener('click', () => {
+  setOverlay(null);
+  GAME.state = 'PRE_ROUND';
+  startRound();
+});
+$id('gate-yours').addEventListener('click', () => lockAnswer('yours'));
+$id('gate-mine').addEventListener('click', () => lockAnswer('mine'));
+$id('rt-go').addEventListener('click', () => {
+  if (GAME.scenIdx >= SCENARIOS.length - 1) {
+    showFinal();
+    GAME.state = 'FINAL';
+  } else {
+    startScenario(GAME.scenIdx + 1);
+    GAME.state = 'BRIEF';
+  }
+});
+$id('final-replay').addEventListener('click', () => {
+  GAME.scenScores = [0,0,0,0];
+  startScenario(0);
+  GAME.state = 'BRIEF';
+});
+
+// Restart button (top bar)
+$id('restart-btn').addEventListener('click', () => {
+  GAME.scenScores = [0,0,0,0];
+  startScenario(0);
+  GAME.state = 'BRIEF';
+});
+
+// Show restart button once they've started playing
+let restartShown = false;
+const prevSetOverlay = setOverlay;
+const observe = () => {
+  if (!restartShown && GAME.state !== 'INTRO') {
+    $id('restart-btn').style.display = 'inline-flex';
+    restartShown = true;
+  }
+};
+setInterval(observe, 500);
+
+// Init + animate
+init();
+animate();
+
+// Debug hook
+window.__cmGame = { GAME, SCENARIOS, players: () => players, ball: () => ball, audio };
+</script>
+
+</body>
+</html>
