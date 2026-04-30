@@ -266,7 +266,7 @@ a:hover{text-decoration:underline;}
    3D STAGE — iframe the canonical 3D module template, drive via postMessage
    ═══════════════════════════════════════════════════════════════════ */
 .stage-3d {
-  max-width: 1020px; margin: 72px auto 32px;
+  max-width: 1480px; margin: 72px auto 32px;  /* widened from 1020 → 1480 per Dave */
   padding: 0 0;
 }
 .stage-header {
@@ -302,7 +302,7 @@ a:hover{text-decoration:underline;}
 .stage-frame-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 8;  /* wider/shorter — gives more horizontal court real estate */
   background: var(--4dp-ink-deep);
   border: 1px solid var(--4dp-hairline-s);
   border-radius: var(--4dp-r-lg);
@@ -2191,61 +2191,12 @@ a:hover{text-decoration:underline;}
   </div>
 </section>
 
-<!-- ═══════════════════ SECTION 5 — TRAINER LAUNCH ═══════════════════ -->
-<section class="section" id="trainer">
-  <div class="section-label">The drill</div>
-
-  <div class="trainer-launch">
-    <h3>Now make it instinct.</h3>
-    <p>Ball comes at you. Context is different every time. <em>Mine</em> or <em>yours</em>? You have half a second.</p>
-
-    <div class="trainer-modes">
-      <button class="mode-card" data-mode="decision">
-        <div class="mode-tag">01 · DECISION</div>
-        <div class="mode-name">Mine or Yours</div>
-        <div class="mode-sub">5 scenarios · pass 4/5 · teach the read</div>
-        <div class="mode-best" data-mode-best="decision">—</div>
-        <div class="mode-go">
-          <span>Play</span>
-          <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-      </button>
-
-      <button class="mode-card mode-lightning" data-mode="lightning">
-        <div class="mode-tag">02 · LIGHTNING</div>
-        <div class="mode-name">Lightning Reads</div>
-        <div class="mode-sub">10 rounds · half-second window · streak bonus</div>
-        <div class="mode-best" data-mode-best="lightning">—</div>
-        <div class="mode-go">
-          <span>Play</span>
-          <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-      </button>
-
-      <button class="mode-card mode-quiz" data-mode="quiz">
-        <div class="mode-tag">03 · QUIZ</div>
-        <div class="mode-name">Name the Rule</div>
-        <div class="mode-sub">4 scenarios · pick the rule · no clock</div>
-        <div class="mode-best" data-mode-best="quiz">—</div>
-        <div class="mode-go">
-          <span>Play</span>
-          <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════ UP NEXT ═══════════════════ -->
-<div class="up-next">
-  <div class="label">Share with your partner</div>
-  <h3>This only works if both of you speak the same language.</h3>
-  <p class="un-sub">Send them the link. Next time you play, both of you will see the same four moments — and know who goes.</p>
-  <div class="cta-row">
-    <a class="cta" href="./anticipating-out-balls.html">Now read the ball →</a>
-    <a class="cta ghost" href="../index.html">4D home</a>
-  </div>
-</div>
+<!-- ═══════════════════ SECTION 5 + UP NEXT — REMOVED 2026-04-30 ═══════════════════
+     Per Dave: the bottom 'Now make it instinct' (3 trainer modes) and 'This only
+     works if both of you speak the same language' (share-with-partner) sections
+     were too heavy on this page. Trainer modal still lives in the DOM further
+     below for any future re-launch entry point.
+     ═══════════════════════════════════════════════════════════════════════════ -->
 
 <!-- ═══════════════════ FOOTER ═══════════════════ -->
 <div class="sources">

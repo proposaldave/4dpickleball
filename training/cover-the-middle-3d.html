@@ -605,12 +605,15 @@ const SCENARIOS = {
   2: {
     tag: 'SCENARIO 02 · SOFT FLOATER · BOTH AT KITCHEN',
     caption: 'Both teams at the kitchen. Cross-court dink rally setting up.',
-    // Choreography:
+    // Choreography (updated 2026-04-30 per Dave):
     //  - All 4 at kitchen
-    //  - farLeft hits a SOFT HIGH floater through the middle
-    //  - PARTNER (nearRight) — whose forehand faces middle since they're a righty on the right side — STEPS IN and puts it away
-    //  - YOU (nearLeft) hold your line
-    camera: { pos: [15, 15, 20], look: [2, 2, 4] },
+    //  - farLeft pops a HIGH SOFT FLOATER through the middle (genuinely high + soft)
+    //  - YOU (nearLeft, blue hat, righty on the LEFT) — forehand naturally reaches
+    //    INTO the middle from this side — STEP IN and SMASH the floater
+    //  - PARTNER (nearRight) holds line
+    //  - Geometry rule: "Forehand takes the middle" → for a left-side righty, that's
+    //    your own forehand (right side of body = middle of court).
+    camera: { pos: [15, 15, 20], look: [-1, 2.5, 4] },
     labels: { you: 'nearLeft', partner: 'nearRight' },
     setup() {
       players.farLeft.position.set(-4, 0, -8);
@@ -622,10 +625,15 @@ const SCENARIOS = {
     beats: [
       { kind:'shot', from:[-4,1.2,-8], to:[3.5,0.6,7.6], apex:3.2, dur:1.1, hitter:'farLeft', caption:'Cross-court dink. Patient.' },
       { kind:'shot', from:[4,1.2,8], to:[-3.5,0.6,-7.6], apex:3.2, dur:1.1, hitter:'nearRight' },
-      { kind:'shot', from:[-4,1.8,-8], to:[0.5,1.2,7.6], apex:5.0, dur:1.3, hitter:'farLeft', focus: true, caption:'Wait — that one\'s <em>high</em>. And <em>soft</em>. Through the middle.' },
-      { kind:'move', who:'nearRight', to:[1.0, 0, 8], dur:0.55, parallel: true },
-      { kind:'shot', from:[1.2, 2.6, 8], to:[-5, 0.2, -6], apex:3.3, dur:0.7, hitter:'nearRight', caption:'Partner has time — and their forehand reaches the seam. Putaway. <em>Forehand takes the middle when the ball gives you time.</em>' },
-      { kind:'move', who:'nearRight', to:[4, 0, 8], dur:0.45, parallel: true },
+      // HIGH SOFT FLOATER — much higher (apex 8 vs 5) and slower (dur 2.0 vs 1.3) so
+      // it visibly hangs and reads as "attackable mistake".
+      { kind:'shot', from:[-4,1.8,-8], to:[-1.0,2.0,7.4], apex:8.0, dur:2.0, hitter:'farLeft', focus: true, caption:'Wait — that one\'s <em>high</em>. And <em>soft</em>. Through the middle.' },
+      // YOU (nearLeft / blue hat) step in to load the smash
+      { kind:'move', who:'nearLeft', to:[-1, 0, 8], dur:0.65, parallel: true },
+      // SMASH — overhead contact (3.8 ft = above shoulder), ball drives DOWN fast
+      // into the far backcourt.
+      { kind:'shot', from:[-1, 3.8, 8], to:[4, 0.2, -14], apex:4.2, dur:0.55, hitter:'nearLeft', caption:'Yours. Forehand takes the middle. <em>Smash.</em>' },
+      { kind:'move', who:'nearLeft', to:[-4, 0, 8], dur:0.45, parallel: true },
       { kind:'hold', dur:1.4 }
     ]
   },
