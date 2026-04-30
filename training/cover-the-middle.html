@@ -50,9 +50,14 @@ html,body{
   overflow-x:hidden; scroll-behavior:smooth;
 }
 body{
+  /* Four-corner atmospheric glow — uses all four locked dimension colors at low opacity.
+     Tells the story visually: 0D is the foundation UNDER all four dimensions. */
   background-image:
-    radial-gradient(ellipse 70% 50% at 15% -10%, rgba(148,163,184,.10) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 50% at 85% 110%, rgba(244,114,182,.06) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 45% at 8% -8%,  rgba(251,191,36,.10) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 40% at 92% -8%, rgba(244,114,182,.09) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 40% at 8% 108%, rgba(52,211,153,.08)  0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 92% 108%,rgba(43,139,252,.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 35% at 50% 50%, rgba(148,163,184,.04) 0%, transparent 60%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -227,23 +232,40 @@ a:hover{text-decoration:underline;}
 }
 @media(max-width:760px){ .exp-row{ grid-template-columns:repeat(2, 1fr); gap:10px; } }
 @media(max-width:420px){ .exp-row{ grid-template-columns:1fr; } }
+/* Each card takes a different dimension color (1D Drive → 2D Defend → 3D Drop → 4D Dink),
+   creating a rainbow rhythm across the four scenarios. The 0D module is the foundation
+   under all four — colors echo that. */
 .exp-card{
   padding:20px 18px;
-  background:var(--4dp-surface);
-  border:1px solid var(--4dp-hairline);
+  background:linear-gradient(180deg,
+    color-mix(in srgb, var(--c, var(--mod)) 8%, var(--4dp-surface)) 0%,
+    var(--4dp-surface) 100%);
+  border:1px solid color-mix(in srgb, var(--c, var(--mod)) 28%, transparent);
   border-radius:var(--4dp-r-md);
   position:relative; overflow:hidden;
+  transition:transform .25s var(--4dp-ease), box-shadow .25s var(--4dp-ease), border-color .25s var(--4dp-ease);
+}
+.exp-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 40px rgba(0,0,0,.36), 0 0 0 1px var(--c, var(--mod));
+  border-color:var(--c, var(--mod));
 }
 .exp-card::before{
   content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
-  background:var(--mod); opacity:.5;
+  background:var(--c, var(--mod));
+  box-shadow:0 0 14px var(--c, var(--mod));
 }
 .exp-card .num{
   font-family:var(--4dp-font-data); font-weight:700;
   font-size:11px; letter-spacing:2px;
-  color:var(--mod);
+  color:var(--c, var(--mod));
   margin-bottom:8px;
+  text-shadow:0 0 12px color-mix(in srgb, var(--c, var(--mod)) 40%, transparent);
 }
+.exp-card[data-dim="drive"]  { --c: var(--4dp-drive); }
+.exp-card[data-dim="defend"] { --c: var(--4dp-defend); }
+.exp-card[data-dim="drop"]   { --c: var(--4dp-drop); }
+.exp-card[data-dim="dink"]   { --c: var(--4dp-dink-true); }
 .exp-card .name{
   font-family:var(--4dp-font-display); font-style:italic; font-weight:400;
   font-size:18px; line-height:1.15; letter-spacing:-.3px;
@@ -457,7 +479,7 @@ a:hover{text-decoration:underline;}
       <span>Ever heard <em>"respect the X"</em>?</span>
       <span class="verdict">sometimes.</span>
     </div>
-    <p class="punch">Sometimes those are right. Sometimes they aren't. <em>Covering the middle is scenario recognition</em> — and there are four.</p>
+    <p class="punch">Sometimes those are right. Sometimes they aren't. <em>Covering the middle is scenario recognition, and each scenario is different.</em> Once you understand them, it's obvious.</p>
   </div>
 
   <div class="start-wrap">
@@ -469,33 +491,7 @@ a:hover{text-decoration:underline;}
   </div>
 </section>
 
-<!-- ═════ EXPLAINER STRIP ═════ -->
-<section class="explainer">
-  <h2>Same court. <em>Four different answers.</em></h2>
-  <div class="exp-row">
-    <div class="exp-card">
-      <div class="num">01</div>
-      <div class="name">Start of point</div>
-      <div class="ctx">Partner's still running up.</div>
-    </div>
-    <div class="exp-card">
-      <div class="num">02</div>
-      <div class="name">Soft ball at kitchen</div>
-      <div class="ctx">High floater through middle.</div>
-    </div>
-    <div class="exp-card">
-      <div class="num">03</div>
-      <div class="name">Hard attack at kitchen</div>
-      <div class="ctx">Speed-up through middle.</div>
-    </div>
-    <div class="exp-card">
-      <div class="num">04</div>
-      <div class="name">Righty on the left</div>
-      <div class="ctx">Cross-court rally read.</div>
-    </div>
-  </div>
-  <p class="exp-tail">Each scenario answers <em>whose ball is that?</em> — with a different rule.</p>
-</section>
+<!-- Explainer strip removed — landing stays simple. The four scenarios reveal in the play page. -->
 
 <!-- ═════ BONUS DRILLS ═════ -->
 <section class="drills">
