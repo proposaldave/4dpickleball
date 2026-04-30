@@ -493,6 +493,69 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
   .ne-input-wrap{gap:8px;}
 }
 
+/* ── Feedback widget (stars + comment) ──
+   Appears as a floating bottom-right button + a modal + an inline section
+   in the end-card. All three submit through the same submitFeedback()
+   handler: localStorage save + Formspree POST (if configured) + mailto
+   fallback. */
+#fb-fab{position:fixed;bottom:18px;right:18px;z-index:130;width:52px;height:52px;border-radius:50%;background:linear-gradient(180deg,rgba(43,139,252,.9),rgba(27,64,121,.9));border:1.5px solid rgba(245,243,238,.18);color:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,0,0,.6);backdrop-filter:blur(10px);transition:transform .15s,box-shadow .15s;}
+#fb-fab:hover{transform:scale(1.1);box-shadow:0 10px 30px rgba(43,139,252,.6);}
+#fb-fab.gone{display:none;}
+#fb-modal{position:fixed;inset:0;z-index:240;background:rgba(10,22,40,.92);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:24px;}
+#fb-modal.on{display:flex;}
+.fb-card{max-width:480px;width:100%;background:linear-gradient(180deg,rgba(27,64,121,.35),rgba(10,20,40,.85));border:1px solid rgba(43,139,252,.4);border-radius:20px;padding:30px 32px;box-shadow:0 24px 80px rgba(0,0,0,.7);}
+.fb-eyebrow{font-size:10px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#2B8BFC;margin-bottom:8px;}
+.fb-h{font-family:var(--4dp-font-display);font-style:italic;font-weight:400;font-size:clamp(28px,5vw,40px);letter-spacing:-1px;line-height:1.05;color:var(--4dp-text);margin:0 0 8px;}
+.fb-sub{font-size:13px;color:var(--4dp-text-dim);margin:0 0 18px;line-height:1.5;}
+.fb-stars{display:flex;gap:6px;justify-content:center;margin:8px 0 18px;}
+.fb-star{width:42px;height:42px;border:0;background:transparent;color:rgba(245,243,238,.25);font-size:34px;cursor:pointer;line-height:1;transition:transform .12s,color .12s;padding:0;}
+.fb-star.lit{color:#FBBF24;text-shadow:0 0 16px rgba(251,191,36,.6);}
+.fb-star:hover{transform:scale(1.18);}
+.fb-input{width:100%;background:rgba(245,243,238,.04);border:1px solid rgba(245,243,238,.12);border-radius:10px;padding:11px 14px;font-family:var(--4dp-font-body);font-size:14px;color:var(--4dp-text);box-sizing:border-box;margin-bottom:10px;resize:vertical;}
+.fb-input:focus{outline:none;border-color:rgba(43,139,252,.6);background:rgba(43,139,252,.06);}
+.fb-input::placeholder{color:rgba(245,243,238,.35);}
+/* Type selector — 3 path cards */
+.fb-types{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0 4px;}
+.fb-type-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(245,243,238,.04);border:1px solid rgba(245,243,238,.12);border-radius:12px;cursor:pointer;text-align:left;transition:all .15s;font-family:var(--4dp-font-body);color:var(--4dp-text);width:100%;}
+.fb-type-card:hover{background:rgba(43,139,252,.1);border-color:rgba(43,139,252,.5);transform:translateX(4px);}
+.fb-type-card .fb-type-icon{font-size:26px;line-height:1;flex-shrink:0;}
+.fb-type-card .fb-type-body{flex:1;}
+.fb-type-card .fb-type-title{font-weight:800;font-size:14px;letter-spacing:.5px;margin-bottom:2px;color:var(--4dp-text);}
+.fb-type-card .fb-type-desc{font-size:12px;color:var(--4dp-text-dim);}
+.fb-type-card .fb-type-arrow{color:rgba(245,243,238,.4);font-size:18px;}
+.fb-type-card.feedback:hover{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.08);}
+.fb-type-card.proq:hover{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.08);}
+.fb-type-card.lesson:hover{border-color:rgba(244,114,182,.5);background:rgba(244,114,182,.08);}
+
+.fb-back{background:transparent;border:0;color:var(--4dp-text-dim);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:0;margin-bottom:10px;display:inline-flex;align-items:center;gap:4px;}
+.fb-back:hover{color:var(--4dp-text);}
+
+.fb-actions{display:grid;grid-template-columns:auto 1fr;gap:10px;margin-top:6px;}
+.fb-cancel{background:transparent;border:1px solid rgba(245,243,238,.15);border-radius:10px;padding:12px 18px;font-family:var(--4dp-font-body);font-weight:600;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--4dp-text-dim);cursor:pointer;}
+.fb-cancel:hover{background:rgba(245,243,238,.05);color:var(--4dp-text);}
+.fb-submit{background:linear-gradient(90deg,#2B8BFC,#34D399);border:0;border-radius:10px;padding:12px 18px;font-family:var(--4dp-font-body);font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#0A1628;cursor:pointer;transition:all .15s;}
+.fb-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(43,139,252,.4);}
+.fb-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.fb-thanks{text-align:center;padding:18px 8px;}
+.fb-thanks .fb-thanks-icon{font-size:48px;margin-bottom:10px;}
+.fb-thanks h3{font-family:var(--4dp-font-display);font-style:italic;font-size:32px;color:#34D399;margin:0 0 6px;}
+.fb-thanks p{font-size:13px;color:var(--4dp-text-dim);margin:0;}
+/* Inline feedback in the end-card — same widget, slimmer */
+.ec-feedback-inline{margin:10px 0 4px;padding:14px 16px;background:rgba(43,139,252,.06);border:1px solid rgba(43,139,252,.22);border-radius:12px;}
+.ec-feedback-inline .fb-eyebrow{margin-bottom:4px;font-size:9px;}
+.ec-feedback-inline .fb-h{font-size:18px;margin-bottom:6px;}
+.ec-feedback-inline .fb-stars{margin:6px 0 10px;}
+.ec-feedback-inline .fb-star{width:34px;height:34px;font-size:28px;}
+.ec-feedback-inline .fb-input{padding:9px 12px;font-size:13px;margin-bottom:8px;}
+.ec-feedback-inline .fb-actions{grid-template-columns:1fr;}
+.ec-feedback-inline .fb-cancel{display:none;}
+.ec-feedback-inline .fb-submit{padding:10px;font-size:11px;}
+@media (max-width:640px){
+  #fb-fab{bottom:90px;right:14px;width:46px;height:46px;font-size:20px;}
+  .fb-card{padding:22px 20px;}
+  .fb-star{width:38px;height:38px;font-size:30px;}
+}
+
 /* Loading */
 #loading{position:fixed;inset:0;z-index:300;background:var(--4dp-ink);display:flex;align-items:center;justify-content:center;color:var(--4dp-text);font-family:var(--4dp-font-display);font-style:italic;font-size:30px;transition:opacity .5s ease;}
 #loading.gone{opacity:0;pointer-events:none;visibility:hidden;}
@@ -523,6 +586,115 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
 
 <!-- HI-SCORE HUD pill — shows current session best vs all-time personal best -->
 <div id="hi-score"><span class="lbl">HI</span><span id="hi-score-val">0</span></div>
+
+<!-- Floating feedback / pro-question / lesson-request button (FAB) -->
+<button id="fb-fab" title="Send feedback, ask a pro, or book a lesson" onclick="openFeedback()">💬</button>
+
+<!-- Feedback / contact modal — screens: type selector → form (3 variants) → thanks -->
+<div id="fb-modal">
+  <div class="fb-card">
+    <!-- Screen: Type Selector -->
+    <div id="fb-screen-types">
+      <div class="fb-eyebrow">Drop us a line</div>
+      <h2 class="fb-h">What's this about?</h2>
+      <p class="fb-sub">Pick the path that fits — we read every one.</p>
+      <div class="fb-types">
+        <button class="fb-type-card feedback" onclick="setFbType('feedback')">
+          <span class="fb-type-icon">⭐</span>
+          <span class="fb-type-body">
+            <span class="fb-type-title">Share game feedback</span>
+            <span class="fb-type-desc">Rate it, tell us what to fix or what works</span>
+          </span>
+          <span class="fb-type-arrow">→</span>
+        </button>
+        <button class="fb-type-card proq" onclick="setFbType('proq')">
+          <span class="fb-type-icon">🏓</span>
+          <span class="fb-type-body">
+            <span class="fb-type-title">Ask a pro a pickleball question</span>
+            <span class="fb-type-desc">Coaching, technique, strategy — we'll answer</span>
+          </span>
+          <span class="fb-type-arrow">→</span>
+        </button>
+        <button class="fb-type-card lesson" onclick="setFbType('lesson')">
+          <span class="fb-type-icon">📅</span>
+          <span class="fb-type-body">
+            <span class="fb-type-title">Schedule a class or lesson</span>
+            <span class="fb-type-desc">Group clinic or private — we'll reach out</span>
+          </span>
+          <span class="fb-type-arrow">→</span>
+        </button>
+      </div>
+      <div class="fb-actions" style="grid-template-columns:1fr;margin-top:14px;">
+        <button class="fb-cancel" onclick="closeFeedback()">Close</button>
+      </div>
+    </div>
+
+    <!-- Screen: Feedback form (stars + comment + name) -->
+    <div id="fb-screen-feedback" style="display:none;">
+      <button class="fb-back" onclick="showFbScreen('types')">← Back</button>
+      <div class="fb-eyebrow">Game feedback</div>
+      <h2 class="fb-h">How was it?</h2>
+      <p class="fb-sub">Tap a star, add a note, hit send. Stays anonymous if you skip the name.</p>
+      <div class="fb-stars" id="fb-stars">
+        <button class="fb-star" data-stars="1" onclick="setStars(1)">★</button>
+        <button class="fb-star" data-stars="2" onclick="setStars(2)">★</button>
+        <button class="fb-star" data-stars="3" onclick="setStars(3)">★</button>
+        <button class="fb-star" data-stars="4" onclick="setStars(4)">★</button>
+        <button class="fb-star" data-stars="5" onclick="setStars(5)">★</button>
+      </div>
+      <textarea class="fb-input" id="fb-comment" rows="3" placeholder="What worked? What didn't? (optional)"></textarea>
+      <input class="fb-input" id="fb-name" type="text" placeholder="Your name (optional)" />
+      <div class="fb-actions">
+        <button class="fb-cancel" onclick="closeFeedback()">Cancel</button>
+        <button class="fb-submit" id="fb-submit-feedback" onclick="submitFeedback('feedback')">Send Feedback →</button>
+      </div>
+    </div>
+
+    <!-- Screen: Pro question form -->
+    <div id="fb-screen-proq" style="display:none;">
+      <button class="fb-back" onclick="showFbScreen('types')">← Back</button>
+      <div class="fb-eyebrow">Ask a pro</div>
+      <h2 class="fb-h">What's your question?</h2>
+      <p class="fb-sub">Coaching, technique, strategy — anything pickleball. A pro will reply by email.</p>
+      <textarea class="fb-input" id="fb-question" rows="4" placeholder="Type your question…" required></textarea>
+      <input class="fb-input" id="fb-proq-name" type="text" placeholder="Your name" />
+      <input class="fb-input" id="fb-proq-email" type="email" placeholder="Your email (so we can answer)" />
+      <div class="fb-actions">
+        <button class="fb-cancel" onclick="closeFeedback()">Cancel</button>
+        <button class="fb-submit" onclick="submitFeedback('proq')">Send to a Pro →</button>
+      </div>
+    </div>
+
+    <!-- Screen: Lesson request form -->
+    <div id="fb-screen-lesson" style="display:none;">
+      <button class="fb-back" onclick="showFbScreen('types')">← Back</button>
+      <div class="fb-eyebrow">Lesson request</div>
+      <h2 class="fb-h">Let's schedule it</h2>
+      <p class="fb-sub">Tell us about your level + when you're free. We'll reach out to lock it in.</p>
+      <input class="fb-input" id="fb-lesson-name" type="text" placeholder="Your name" required />
+      <input class="fb-input" id="fb-lesson-email" type="email" placeholder="Your email" required />
+      <input class="fb-input" id="fb-lesson-phone" type="tel" placeholder="Phone (optional, faster)" />
+      <input class="fb-input" id="fb-lesson-level" type="text" placeholder="Your level / DUPR / experience" />
+      <textarea class="fb-input" id="fb-lesson-note" rows="3" placeholder="Group clinic or private? When are you free? Any specifics?"></textarea>
+      <div class="fb-actions">
+        <button class="fb-cancel" onclick="closeFeedback()">Cancel</button>
+        <button class="fb-submit" onclick="submitFeedback('lesson')">Request Lesson →</button>
+      </div>
+    </div>
+
+    <!-- Screen: Thanks -->
+    <div id="fb-screen-thanks" style="display:none;">
+      <div class="fb-thanks">
+        <div class="fb-thanks-icon">✓</div>
+        <h3 id="fb-thanks-title">Thanks!</h3>
+        <p id="fb-thanks-msg">We got it. Saved locally + sent through.</p>
+      </div>
+      <div class="fb-actions" style="grid-template-columns:1fr;margin-top:14px;">
+        <button class="fb-submit" onclick="closeFeedback()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Hearts / Lives HUD — shown during real game only (not pre-training) -->
 <div id="hearts-hud" aria-label="Lives remaining"></div>
@@ -752,6 +924,22 @@ button,.gate-btn,.cam-btn,.pg-go,.pg-skip,.pc-go,.pc-skip,.pr-btn-retry,.pr-btn-
     <div class="ec-buttons ec-buttons-arcade">
       <button class="ec-again" onclick="restartSession()">▶ Play again</button>
       <button class="ec-share" onclick="shareChallenge()">📤 Challenge a friend</button>
+    </div>
+    <!-- Inline feedback prompt — natural moment after they finish a run -->
+    <div class="ec-feedback-inline" id="ec-feedback-inline">
+      <div class="fb-eyebrow">Quick feedback</div>
+      <div class="fb-h">How was it?</div>
+      <div class="fb-stars" id="fb-inline-stars">
+        <button class="fb-star" onclick="setStarsInline(1)">★</button>
+        <button class="fb-star" onclick="setStarsInline(2)">★</button>
+        <button class="fb-star" onclick="setStarsInline(3)">★</button>
+        <button class="fb-star" onclick="setStarsInline(4)">★</button>
+        <button class="fb-star" onclick="setStarsInline(5)">★</button>
+      </div>
+      <input class="fb-input" id="fb-inline-comment" type="text" placeholder="Optional — what worked, what didn't" />
+      <div class="fb-actions">
+        <button class="fb-submit" onclick="submitFeedback('inline-feedback')">Send →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1946,7 +2134,7 @@ const IS_MAC = /Mac|iPhone|iPod|iPad/.test(navigator.platform) ||
                /Mac OS X/.test(navigator.userAgent);
 
 function isUIChrome(el){
-  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score, #drill-rule-banner'));
+  return !!(el && el.closest('button, #pregame, #end-card, #retry-card, #back-btn, #btn-camera, #btn-cam-lock, #help-btn, #help-popup, #practice-card, #practice-result, #name-entry, #hi-score, #drill-rule-banner, #fb-modal, #fb-fab'));
 }
 
 // ALWAYS suppress the browser context menu, no exceptions. Dave's mom kept
@@ -2405,6 +2593,220 @@ function renderLeaderboard(container, rows, myEntry){
     container.appendChild(row);
   });
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// FEEDBACK / CONTACT WIDGET
+// ═══════════════════════════════════════════════════════════════════
+// Three submission types — feedback, pro-question, lesson-request — all
+// route through submitFeedback(type). Storage layers (in priority order):
+//   1. localStorage  — always saves (zero-config, never lost)
+//   2. Formspree POST — emails Dave at dave@gnt.ai (if FB_FORMSPREE set)
+//   3. mailto: fallback — opens user's email client pre-filled
+//
+// To activate cloud delivery:
+//   1. Sign up at formspree.io (free tier = 50 submissions/mo)
+//   2. Create a form, set notify-email to dave@gnt.ai
+//   3. Paste the form's POST URL into FB_FORMSPREE below
+// Without that, submissions still save locally + offer mailto on success.
+//
+// To VIEW feedback collected on this device: press Ctrl+Shift+F in-game.
+// (Useful for testing + showing Dave what's been captured.)
+const FB_FORMSPREE   = '';  // e.g. 'https://formspree.io/f/xxxxxxxx'
+const FB_MAIL_TARGET = 'dave@gnt.ai';
+const FB_STORAGE_KEY = 'outballs_feedback_v1';
+
+let _fbCurrentStars = 0;
+let _fbCurrentType  = null;
+
+window.openFeedback = function(){
+  document.getElementById('fb-modal').classList.add('on');
+  showFbScreen('types');
+};
+window.closeFeedback = function(){
+  document.getElementById('fb-modal').classList.remove('on');
+  // Reset form fields after a delay so user doesn't see them clear
+  setTimeout(() => {
+    _fbCurrentStars = 0;
+    document.querySelectorAll('.fb-star').forEach(s => s.classList.remove('lit'));
+    ['fb-comment','fb-name','fb-question','fb-proq-name','fb-proq-email',
+     'fb-lesson-name','fb-lesson-email','fb-lesson-phone','fb-lesson-level','fb-lesson-note']
+      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  }, 400);
+};
+window.showFbScreen = function(name){
+  ['types','feedback','proq','lesson','thanks'].forEach(s => {
+    const el = document.getElementById('fb-screen-' + s);
+    if (el) el.style.display = (s === name) ? '' : 'none';
+  });
+};
+window.setFbType = function(type){
+  _fbCurrentType = type;
+  showFbScreen(type);
+};
+window.setStars = function(n){
+  _fbCurrentStars = n;
+  document.querySelectorAll('#fb-stars .fb-star').forEach((s, i) => {
+    s.classList.toggle('lit', i < n);
+  });
+  // Inline end-card stars (separate widget, same submit path)
+  document.querySelectorAll('#fb-inline-stars .fb-star').forEach((s, i) => {
+    s.classList.toggle('lit', i < n);
+  });
+};
+window.setStarsInline = function(n){
+  _fbCurrentStars = n;
+  document.querySelectorAll('#fb-inline-stars .fb-star').forEach((s, i) => {
+    s.classList.toggle('lit', i < n);
+  });
+};
+
+// Build the run-context that auto-attaches to every submission so Dave
+// has rich data to act on: best score, level reached, total runs, screen,
+// browser. No PII unless the user typed in a name/email.
+function buildFeedbackContext(){
+  let history = [];
+  try { history = JSON.parse(localStorage.getItem('outballs_history_v1') || '[]'); } catch(e){}
+  const pb    = parseInt(localStorage.getItem('outballs_personal_best') || '0', 10);
+  const last  = history[history.length - 1] || {};
+  return {
+    personalBest: pb,
+    runsTotal: history.length,
+    lastLevel: last.level || null,
+    lastScore: last.score || null,
+    lastGrade: last.grade || null,
+    screen: window.innerWidth + '×' + window.innerHeight,
+    ua: navigator.userAgent.slice(0, 120),
+    page: location.href.slice(0, 200),
+    timestamp: new Date().toISOString()
+  };
+}
+
+window.submitFeedback = async function(type){
+  type = type || _fbCurrentType || 'feedback';
+  let payload = { type, _context: buildFeedbackContext() };
+  let validation = null;
+
+  if (type === 'feedback') {
+    if (_fbCurrentStars === 0) {
+      validation = 'Please pick a star rating first.';
+    } else {
+      payload.stars   = _fbCurrentStars;
+      payload.comment = document.getElementById('fb-comment').value.trim();
+      payload.name    = document.getElementById('fb-name').value.trim();
+    }
+  } else if (type === 'proq') {
+    const q = document.getElementById('fb-question').value.trim();
+    if (!q) { validation = 'Please type your question.'; }
+    else {
+      payload.question = q;
+      payload.name     = document.getElementById('fb-proq-name').value.trim();
+      payload.email    = document.getElementById('fb-proq-email').value.trim();
+    }
+  } else if (type === 'lesson') {
+    const nm = document.getElementById('fb-lesson-name').value.trim();
+    const em = document.getElementById('fb-lesson-email').value.trim();
+    if (!nm || !em) { validation = 'Name and email are required for a lesson request.'; }
+    else {
+      payload.name    = nm;
+      payload.email   = em;
+      payload.phone   = document.getElementById('fb-lesson-phone').value.trim();
+      payload.level   = document.getElementById('fb-lesson-level').value.trim();
+      payload.note    = document.getElementById('fb-lesson-note').value.trim();
+    }
+  } else if (type === 'inline-feedback') {
+    if (_fbCurrentStars === 0) {
+      validation = 'Tap a star to send.';
+    } else {
+      payload.type    = 'feedback';
+      payload.stars   = _fbCurrentStars;
+      payload.comment = (document.getElementById('fb-inline-comment') || {}).value || '';
+      payload.source  = 'end-card';
+    }
+  }
+
+  if (validation) {
+    alert(validation);
+    return;
+  }
+
+  // Layer 1: localStorage (always)
+  try {
+    const log = JSON.parse(localStorage.getItem(FB_STORAGE_KEY) || '[]');
+    log.push(payload);
+    localStorage.setItem(FB_STORAGE_KEY, JSON.stringify(log));
+  } catch(e) { console.warn('[feedback] localStorage failed', e); }
+
+  // Layer 2: Formspree POST (if configured)
+  let cloudOk = false;
+  if (FB_FORMSPREE) {
+    try {
+      const res = await fetch(FB_FORMSPREE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          _subject: '[Out Balls · ' + type + '] ' + (payload.name || 'anon'),
+          ...payload,
+          context: JSON.stringify(payload._context)
+        })
+      });
+      cloudOk = res.ok;
+    } catch(e) { console.warn('[feedback] Formspree POST failed', e); }
+  }
+
+  // Update thanks screen + show
+  const titleEl = document.getElementById('fb-thanks-title');
+  const msgEl   = document.getElementById('fb-thanks-msg');
+  if (type === 'lesson') {
+    titleEl.textContent = 'Got it — talk soon';
+    msgEl.textContent   = 'A pro will reach out by email within 24 hours.';
+  } else if (type === 'proq') {
+    titleEl.textContent = 'Question received';
+    msgEl.textContent   = (payload.email ? 'A pro will email you back.' : 'Add an email and we can reply directly.');
+  } else {
+    titleEl.textContent = 'Thanks!';
+    msgEl.textContent   = cloudOk ? 'Sent. We read every one.' : 'Saved. Thanks for the input.';
+  }
+  // For inline (end-card) feedback we don't switch the modal; just show a
+  // mini confirmation in place of the input
+  if (type === 'inline-feedback') {
+    const wrap = document.getElementById('ec-feedback-inline');
+    if (wrap) wrap.innerHTML = '<div style="text-align:center;padding:14px;font-size:13px;color:#34D399;">✓ Thanks! Feedback saved.</div>';
+    return;
+  }
+
+  showFbScreen('thanks');
+
+  // Layer 3 mailto fallback — only if Formspree not configured AND it's
+  // a high-priority submission (lesson or pro question). Open mailto so
+  // user can definitely deliver to Dave.
+  if (!FB_FORMSPREE && (type === 'lesson' || type === 'proq')) {
+    setTimeout(() => {
+      const subject = encodeURIComponent('[4D Pickleball · ' + type + ']');
+      const body    = encodeURIComponent(JSON.stringify(payload, null, 2));
+      const a = document.createElement('a');
+      a.href = 'mailto:' + FB_MAIL_TARGET + '?subject=' + subject + '&body=' + body;
+      a.click();
+    }, 600);
+  }
+};
+
+// Admin viewer — Ctrl+Shift+F in game shows all locally-saved feedback
+window.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+    e.preventDefault();
+    let log = [];
+    try { log = JSON.parse(localStorage.getItem(FB_STORAGE_KEY) || '[]'); } catch(err){}
+    const text = log.length === 0
+      ? 'No feedback collected yet on this device.'
+      : '=== ' + log.length + ' feedback submissions ===\n\n' +
+        log.map((row, i) => '#' + (i + 1) + ' ' + row.type + ' · ' + (row._context?.timestamp || '') + '\n' +
+          JSON.stringify(row, null, 2)).join('\n\n---\n\n');
+    const w = window.open('', '_blank');
+    if (w) { w.document.write('<pre style="font:13px monospace;padding:20px;background:#0A1628;color:#F5F3EE;white-space:pre-wrap;">' +
+      text.replace(/[<>]/g, c => c === '<' ? '&lt;' : '&gt;') + '</pre>'); }
+    else alert(text);
+  }
+});
 
 // ═══════════════════════════════════════════════════════════════════
 // ACHIEVEMENTS — unlockable badges per run

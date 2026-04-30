@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="modulepreload" href="https://unpkg.com/three@0.160.0/build/three.module.js">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4D Pickleball — Drive. Defend. Drop. Dink.</title>
+<meta name="description" content="Pickleball has four dimensions. Drive. Defend. Drop. Dink. Master them in order. The simplest four-part progression to developing your pickleball skills.">
+<meta property="og:title" content="4D Pickleball — Drive. Defend. Drop. Dink.">
+<meta property="og:description" content="Pickleball has four dimensions. The simplest four-part progression to developing your pickleball skills.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://4dpickleball.com">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232B8BFC'/%3E%3Ctext x='50' y='68' font-family='Inter,Arial,sans-serif' font-size='56' font-weight='900' fill='white' text-anchor='middle'%3E4D%3C/text%3E%3C/svg%3E">
+<!-- Shared design tokens — changes here propagate to every module that links this file -->
+<link rel="stylesheet" href="4dp/tokens.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap');
+:root{
+  --blue:#2B8BFC;--blue-d:#1E6FD9;--blue-dd:#1759B0;--blue-l:#5BA8FF;
+  --sky:#EBF4FF;--sky-d:#D6E8FF;
+  --warm:#F5F3EE;--warm-dim:rgba(245,243,238,.6);--warm-mute:rgba(245,243,238,.4);
+  --white:#F5F3EE;--off:#F4F7FB;
+  --txt:#0f172a;--txt-d:#334155;--txt-m:#64748b;--txt-l:#94a3b8;
+  --green:#34D399;--gold:#FBBF24;--red:#FB7185;--pink:#F472B6;
+  /* --ink aliased to the shared token — change --4dp-ink in tokens.css to update every module at once */
+  --ink:var(--4dp-ink);
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-body:'DM Sans',-apple-system,system-ui,sans-serif;
+  --r:20px;--rs:14px;
+  --shadow:0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── NAV ── */
+.topnav{
+  position:fixed;top:0;left:0;right:0;height:64px;
+  background:rgba(10,15,26,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;align-items:center;padding:0 32px;z-index:100;gap:24px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo-mark{
+  width:38px;height:38px;background:linear-gradient(135deg,var(--blue),var(--blue-d));
+  border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:12px;color:var(--white);letter-spacing:.3px;
+  box-shadow:0 2px 12px rgba(43,139,252,.3);
+}
+.logo-text{font-weight:700;font-size:14px;color:var(--white);letter-spacing:-.2px;line-height:1.2}
+.logo-text span{display:block;font-weight:500;font-size:10px;opacity:.5;letter-spacing:1px;text-transform:uppercase;margin-top:1px}
+.nav-pills{display:flex;gap:4px;flex:1;justify-content:center}
+.nav-pill{
+  padding:8px 18px;border-radius:10px;font-size:13px;font-weight:600;
+  color:rgba(255,255,255,.5);cursor:pointer;white-space:nowrap;
+  transition:all .25s;letter-spacing:-.1px;border:none;background:none;
+}
+.nav-pill:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.08)}
+.nav-pill.active{color:var(--white);background:rgba(43,139,252,.9);box-shadow:0 2px 12px rgba(43,139,252,.25)}
+
+/* ── PAGES ── */
+.main{padding:96px 32px 80px;max-width:1100px;margin:0 auto}
+.page{display:none}.page.active{display:block;animation:pageIn .5s cubic-bezier(.16,1,.3,1)}
+@keyframes pageIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HERO ── */
+.hero{text-align:center;padding:48px 0 40px;position:relative}
+.fourd-graphic{margin:12px 0 8px;filter:drop-shadow(0 6px 40px rgba(43,139,252,.15))}
+.fd-row{
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:16px;margin:36px 0 8px;flex-wrap:wrap;
+}
+/* Each pair (Drive→Defend, Drop→Dink) stays together as a single unit and never breaks across lines */
+.fd-pair{
+  display:inline-flex;align-items:center;gap:16px;flex-wrap:nowrap;
+}
+/* On phone, force the layout into 2 rows: pair / connector / pair → pair-on-row1, pair-on-row2 (connector hidden so it doesn't dangle) */
+@media (max-width:620px){
+  .fd-row .fd-arrow.fa-2{display:none}
+  .fd-pair{flex-basis:100%;justify-content:center}
+}
+.fd-word{
+  font-size:clamp(28px,4.5vw,48px);font-weight:900;letter-spacing:-1.2px;
+  color:var(--fd-c);text-shadow:0 0 28px color-mix(in srgb,var(--fd-c) 35%,transparent);
+  animation:fdPop .7s cubic-bezier(.16,1,.3,1) both;
+  display:inline-block;
+}
+.fd-word.fw-1{animation-delay:.10s}
+.fd-word.fw-2{animation-delay:.50s}
+.fd-word.fw-3{animation-delay:.90s}
+.fd-word.fw-4{animation:fdPop .7s cubic-bezier(.16,1,.3,1) 1.30s both, dinkWobble 1.0s cubic-bezier(.34,1.56,.64,1) 1.70s both}
+.fd-arrow{
+  display:inline-block;color:var(--fa-c, #F5F3EE);
+  /* MATCH the hero word size — arrows are sibling spans, not children, so they don't inherit font-size from .fd-word */
+  font-size:clamp(28px,4.5vw,48px);font-weight:900;line-height:1;letter-spacing:-1.2px;
+  text-shadow:0 0 28px color-mix(in srgb,var(--fa-c) 55%,transparent);
+  margin:0 .1em;opacity:0;transform:translateX(-10px) scale(.6);
+  filter:drop-shadow(0 0 10px var(--fa-c));
+  animation:fdArrowFade .45s cubic-bezier(.34,1.56,.64,1) forwards,
+            fdArrowPulse 1.8s cubic-bezier(.4,0,.6,1) infinite;
+  /* arrow #1 — fires between Drive and Defend */
+  animation-delay:.30s, 2.30s;
+}
+.fd-arrow.fa-2{animation-delay:.70s, 2.50s}  /* between Defend and Drop */
+.fd-arrow.fa-3{animation-delay:1.10s, 2.70s} /* between Drop and Dink — last one */
+@keyframes fdArrowFade{
+  from{opacity:0;transform:translateX(-10px) scale(.6)}
+  to{opacity:1;transform:translateX(0) scale(1)}
+}
+@keyframes fdArrowPulse{
+  0%,100%{transform:translateX(-3px);opacity:.85}
+  50%{transform:translateX(4px);opacity:1}
+}
+@keyframes fdPop{from{opacity:0;transform:translateY(14px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes dinkWobble{
+  0%{transform:translateY(0) scale(1) rotate(0deg)}
+  20%{transform:translateY(0) scale(1.05) rotate(-8deg)}
+  45%{transform:translateY(0) scale(1.05) rotate(7deg)}
+  70%{transform:translateY(0) scale(1.03) rotate(-3deg)}
+  100%{transform:translateY(0) scale(1) rotate(0deg)}
+}
+.dim-tag{
+  display:inline-block;font-size:10px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 8px;border-radius:6px;margin-right:8px;
+  background:color-mix(in srgb,var(--tier-c1,#2B8BFC) 18%,transparent);
+  color:var(--tier-c1,#2B8BFC);
+  border:1px solid color-mix(in srgb,var(--tier-c1,#2B8BFC) 35%,transparent);
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(43,139,252,.12);border:1px solid rgba(43,139,252,.2);
+  font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  padding:6px 18px;border-radius:24px;margin-bottom:32px;color:var(--blue-l);
+}
+.hero h1{
+  font-family:var(--font-display);font-style:italic;
+  font-size:clamp(56px,9vw,112px);font-weight:400;letter-spacing:-2px;
+  line-height:.98;margin-bottom:12px;max-width:900px;margin-left:auto;margin-right:auto;
+  color:var(--warm);
+}
+.hero-sub{
+  font-size:18px;color:var(--warm-dim);max-width:540px;margin:28px auto 0;line-height:1.55;font-weight:400;
+  font-family:var(--font-body);
+}
+.hero-sub strong{color:var(--warm);font-weight:600}
+
+/* ── PAIN POINTS ── */
+.pain-row{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:32px auto 0;max-width:680px;
+}
+.pain-chip{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(251,113,133,.06);border:1px solid rgba(251,113,133,.15);
+  padding:8px 16px;border-radius:12px;font-size:13px;font-weight:500;
+  color:rgba(251,113,133,.8);
+}
+.pain-chip .pc-x{font-size:14px;opacity:.6}
+
+/* ── ANSWER ROW ── */
+.answer-row{
+  display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px auto 0;max-width:680px;
+}
+.answer-chip{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);
+  padding:8px 16px;border-radius:12px;font-size:13px;font-weight:600;
+  color:rgba(52,211,153,.85);
+}
+
+/* ── PYRAMID LAYOUT ── */
+.pyramid-section{padding:20px 0 60px;position:relative}
+.pyramid-layout{
+  display:flex;gap:16px;max-width:900px;margin:0 auto;align-items:stretch;
+}
+.foundation-pillar{
+  width:220px;flex-shrink:0;
+  background:rgba(100,116,139,.06);
+  border:1px solid rgba(100,116,139,.15);
+  border-radius:20px;padding:24px 20px;
+  display:flex;flex-direction:column;
+  cursor:pointer;transition:all .4s cubic-bezier(.16,1,.3,1);
+  position:relative;overflow:hidden;
+}
+.foundation-pillar::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(100,116,139,.08),rgba(100,116,139,.02));
+  pointer-events:none;
+}
+.foundation-pillar:hover{border-color:rgba(100,116,139,.3);box-shadow:0 0 30px rgba(100,116,139,.15)}
+.fp-num{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:20px;color:var(--white);
+  background:linear-gradient(135deg,#64748b,#475569);
+  box-shadow:0 4px 16px rgba(100,116,139,.3);
+  margin-bottom:16px;position:relative;z-index:1;
+}
+.fp-title{font-size:20px;font-weight:900;letter-spacing:-.5px;margin-bottom:6px;position:relative;z-index:1}
+.fp-sub{font-size:12px;color:rgba(255,255,255,.4);line-height:1.6;position:relative;z-index:1;margin-bottom:auto}
+.fp-status{
+  margin-top:20px;padding:5px 12px;border-radius:8px;font-size:10px;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;
+  border:1px solid rgba(52,211,153,.3);color:var(--green);
+  background:rgba(52,211,153,.08);align-self:flex-start;
+  position:relative;z-index:1;
+}
+.fp-label{
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.2);margin-top:12px;position:relative;z-index:1;
+}
+
+.pyramid-container{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:0;
+  position:relative;
+}
+
+/* Connecting glow line — removed, didn't work with side-by-side layout */
+
+/* Arrow label between foundation and pyramid */
+.pyramid-arrow-label{
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:rgba(255,255,255,.5);text-align:center;margin-bottom:8px;
+}
+
+@media(max-width:768px){
+  .pyramid-layout{flex-direction:column}
+  .foundation-pillar{width:100%;flex-direction:row;align-items:center;gap:16px;padding:18px 20px}
+  .fp-num{margin-bottom:0;flex-shrink:0}
+  .fp-sub{margin-bottom:0}
+  .fp-status{margin-top:0}
+  .fp-label{display:none}
+}
+
+.level-tier{
+  position:relative;z-index:1;
+  display:flex;align-items:center;gap:0;
+  width:100%;cursor:pointer;
+  transition:all .4s cubic-bezier(.16,1,.3,1);
+}
+.level-tier:hover{transform:scale(1.02)}
+.level-tier:hover .tier-bar{box-shadow:0 0 30px var(--tier-glow)}
+
+.tier-bar{
+  min-height:80px;border-radius:16px;
+  display:flex;align-items:center;gap:16px;
+  padding:16px 24px;position:relative;overflow:visible;
+  transition:all .4s cubic-bezier(.16,1,.3,1);
+  border:1px solid rgba(255,255,255,.06);
+  margin:4px auto;
+}
+.tier-bar::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--tier-bg1),var(--tier-bg2));
+  opacity:.15;transition:opacity .3s;
+}
+.tier-bar:hover::before{opacity:.25}
+
+.tier-num{
+  width:44px;height:44px;border-radius:13px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:18px;color:var(--white);
+  background:linear-gradient(135deg,var(--tier-c1),var(--tier-c2));
+  box-shadow:0 4px 16px var(--tier-glow);
+  flex-shrink:0;position:relative;z-index:1;
+}
+.tier-connector{
+  text-align:center;padding:4px 0;font-size:10px;font-weight:600;
+  color:rgba(255,255,255,.35);letter-spacing:.3px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.tier-connector::before,.tier-connector::after{
+  content:'';height:1px;width:20px;background:rgba(255,255,255,.1);
+}
+.tier-info{flex:1;position:relative;z-index:1;min-width:0}
+.tier-info h3{font-size:16px;font-weight:800;letter-spacing:-.3px;margin-bottom:2px;white-space:nowrap}
+.tier-info p{font-size:12px;color:rgba(255,255,255,.45);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.tier-status{
+  position:relative;z-index:1;
+  padding:5px 12px;border-radius:8px;font-size:10px;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;flex-shrink:0;
+  border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);
+  background:rgba(255,255,255,.03);
+}
+.tier-status.unlocked{
+  border-color:rgba(52,211,153,.3);color:var(--green);
+  background:rgba(52,211,153,.08);
+}
+.tier-status.current{
+  border-color:rgba(43,139,252,.4);color:var(--blue-l);
+  background:rgba(43,139,252,.1);
+  animation:statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse{0%,100%{box-shadow:0 0 0 0 rgba(43,139,252,0)}50%{box-shadow:0 0 12px 2px rgba(43,139,252,.2)}}
+
+.tier-arrow{
+  position:relative;z-index:1;color:rgba(255,255,255,.25);font-size:14px;
+  transition:transform .3s;flex-shrink:0;margin-left:8px;
+}
+.level-tier.open .tier-arrow{transform:rotate(90deg)}
+
+/* Pyramid widths — widest at base (Level 1), narrow at top (Level 4) */
+.level-tier[data-level="1"] .tier-bar{width:100%}
+.level-tier[data-level="2"] .tier-bar{width:85%}
+.level-tier[data-level="3"] .tier-bar{width:70%}
+.level-tier[data-level="4"] .tier-bar{width:55%}
+
+/* Level colors */
+.level-tier[data-level="1"]{--tier-c1:#FBBF24;--tier-c2:#D97706;--tier-glow:rgba(251,191,36,.3);--tier-bg1:#FBBF24;--tier-bg2:#B45309}
+.level-tier[data-level="2"]{--tier-c1:#F472B6;--tier-c2:#DB2777;--tier-glow:rgba(244,114,182,.3);--tier-bg1:#F472B6;--tier-bg2:#BE185D}
+.level-tier[data-level="3"]{--tier-c1:#34D399;--tier-c2:#059669;--tier-glow:rgba(52,211,153,.3);--tier-bg1:#34D399;--tier-bg2:#047857}
+.level-tier[data-level="4"]{--tier-c1:#2B8BFC;--tier-c2:#1759B0;--tier-glow:rgba(43,139,252,.3);--tier-bg1:#2B8BFC;--tier-bg2:#1759B0}
+
+/* Stagger animation */
+.level-tier{opacity:0;transform:translateY(30px)}
+.level-tier.revealed{opacity:1;transform:translateY(0);transition:all .6s cubic-bezier(.16,1,.3,1)}
+.level-tier[data-level="1"].revealed{transition-delay:.1s}
+.level-tier[data-level="2"].revealed{transition-delay:.25s}
+.level-tier[data-level="3"].revealed{transition-delay:.4s}
+.level-tier[data-level="4"].revealed{transition-delay:.55s}
+.foundation-pillar{opacity:0;transform:translateX(-30px);transition:all .6s cubic-bezier(.16,1,.3,1) .05s}
+.foundation-pillar.revealed{opacity:1;transform:translateX(0)}
+
+/* ── LEVEL DETAIL PANEL ── */
+.level-detail{
+  display:none;max-width:700px;margin:0 auto 12px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;padding:28px;overflow:hidden;
+  animation:panelIn .35s cubic-bezier(.16,1,.3,1);
+}
+.level-detail.open{display:block}
+.level-detail.disabled{display:none !important}
+@keyframes panelIn{from{opacity:0;max-height:0}to{opacity:1;max-height:800px}}
+
+.ld-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
+.ld-icon{
+  width:52px;height:52px;border-radius:15px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+}
+.ld-meta h2{font-family:var(--font-display);font-style:italic;font-size:34px;font-weight:400;letter-spacing:-.8px;line-height:1.05;margin-bottom:8px;color:var(--warm)}
+.ld-meta p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.6}
+
+/* Unlock criteria */
+.unlock-box{
+  background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.12);
+  border-radius:12px;padding:18px 20px;margin-bottom:20px;
+}
+.unlock-box h4{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.unlock-item{
+  display:flex;align-items:center;gap:10px;padding:6px 0;
+  font-size:13px;color:rgba(255,255,255,.6);
+}
+.unlock-check{
+  width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  flex-shrink:0;
+}
+.unlock-check.done{border-color:var(--green);background:rgba(52,211,153,.15);color:var(--green)}
+
+/* Skills inside level */
+.level-skills{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+@media(max-width:600px){.level-skills{grid-template-columns:1fr}}
+.ls-card{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;padding:16px;cursor:pointer;
+  transition:all .3s cubic-bezier(.16,1,.3,1);
+}
+.ls-card:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);transform:translateY(-2px)}
+.ls-card h4{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.ls-card p{font-size:12px;color:rgba(255,255,255,.4);line-height:1.5}
+.ls-tag{
+  display:inline-block;font-size:9px;font-weight:700;letter-spacing:.5px;
+  padding:2px 8px;border-radius:4px;text-transform:uppercase;
+}
+.ls-tag-drill{background:rgba(43,139,252,.12);color:var(--blue-l)}
+.ls-tag-concept{background:rgba(251,191,36,.12);color:var(--gold)}
+.ls-tag-assessment{background:rgba(52,211,153,.12);color:var(--green)}
+
+/* ── YOUR JOURNEY ── */
+.journey-bar{
+  max-width:700px;margin:0 auto 40px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;padding:20px 24px;
+}
+.jb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.jb-top h3{font-size:14px;font-weight:700;color:rgba(255,255,255,.7)}
+.jb-level{font-size:12px;font-weight:700;color:var(--blue-l);background:rgba(43,139,252,.1);padding:4px 10px;border-radius:6px}
+.jb-track{display:flex;gap:3px;height:8px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04)}
+.jb-seg{height:100%;border-radius:8px;transition:all .6s cubic-bezier(.16,1,.3,1)}
+.jb-seg.complete{background:var(--green)}
+.jb-seg.current{background:var(--blue);animation:segPulse 2s ease-in-out infinite}
+.jb-seg.locked{background:rgba(255,255,255,.06)}
+@keyframes segPulse{0%,100%{opacity:.7}50%{opacity:1}}
+.jb-labels{display:flex;margin-top:8px}
+.jb-lab{flex:1;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;text-align:center;color:rgba(255,255,255,.25)}
+.jb-lab.active{color:var(--blue-l)}
+.jb-lab.done{color:var(--green)}
+
+/* ── LEVEL DETAIL PAGE ── */
+.level-page{background:var(--off);color:var(--txt);min-height:100vh}
+.level-page .main{max-width:900px}
+.lp-back{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;
+  color:var(--txt-m);background:var(--white);border:1px solid rgba(0,0,0,.06);
+  cursor:pointer;transition:all .2s;margin-bottom:24px;
+}
+.lp-back:hover{background:var(--sky);color:var(--txt)}
+.lp-hero{
+  border-radius:24px;padding:40px 36px;margin-bottom:28px;
+  position:relative;overflow:hidden;
+}
+.lp-hero h1{font-size:clamp(24px,4vw,36px);font-weight:900;letter-spacing:-1px;color:var(--white);margin-bottom:8px}
+.lp-hero p{font-size:15px;color:rgba(255,255,255,.65);max-width:480px;line-height:1.6}
+
+/* Light mode cards for level detail */
+.ld-card{
+  background:var(--white);border:1px solid rgba(0,0,0,.06);
+  border-radius:var(--r);padding:24px;margin-bottom:14px;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+}
+.ld-card h2{font-size:18px;font-weight:800;letter-spacing:-.3px;color:var(--txt);margin-bottom:8px}
+.ld-card h3{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px}
+.ld-card p{font-size:14px;color:var(--txt-d);line-height:1.7}
+
+/* Progress criteria cards */
+.criteria-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+@media(max-width:600px){.criteria-grid{grid-template-columns:1fr}}
+.crit-card{
+  background:var(--off);border:1px solid rgba(0,0,0,.04);
+  border-radius:14px;padding:18px;text-align:center;
+}
+.crit-card .crit-icon{font-size:28px;margin-bottom:8px}
+.crit-card h4{font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px}
+.crit-card p{font-size:12px;color:var(--txt-m)}
+
+/* Particles removed — reads generic SaaS. */
+
+@media(max-width:860px){
+  .topnav{padding:0 16px}.main{padding:84px 16px 48px}
+  .tier-bar{padding:12px 16px}
+  .pain-row,.answer-row{flex-direction:column;align-items:center}
+}
+
+/* ── INTERACTIVE PROGRESSION CLICK-THROUGH ── */
+.prog-section{
+  max-width:880px;margin:24px auto 0;padding:56px 24px 40px;text-align:center;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.prog-badge{display:inline-flex;margin-bottom:20px;transition:all .5s cubic-bezier(.16,1,.3,1)}
+.prog-copy{
+  font-size:17px;color:var(--warm-dim);max-width:580px;margin:0 auto 20px;line-height:1.6;
+  min-height:3.2em;transition:opacity .3s;
+}
+.prog-dims{
+  display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;
+  margin:0 auto 28px;padding:6px;border-radius:100px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+}
+.prog-dim{
+  display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.2px;
+  color:rgba(255,255,255,.3);border:1px solid transparent;background:transparent;
+  transition:all .4s cubic-bezier(.16,1,.3,1);white-space:nowrap;
+}
+.prog-dim:hover{color:rgba(255,255,255,.6);background:rgba(255,255,255,.04)}
+.prog-dim.on{
+  color:var(--dc);background:color-mix(in srgb,var(--dc) 12%,transparent);
+  border-color:color-mix(in srgb,var(--dc) 35%,transparent);
+  box-shadow:0 0 20px color-mix(in srgb,var(--dc) 25%,transparent);
+}
+.prog-dim.current{
+  color:var(--dc);background:color-mix(in srgb,var(--dc) 20%,transparent);
+  border-color:var(--dc);
+  box-shadow:0 0 28px color-mix(in srgb,var(--dc) 40%,transparent);
+  transform:scale(1.06);
+}
+.prog-dim.on .pd-label{font-weight:800}
+.prog-court-wrap{
+  max-width:380px;margin:0 auto 24px;
+  padding:20px 24px;
+  background:linear-gradient(180deg,#5E6878 0%,#4A5462 100%);
+  border-radius:22px;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.35),0 16px 50px rgba(0,0,0,.45);
+}
+.prog-court{
+  width:100%;display:block;border-radius:4px;overflow:hidden;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.25);
+  transition:box-shadow .4s;
+  border:2px solid rgba(255,255,255,.92);
+}
+.prog-stage-meta{max-width:520px;margin:0 auto 28px}
+.prog-stage-title{
+  font-family:var(--font-display);font-style:italic;
+  font-size:clamp(28px,4.2vw,44px);font-weight:400;letter-spacing:-.8px;line-height:1.1;
+  color:var(--warm);margin-bottom:8px;
+  transition:opacity .3s;
+}
+.prog-stage-sub{
+  font-size:15px;color:var(--warm-mute);line-height:1.55;
+  transition:opacity .3s;
+}
+.prog-controls{
+  display:inline-flex;align-items:center;gap:14px;margin-top:8px;
+  padding:8px;border-radius:100px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+}
+.prog-btn{
+  padding:10px 18px;border-radius:100px;border:none;cursor:pointer;
+  font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:.2px;
+  background:transparent;color:rgba(255,255,255,.7);transition:all .2s;
+}
+.prog-btn:hover:not(:disabled){background:rgba(255,255,255,.06);color:var(--warm)}
+.prog-btn:disabled{opacity:.3;cursor:not-allowed}
+.prog-btn-primary{background:rgba(43,139,252,.9);color:#fff;box-shadow:0 2px 12px rgba(43,139,252,.3)}
+.prog-btn-primary:hover:not(:disabled){background:var(--blue);color:#fff}
+.prog-step-dots{display:inline-flex;align-items:center;gap:8px;padding:0 4px}
+.prog-step{
+  width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15);
+  cursor:pointer;transition:all .3s;
+}
+.prog-step:hover{background:rgba(255,255,255,.35)}
+.prog-step.active{width:24px;border-radius:100px;background:var(--blue)}
+.prog-step.visited{background:rgba(255,255,255,.45)}
+.prog-fade-out .prog-copy,.prog-fade-out .prog-stage-title,.prog-fade-out .prog-stage-sub{opacity:0}
+
+@media(max-width:560px){
+  .prog-dim{padding:6px 10px;font-size:11px}
+  .prog-controls{gap:6px;padding:6px}
+  .prog-btn{padding:8px 12px;font-size:12px}
+  .prog-dims{padding:4px;gap:3px}
+  .pd-icon{width:10px;height:10px}
+}
+
+/* ── Dimension pill icons ── */
+.pd-icon{width:12px;height:12px;display:inline-block;opacity:.9;flex-shrink:0}
+.prog-dim svg{display:block}
+
+/* ── MOBILE POLISH ── fully optimized for phone viewports (up to 560px) */
+@media(max-width:560px){
+  /* Top nav: shrink padding, hide tagline so 4D Pickleball brand fits */
+  .topnav{padding:0 12px;gap:8px;height:56px}
+  .main{padding:72px 14px 56px}
+  .logo-mark{width:32px;height:32px;font-size:11px;border-radius:9px}
+  .logo-text{font-size:12px}
+  .logo-text span{display:none}
+  .nav-pills{gap:2px}
+  .nav-pill{padding:6px 10px;font-size:11px}
+  /* Hero: smaller padding, tighter H1 */
+  .hero{padding:28px 0 24px}
+  .hero h1{font-size:clamp(42px,13vw,72px);letter-spacing:-1.2px}
+  .hero-sub{font-size:15px;padding:0 8px}
+  .fd-word{font-size:clamp(22px,7.5vw,36px);letter-spacing:-.8px}
+}
+@media(max-width:400px){
+  .fd-word{font-size:clamp(18px,5.5vw,26px);letter-spacing:-.5px}
+  .fd-arrow{font-size:clamp(18px,5.5vw,26px) !important}
+  /* Progression section: less padding, smaller court */
+  .prog-section{padding:36px 14px 28px;margin-top:12px}
+  .prog-copy{font-size:15px;margin-bottom:16px}
+  .prog-court-wrap{max-width:320px;margin-bottom:18px}
+  .prog-stage-title{font-size:clamp(24px,6vw,32px)}
+  .prog-stage-sub{font-size:14px}
+  .prog-stage-meta{margin-bottom:18px}
+  .prog-badge{margin-bottom:14px;font-size:10px;letter-spacing:1.5px}
+}
+
+/* ── Dimension info panel (side of iframe) ── */
+.dim-layout{display:flex;gap:22px;align-items:stretch}
+.dim-frame{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:14px}
+.dim-frame iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);display:block}
+@media(max-width:900px){.dim-frame iframe{aspect-ratio:4/3;border-radius:14px}}
+@media(max-width:560px){.dim-frame iframe{aspect-ratio:1/1;border-radius:12px}}
+
+/* Touch controls — Pause + Slow-Mo overlay; visible only on coarse-pointer (touch) devices.
+   Lets mobile/tablet users pause + slow without keyboard. */
+.touch-ctrls{display:none}
+@media(max-width:900px){
+  .dim-frame{position:relative}
+  .touch-ctrls{display:flex;position:absolute;top:10px;right:10px;gap:6px;z-index:5;pointer-events:auto}
+  .touch-ctrls button{
+    background:rgba(10,22,40,.85);backdrop-filter:blur(10px);
+    border:1px solid rgba(245,243,238,.18);border-radius:999px;
+    padding:8px 12px;font:600 11px/1 var(--font-body,'DM Sans');
+    color:var(--warm,#F5F3EE);letter-spacing:1px;text-transform:uppercase;
+    cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:36px;min-width:50px;
+  }
+  .touch-ctrls button.on{background:rgba(43,139,252,.3);border-color:#2B8BFC;color:#fff}
+}
+
+/* ── Shot chips: rendered BELOW the iframe (never overlaying the 3D canvas) ── */
+.dim-chips{display:grid;grid-template-columns:repeat(4,1fr);gap:38px;position:relative}
+.dim-chip{position:relative}
+/* Progression arrows — color-coded to the NEXT dimension you're evolving into */
+.dim-chip:not(:last-child)::after{
+  content:"→";position:absolute;right:-32px;top:50%;
+  transform:translateY(-50%);
+  font-size:34px;font-weight:800;line-height:1;
+  color:#F5F3EE;
+  pointer-events:none;z-index:2;
+  animation:arrowPulse 1.8s cubic-bezier(.4,0,.6,1) infinite;
+  filter:drop-shadow(0 0 6px rgba(255,255,255,.25));
+}
+@keyframes arrowPulse{
+  0%,100%{transform:translate(-3px,-50%);opacity:.78}
+  50%{transform:translate(4px,-50%);opacity:1}
+}
+/* Each arrow takes the color of the dimension it leads INTO — semantic progression cue */
+.dim-chip[data-shot="drive"]::after{color:#F472B6;filter:drop-shadow(0 0 10px rgba(244,114,182,.55))}
+.dim-chip[data-shot="defend"]::after{color:#34D399;filter:drop-shadow(0 0 10px rgba(52,211,153,.55))}
+.dim-chip[data-shot="drop"]::after{color:#2B8BFC;filter:drop-shadow(0 0 10px rgba(43,139,252,.55))}
+@media(max-width:900px){
+  .dim-chips{gap:8px}
+  .dim-chip:not(:last-child)::after{display:none}
+}
+.dim-chip{
+  background:rgba(10,22,40,.78);backdrop-filter:blur(10px);
+  border:1px solid rgba(245,243,238,.12);border-radius:16px;
+  padding:12px 16px;cursor:pointer;text-align:left;
+  display:flex;flex-direction:column;align-items:flex-start;gap:4px;
+  transition:transform .2s cubic-bezier(.16,1,.3,1), border-color .25s, background .25s, box-shadow .25s;
+  font-family:var(--font-body);
+}
+.dim-chip:hover{transform:translateY(-2px);border-color:var(--dc,#FBBF24)}
+.dim-chip.active{
+  background:color-mix(in srgb,var(--dc,#FBBF24) 14%, rgba(10,22,40,.88));
+  border-color:var(--dc,#FBBF24);
+  box-shadow:0 0 28px color-mix(in srgb,var(--dc,#FBBF24) 28%, transparent);
+}
+.dim-chip[data-shot="drive"] {--dc:#FBBF24}
+.dim-chip[data-shot="defend"]{--dc:#F472B6}
+.dim-chip[data-shot="drop"]  {--dc:#34D399}
+.dim-chip[data-shot="dink"]  {--dc:#2B8BFC}
+.dim-chip .dc-num{
+  font-weight:700;font-size:10px;letter-spacing:2px;
+  color:var(--dc);text-transform:uppercase;
+}
+.dim-chip .dc-name{
+  font-family:var(--font-display);font-style:italic;font-weight:400;
+  font-size:20px;letter-spacing:-.3px;line-height:1.1;color:var(--warm);
+}
+@media(max-width:900px){
+  .dim-chips{grid-template-columns:repeat(2,1fr);gap:8px}
+  .dim-chip{padding:10px 14px}
+  .dim-chip .dc-name{font-size:17px}
+}
+@media(max-width:560px){
+  .dim-chips{gap:6px}
+  .dim-chip{padding:10px 12px;border-radius:12px;min-height:48px;justify-content:center}
+  .dim-chip .dc-num{font-size:9px;letter-spacing:1.5px}
+  .dim-chip .dc-name{font-size:15px}
+}
+.dim-info{
+  flex:0 0 290px;padding:26px 24px;border-radius:20px;
+  background:rgba(10,22,40,.72);border:1px solid rgba(245,243,238,.08);border-left:3px solid var(--di-c,#FBBF24);
+  display:flex;flex-direction:column;justify-content:center;gap:12px;
+  transition:border-left-color .4s ease;
+}
+.di-label{font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;transition:color .4s ease}
+.di-role{font-family:var(--font-display);font-style:italic;font-weight:400;font-size:30px;line-height:1.05;letter-spacing:-.5px;color:var(--warm)}
+.di-mantra{font-size:15px;font-style:italic;color:var(--warm);line-height:1.5;padding-top:14px;border-top:1px solid rgba(245,243,238,.08)}
+.di-traj{font-size:14px;color:var(--warm-dim);line-height:1.55}
+.di-hint{margin-top:auto;font-size:11px;color:var(--warm-mute);letter-spacing:.5px;line-height:1.5;padding-top:16px;border-top:1px solid rgba(245,243,238,.06)}
+@media(max-width:900px){
+  .dim-layout{flex-direction:column;gap:14px}
+  .dim-info{flex:1 1 auto;padding:20px}
+  .di-role{font-size:24px}
+}
+
+/* Tablet breakpoint (561-900px) */
+@media(min-width:561px) and (max-width:900px){
+  .main{padding:88px 20px 64px}
+  .prog-section{padding:44px 20px 32px}
+  .prog-court-wrap{max-width:360px}
+  .nav-pill{padding:7px 14px;font-size:12px}
+}
+
+/* ─── 0D Bedrock: the platform UNDER 1D-4D dimension chips ─── */
+.zero-d-bedrock{
+  margin:18px 0 8px;
+  position:relative;
+}
+/* Four short "rebar" lines hanging from the chip row above into the bedrock */
+.zero-d-bedrock .zd-rail{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
+  height:14px;margin-bottom:0;pointer-events:none;
+  padding:0;
+}
+.zero-d-bedrock .zd-rail span{
+  display:block;width:1px;height:100%;justify-self:center;
+  background:linear-gradient(to bottom, rgba(245,243,238,.32), rgba(245,243,238,.04));
+}
+.zero-d-bedrock .zd-platform{
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(43,139,252,.08) 0%, transparent 60%),
+    linear-gradient(180deg, rgba(10,22,40,.92) 0%, rgba(10,22,40,.78) 100%);
+  border:1px solid rgba(245,243,238,.10);
+  border-top:1px solid rgba(245,243,238,.20);
+  border-radius:0 0 22px 22px;
+  padding:24px 28px 28px;
+  text-align:center;
+  position:relative;
+}
+/* Subtle bright top edge — reads as the "weld line" between chips above and the foundation */
+.zero-d-bedrock .zd-platform::before{
+  content:"";position:absolute;left:8%;right:8%;top:-1px;height:1px;
+  background:linear-gradient(90deg, transparent, rgba(245,243,238,.45), transparent);
+  pointer-events:none;
+}
+.zero-d-bedrock .zd-eyebrow{
+  font-family:var(--font-body);font-size:11px;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--warm-mute);margin-bottom:12px;
+}
+.zero-d-bedrock .zd-headline{
+  font-family:var(--font-display);font-style:normal;font-weight:400;
+  font-size:clamp(16px,1.7vw,20px);line-height:1.4;
+  color:var(--warm-dim);margin:0 auto 18px;max-width:680px;
+}
+.zero-d-bedrock .zd-headline em{
+  font-style:italic;color:var(--warm);font-size:1.15em;margin-right:6px;
+}
+.zero-d-bedrock .zd-pillars{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px;
+}
+.zero-d-bedrock .zd-chip{
+  background:rgba(245,243,238,.06);
+  border:1px solid rgba(245,243,238,.14);
+  border-radius:100px;padding:7px 16px;
+  font-family:var(--font-display);font-style:italic;font-size:15px;
+  color:var(--warm);
+}
+.zero-d-bedrock .zd-chip-link{
+  background:rgba(52,211,153,.14);
+  border-color:rgba(52,211,153,.45);
+  color:#34D399;
+}
+.zero-d-bedrock .zd-ctas{
+  display:inline-flex;flex-wrap:wrap;gap:14px;justify-content:center;
+  margin-top:4px;
+}
+.zero-d-bedrock .zd-cta{
+  display:inline-block;background:#2B8BFC;color:#fff;
+  padding:11px 26px;border-radius:999px;
+  font-family:var(--font-body);font-weight:700;font-size:13px;
+  letter-spacing:1.2px;text-transform:uppercase;
+  text-decoration:none;box-shadow:0 6px 18px rgba(43,139,252,.32);
+  transition:transform .2s;
+}
+.zero-d-bedrock .zd-cta:hover{transform:translateY(-1px)}
+@media(max-width:900px){
+  .zero-d-bedrock .zd-platform{border-radius:18px;border-top-width:1px;padding:20px 18px 22px}
+}
+@media(max-width:600px){
+  .zero-d-bedrock .zd-rail{display:none}
+  .zero-d-bedrock .zd-headline{font-size:15px;line-height:1.35}
+}
+@media(max-width:680px){
+  .zero-d-bedrock .zd-ctas{flex-direction:column;gap:10px;width:100%;align-items:stretch}
+  .zero-d-bedrock .zd-cta{text-align:center;padding:14px 28px}
+}
+</style>
+</head>
+<body>
+
+
+<main class="main" style="padding-top:32px">
+
+<!-- ═══ PYRAMID HOME ═══ -->
+<div class="page active" id="page-pyramid">
+
+  <div class="hero">
+    <div class="hero-badge">◆ 4D Pickleball</div>
+
+    <h1>Let's play<br>4D Pickleball.</h1>
+
+    <div class="fd-row">
+      <div class="fd-pair">
+        <span class="fd-word fw-1" style="--fd-c:#FBBF24">Drive</span>
+        <span class="fd-arrow fa-1" style="--fa-c:#F472B6">→</span>
+        <span class="fd-word fw-2" style="--fd-c:#F472B6">Defend</span>
+      </div>
+      <span class="fd-arrow fa-2" style="--fa-c:#34D399">→</span>
+      <div class="fd-pair">
+        <span class="fd-word fw-3" style="--fd-c:#34D399">Drop</span>
+        <span class="fd-arrow fa-3" style="--fa-c:#2B8BFC">→</span>
+        <span class="fd-word fw-4" style="--fd-c:#2B8BFC">Dink</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Embedded cinematic 3D module (canonical at 06_ACADEMY/4dp/3d_module_template.html per R21)
+       + side info panel (parent-rendered, synced via postMessage from the iframe) -->
+  <section style="max-width:1360px;margin:40px auto 32px;padding:0 24px">
+    <div class="dim-layout">
+      <div class="dim-frame">
+        <div class="touch-ctrls" aria-label="Touch controls">
+            <button id="touch-pause" aria-label="Pause animation">⏸</button>
+            <button id="touch-slowmo" aria-label="Toggle slow motion">SLO</button>
+        </div>
+        <iframe
+          id="dim-iframe"
+          src="../4dp/3d_module_template.html?embedded=1&v=1776726173"
+          title="4D Pickleball cinematic 3D module"
+          loading="eager"
+          fetchpriority="low"
+        ></iframe>
+        <!-- Shot chips live BELOW the iframe so they never overlay the 3D canvas.
+             Clicks post {type:'4dp:select-shot', key} into the iframe. -->
+        <div class="dim-chips" role="tablist" aria-label="Pick a dimension">
+          <button class="dim-chip active" data-shot="drive"  role="tab" aria-selected="true">
+            <span class="dc-num">1D · Drive</span>
+            <span class="dc-name">Ball Striking</span>
+          </button>
+          <button class="dim-chip" data-shot="defend" role="tab" aria-selected="false">
+            <span class="dc-num">2D · Defend</span>
+            <span class="dc-name">Baby Block</span>
+          </button>
+          <button class="dim-chip" data-shot="drop"   role="tab" aria-selected="false">
+            <span class="dc-num">3D · Drop</span>
+            <span class="dc-name">Under the Ball</span>
+          </button>
+          <button class="dim-chip" data-shot="dink"   role="tab" aria-selected="false">
+            <span class="dc-num">4D · Dink</span>
+            <span class="dc-name">Generating Kitchen Offense</span>
+          </button>
+        </div>
+
+        <!-- 0D Bedrock — sits INSIDE .dim-frame so its width = the chip row width.
+             That way the 4 rail lines align under the 4 dimension chips above. -->
+        <div class="zero-d-bedrock">
+          <div class="zd-rail" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="zd-platform">
+            <div class="zd-eyebrow">◆ 0D · Underneath every dimension</div>
+            <div class="zd-headline">What comes before every shot?</div>
+            <div class="zd-pillars">
+              <span class="zd-chip zd-chip-link">Positioning&nbsp;↓</span>
+              <span class="zd-chip zd-chip-link">Anticipation&nbsp;↓</span>
+              <span class="zd-chip">Ready Position</span>
+            </div>
+            <div class="zd-ctas">
+              <a href="/scoring/" class="zd-cta">Beginner Scoring &amp; Positioning</a>
+              <a href="/outballs/" class="zd-cta">Train Out Balls</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="dim-info" id="dim-info" aria-live="polite">
+        <div class="di-label" id="di-label" style="color:#FBBF24">1D · Drive</div>
+        <div class="di-role" id="di-role">Ball striking</div>
+        <div class="di-mantra" id="di-mantra">Four friends on a court. Everyone in the backcourt. Playing tennis on a pickleball court. We've all seen it.</div>
+        <div class="di-traj" id="di-traj">In 1D pickleball, the points don't last very long, and they are, well, one dimensional. This is how many of us started.</div>
+        <div class="di-hint">Tap a dimension · Pinch to zoom · Drag to orbit · Space (or ⏸) to pause</div>
+      </aside>
+    </div>
+  </section>
+
+</div><!-- /page-pyramid -->
+
+</main>
+
+
+<script>
+// ── Page navigation ──
+document.querySelectorAll('.nav-pill').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-pill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    document.getElementById('page-'+p.dataset.page).classList.add('active');
+  });
+});
+
+// ── Detail panels: disabled by default (future/labs feature) ──
+let detailPanelsEnabled=false;
+
+function closeAllDetails(){
+  document.querySelectorAll('.level-detail').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.level-tier').forEach(t=>t.classList.remove('open'));
+  document.querySelector('.foundation-pillar')?.classList.remove('open');
+}
+function toggleLevel(tier){
+  if(!detailPanelsEnabled) return;
+  const level=tier.dataset.level;
+  const detail=document.querySelector(`.level-detail[data-detail="${level}"]`);
+  const wasOpen=detail.classList.contains('open');
+  closeAllDetails();
+  if(!wasOpen){
+    detail.classList.add('open');
+    tier.classList.add('open');
+    setTimeout(()=>detail.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+  }
+}
+function toggleFoundation(){
+  if(!detailPanelsEnabled) return;
+  const detail=document.querySelector('.level-detail[data-detail="0"]');
+  const pillar=document.querySelector('.foundation-pillar');
+  const wasOpen=detail.classList.contains('open');
+  closeAllDetails();
+  if(!wasOpen){
+    detail.classList.add('open');
+    pillar.classList.add('open');
+    setTimeout(()=>detail.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+  }
+}
+// To enable detail panels in a future version, set detailPanelsEnabled=true
+
+// ── Navigate to full level page ──
+function goToLevel(n){
+  const names=['Foundation','Ball Striking','Baby Block','Reset Drop','Kitchen Offense'];
+  alert('Opening '+names[n]+' content...\n\nIn the full app, this links to the drill-by-drill Teaching Standards page for this level.');
+}
+function navigateToPage(pageName){
+  document.querySelectorAll('.nav-pill').forEach(x=>x.classList.remove('active'));
+  const pill=document.querySelector('[data-page="'+pageName+'"]');
+  if(pill) pill.classList.add('active');
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+pageName).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Stagger reveal animation ──
+function revealPyramid(){
+  document.querySelectorAll('.level-tier').forEach(t=>t.classList.add('revealed'));
+  document.querySelector('.foundation-pillar')?.classList.add('revealed');
+}
+
+// Init
+setTimeout(revealPyramid,300);
+
+// ── Shot chips: clicks postMessage into the iframe to switch shots ──
+// Force fresh iframe template fetch on EVERY page load — replace ?v= with Date.now().
+// (HTML attribute has a build-time version that changes per deploy; this JS adds per-visit bust.)
+(function(){
+  const f = document.getElementById('dim-iframe');
+  if (!f) { console.warn('[4DP] dim-iframe missing'); return; }
+  const cur = f.getAttribute('src') || '';
+  const fresh = cur.replace(/[?&]v=\d+/, '') + (cur.includes('?') ? '&' : '?') + 'v=' + Date.now();
+  f.src = fresh;
+})();
+const dimIframe = document.getElementById('dim-iframe');
+document.querySelectorAll('.dim-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const key = chip.dataset.shot;
+    // Optimistic UI: mark active immediately; iframe also echoes back via shot-changed
+    document.querySelectorAll('.dim-chip').forEach(c => {
+      const isActive = c === chip;
+      c.classList.toggle('active', isActive);
+      c.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    if (dimIframe && dimIframe.contentWindow) {
+      dimIframe.contentWindow.postMessage({ type:'4dp:select-shot', key }, '*');
+    }
+  });
+});
+
+// Touch control buttons (mobile/tablet) — postMessage to iframe
+(function(){
+  let __slowOn = false;
+  const tp = document.getElementById('touch-pause');
+  const ts = document.getElementById('touch-slowmo');
+  if (tp) tp.addEventListener('click', () => {
+    const f = document.getElementById('dim-iframe');
+    if (f && f.contentWindow) f.contentWindow.postMessage({ type:'4dp:toggle-pause' }, '*');
+    tp.classList.toggle('on');
+    tp.textContent = tp.classList.contains('on') ? '▶' : '⏸';
+  });
+  if (ts) ts.addEventListener('click', () => {
+    __slowOn = !__slowOn;
+    const f = document.getElementById('dim-iframe');
+    if (f && f.contentWindow) f.contentWindow.postMessage({ type:'4dp:set-slowmo', on: __slowOn }, '*');
+    ts.classList.toggle('on', __slowOn);
+  });
+})();
+
+// ── SPACE toggles pause inside the iframe — works even when iframe isn't focused ──
+window.addEventListener('keydown', (e) => {
+  // Only hijack SPACE when the user is NOT typing in an input/textarea
+  if (e.code !== 'Space') return;
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  e.preventDefault();
+  if (dimIframe && dimIframe.contentWindow) {
+    dimIframe.contentWindow.postMessage({ type:'4dp:toggle-pause' }, '*');
+  }
+});
+
+// ── Listen for shot changes from the embedded 3D cinematic iframe ──
+window.addEventListener('message', (e) => {
+  if (!e.data || e.data.type !== '4dp:shot-changed') return;
+  const { key, label, role, mantra, traj, color } = e.data;
+  // Sync chip active state (covers autoplay, Replay button, keyboard switches inside iframe)
+  if (key) {
+    document.querySelectorAll('.dim-chip').forEach(c => {
+      const isActive = c.dataset.shot === key;
+      c.classList.toggle('active', isActive);
+      c.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+  const panel = document.getElementById('dim-info');
+  if (!panel) return;
+  panel.style.setProperty('--di-c', color);
+  const l = document.getElementById('di-label');   if (l) { l.textContent = label; l.style.color = color; }
+  const r = document.getElementById('di-role');    if (r) r.textContent = role;
+  const m = document.getElementById('di-mantra');  if (m) m.textContent = mantra;
+  const t = document.getElementById('di-traj');    if (t) t.textContent = traj;
+});
+
+// ── INTERACTIVE PROGRESSION STORY ──
+(function(){
+  const STAGES = [
+    {
+      badge: "◆ 1D — YOU'VE SEEN IT",
+      badgeColor: "251,113,133",
+      copy: "Four friends play pickleball for the first time. You watch them: all stuck at the baseline playing tennis. We've all seen it before!",
+      title: "Tennis at the baseline",
+      sub: "Cross-net lobs only. Long rallies, but nothing happens — nobody can construct a point yet.",
+      dimsOn: [0],
+      view: "top",
+      players: [[120,30,"P1"],[280,30,"P2"],[120,410,"P3"],[280,410,"P4"]],
+      trails: ["M 120 410 Q 200 -60 280 30","M 280 410 Q 200 -60 120 30"],
+      ballDur: 5.6,
+      ballPath: "M 120 410 Q 200 -60 280 30 Q 200 470 280 410 Q 200 -60 120 30 Q 200 470 120 410",
+      ballColor: "#c8e632"
+    },
+    {
+      badge: "◆ +D1 DRIVE",
+      badgeColor: "251,191,36",
+      copy: "They learn to actually strike the ball. Faster, flatter drives across the net. The point sustains longer, but still from the baseline.",
+      title: "Ball striking",
+      sub: "Short, simple swing. Clean contact. No more lazy lobs — now the ball moves.",
+      dimsOn: [0,1],
+      view: "top",
+      players: [[120,30,"P1"],[280,30,"P2"],[120,410,"P3"],[280,410,"P4"]],
+      trails: ["M 120 410 L 280 30"],
+      ballDur: 1.8,
+      ballPath: "M 120 410 L 280 30 L 120 410",
+      ballColor: "#FBBF24"
+    },
+    {
+      badge: "◆ +D2 DEFEND",
+      badgeColor: "244,114,182",
+      copy: "Classic setup: the serving team is stuck at the baseline. The return team advances to the kitchen line. Now the serving team drives hard — the return team has to absorb it with a baby block.",
+      title: "Baby block",
+      sub: "The return team's baby block neutralizes the drive. Ball drops soft in the kitchen at the banger's feet.",
+      dimsOn: [0,1,2],
+      view: "top",
+      players: [[120,30,"P1"],[280,30,"P2"],[120,265,"P3"],[280,265,"P4"]],
+      trails: ["M 280 30 L 120 265","M 120 265 Q 140 180 220 200"],
+      ballDur: 3.6,
+      ballPath: "M 280 30 L 120 265 Q 140 180 220 200 Q 280 120 280 30",
+      ballColor: "#F472B6"
+    },
+    {
+      badge: "◆ +D3 DROP",
+      badgeColor: "52,211,153",
+      copy: "The serving team can't just drive forever. They learn the under the ball: a high arc from the transition zone that bounces in front of the return team — earning the right to advance to the kitchen.",
+      title: "Under the ball",
+      sub: "Side view. Ball arcs high, clears the net, drops in front of the receivers. Now the serving team can move forward.",
+      dimsOn: [0,1,2,3],
+      view: "side",
+      players: [],
+      trails: [],
+      ballDur: 3.6,
+      ballPath: "M 100 290 Q 180 40 260 330 Q 180 40 100 290",
+      ballColor: "#34D399"
+    },
+    {
+      badge: "◆ +D4 DINK — FULL 4D",
+      badgeColor: "43,139,252",
+      copy: "All four at the kitchen. Pressure dinks move the opponents around. A weak reply pops up — speed it up into the weak position — the reflex pop-up floats high — reload and finish.",
+      title: "Generating offense in the kitchen",
+      sub: "Pressure dink. Move the opponent. Find the window. Speed up. Reload. Finish.",
+      dimsOn: [0,1,2,3,4],
+      view: "top",
+      players: [[120,175,"P1"],[280,175,"P2"],[120,265,"P3"],[280,265,"P4"]],
+      trails: ["M 120 265 Q 160 200 280 185","M 280 185 Q 240 230 120 265","M 120 265 L 280 185","M 280 185 Q 240 80 180 240","M 180 240 L 260 60"],
+      ballDur: 7.2,
+      ballPath: "M 120 265 Q 160 200 280 185 Q 240 230 120 265 Q 160 200 280 185 L 280 265 L 120 185 Q 240 80 180 240 L 260 60 Q 200 200 120 265",
+      ballColor: "#2B8BFC"
+    }
+  ];
+
+  const $ = id => document.getElementById(id);
+  const badge = $('prog-badge'), copy = $('prog-copy'), title = $('prog-title'), sub = $('prog-sub');
+  const dyn = $('prog-dynamic'), stepDots = $('prog-step-dots');
+  const prev = $('prog-prev'), next = $('prog-next'), dims = $('prog-dims');
+  if(!badge) return;
+
+  let stage = 0;
+  const visited = new Set([0]);
+
+  function buildSVG(s){
+    if(s.view === "side"){
+      // Side-view overlay for the Drop dimension: shows the high arc over the net
+      // Covers top-down court with a side-profile rendering
+      return `
+        <!-- Cover top-down court with fresh side-view background -->
+        <rect x="0" y="0" width="400" height="440" fill="#1e40af"/>
+        <!-- Ground strip (court surface seen from side) -->
+        <rect x="0" y="340" width="400" height="100" fill="#0d2d78"/>
+        <!-- Near-side kitchen band -->
+        <rect x="140" y="336" width="60" height="8" fill="#7f1d1d"/>
+        <!-- Far-side kitchen band -->
+        <rect x="200" y="336" width="60" height="8" fill="#7f1d1d"/>
+        <!-- Net (vertical bar at center) -->
+        <line x1="200" y1="340" x2="200" y2="180" stroke="#fff" stroke-width="3"/>
+        <line x1="192" y1="180" x2="208" y2="180" stroke="#fff" stroke-width="2.5"/>
+        <!-- Ground line -->
+        <line x1="0" y1="340" x2="400" y2="340" stroke="#fff" stroke-width="2"/>
+        <!-- Court outer border -->
+        <rect x="0" y="0" width="400" height="440" fill="none" stroke="#fff" stroke-width="2.5" rx="4"/>
+        <!-- Baseline labels (subtle) -->
+        <text x="50" y="365" fill="rgba(255,255,255,.35)" font-size="9" font-weight="700" letter-spacing="1">NEAR</text>
+        <text x="330" y="365" fill="rgba(255,255,255,.35)" font-size="9" font-weight="700" letter-spacing="1">FAR</text>
+        <!-- Trail: dashed arc showing the drop's path for a full cycle -->
+        <path d="M 100 290 Q 180 40 260 330" stroke="rgba(52,211,153,.35)" stroke-width="1.5" fill="none" stroke-dasharray="4 6"/>
+        <!-- Near-side player (serving team, in transition zone) -->
+        <g transform="translate(100,0)">
+          <circle cx="0" cy="282" r="10" fill="#F5F3EE" stroke="#0A1628" stroke-width="2"/>
+          <rect x="-6" y="292" width="12" height="48" fill="#F5F3EE" stroke="#0A1628" stroke-width="2" rx="3"/>
+          <text x="0" y="285" text-anchor="middle" fill="#0A1628" font-size="9" font-weight="900">S</text>
+        </g>
+        <!-- Far-side receivers (return team, two at kitchen line) -->
+        <g transform="translate(255,0)">
+          <circle cx="0" cy="282" r="10" fill="#F5F3EE" stroke="#0A1628" stroke-width="2"/>
+          <rect x="-6" y="292" width="12" height="48" fill="#F5F3EE" stroke="#0A1628" stroke-width="2" rx="3"/>
+          <text x="0" y="285" text-anchor="middle" fill="#0A1628" font-size="9" font-weight="900">R1</text>
+        </g>
+        <g transform="translate(285,0)">
+          <circle cx="0" cy="282" r="10" fill="#F5F3EE" stroke="#0A1628" stroke-width="2"/>
+          <rect x="-6" y="292" width="12" height="48" fill="#F5F3EE" stroke="#0A1628" stroke-width="2" rx="3"/>
+          <text x="0" y="285" text-anchor="middle" fill="#0A1628" font-size="9" font-weight="900">R2</text>
+        </g>
+        <!-- Animated ball: the high-arc drop + return loop -->
+        <circle r="9" fill="${s.ballColor}" stroke="#0A1628" stroke-width="1.5">
+          <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
+        </circle>
+        <circle r="14" fill="${s.ballColor}" opacity=".22">
+          <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
+        </circle>
+      `;
+    }
+    // Default: top-down view (stages 0, 1, 2, 4)
+    const trailPaths = s.trails.map(p => `<path d="${p}"/>`).join('');
+    const playerDots = s.players.map(([x,y,l]) => `<g><circle cx="${x}" cy="${y}" r="16" fill="#F5F3EE" stroke="#0A1628" stroke-width="2.5"/><text x="${x}" y="${y+5}" text-anchor="middle" fill="#0A1628" font-size="12" font-weight="900">${l}</text></g>`).join('');
+    return `
+      <g stroke="rgba(200,230,50,.13)" stroke-width="1.25" fill="none" stroke-dasharray="3 5">${trailPaths}</g>
+      ${playerDots}
+      <circle r="9" fill="${s.ballColor}" stroke="#0A1628" stroke-width="1.5">
+        <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
+      </circle>
+      <circle r="14" fill="${s.ballColor}" opacity=".22">
+        <animateMotion dur="${s.ballDur}s" repeatCount="indefinite" path="${s.ballPath}"/>
+      </circle>
+    `;
+  }
+
+  function render(){
+    const s = STAGES[stage];
+    visited.add(stage);
+
+    // Fade text out, swap, fade in
+    document.querySelector('.prog-section').classList.add('prog-fade-out');
+    setTimeout(()=>{
+      badge.textContent = s.badge;
+      badge.style.background = `rgba(${s.badgeColor},.1)`;
+      badge.style.borderColor = `rgba(${s.badgeColor},.25)`;
+      badge.style.color = `rgba(${s.badgeColor},.95)`;
+      copy.textContent = s.copy;
+      title.textContent = s.title;
+      sub.textContent = s.sub;
+      dyn.innerHTML = buildSVG(s);
+
+      // Dim indicators — "on" = dimension is active at this stage, "current" = the most recently added dimension
+      dims.querySelectorAll('.prog-dim').forEach((el,i)=>{
+        el.classList.toggle('on', s.dimsOn.includes(i));
+        el.classList.toggle('current', i===stage);
+      });
+
+      // Step dots
+      stepDots.querySelectorAll('.prog-step').forEach((el,i)=>{
+        el.classList.toggle('active', i===stage);
+        el.classList.toggle('visited', i<stage && visited.has(i));
+      });
+
+      // Buttons
+      prev.disabled = stage===0;
+      next.disabled = stage===STAGES.length-1;
+      next.textContent = stage===STAGES.length-1 ? 'Full 4D ✓' : 'Next →';
+
+      document.querySelector('.prog-section').classList.remove('prog-fade-out');
+    }, 180);
+  }
+
+  prev.addEventListener('click',()=>{ if(stage>0){stage--; render();} });
+  next.addEventListener('click',()=>{ if(stage<STAGES.length-1){stage++; render();} });
+  stepDots.querySelectorAll('.prog-step').forEach((el,i)=>{
+    el.addEventListener('click',()=>{ stage=i; render(); });
+  });
+  // Dimension pills are clickable — jump directly to that stage
+  dims.querySelectorAll('.prog-dim').forEach((el,i)=>{
+    el.setAttribute('role','button');
+    el.setAttribute('tabindex','0');
+    el.addEventListener('click',()=>{ stage=i; render(); });
+    el.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); stage=i; render(); }});
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

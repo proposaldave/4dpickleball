@@ -138,6 +138,40 @@ body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none
   -webkit-text-fill-color: transparent;
 }
 .intro-sub { font-size: 15px; color: var(--4dp-text-dim); line-height: 1.55; margin-bottom: 26px; max-width: 460px; margin-left: auto; margin-right: auto; }
+.intro-journey {
+  list-style: none; padding: 0; margin: 24px 0 28px;
+  text-align: left;
+  max-width: 460px; margin-left: auto; margin-right: auto;
+}
+.intro-journey li {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 12px; align-items: baseline;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--4dp-hairline);
+  font-family: var(--4dp-font-body);
+}
+.intro-journey li:last-child { border-bottom: none; }
+.intro-journey .ij-num {
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 13px; letter-spacing: 1.5px;
+  color: var(--mod);
+}
+.intro-journey .ij-name {
+  font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
+  font-size: 19px; letter-spacing: -.3px;
+  color: var(--4dp-text);
+}
+.intro-journey .ij-ctx {
+  font-size: 11px; color: var(--4dp-text-mute);
+  font-style: italic;
+}
+@media (max-width: 520px) {
+  .intro-journey li { grid-template-columns: 28px 1fr; gap: 10px; padding: 10px 6px; }
+  .intro-journey .ij-name { font-size: 17px; }
+  .intro-journey .ij-ctx { grid-column: 2; font-size: 10px; }
+}
+
 .intro-keys {
   display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
   margin-bottom: 26px; padding: 18px; border-radius: var(--r-md);
@@ -176,47 +210,68 @@ body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none
 .intro-go:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(148,163,184,.6); }
 .intro-go svg { width: 14px; height: 14px; }
 
-/* BRIEF card (per-scenario education) */
-.brief-card {
-  max-width: 620px; width: 100%; text-align: center;
-  padding: 38px 40px 32px;
-  background: linear-gradient(180deg, rgba(24,51,83,.5), rgba(14,31,56,.85));
-  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 30%, transparent);
-  border-radius: var(--r-lg);
-  box-shadow: 0 28px 80px rgba(0,0,0,.7);
+/* TEACH overlay — fullscreen-ish 3D demo + rule + Play CTA */
+.teach-card {
+  max-width: 1100px; width: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  gap: 14px;
+  max-height: calc(100vh - 100px);
+  max-height: calc(100dvh - 100px);
+  padding: 24px;
 }
-.brief-tag {
+.teach-header { text-align: center; }
+.teach-tag {
   display: inline-block;
   padding: 4px 14px; border-radius: 999px;
   background: color-mix(in srgb, var(--c, var(--mod)) 16%, transparent);
   border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 50%, transparent);
   color: var(--c, var(--mod));
-  font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase;
-  margin-bottom: 18px;
+  font-family: var(--4dp-font-data); font-weight: 700;
+  font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 12px;
 }
-.brief-h {
+.teach-h {
   font-family: var(--4dp-font-display); font-style: italic; font-weight: 400;
-  font-size: clamp(30px, 5.2vw, 48px); line-height: 1.04; letter-spacing: -.9px;
-  color: var(--4dp-text); margin-bottom: 16px;
+  font-size: clamp(28px, 5vw, 48px); line-height: 1.04; letter-spacing: -.9px;
+  color: var(--4dp-text); margin-bottom: 12px;
 }
-.brief-rule {
+.teach-rule {
   display: inline-block;
-  padding: 10px 22px; border-radius: 999px;
-  background: rgba(14,31,56,.6);
-  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 42%, transparent);
+  padding: 8px 20px; border-radius: 999px;
+  background: rgba(14,31,56,.7);
+  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 50%, transparent);
   color: var(--c, var(--mod));
   font-family: var(--4dp-font-display); font-style: italic;
-  font-size: clamp(15px, 2vw, 18px); letter-spacing: -.1px;
-  margin-bottom: 22px;
+  font-size: clamp(15px, 2vw, 19px); letter-spacing: -.1px;
 }
-.brief-why {
+.teach-frame-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--4dp-ink-deep);
+  border: 1px solid color-mix(in srgb, var(--c, var(--mod)) 25%, transparent);
+  box-shadow: 0 28px 80px rgba(0,0,0,.6), 0 0 0 1px color-mix(in srgb, var(--c, var(--mod)) 14%, transparent);
+  aspect-ratio: 16 / 9;
+  max-height: 56vh;
+}
+.teach-frame-wrap iframe {
+  width: 100%; height: 100%; border: 0; display: block;
+}
+.teach-why {
   font-size: 14px; color: var(--4dp-text-dim);
-  line-height: 1.6; max-width: 480px; margin: 0 auto 24px;
+  line-height: 1.55;
+  max-width: 720px; margin: 0 auto;
+  text-align: center;
 }
-.brief-why em { font-family: var(--4dp-font-display); color: var(--4dp-text); font-style: italic; font-size: 1.1em; }
-.brief-go {
+.teach-why em { font-family: var(--4dp-font-display); color: var(--4dp-text); font-style: italic; font-size: 1.1em; }
+.teach-cta-row {
+  display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;
+}
+.teach-go {
   display: inline-flex; align-items: center; gap: 10px;
-  padding: 14px 32px;
+  padding: 14px 30px;
   background: var(--c, var(--mod));
   color: var(--4dp-ink);
   border: 0; border-radius: 999px;
@@ -225,7 +280,17 @@ body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none
   cursor: pointer; transition: all .2s var(--ease);
   box-shadow: 0 12px 32px color-mix(in srgb, var(--c, var(--mod)) 42%, transparent);
 }
-.brief-go:hover { transform: translateY(-2px); }
+.teach-go:hover { transform: translateY(-2px); }
+.teach-keys {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+}
+
+@media (max-width: 720px) {
+  .teach-card { padding: 14px; gap: 10px; }
+  .teach-frame-wrap { aspect-ratio: 4 / 3; max-height: 44vh; }
+  .teach-why { font-size: 13px; }
+  .teach-keys { display: none; }
+}
 
 /* PLAY UI — minimal, lives over the 3D scene */
 .play-ui {
@@ -476,32 +541,49 @@ body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none
 <!-- INTRO overlay -->
 <div class="overlay on" id="intro">
   <div class="intro-card">
-    <div class="intro-eyebrow">Cover the Middle · The Game</div>
+    <div class="intro-eyebrow">Cover the Middle · The Module</div>
     <h1 class="intro-h1"><em>Whose ball</em><br>is&nbsp;that?</h1>
-    <p class="intro-sub">Four scenarios. Five looks each. Read the ball, decide fast, beat your own best.</p>
-    <div class="intro-keys">
-      <span class="key-chip"><kbd>SPACE</kbd> Yours</span>
-      <span class="key-chip"><kbd>ENTER</kbd> Mine</span>
-      <span class="key-chip"><kbd>← →</kbd> Step</span>
-    </div>
+    <p class="intro-sub">Four scenarios. <em>Watch each, then drill it.</em></p>
+
+    <ol class="intro-journey">
+      <li><span class="ij-num">01</span><span class="ij-name">Start of point</span><span class="ij-ctx">Partner running up</span></li>
+      <li><span class="ij-num">02</span><span class="ij-name">Soft floater at kitchen</span><span class="ij-ctx">Forehand reach</span></li>
+      <li><span class="ij-num">03</span><span class="ij-name">Hard attack at kitchen</span><span class="ij-ctx">Respect the X</span></li>
+      <li><span class="ij-num">04</span><span class="ij-name">Righty on the left</span><span class="ij-ctx">Sit on the forehand</span></li>
+    </ol>
+
     <button class="intro-go" id="intro-go">
-      Start
+      Begin
       <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
   </div>
 </div>
 
-<!-- BRIEF overlay (per-scenario education) -->
-<div class="overlay" id="brief">
-  <div class="brief-card" id="brief-card">
-    <div class="brief-tag" id="brief-tag">SCENARIO 01</div>
-    <h2 class="brief-h" id="brief-h">Player in front has the option.</h2>
-    <div class="brief-rule" id="brief-rule">NVZ-player takes it. Block or reset.</div>
-    <p class="brief-why" id="brief-why">Partner just returned and is sprinting up. By the time they reach the line, the ball's at their shins. <em>You're already at the line.</em> You take it.</p>
-    <button class="brief-go" id="brief-go">
-      Got it · play 5
-      <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
+<!-- TEACH overlay (per-scenario 3D demo + rule + why + Play CTA) -->
+<div class="overlay" id="teach">
+  <div class="teach-card" id="teach-card">
+    <div class="teach-header">
+      <div class="teach-tag" id="teach-tag">SCENARIO 01 / 04</div>
+      <h2 class="teach-h" id="teach-h">Player in front has the option.</h2>
+      <div class="teach-rule" id="teach-rule">The 4th-shot rule · NVZ-player takes it.</div>
+    </div>
+    <div class="teach-frame-wrap">
+      <iframe id="teach-frame"
+              src="./cover-the-middle-3d.html?scenario=1"
+              loading="lazy"
+              title="3D scenario demonstration"></iframe>
+    </div>
+    <p class="teach-why" id="teach-why">Returner is still sprinting up after their return. By the time they reach the line, the ball's at their shins. <em>You're already there.</em> You block, reset, buy partner the second they need.</p>
+    <div class="teach-cta-row">
+      <button class="teach-go" id="teach-go">
+        Now drill it · 5 looks
+        <svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="teach-keys">
+        <span class="key-chip"><kbd>SPACE</kbd> Yours</span>
+        <span class="key-chip"><kbd>ENTER</kbd> Mine</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -956,6 +1038,8 @@ const SCEN_1 = {
   color: '#F472B6',  // Defend pink — anticipation
   cameraPos: [14, 18, 22],
   cameraLook: [0, 2, 6],
+  you: 'nearLeft',
+  partner: 'nearRight',
   setup: () => {
     players.farLeft.position.set(-5, 0, -22);
     players.farRight.position.set(4, 0, -22);
@@ -1159,7 +1243,7 @@ const GAME = {
 
 function $id(id) { return document.getElementById(id); }
 function setOverlay(which) {
-  ['intro','brief','scen-result','final'].forEach(id => $id(id).classList.toggle('on', id === which));
+  ['intro','teach','scen-result','final'].forEach(id => $id(id).classList.toggle('on', id === which));
 }
 function showPlayUI(on) {
   $id('play-ui').classList.toggle('on', on);
@@ -1170,19 +1254,32 @@ function showPlayUI(on) {
 
 function setColor(hex) {
   document.documentElement.style.setProperty('--c', hex);
-  $id('brief-card').style.setProperty('--c', hex);
+  $id('teach-card').style.setProperty('--c', hex);
   $id('result-card').style.setProperty('--c', hex);
 }
 
-function showBrief(scen) {
+function showTeach(scen) {
   setColor(scen.color);
-  $id('brief-tag').textContent = scen.tag;
-  $id('brief-h').textContent = scen.title;
-  $id('brief-rule').textContent = scen.rule;
-  $id('brief-why').innerHTML = scen.why;
-  setOverlay('brief');
+  $id('teach-tag').textContent = `${scen.tag.split(' · ')[0]} / 04 · ${(scen.tag.split(' · ').slice(1).join(' · ')) || ''}`;
+  $id('teach-h').textContent = scen.title;
+  $id('teach-rule').textContent = scen.rule;
+  $id('teach-why').innerHTML = scen.why;
+  // Update iframe scenario via postMessage (and also update src so reload works)
+  const iframe = $id('teach-frame');
+  try {
+    iframe.contentWindow.postMessage({ type: '4dp:cm-scenario', scenario: scen.id }, '*');
+  } catch (e) {}
+  // Also set src as a fallback (in case iframe wasn't ready yet on first call)
+  if (!iframe.dataset.loaded) {
+    iframe.addEventListener('load', () => {
+      iframe.dataset.loaded = '1';
+      try { iframe.contentWindow.postMessage({ type: '4dp:cm-scenario', scenario: scen.id }, '*'); } catch(e){}
+    }, { once: true });
+  }
+  setOverlay('teach');
   showPlayUI(false);
   audio.chime();
+  GAME.state = 'TEACH';
 }
 
 function startScenario(idx) {
@@ -1196,7 +1293,7 @@ function startScenario(idx) {
     camera.position.set(...scen.cameraPos);
     camera.lookAt(...scen.cameraLook);
   }
-  showBrief(scen);
+  showTeach(scen);
 }
 
 function startRound() {
@@ -1452,8 +1549,8 @@ function onKey(e) {
     if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); $id('intro-go').click(); }
     return;
   }
-  if (GAME.state === 'BRIEF') {
-    if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); $id('brief-go').click(); }
+  if (GAME.state === 'TEACH') {
+    if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); $id('teach-go').click(); }
     return;
   }
   if (GAME.state === 'SCEN_RESULT') {
@@ -1493,9 +1590,8 @@ window.addEventListener('keydown', onKey);
 $id('intro-go').addEventListener('click', () => {
   audio.enable(true);
   startScenario(0);
-  GAME.state = 'BRIEF';
 });
-$id('brief-go').addEventListener('click', () => {
+$id('teach-go').addEventListener('click', () => {
   setOverlay(null);
   GAME.state = 'PRE_ROUND';
   startRound();
@@ -1507,21 +1603,18 @@ $id('rt-go').addEventListener('click', () => {
     showFinal();
     GAME.state = 'FINAL';
   } else {
-    startScenario(GAME.scenIdx + 1);
-    GAME.state = 'BRIEF';
+    startScenario(GAME.scenIdx + 1);  // sets state to TEACH
   }
 });
 $id('final-replay').addEventListener('click', () => {
   GAME.scenScores = [0,0,0,0];
-  startScenario(0);
-  GAME.state = 'BRIEF';
+  startScenario(0);  // sets state to TEACH
 });
 
 // Restart button (top bar)
 $id('restart-btn').addEventListener('click', () => {
   GAME.scenScores = [0,0,0,0];
-  startScenario(0);
-  GAME.state = 'BRIEF';
+  startScenario(0);  // sets state to TEACH
 });
 
 // Show restart button once they've started playing
