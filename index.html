@@ -4,7 +4,7 @@
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
 <link rel="modulepreload" href="https://unpkg.com/three@0.160.0/build/three.module.js">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>4D Pickleball — Drive. Defend. Drop. Dink.</title>
 <meta name="description" content="Pickleball has four dimensions. Drive. Defend. Drop. Dink. Master them in order. The simplest four-part progression to developing your pickleball skills.">
 <meta property="og:title" content="4D Pickleball — Drive. Defend. Drop. Dink.">
@@ -32,7 +32,12 @@
   --shadow-lg:0 12px 40px rgba(0,0,0,.08);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* Respect iOS safe areas (notch / home-indicator) when viewport-fit=cover is on */
+@supports(padding:max(0px)){
+  body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+}
 
 /* ── NAV ── */
 .topnav{
@@ -344,12 +349,14 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
 }
 
 @media(max-width:620px){
+  /* Mobile chart: SVG scales down as viewport narrows, so we BUMP viewBox-space
+     text sizes to maintain readable on-screen pixel sizes. Hide the side y-axis
+     (the curve+labels speak for themselves on a phone). */
   .hero-chart{margin-top:22px;padding:0 8px}
-  .hc-num{font-size:18px}
-  .hc-num.hc-num-big{font-size:26px}
-  .hc-dim{font-size:10px;letter-spacing:1px}
-  /* On phone, scale curve label down + hide the side y-axis (chart speaks for itself) */
-  .hc-curve-label{font-size:18px}
+  .hc-num{font-size:30px}
+  .hc-num.hc-num-big{font-size:42px}
+  .hc-dim{font-size:18px;letter-spacing:1.2px}
+  .hc-curve-label{font-size:24px}
   .hc-axis-y, .hc-axis-y-arrow{display:none}
 }
 
@@ -1137,8 +1144,14 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
   /* On phone, drop the column alignment — stack CTAs full-width */
   .zero-d-bedrock .zd-pillars{grid-template-columns:1fr;gap:8px}
   .zero-d-bedrock .zd-ctas{grid-template-columns:1fr;gap:10px}
-  .zero-d-bedrock .zd-cta{text-align:center;padding:14px 28px}
+  .zero-d-bedrock .zd-cta{text-align:center;padding:14px 28px;min-height:48px}
 }
+/* Touch-target + tap optimization — every interactive element on the page */
+.dim-chip,.zd-cta,.scroll-cue,.nav-pill,.hero-badge{
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+/* iframe should not steal vertical scroll on touch; allow page to pan past it */
+.dim-frame iframe{touch-action:pan-y}
 </style>
 </head>
 <body>
