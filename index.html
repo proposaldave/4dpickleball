@@ -1357,13 +1357,6 @@ body{font-family:var(--font-body);background:var(--ink);color:var(--warm);line-h
         <div class="di-role" id="di-role">Ball striking</div>
         <div class="di-mantra" id="di-mantra">Four friends on a court. Everyone in the backcourt. Playing tennis on a pickleball court. We've all seen it.</div>
         <div class="di-traj" id="di-traj">In 1D pickleball, the points don't last very long, and they are, well, one dimensional. This is how many of us started.</div>
-        <a class="di-module-cta" id="di-module-cta" href="#" target="_self">
-          <span class="di-cta-text">
-            <span class="di-cta-eyebrow" id="di-cta-eyebrow">Coach Dave's masterclass</span>
-            <span class="di-cta-name" id="di-cta-name">Start the Drop</span>
-          </span>
-          <span class="di-cta-arrow">→</span>
-        </a>
         <div class="di-hint">Tap a dimension · Pinch to zoom · Drag to orbit · Space (or ⏸) to pause</div>
       </aside>
     </div>
@@ -1565,24 +1558,9 @@ window.addEventListener('message', (e) => {
   const m = document.getElementById('di-mantra');  if (m) m.textContent = mantra;
   const t = document.getElementById('di-traj');    if (t) t.textContent = traj;
 
-  // Per-dimension module CTA — show ONLY for dimensions whose masterclass module is built.
-  // Drop (3D) → /drop/ — Coach Dave's masterclass shipped 2026-04-30.
-  // Other three dimensions: hide CTA until their modules ship.
-  const cta = document.getElementById('di-module-cta');
-  if (cta) {
-    const MODULES = {
-      drop: { href: '/drop/', name: 'Start the Drop',         eyebrow: "Coach Dave's masterclass" }
-    };
-    const m2 = MODULES[key];
-    if (m2) {
-      cta.href = m2.href;
-      cta.classList.add('is-visible');
-      const e = document.getElementById('di-cta-eyebrow'); if (e) e.textContent = m2.eyebrow;
-      const n = document.getElementById('di-cta-name');    if (n) n.textContent = m2.name;
-    } else {
-      cta.classList.remove('is-visible');
-    }
-  }
+  // Per-dimension module CTA was removed — no dimension modules are approved for
+  // the homepage yet. When one ships, re-add the <a class="di-module-cta"> element
+  // in the .dim-info aside and bind its href + name + eyebrow here on chip change.
 });
 
 // ── Scroll cues: each cue clicks to scroll to its data-scroll-target (defaults to .dim-layout).
